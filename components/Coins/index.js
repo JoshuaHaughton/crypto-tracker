@@ -7,8 +7,8 @@ const Coin = ({ name, price, symbol, marketcap, volume, image, priceChange, id }
     <div className={styles.container}>
       <div className={styles.row}>
         <div className={styles.coin}>
-          <img src={image} alt={`${name} image`} className={styles.coin_image} />
-          <h1 className=''></h1>
+          <img src={image} alt={`${name} image`} className={styles.image} />
+          <h1>{name}</h1>
           <p className={styles.symbol}>{symbol}</p>
         </div>
         <div className={styles.data}>
