@@ -1,6 +1,7 @@
 .container {
   display: flex;
   list-style-type: none;
+  margin: 44px 0;
 
   .item {
     padding: 0 12px;
@@ -14,7 +15,7 @@
     letter-spacing: 0.01071em;
     border-radius: 16px;
     line-height: 1.43;
-    font-size: 13px;
+    font-size: 14px;
     min-width: 32px;
     transition: all 250ms ease;
 
@@ -23,8 +24,8 @@
     }
 
     &.dots:hover {
-      background-color: rgba(255, 255, 255, 0.255);
-      cursor: default;
+      background-color: transparent;
+      cursor: text;
     }
     &:hover {
       background-color: rgba(255, 255, 255, 0.255);

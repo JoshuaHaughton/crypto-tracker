@@ -46,7 +46,6 @@ export default function Home({ filteredCoins }) {
       <SearchBar type="text" placeholder="Search" onChange={handleChange} />
       <CoinList filteredCoins={shownCoins} />
       <Pagination
-        className="pagination-bar"
         currentPage={currentPage}
         totalCount={filteredCoins.length}
         pageSize={PageSize}

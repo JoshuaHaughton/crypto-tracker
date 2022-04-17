@@ -34,6 +34,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  border: 1px solid #30323c;
+  border-left: none;
 }
 
 .footer_links {
