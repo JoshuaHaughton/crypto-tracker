@@ -1,18 +1,19 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import HistoryChart from "../../components/UI/HistoryChart";
 import styles from "./Coin.module.css";
 import { Chart as ChartJS } from "chart.js/auto";
 import Image from "next/image";
 // import { ResponsiveContainer, AreaChart, XAxis, YAxis, Area, Tooltip, CartesianGrid } from 'recharts';
-const Coin = ({ coin, market_chart, oneDayMarketValues }) => {
+const Coin = ({ coin, market_chart, market_values }) => {
+
   const [chartData, setChartData] = useState({
     labels: market_chart.day.map((data) =>
       new Date(data[0]).toLocaleTimeString(),
     ),
     datasets: [
       {
-        label: "Crypto Price",
-        data: oneDayMarketValues,
+        label: "Price (Past 1 day) in CAD",
+        data: market_values.oneDayMarketValues,
         backgroundColor: ["red"],
         fill: "origin",
         pointRadius: 0,
@@ -22,6 +23,69 @@ const Coin = ({ coin, market_chart, oneDayMarketValues }) => {
 
   console.log(coin);
   console.log("resultsDay etc.", chartData.day);
+
+  const dayClickHandler = () => {
+    
+    setChartData(prev => {
+      return {labels: market_chart.day.map((data) =>
+        new Date(data[0]).toLocaleTimeString(),
+      ), datasets: [ {
+        label: "Price (Past 1 day) in CAD",
+        data: market_values.oneDayMarketValues,
+        backgroundColor: ["red"],
+        fill: "origin",
+        pointRadius: 0,
+      }] }
+    })
+  }
+
+  const monthClickHandler = () => {
+    
+    setChartData(prev => {
+      return {labels: market_chart.month.map((data) =>
+        new Date(data[0]).toLocaleDateString(),
+      ), datasets: [ {
+        label: "Price (Past 1 month) in CAD",
+        data: market_values.oneMonthMarketValues,
+        backgroundColor: ["red"],
+        fill: "origin",
+        pointRadius: 0,
+      }] }
+    })
+  }
+
+  const threeMonthClickHandler = () => {
+    
+    setChartData(prev => {
+      console.log(market_chart);
+      return {labels: market_chart.threeMonth.map((data) =>
+        new Date(data[0]).toLocaleDateString(),
+      ), datasets: [ {
+        label: "Price (Past 3 months) in CAD",
+        data: market_values.threeMonthMarketValues,
+        backgroundColor: ["red"],
+        fill: "origin",
+        pointRadius: 0,
+      }] }
+    })
+  }
+
+  const yearClickHandler = () => {
+    
+    setChartData(prev => {
+      return {labels: market_chart.year.map((data) =>
+        new Date(data[0]).toLocaleDateString(),
+      ), datasets: [ {
+        label: "Price (Past 1 year) in CAD",
+        data: market_values.oneYearMarketValues,
+        backgroundColor: ["red"],
+        fill: "origin",
+        pointRadius: 0,
+      }] }
+    })
+  }
+
+
   return (
     <div className={styles.container}>
       <div className={styles.coin_info}>
@@ -54,10 +118,10 @@ const Coin = ({ coin, market_chart, oneDayMarketValues }) => {
       <div className={styles.chart_wrapper}>
         <HistoryChart chartData={chartData} />
         <div className={styles.chart_buttons}>
-          <button>24 Hours</button>
-          <button>1 Week</button>
-          <button>1 Month</button>
-          <button>1 Year</button>
+          <button onClick={dayClickHandler}>24 Hours</button>
+          <button onClick={monthClickHandler}>30 Days</button>
+          <button onClick={threeMonthClickHandler}>3 Months</button>
+          <button onClick={yearClickHandler}>1 Year</button>
         </div>
       </div>
 
@@ -74,13 +138,12 @@ export default Coin;
 export async function getServerSideProps(context) {
   const { id } = context.query;
 
-  // const coinInfo = await Promise.all([fetch(`https://api.coingecko.com/api/v3/coins/${id}`).json(), fetch(`https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=cad&days=1`).json(), fetch(`https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=cad&days=7`).json(), fetch(`https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=cad&days=90`).json(), fetch(`https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=cad&days=365`).json()])
 
   const urls = [
     `https://api.coingecko.com/api/v3/coins/${id}?vs_currency=cad`,
     `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=cad&days=1`,
-    `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=cad&days=7`,
     `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=cad&days=30`,
+    `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=cad&days=90`,
     `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=cad&days=365`,
   ];
 
@@ -91,32 +154,25 @@ export async function getServerSideProps(context) {
     return res;
   });
 
-  // const coinDetails = await (await fetch(`https://api.coingecko.com/api/v3/coins/${id}`)).json()
 
-  // const resultsDay = await (await fetch(`https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=cad&days=1`)).json()
-
-  // const resultsWeek = await (await fetch(`https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=cad&days=7`)).json()
-
-  // const results3Months = await (await fetch(`https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=cad&days=90`)).json()
-
-  // const resultsYear = await (await fetch(`https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=cad&days=365`)).json()
-
-  // const resultsDay = await fetch(`https://api.coingecko.com/api/v3/coins/${id}`, {params: { vs_currency: "cad", days: "1"}})
-
-  // console.log(coinDetails);
 
   const oneDayMarketValues = coinInfo[1].prices.map((data) => data[1]);
+  const oneMonthMarketValues = coinInfo[2].prices.map((data) => data[1]);
+  const threeMonthMarketValues = coinInfo[3].prices.map((data) => data[1]);
+  const oneYearMarketValues = coinInfo[4].prices.map((data) => data[1]);
 
   return {
     props: {
       coin: coinInfo[0],
       market_chart: {
         day: coinInfo[1].prices,
-        week: coinInfo[2].prices,
+        month: coinInfo[2].prices,
         threeMonth: coinInfo[3].prices,
         year: coinInfo[4].prices,
       },
-      oneDayMarketValues,
+      market_values: {
+        oneDayMarketValues, oneMonthMarketValues, threeMonthMarketValues, oneYearMarketValues
+      },
     },
   };
 }
