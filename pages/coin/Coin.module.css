@@ -1,29 +1,53 @@
 .container {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  height: 75vh;
   align-items: center;
   min-height: 100vh;
   /* min-height: calc(100vh - 98px); */
 }
 
-.coin_container {
+.coin_info {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  border: 1px solid #2fffe5;
+  /* border: 1px solid #2fffe5; */
   border-radius: 10px;
-  padding: 4rem;
+  padding: 54px 4rem;
   width: 400px;
+  color: white
 }
 
-.image {
-  margin-bottom: 1rem;
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 12px;
+  /* width: 400px; */
+}
+
+.title_wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* width: 80%; */
+  margin-bottom: 32px;
+}
+
+.description {
+  text-align: center;
+}
+
+.image > img {
+  height: 50px;
 }
 
 .name {
-  margin-bottom: 1rem;
+  margin: 0;
+  margin-left: 16px;
 }
 
 .ticker {
@@ -33,4 +57,29 @@
 .current {
   margin-bottom: 1rem;
   font-size: 2rem;
+}
+
+.info_card > h3 {
+  text-align: center;
+}
+
+.chart_wrapper {
+  width: 700px;
+  margin-bottom: 80px;
+  margin-top: 36px;
+}
+
+.chart_buttons {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 24px;
+}
+
+.chart_buttons > button {
+  width: 90px;
+  padding: 12px 8px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
 }
