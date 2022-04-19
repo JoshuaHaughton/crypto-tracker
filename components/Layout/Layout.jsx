@@ -4,7 +4,38 @@ import Image from "next/image";
 import styles from "./Layout.module.css";
 import logo from "../../public/logo.svg";
 import Navbar from "../Navbar/Navbar";
+import { useEffect } from "react";
+import { auth } from '../../firebase'
+import firebase from "firebase/compat/app";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth'
+import { useDispatch, useSelector } from "react-redux";
+import { reduxLogin, reduxLogout } from "../../store/auth";
 export const Layout = ({ children, title = "Crypto Tracker" }) => {
+
+  const uid = useSelector((state) => state.auth.uid);
+  const isLogged = useSelector((state) => state.auth.isLogged);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    //Check if user is logged via firebase, if so, login locally using redux. Logout locally otherwise.
+    auth.onAuthStateChanged((userAuth) => {
+      if (userAuth) {
+        //User is logged in
+        if (!isLogged) {
+          dispatch(
+            reduxLogin({
+              uid: userAuth.uid,
+              full_name: userAuth.displayName,
+            }),
+          );
+        }
+      } else {
+        //User isn't logged in through firebase anymore, logout
+        dispatch(reduxLogout());
+      }
+    });
+  }, [auth, dispatch, isLogged]);
+
   return (
     <div className={styles.container}>
       <div id="backdrop-root"></div>
