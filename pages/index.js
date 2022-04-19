@@ -4,6 +4,7 @@ import CoinList from "../components/CoinList";
 import SearchBar from "../components/SearchBar";
 import Pagination from "../components/UI/Pagination";
 import styles from "./Home.module.css";
+import Head from "next/head";
 
 export default function Home({ filteredCoins }) {
   console.log(filteredCoins);
@@ -42,6 +43,11 @@ export default function Home({ filteredCoins }) {
   };
   return (
     <div className={styles.container}>
+      <Head>
+        <title>Crypto Tracker</title>
+        <meta name="description" content="Nextjs Crypto Tracker" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
       <h1>Home</h1>
       <SearchBar type="text" placeholder="Search" onChange={handleChange} />
       <CoinList filteredCoins={shownCoins} />

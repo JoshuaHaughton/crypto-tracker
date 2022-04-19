@@ -3,6 +3,7 @@ import HistoryChart from "../../components/UI/HistoryChart";
 import styles from "./Coin.module.css";
 import { Chart as ChartJS } from "chart.js/auto";
 import Image from "next/image";
+import Head from "next/head";
 // import { ResponsiveContainer, AreaChart, XAxis, YAxis, Area, Tooltip, CartesianGrid } from 'recharts';
 const Coin = ({ coin, market_chart, market_values }) => {
 
@@ -88,6 +89,11 @@ const Coin = ({ coin, market_chart, market_values }) => {
 
   return (
     <div className={styles.container}>
+      <Head>
+        <title>{coin.name} - Crypto Tracker</title>
+        <meta name="description" content="Nextjs Crypto Tracker" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
       <div className={styles.coin_info}>
 
         <header className={styles.header}>

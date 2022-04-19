@@ -7,11 +7,8 @@ import Navbar from "../Navbar/Navbar";
 export const Layout = ({ children, title = "Crypto Tracker" }) => {
   return (
     <div className={styles.container}>
-      <Head>
-        <title>{title}</title>
-        <meta name="description" content="Nextjs Crypto Tracker" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      <div id="backdrop-root"></div>
+      <div id="overlay-root"></div>
 
       <div className={styles.layout}>
         <Navbar />
