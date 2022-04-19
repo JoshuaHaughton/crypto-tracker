@@ -36,6 +36,31 @@ export const Layout = ({ children, title = "Crypto Tracker" }) => {
     });
   }, [auth, dispatch, isLogged]);
 
+  useEffect(() => {
+
+    //Auto Logout after 60 minutes
+    auth.onAuthStateChanged((user) => {
+      let userSessionTimeout = null;
+
+      if (user === null && userSessionTimeout) {
+        clearTimeout(userSessionTimeout);
+        userSessionTimeout = null;
+        reduxLogout();
+      } else {
+        user.getIdTokenResult().then((idTokenResult) => {
+          const authTime = idTokenResult.claims.auth_time * 1000;
+          const sessionDurationInMilliseconds = 60 * 60 * 1000; // 60 min
+          const expirationInMilliseconds =
+            sessionDurationInMilliseconds - (Date.now() - authTime);
+          userSessionTimeout = setTimeout(() => {
+            auth.signOut();
+            reduxLogout();
+          }, expirationInMilliseconds);
+        });
+      }
+    });
+  }, [auth, uid, dispatch]);
+
   return (
     <div className={styles.container}>
       <div id="backdrop-root"></div>
