@@ -47,7 +47,7 @@ export const Layout = ({ children, title = "Crypto Tracker" }) => {
         userSessionTimeout = null;
         reduxLogout();
       } else {
-        user.getIdTokenResult().then((idTokenResult) => {
+        user?.getIdTokenResult().then((idTokenResult) => {
           const authTime = idTokenResult.claims.auth_time * 1000;
           const sessionDurationInMilliseconds = 60 * 60 * 1000; // 60 min
           const expirationInMilliseconds =
