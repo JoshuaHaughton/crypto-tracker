@@ -106,7 +106,7 @@ const Navbar = () => {
             </div>
           </Link>
 
-          {isLogged && <Link href="/">
+          {isLogged && <Link href="/portfolio">
             <div className={styles.link_wrapper}>
               <BusinessCenterIcon />
               <a className={styles.nav_link}>Portfolio</a>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
@@ -15,6 +15,7 @@ const ModalOverlay = (props) => {
   const [enteredProfilePicture, setEnteredProfilePicture] = useState("");
   const { isSignUp, setIsSignUp } = props;
   const dispatch = useDispatch();
+  const uid = useSelector((state) => state.auth.uid);
 
   //Username
   const {

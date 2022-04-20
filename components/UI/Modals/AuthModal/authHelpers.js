@@ -1,5 +1,6 @@
-import { auth } from "../../../../firebase";
+import { auth, db } from "../../../../firebase";
 import firebase from "firebase/compat/app";
+import { collection, addDoc, setDoc, doc } from "firebase/firestore";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth'
 
 export const signup = async (
@@ -8,10 +9,9 @@ export const signup = async (
   password,
   enteredProfilePicture,
   setError,
-  resetEmailInput,
   setLoading,
   reduxLogin,
-  dispatch
+  dispatch, 
 ) => {
   setLoading(true);
 
@@ -22,13 +22,60 @@ export const signup = async (
         displayName: username,
         photoUrl: enteredProfilePicture ? enteredProfilePicture : null
       })
-        .then(() => {
+        .then( async () => {
           dispatch(
             reduxLogin({
               username,
               uid: userAuth.user.uid,
             }),
           );
+
+          const emptyPortfolio = {
+            assets: {},
+            orders: [],
+            portfolioCreated: new Date(),
+            userId: userAuth.user.uid,
+            totalFunds: 0
+          }
+
+
+          try {
+            const docRef = await setDoc(doc(db, "portfolios", userAuth.user.uid), emptyPortfolio);
+            console.log(docRef);
+
+          } catch(err) {
+
+          }
+
+
+
+                // const emptyPortfolio = {
+                //   assets: {
+                //     bitcoin: {
+                //       symbol: "BTC",
+                //       name: "Bitcoin",
+                //       units: 1.5
+                //     },
+                //     }
+                //   ,
+                //   orders: [
+                //     {
+                //     id: 1,
+                //     name: 'bitcoin',
+                //     symbol: 'BTC',
+                //     createdAt: 1,
+                //     closedAt: 1,
+                //     exitPoint: null,
+                //     buy: true,
+                //     priceAtTransaction: 20000,
+                //     units: 1.5,
+                //   },
+                //   ],
+                //   portfolioCreated: 0,
+                //   userId,
+                //   totalFunds: 0
+                // }
+
           setLoading(false);
           setError(null);
           return { status: 200 };
@@ -40,7 +87,6 @@ export const signup = async (
         console.log(err);
         console.log(err.message);
         setLoading(false);
-        // resetEmailInput();
         setError(err.message);
         console.log('err set')
         return { status: 400 };
