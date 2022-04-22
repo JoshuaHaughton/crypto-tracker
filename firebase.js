@@ -1,4 +1,6 @@
 // Import the functions you need from the SDKs you need
+import "firebase/compat/auth";
+import "firebase/compat/firestore";
 import { initializeApp, getApp, getApps } from "firebase/app";
 import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
@@ -8,7 +10,7 @@ import firebase from 'firebase/compat/app';
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: "AIzaSyAPRWwHFZ5K6ZxicdiXbtMNvoyJJkUud-w",
   authDomain: "crypto-tracker-bac7e.firebaseapp.com",
   projectId: "crypto-tracker-bac7e",
@@ -24,6 +26,22 @@ const db = getFirestore(app)
 const auth = getAuth()
 // const firebaseApp = firebase.initializeApp(firebaseConfig);
 // const auth = app.auth();
+
+export const getMyUid = async () => {
+  let uid;
+  auth.onAuthStateChanged( async (userAuth) => {
+    console.log(userAuth);
+    if (userAuth) {
+      //User is logged in
+      console.log('here');
+      uid = userAuth.uid;
+    } 
+  });
+
+  console.log(auth);
+  console.log(uid);
+  return uid
+}
 
 export default app;
 export { auth, db };

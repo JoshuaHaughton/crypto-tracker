@@ -1,9 +1,37 @@
 .container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  align-items: center;
+  /* align-items: center; */
+  flex-wrap: wrap;
+  padding: 54px 64px 0 64px;
   min-height: 100vh;
-  /* min-height: calc(100vh - 98px); */
+}
+
+.card_container {
+  width: 100%;
+  height: fit-content;
+  display: flex;
+  justify-content: space-between;
+}
+
+.card {
+  width: calc((100%/3) - 24px);
+  height: 180px;
+  background-color: #ccc;
+  border-radius: 4px;
+  padding:  72px 24px 24px 24px;
+}
+
+.chart_container {
+  width: 100%;
+}
+
+.owned_assets {
+  /* width: 42.5%; */
+  width: 35%;
+}
+
+.past_orders {
+  /* width: 55%; */
+  width: 60%;
 }
