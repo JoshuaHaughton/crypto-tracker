@@ -156,11 +156,12 @@ export async function getServerSideProps(context) {
   const coinInfo = await Promise.all(
     urls.map((url) => fetch(url).then((resp) => resp.json())),
   ).then((res) => {
-    // console.log('yup', res)
+    console.log('yup', res)
     return res;
   });
 
 
+  console.log(coinInfo)
 
   const oneDayMarketValues = coinInfo[1].prices.map((data) => data[1]);
   const oneMonthMarketValues = coinInfo[2].prices.map((data) => data[1]);

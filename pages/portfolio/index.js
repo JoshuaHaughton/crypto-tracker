@@ -1,16 +1,19 @@
 import Head from 'next/head'
-import React from 'react'
+import React, { useState } from 'react'
 import HistoryChart from '../../components/UI/HistoryChart'
+import { Chart as ChartJS } from "chart.js/auto";
 import nookies from 'nookies';
 import styles from './Portfolio.module.css'
-import { doc, getDoc, getFirestore } from "firebase/firestore";
+import { doc, DocumentSnapshot, getDoc, getFirestore } from "firebase/firestore";
 import { auth, db, firebaseConfig, getMyUid } from '../../firebase';
 import { getAuth, indexedDBLocalPersistence, initializeAuth } from 'firebase/auth';
 import { getApp, getApps, initializeApp } from 'firebase/app';
 import { admin } from '../../lib/firebaseAdmin';
 
-const Portfolio = (props) => {
-  console.log(props)
+const Portfolio = ({ portfolioData, chartInfo, message }) => {
+  const [currentChartInfo, setCurrenthartInfo] = useState(
+    chartInfo[Object.keys(chartInfo)[0]].oneDayPrices)
+  console.log(portfolioData, currentChartInfo, chartInfo)
   return (
     <div className={styles.container}>
       <Head>
@@ -24,16 +27,26 @@ const Portfolio = (props) => {
           +/-
         </div>
         <div className={styles.card}>
-          Portfolio Worth
+          <div className={styles.cardText}>
+            <h3>Portfolio Worth</h3>
+            <p>{portfolioData.userId}</p>
+            
+
+          </div>
         </div>
         <div className={styles.card}>
-          Funds Available
+        <div className={styles.cardText}>
+            <h3>Funds Available</h3>
+            <p>${portfolioData.totalFunds}</p>
+            
+
+          </div>
         </div>
       </div>
 
       <div className={styles.chart_container}>
         ???
-        {/* <HistoryChart /> */}
+        <HistoryChart chartData={currentChartInfo} />
       </div>
 
 
@@ -67,8 +80,103 @@ export async function getServerSideProps(ctx) {
 
     // FETCH STUFF HERE!! 🚀
 
+    //Fetch fund data
+
+    let portfolioData = {}
+
+    if (uid) {
+      const docRef = doc(db, "portfolios", uid);
+      const docSnap = await getDoc(docRef);
+    
+      if (docSnap.exists()) {
+        console.log("Document data:", docSnap.data());
+        portfolioData = docSnap.data()
+      } else {
+        // doc.data() will be undefined in this case
+        console.log("No such document!");
+      }
+  
+    }
+
+    //portfolioWorth
+
+
+
+
+    //Fetch chart data
+
+
+    const chartInfo = {};
+    
+    console.log('test')
+
+    const chartUrls = 
+      Object.keys(portfolioData.assets).map((name) => {
+        chartInfo[name] = {url: `https://api.coingecko.com/api/v3/coins/${name}/market_chart?vs_currency=cad&days=1`}
+        
+      } 
+    )
+
+    // Object.keys(chartUrls).map(name => {
+    //   chartInfo[name] = { name, data: }
+    // })
+
+
+
+    console.log('URL', chartUrls);
+    console.log('URLs', chartInfo);
+
+    // Object.keys(urls).forEach(async key => {
+    //   urls[key]["oneDayPrices"] = await (await fetch(urls[key].url)).json();
+    // })
+
+    for (let key in chartInfo) {
+      console.log('KEY', key);
+      const results = await (await fetch(chartInfo[key].url)).json();
+      console.log('results!', results.prices);
+      chartInfo[key]["oneDayPrices"] = {labels: results.prices.map(dataPoint => new Date(dataPoint[0]).toLocaleTimeString())}
+      console.log('labels', chartInfo);
+      // chartInfo[key]["oneDayPrices"]['labels'] = results.prices.map(dataPoint => new Date(dataPoint[0]).toLocaleTimeString())
+
+      chartInfo[key]["oneDayPrices"]['datasets'] = [ {
+        label: "Price (Past 1 day) in CAD",
+        data: results.prices.map(dataPoint => dataPoint[1]),
+        backgroundColor: ["red"],
+        fill: "origin",
+        pointRadius: 0,
+      }
+      ]
+
+    }
+
+
+    console.log('aaaa', chartInfo)
+    console.log(portfolioData)
+    console.log('bbbb', chartInfo.bitcoin.oneDayPrices.prices)
+
+    // const chartArray = await Promise.all(chartUrls.map(async url => {
+    //   const resp = await fetch(url);
+    //   console.log('slow', await resp.json());
+    //   const prices = await resp.json().prices
+    //   console.log('prices', prices);
+    //   return prices
+    //   // return await jsonResp.data();
+    // }));
+
+    // const chartInfo = await Promise.all(chartArray)
+    // console.log('chart',chartArray)
+    // .then((res) => {
+      
+    //   console.log('yup', res[0].prices)
+    //   return res[0].prices;
+    // });
+
+
+
+
+
     return {
-      props: { message: `Your email is ${email} and your UID is ${uid}.` },
+      props: { message: `Your email is ${email} and your UID is ${uid}.`, portfolioData, chartInfo },
     };
 
 
@@ -107,18 +215,7 @@ export async function getServerSideProps(ctx) {
   console.log(uid2)
 
 
-  // if (uid) {
-  //   const docRef = doc(db, "portfolios", uid);
-  //   const docSnap = await getDoc(docRef);
-  
-  //   if (docSnap.exists()) {
-  //     console.log("Document data:", docSnap.data());
-  //   } else {
-  //     // doc.data() will be undefined in this case
-  //     console.log("No such document!");
-  //   }
-
-  // }
+ 
 
   // return {
   //   props: {
