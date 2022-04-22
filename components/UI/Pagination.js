@@ -48,7 +48,7 @@ const Pagination = props => {
          
         // If the pageItem is a DOT, render the DOTS unicode character
         if (pageNumber === "DOTS") {
-          return <li className={`${styles.item} ${styles.dots}`}>&#8230;</li>;
+          return <li key={'dots'} className={`${styles.item} ${styles.dots}`}>&#8230;</li>;
         }
 		
         // Render our Page Pills
@@ -56,6 +56,7 @@ const Pagination = props => {
           <li
             className={pageNumber === currentPage ? `${styles.item} ${styles.selected}` : styles.item}
             onClick={() => onPageChange(pageNumber)}
+            key={pageNumber}
           >
             {pageNumber}
           </li>

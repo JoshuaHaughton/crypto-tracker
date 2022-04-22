@@ -10,10 +10,103 @@ import { getAuth, indexedDBLocalPersistence, initializeAuth } from 'firebase/aut
 import { getApp, getApps, initializeApp } from 'firebase/app';
 import { admin } from '../../lib/firebaseAdmin';
 
-const Portfolio = ({ portfolioData, chartInfo, message }) => {
-  const [currentChartInfo, setCurrenthartInfo] = useState(
-    chartInfo[Object.keys(chartInfo)[0]].oneDayPrices)
-  console.log(portfolioData, currentChartInfo, chartInfo)
+const Portfolio = ({ portfolioData, starterChartInfo }) => {
+  const [chartData, setChartData] = useState({
+    oneDayData: {
+      labels: starterChartInfo.marketLabels.oneDayLabels, 
+      values: starterChartInfo.marketValues.oneDayValues,
+    },
+    oneMonthData: {
+      labels: starterChartInfo.marketLabels.oneMonthLabels, 
+      values: starterChartInfo.marketValues.oneMonthValues
+    },
+    threeMonthData: {
+      labels: starterChartInfo.marketLabels.threeMonthLabels, 
+      values: starterChartInfo.marketValues.threeMonthValues
+    },
+    oneYearData: {
+      labels: starterChartInfo.marketLabels.oneYearLabels, 
+      values: starterChartInfo.marketValues.oneYearValues
+    }
+
+  });
+
+  
+  const [currentChartInfo, setCurrentChartInfo] = useState(
+    {
+      labels: starterChartInfo.marketLabels.oneDayLabels,
+      datasets: [ {
+      label: "Price (Past 1 day) in CAD",
+      data: starterChartInfo.marketValues.oneDayValues,
+      backgroundColor: ["red"],
+      fill: "origin",
+      pointRadius: 0,
+    }] }
+  )
+
+
+    const dayClickHandler = () => {
+    
+      setCurrentChartInfo(prev => {
+        return {
+          labels: chartData.oneDayData.labels,
+          datasets: [ {
+          label: "Price (Past 1 day) in CAD",
+          data: chartData.oneDayData.values,
+          backgroundColor: ["red"],
+          fill: "origin",
+          pointRadius: 0,
+        }] }
+      })
+    }
+  
+    const monthClickHandler = () => {
+      
+      setCurrentChartInfo(prev => {
+        return {
+          labels: chartData.oneMonthData.labels,
+           datasets: [ {
+          label: "Price (Past 1 month) in CAD",
+          data: chartData.oneMonthData.values,
+          backgroundColor: ["red"],
+          fill: "origin",
+          pointRadius: 0,
+        }] }
+      })
+    }
+  
+    const threeMonthClickHandler = () => {
+      
+      setCurrentChartInfo(prev => {
+        return {
+          labels: chartData.threeMonthData.labels,
+          datasets: [ {
+          label: "Price (Past 3 months) in CAD",
+          data: chartData.threeMonthData.values,
+          backgroundColor: ["red"],
+          fill: "origin",
+          pointRadius: 0,
+        }] }
+      })
+    }
+  
+    const yearClickHandler = () => {
+      
+      setCurrentChartInfo(prev => {
+        return {
+          labels: chartData.oneYearData.labels,
+          datasets: [ {
+          label: "Price (Past 1 year) in CAD",
+          data: chartData.oneYearData.values,
+          backgroundColor: ["red"],
+          fill: "origin",
+          pointRadius: 0,
+        }] }
+      })
+    }
+
+
+  console.log(portfolioData, currentChartInfo)
   return (
     <div className={styles.container}>
       <Head>
@@ -24,7 +117,12 @@ const Portfolio = ({ portfolioData, chartInfo, message }) => {
 
       <div className={styles.card_container}>
         <div className={styles.card}>
-          +/-
+        <div className={styles.cardText}>
+            <h3>+/-</h3>
+            <p>${portfolioData.totalFunds}</p>
+            
+
+          </div>
         </div>
         <div className={styles.card}>
           <div className={styles.cardText}>
@@ -47,6 +145,12 @@ const Portfolio = ({ portfolioData, chartInfo, message }) => {
       <div className={styles.chart_container}>
         ???
         <HistoryChart chartData={currentChartInfo} />
+        <div className={styles.chart_buttons}>
+          <button onClick={dayClickHandler}>24 Hours</button>
+          <button onClick={monthClickHandler}>30 Days</button>
+          <button onClick={threeMonthClickHandler}>3 Months</button>
+          <button onClick={yearClickHandler}>1 Year</button>
+        </div>
       </div>
 
 
@@ -108,36 +212,31 @@ export async function getServerSideProps(ctx) {
 
     const chartInfo = {};
     
-    console.log('test')
 
-    const chartUrls = 
+    //Transform all assets into fetchable urls, distributed into the chartInfo object
       Object.keys(portfolioData.assets).map((name) => {
         chartInfo[name] = {url: `https://api.coingecko.com/api/v3/coins/${name}/market_chart?vs_currency=cad&days=1`}
         
       } 
     )
 
-    // Object.keys(chartUrls).map(name => {
-    //   chartInfo[name] = { name, data: }
-    // })
-
-
-
-    console.log('URL', chartUrls);
     console.log('URLs', chartInfo);
 
-    // Object.keys(urls).forEach(async key => {
-    //   urls[key]["oneDayPrices"] = await (await fetch(urls[key].url)).json();
-    // })
-
+    //Loop through each key in chartInfo array to fetch data. Will try to optimise (Promise.All) soon 
     for (let key in chartInfo) {
       console.log('KEY', key);
-      const results = await (await fetch(chartInfo[key].url)).json();
-      console.log('results!', results.prices);
-      chartInfo[key]["oneDayPrices"] = {labels: results.prices.map(dataPoint => new Date(dataPoint[0]).toLocaleTimeString())}
-      console.log('labels', chartInfo);
-      // chartInfo[key]["oneDayPrices"]['labels'] = results.prices.map(dataPoint => new Date(dataPoint[0]).toLocaleTimeString())
 
+      //Get chart data using url from chartInfo for that asset
+      const results = await (await fetch(chartInfo[key].url)).json();
+
+      console.log('results prices!', results.prices);
+
+      //Set labels for chart data on oneDayPrices key
+      chartInfo[key]["oneDayPrices"] = {labels: results.prices.map(dataPoint => new Date(dataPoint[0]).toLocaleTimeString())}
+
+      console.log('labels', chartInfo);
+
+      //Set datasets for chart data on oneDayPrices key
       chartInfo[key]["oneDayPrices"]['datasets'] = [ {
         label: "Price (Past 1 day) in CAD",
         data: results.prices.map(dataPoint => dataPoint[1]),
@@ -149,10 +248,7 @@ export async function getServerSideProps(ctx) {
 
     }
 
-
-    console.log('aaaa', chartInfo)
-    console.log(portfolioData)
-    console.log('bbbb', chartInfo.bitcoin.oneDayPrices.prices)
+    // console.log('bbbb', chartInfo.bitcoin.oneDayPrices.prices)
 
     // const chartArray = await Promise.all(chartUrls.map(async url => {
     //   const resp = await fetch(url);
@@ -170,6 +266,73 @@ export async function getServerSideProps(ctx) {
     //   console.log('yup', res[0].prices)
     //   return res[0].prices;
     // });
+
+
+
+
+
+    const firstAsset = Object.keys(portfolioData.assets)[0]; //returns 'someVal'
+    console.log('firstAsset', firstAsset);
+    const urls = [
+      `https://api.coingecko.com/api/v3/coins/${firstAsset}?vs_currency=cad`,
+      `https://api.coingecko.com/api/v3/coins/${firstAsset}/market_chart?vs_currency=cad&days=1`,
+      `https://api.coingecko.com/api/v3/coins/${firstAsset}/market_chart?vs_currency=cad&days=30`,
+      `https://api.coingecko.com/api/v3/coins/${firstAsset}/market_chart?vs_currency=cad&days=90`,
+      `https://api.coingecko.com/api/v3/coins/${firstAsset}/market_chart?vs_currency=cad&days=365`,
+    ];
+    console.log('made it')
+  
+    const firstCoin = await Promise.all(
+      urls.map((url) => fetch(url).then((resp) => resp.json())),
+    ).then((res) => {
+      // console.log('yup', res)
+      return res;
+    });
+  
+  
+    // console.log(firstCoin)
+  
+    const oneDayValues = firstCoin[1].prices.map((data) => data[1]);
+    const oneMonthValues = firstCoin[2].prices.map((data) => data[1]);
+    const threeMonthValues = firstCoin[3].prices.map((data) => data[1]);
+    const oneYearValues = firstCoin[4].prices.map((data) => data[1]);
+    // console.log(firstCoin[1].prices)
+    console.log('test')
+
+    console.log(
+      firstCoin[0],
+      firstCoin[1],
+    );
+
+    const labelMap = (arr) => {
+      return arr.map((data) =>
+      new Date(data[0]).toLocaleTimeString())
+    }
+  
+    return {
+      props: {
+        starterCoin: firstCoin[0],
+        starterChartInfo: {
+          marketLabels: {
+            oneDayLabels: labelMap(firstCoin[1].prices),
+            oneMonthLabels: labelMap(firstCoin[2].prices),
+            threeMonthLabels: labelMap(firstCoin[3].prices),
+            oneYearLabels: labelMap(firstCoin[4].prices),
+          },
+          marketValues: {
+            oneDayValues, oneMonthValues, threeMonthValues, oneYearValues
+          }
+        },
+        portfolioData,
+        uid
+      }
+    };
+
+
+
+
+
+
 
 
 
@@ -233,7 +396,7 @@ export async function getServerSideProps(ctx) {
   //   `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=cad&days=365`,
   // ];
 
-  // const coinInfo = await Promise.all(
+  // const firstCoin = await Promise.all(
   //   urls.map((url) => fetch(url).then((resp) => resp.json())),
   // ).then((res) => {
   //   // console.log('yup', res)
@@ -242,19 +405,19 @@ export async function getServerSideProps(ctx) {
 
 
 
-  // const oneDayMarketValues = coinInfo[1].prices.map((data) => data[1]);
-  // const oneMonthMarketValues = coinInfo[2].prices.map((data) => data[1]);
-  // const threeMonthMarketValues = coinInfo[3].prices.map((data) => data[1]);
-  // const oneYearMarketValues = coinInfo[4].prices.map((data) => data[1]);
+  // const oneDayMarketValues = firstCoin[1].prices.map((data) => data[1]);
+  // const oneMonthMarketValues = firstCoin[2].prices.map((data) => data[1]);
+  // const threeMonthMarketValues = firstCoin[3].prices.map((data) => data[1]);
+  // const oneYearMarketValues = firstCoin[4].prices.map((data) => data[1]);
 
   // return {
   //   props: {
-  //     coin: coinInfo[0],
+  //     coin: firstCoin[0],
   //     market_chart: {
-  //       day: coinInfo[1].prices,
-  //       month: coinInfo[2].prices,
-  //       threeMonth: coinInfo[3].prices,
-  //       year: coinInfo[4].prices,
+  //       day: firstCoin[1].prices,
+  //       month: firstCoin[2].prices,
+  //       threeMonth: firstCoin[3].prices,
+  //       year: firstCoin[4].prices,
   //     },
   //     market_values: {
   //       oneDayMarketValues, oneMonthMarketValues, threeMonthMarketValues, oneYearMarketValues
