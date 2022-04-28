@@ -7,10 +7,15 @@ import styles from './Portfolio.module.css'
 import { doc, DocumentSnapshot, getDoc, getFirestore } from "firebase/firestore";
 import { auth, db, firebaseConfig, getMyUid } from '../../firebase';
 import { getAuth, indexedDBLocalPersistence, initializeAuth } from 'firebase/auth';
+
 import { getApp, getApps, initializeApp } from 'firebase/app';
 import { admin } from '../../lib/firebaseAdmin';
+import { v4 as uuidv4 } from 'uuid';
 
-const Portfolio = ({ portfolioData, starterChartInfo }) => {
+const Portfolio = ({ portfolioData, starterChartInfo, assetInfo }) => {
+  console.log(new Date().toUTCString());
+
+  console.log(uuidv4() );
   const [chartData, setChartData] = useState({
     oneDayData: {
       labels: starterChartInfo.marketLabels.oneDayLabels, 
@@ -40,7 +45,8 @@ const Portfolio = ({ portfolioData, starterChartInfo }) => {
       data: starterChartInfo.marketValues.oneDayValues,
       backgroundColor: ["red"],
       fill: "origin",
-      pointRadius: 0,
+      pointRadius: 1.5,
+      pointStyle: 'circle'
     }] }
   )
 
@@ -105,6 +111,41 @@ const Portfolio = ({ portfolioData, starterChartInfo }) => {
       })
     }
 
+    const findOrderPlusMinus = (el) => {
+      console.log(assetInfo);
+      console.log(el);
+      let currentSellingPrice = el.units * assetInfo[el.id].info.market_data.current_price.cad
+      let initialSellingPrice = el.units * el.unitPriceAtTransaction
+
+      let gainOrLoss = currentSellingPrice - initialSellingPrice;
+
+      let finalOutput = ((gainOrLoss / initialSellingPrice) * 100).toFixed(2)
+
+      return finalOutput;
+    }
+
+    const findAssetWorth = (el) => {
+      console.log(assetInfo);
+      console.log(el);
+      return parseInt((portfolioData.assets[el].units * assetInfo[el].info.market_data.current_price.cad).toFixed(2))
+    }
+
+    const calculatePortfolioWorth = () => {
+
+      let portfolioWorth = 0
+
+
+      Object.keys(portfolioData.assets).forEach(el => {
+        portfolioWorth += findAssetWorth(el)
+      })
+
+      console.log(portfolioWorth)
+
+      return portfolioWorth
+    }
+
+
+
 
   console.log(portfolioData, currentChartInfo)
   return (
@@ -127,7 +168,7 @@ const Portfolio = ({ portfolioData, starterChartInfo }) => {
         <div className={styles.card}>
           <div className={styles.cardText}>
             <h3>Portfolio Worth</h3>
-            <p>{portfolioData.userId}</p>
+            <p>${calculatePortfolioWorth()}</p>
             
 
           </div>
@@ -143,7 +184,6 @@ const Portfolio = ({ portfolioData, starterChartInfo }) => {
       </div>
 
       <div className={styles.chart_container}>
-        ???
         <HistoryChart chartData={currentChartInfo} />
         <div className={styles.chart_buttons}>
           <button onClick={dayClickHandler}>24 Hours</button>
@@ -153,14 +193,64 @@ const Portfolio = ({ portfolioData, starterChartInfo }) => {
         </div>
       </div>
 
+      <div className={styles.my_assets}>
+        <div className={styles.owned_assets}>
+          <div className={styles.assets_header}>
+            <h3>Name</h3>
+            <h3>Units Owned</h3>
+            <h3>Current Worth</h3>
+          </div>
 
-      <div className={styles.owned_assets}>
+          <div className={styles.assets_content}>
+            {Object.keys(portfolioData.assets).map((el) => {
+              console.log(el);
+              console.log(portfolioData.assets[el]);
+              
+              return (
+              <div className={styles.asset}>
+                <p>{portfolioData.assets[el].name}</p>
+                <p>{portfolioData.assets[el].units}</p>
+                <p>${findAssetWorth(el)}</p>
+              </div>
 
+              )
+            })}
+
+          </div>
+        </div>
+
+        <div className={styles.past_orders}>
+        <div className={styles.orders_header}>
+            <h3>Name</h3>
+            {/* <h3>Id</h3> */}
+            <h3>Quantity</h3>
+            <h3>Price per unit</h3>
+            <h3>Buy</h3>
+            <h3>+/-</h3>
+            <h3>Timestamp</h3>
+          </div>
+          <div className={styles.orders_content}>
+          {/* {uuid.v4()} */}
+            {portfolioData.orders.map((el) => {
+              return (<div className={styles.order}>
+                  <p>{el.name}</p>
+                  {/* <p>1</p> */}
+                  <p>{el.units}</p>
+                  <p>${el.unitPriceAtTransaction}</p>
+                  <p>{el.buy ? 'True' : 'False'}</p>
+                  <p>{`${findOrderPlusMinus(el) ? '+' : '-'}${findOrderPlusMinus(el)}`}%</p>
+                  <p>{el.createdAt}</p>
+                </div>)
+            })}
+          </div>
+
+
+
+        </div>
       </div>
 
-      <div className={styles.past_orders}>
 
-      </div>
+
       
     </div>
   )
@@ -304,25 +394,72 @@ export async function getServerSideProps(ctx) {
       firstCoin[1],
     );
 
-    const labelMap = (arr) => {
+    const dateLabelMap = (arr) => {
+      return arr.map((data) =>
+      new Date(data[0]).toLocaleDateString())
+    }
+
+    const timeLabelMap = (arr) => {
       return arr.map((data) =>
       new Date(data[0]).toLocaleTimeString())
     }
+
+
+
+
+
+
+
+
+    //Get owned assets current info
+    const assetInfo = {};
+    
+
+    //Transform all assets into fetchable urls, distributed into the assetInfo object
+      Object.keys(portfolioData.assets).map((name) => {
+        assetInfo[name] = {url: `https://api.coingecko.com/api/v3/coins/${name}?vs_currency=cad`}
+        
+      } 
+    )
+
+
+    //Loop through each key in chartInfo array to fetch data. Will try to optimise (Promise.All) soon 
+    for (let key in assetInfo) {
+      console.log('KEY', key);
+
+      //Get chart data using url from assetInfo for that asset
+      const results = await (await fetch(assetInfo[key].url)).json();
+
+      // console.log('results info!', results);
+
+      //Set labels for chart data on oneDayPrices key
+      assetInfo[key]['info'] = results
+
+      console.log('labels', assetInfo);
+
+
+    }
+
+    console.log(assetInfo.bitcoin.info.market_data.current_price.cad, 'yaaa')
+
+
+
   
     return {
       props: {
         starterCoin: firstCoin[0],
         starterChartInfo: {
           marketLabels: {
-            oneDayLabels: labelMap(firstCoin[1].prices),
-            oneMonthLabels: labelMap(firstCoin[2].prices),
-            threeMonthLabels: labelMap(firstCoin[3].prices),
-            oneYearLabels: labelMap(firstCoin[4].prices),
+            oneDayLabels: timeLabelMap(firstCoin[1].prices),
+            oneMonthLabels: dateLabelMap(firstCoin[2].prices),
+            threeMonthLabels: dateLabelMap(firstCoin[3].prices),
+            oneYearLabels: dateLabelMap(firstCoin[4].prices),
           },
           marketValues: {
             oneDayValues, oneMonthValues, threeMonthValues, oneYearValues
           }
         },
+        assetInfo,
         portfolioData,
         uid
       }

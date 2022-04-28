@@ -19,9 +19,36 @@ const HistoryChart = ({ chartData }) => {
 
   // myLineChart = (<Line data={chartData} />)
 
+  
+
+  const chartData2 = { 
+    ...chartData, 
+    labels: [...chartData.labels],
+    datasets: [
+      {
+        ...chartData.datasets,
+     
+
+      }
+    ]
+      
+
+    } 
+
+console.log(chartData2);
 
   return (
-    <Line data={chartData} />
+    <Line data={chartData} pointRadius={20}
+    pointStyle={'circle'} options={{
+      scales: {
+        xAxis: {
+                ticks: {
+                  maxTicksLimit: 20
+                }
+                }
+        },
+    }
+    } />
 
   )
 }

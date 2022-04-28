@@ -28,12 +28,78 @@
   width: 100%;
 }
 
+.my_assets {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 40px;
+}
+
 .owned_assets {
   /* width: 42.5%; */
-  width: 35%;
+  width: 38%;
+  display: flex;
+  flex-direction: column;
+  background-color: #ccc;
+}
+
+.assets_header {
+  display: flex;
+  justify-content: space-evenly;
+  border-bottom: 1px solid black;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  flex-basis: calc(100%/3);
+}
+
+.assets_header > h3 {
+  width: calc(100%/3);
+  text-align: center;
+}
+
+.assets_content {
+}
+
+.asset {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;;
+}
+
+.asset > p {
+  width: calc(100%/3);
+  text-align: center;
 }
 
 .past_orders {
   /* width: 55%; */
   width: 60%;
+  background-color: #ccc;
 }
+
+.orders_header {
+  display: flex;
+  justify-content: space-evenly;
+  border-bottom: 1px solid black;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  flex-basis: calc(100%/6);
+}
+
+.orders_header > h3 {
+  width: calc(100%/6);
+  text-align: center;
+}
+
+.order {
+  display: flex;
+  width: 100%;
+  /* justify-content: space-between;; */
+}
+
+.order > p {
+  width: calc(100%/6);
+  text-align: center;
+}
+
+
