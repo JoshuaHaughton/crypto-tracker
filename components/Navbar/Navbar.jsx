@@ -12,63 +12,66 @@ import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 
 const Navbar = () => {
   return (
-    <nav className={styles.container}>
-      <div className={styles.logo_container}>
-        <Image
-          src={logo}
-          alt=""
-          height={50}
-          width={50}
-          className={styles.logo}
-        />
-        <Link href="/" passHref>
-          <a className={styles.title}>Crypto-Tracker</a>
-        </Link>
-      </div>
-
-      <div className={styles.nav_list}>
-        <Link href="/">
-          <div className={styles.link_wrapper}>
-            <HomeIcon />
-            <a className={styles.nav_link}>Home</a>
-          </div>
-        </Link>
-
-        {/* <div className={styles.link_wrapper}>
-          <ListIcon />
-          <Link href="/">
-            <a className={styles.nav_link}>Cryptocurrencies</a>
+    <nav className={styles.nav}>
+      <div className={styles.container}>
+        <div className={styles.logo_container}>
+          <Image
+            src={logo}
+            alt=""
+            height={50}
+            width={50}
+            className={styles.logo}
+          />
+          <Link href="/" passHref>
+            <a className={styles.title}>Crypto-Tracker</a>
           </Link>
-        </div> */}
+        </div>
 
-        <Link href="/">
-          <div className={styles.link_wrapper}>
-            <NewspaperIcon />
-            <a className={styles.nav_link}>News</a>
-          </div>
-        </Link>
+        <div className={styles.nav_list}>
+          <Link href="/">
+            <div className={styles.link_wrapper}>
+              <HomeIcon />
+              <a className={styles.nav_link}>Home</a>
+            </div>
+          </Link>
 
-        <Link href="/">
-          <div className={styles.link_wrapper}>
-            <BusinessCenterIcon />
-            <a className={styles.nav_link}>Portfolio</a>
-          </div>
-        </Link>
+          {/* <div className={styles.link_wrapper}>
+            <ListIcon />
+            <Link href="/">
+              <a className={styles.nav_link}>Cryptocurrencies</a>
+            </Link>
+          </div> */}
+  {/* 
+          <Link href="/">
+            <div className={styles.link_wrapper}>
+              <NewspaperIcon />
+              <a className={styles.nav_link}>News</a>
+            </div>
+          </Link>
 
-        <Link href="/">
-          <div className={styles.link_wrapper}>
-            <LoginIcon />
-            <a className={styles.nav_link}>Login</a>
-          </div>
-        </Link>
+          <Link href="/">
+            <div className={styles.link_wrapper}>
+              <BusinessCenterIcon />
+              <a className={styles.nav_link}>Portfolio</a>
+            </div>
+          </Link> */}
 
-        
-        {/* <Link href="/">
-          <div className={styles.link_wrapper}>
-            <LogoutIcon />
-            <a className={styles.nav_link}>Logout</a>
-          </div>
-        </Link> */}
+          <Link href="/">
+            <div className={styles.link_wrapper}>
+              <LoginIcon />
+              <a className={styles.nav_link}>Login</a>
+            </div>
+          </Link>
+
+          
+          {/* <Link href="/">
+            <div className={styles.link_wrapper}>
+              <LogoutIcon />
+              <a className={styles.nav_link}>Logout</a>
+            </div>
+          </Link> */}
+
+        </div>
 
       </div>
     </nav>

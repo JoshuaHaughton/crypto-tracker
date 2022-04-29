@@ -13,12 +13,11 @@ export const Layout = ({ children, title = "Crypto Tracker" }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className={styles.layout}>
         <Navbar />
 
         <main>
           {children}
-          <footer className={styles.footer}>
+          {/* <footer className={styles.footer}>
             <div className={styles.footer_links}>
               <Link href="/" className={styles.footer_link}>
                   <a >Home</a>
@@ -36,13 +35,12 @@ export const Layout = ({ children, title = "Crypto Tracker" }) => {
                   <a >Login</a>
               </Link>
 
-              {/* <Link href="/">
+              <Link href="/">
                   <a className={styles.footer_link}>Logout</a>
-              </Link> */}
+              </Link>
             </div>
-          </footer>
+          </footer> */}
         </main>
       </div>
-    </div>
   );
 };

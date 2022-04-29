@@ -1,15 +1,25 @@
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 54px 24px 0 24px;
+.nav {
+  width: 100vw;
   border: 1px solid #30323c;
   border-top: none;
-  height: 100vh;
   position: sticky;
   position: -webkit-sticky;
   top: 0;
   background-color: #1a1b1d;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* padding: 54px 24px 0 24px; */
+  max-width: 1200px;
+  width: 100%;
+  padding: 8px 24px;
 }
 
 .logo_container {
@@ -17,7 +27,7 @@
   align-items: center;
   /* justify-content: center; */
   color: white;
-  width: 100%;
+  /* width: 100%; */
   padding: 12px;
 }
 
@@ -28,18 +38,16 @@
 
 .nav_list {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: center;
   text-align: left;
-  width: 100%;
-  margin-top: 48px;
+  width: 240px;
 }
 
 .link_wrapper {
   display: flex;
   align-items: center;
   color: white;
-  margin-bottom: 28px;
   padding: 12px;
   border-radius: 8px;
 }

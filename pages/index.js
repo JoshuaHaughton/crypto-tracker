@@ -42,7 +42,7 @@ export default function Home({ filteredCoins }) {
   };
   return (
     <div className={styles.container}>
-      <h1>Home</h1>
+      <h1>Search your favourite crypto!</h1>
       <SearchBar type="text" placeholder="Search" onChange={handleChange} />
       <CoinList filteredCoins={shownCoins} />
       <Pagination

@@ -1,0 +1,54 @@
+.container {
+  width: 85%;
+  max-width: 1100px;
+}
+
+.header {
+  width: 100%;
+  display: flex;
+  /* justify-content: center; */ 
+  height: 64px;
+  background-color: blue;
+}
+
+.header > div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.header > div:nth-child(1) {
+  text-align: left;
+
+}
+
+.header > div > p {
+  margin: 0;
+  height: fit-content;
+}
+
+.name_header {
+  width: 25%;
+}
+
+.name_header > p {
+  width: 80%;
+  padding-left: 24px;
+}
+
+.price_header {
+  width: 16.25%;
+}
+
+.volume_header {
+  width: 21.25%;
+}
+
+.dayChange_header {
+  width: 16.25%;
+}
+
+.marketCap_header {
+  width: 21.25%;
+}
+
