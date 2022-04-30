@@ -1,8 +1,5 @@
 import Head from "next/head";
-import Link from "next/link";
-import Image from "next/image";
 import styles from "./Layout.module.css";
-import logo from "../../public/logo.svg";
 import Navbar from "../Navbar/Navbar";
 export const Layout = ({ children, title = "Crypto Tracker" }) => {
   return (

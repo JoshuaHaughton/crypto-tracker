@@ -1,11 +1,22 @@
 .container {
+  width: 100vw;
+  min-height: calc(100vh - 90px);
+  height: fit-content;
+}
+
+.row {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  /* min-height: calc(100vh - 98px); */
+  width: 100%;
+  height: 100%;
+  justify-content: space-evenly;
+  align-items: flex-start;
+}
+
+.row > hr { 
+  display: inline-block;
+  width: 1px;
+  height: calc(100vh - 130px);
+  margin: 24px 0 0 0;
 }
 
 .coin_info {
@@ -15,8 +26,8 @@
   align-items: center;
   /* border: 1px solid #2fffe5; */
   border-radius: 10px;
-  padding: 54px 4rem;
-  width: 400px;
+  padding: 24px 1rem;
+  width: 30%;
   color: white
 }
 
@@ -31,10 +42,9 @@
 
 .title_wrapper {
   display: flex;
+  flex-direction: column ;
   align-items: center;
   justify-content: center;
-  /* width: 80%; */
-  margin-bottom: 32px;
 }
 
 .description {
@@ -45,9 +55,17 @@
   height: 50px;
 }
 
+.description {
+  width: 100%;
+  text-align: center;
+}
+
 .name {
+  margin: 16px 0 0 0;
+}
+
+.symbol {
   margin: 0;
-  margin-left: 16px;
 }
 
 .ticker {
@@ -59,27 +77,142 @@
   font-size: 2rem;
 }
 
-.info_card > h3 {
+.info_card {
+  margin-top: 40px;
+}
+
+.info_row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 24px;
+}
+
+.info_row > h3, .info_row > p {
   text-align: center;
+  margin: 0;
+}
+
+.info_row > h3 {
+  margin-right: 16px;
+  font-size: 26px;
+}
+
+.info_row > p {
+  font-size: 22px;
 }
 
 .chart_wrapper {
-  width: 700px;
-  margin-bottom: 80px;
-  margin-top: 36px;
+  width: 60%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.chart {
+  width: 95%;
 }
 
 .chart_buttons {
-  width: 100%;
+  width: 95%;
   display: flex;
   justify-content: space-between;
   margin-top: 24px;
 }
 
 .chart_buttons > button {
-  width: 90px;
+  width: 180px;
   padding: 12px 8px;
-  border: none;
-  border-radius: 8px;
+  border: 3px solid red;
+  color: white;
+  border-radius: 6px;
   cursor: pointer;
+  font-size: 22px;
+  font-weight: bold;
+  background-color: transparent;
+  transition: all 300ms ease;
+}
+
+.selected_button {
+  border: 3px solid white !important;
+}
+
+.chart_buttons > button:hover {
+  border: 3px solid white;
+  background-color: red;
+}
+
+.chart_details {
+  background-color: rgba(0, 0, 0, 0.377);
+  border-radius: 8px;
+  margin-top: 32px;
+  padding: 24px 0;
+  width: 100%;
+}
+
+.chart_details > div {
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;
+  color: whitesmoke;
+  display: flex;
+  justify-content: center;
+}
+
+.chart_details > div > p {
+  margin: .25rem;
+  width: 40%;
+  text-align: center;
+}
+
+.percentage_details {
+  width: 95%;
+  margin-top: 32px;
+}
+
+.percentage_details > h3 {
+  text-align: center;
+  color: white;
+  padding-bottom: 16px;
+}
+
+.cards_wrapper {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.cards_wrapper > div {
+  border: 3px solid red;
+  border-radius: 6px;
+  width: 180px;
+  text-align: center;
+  transition: all 300ms ease;
+}
+
+.card_description > p {
+  color: white;
+}
+
+.selected_card {
+  border: 3px solid white !important;
+}
+
+.selected_period {
+  background-color: rgb(39, 39, 39);
+}
+
+.selected_period > p:first-child {
+  color: white;
+}
+
+.green {
+  color: #13c783;
+}
+
+.red {
+  color: #f00606;
 }
