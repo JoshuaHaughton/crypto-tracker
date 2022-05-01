@@ -12,14 +12,25 @@ const Coin = ({ coin, market_chart, market_values }) => {
     ),
     datasets: [
       {
-        label: "Price (Past 1 day) in CAD",
+        label: `${coin.name} Price (Past day) in CAD`,
         data: market_values.dayMarketValues,
-        backgroundColor: ["red"],
-        fill: "origin",
-        pointRadius: 0,
+        type: "line",
+        pointRadius: 1.3,
+        borderColor: "#ff9500",
       },
     ],
   });
+
+  // {
+  //   labels: starterChartInfo.marketLabels.oneDayLabels,
+  //   datasets: [ {
+  //   label: "Price (Past 1 day) in CAD",
+  //   data: starterChartInfo.marketValues.oneDayValues,
+  //   backgroundColor: ["red"],
+  //   fill: "origin",
+  //   pointRadius: 1.5,
+  //   pointStyle: 'circle'
+  // }] }
 
   const [currentChartPeriod, setCurrentChartPeriod] = useState("day");
 
@@ -34,11 +45,11 @@ const Coin = ({ coin, market_chart, market_values }) => {
         ),
         datasets: [
           {
-            label: "Price (Past day) in CAD",
+            label: `${coin.name} Price (Past day) in CAD`,
             data: market_values.dayMarketValues,
-            backgroundColor: ["red"],
-            fill: "origin",
-            pointRadius: 0,
+            type: "line",
+            pointRadius: 1.3,
+            borderColor: "#ff9500",
           },
         ],
       };
@@ -55,11 +66,11 @@ const Coin = ({ coin, market_chart, market_values }) => {
         ),
         datasets: [
           {
-            label: "Price (Past week) in CAD",
+            label: `${coin.name} Price (Past week) in CAD`,
             data: market_values.weekMarketValues,
-            backgroundColor: ["red"],
-            fill: "origin",
-            pointRadius: 0,
+            type: "line",
+            pointRadius: 1.3,
+            borderColor: "#ff9500",
           },
         ],
       };
@@ -77,11 +88,11 @@ const Coin = ({ coin, market_chart, market_values }) => {
         ),
         datasets: [
           {
-            label: "Price (Past month) in CAD",
+            label: `${coin.name} Price (Past month) in CAD`,
             data: market_values.monthMarketValues,
-            backgroundColor: ["red"],
-            fill: "origin",
-            pointRadius: 0,
+            type: "line",
+            pointRadius: 1.3,
+            borderColor: "#ff9500",
           },
         ],
       };
@@ -98,11 +109,11 @@ const Coin = ({ coin, market_chart, market_values }) => {
         ),
         datasets: [
           {
-            label: "Price (Past year) in CAD",
+            label: `${coin.name} Price (Past year) in CAD`,
             data: market_values.yearMarketValues,
-            backgroundColor: ["red"],
-            fill: "origin",
-            pointRadius: 0,
+            type: "line",
+            pointRadius: 1.3,
+            borderColor: "#ff9500",
           },
         ],
       };
@@ -169,22 +180,17 @@ const Coin = ({ coin, market_chart, market_values }) => {
               </p>
             </div>
 
-            <div className={styles.info_row}>
+            {/* <div className={styles.info_row}>
               <h3>Rank:</h3>
               <p className={styles.current}>{coin.coingecko_rank}</p>
-            </div>
-            <div className={styles.info_row}>
-              <h3>Market Cap:</h3>
-              <p className={styles.current}>
-                ${bigNumberFormatter(coin.market_data.market_cap.cad)}
-              </p>
-            </div>
+            </div> */}
             <div className={styles.info_row}>
               <h3>All Time High:</h3>
               <p className={styles.current}>
                 $
                 {coin.market_data.ath.cad.toLocaleString("en-US", {
                   maximumFractionDigits: 8,
+                  minimumFractionDigits: 2
                 })}
               </p>
             </div>
@@ -207,15 +213,6 @@ const Coin = ({ coin, market_chart, market_values }) => {
                 {coin.market_data.circulating_supply}
               </p>
             </div> */}
-            <div className={styles.info_row}>
-              <h3>Total Volume:</h3>
-              <p className={styles.current}>
-                $
-                {coin.market_data.total_volume.cad.toLocaleString("en-US", {
-                  maximumFractionDigits: 8,
-                })}
-              </p>
-            </div>
             <div className={styles.info_row}>
               <h3>24h Price Change:</h3>
               {+coin.market_data.price_change_24h > 0 ? (
@@ -242,6 +239,21 @@ const Coin = ({ coin, market_chart, market_values }) => {
                 </p>
               )}
             </div>
+            <div className={styles.info_row}>
+              <h3>Market Cap:</h3>
+              <p className={styles.current}>
+                ${bigNumberFormatter(coin.market_data.market_cap.cad)}
+              </p>
+            </div>
+            <div className={styles.info_row}>
+              <h3>Total Volume:</h3>
+              <p className={styles.current}>
+                $
+                {coin.market_data.total_volume.cad.toLocaleString("en-US", {
+                  maximumFractionDigits: 8,
+                })}
+              </p>
+            </div>
           </div>
           {/* <p className={styles.symbol}>{coin.symbol.toUpperCase()}</p> */}
         </div>
@@ -249,8 +261,14 @@ const Coin = ({ coin, market_chart, market_values }) => {
         <hr />
 
         <div className={styles.chart_wrapper}>
-          <div className={styles.chart}>
-            <HistoryChart chartData={chartData} />
+          <div className={styles.chart_card}>
+            <div className={styles.chart}>
+              <HistoryChart
+                chartData={chartData}
+                currentChartPeriod={currentChartPeriod}
+              />
+            </div>
+
           </div>
           <div className={styles.chart_buttons}>
             {currentChartPeriod === "day" ? (
@@ -299,20 +317,20 @@ const Coin = ({ coin, market_chart, market_values }) => {
           </div>
 
           <div className={styles.percentage_details}>
-            <h3>Percentage Changes</h3>
+            {/* <h3>Percentage Changes</h3> */}
             <div className={styles.cards_wrapper}>
               {currentChartPeriod === "day" ? (
                 <div className={styles.selected_card}>
                   <div className={styles.card_description}>
-                    <p>Past Day:</p>
-                    <h3></h3>
+                    <p>Day Gain/Loss</p>
+                    {/* <p>Past Day %:</p> */}
                     {coin.market_data.price_change_percentage_24h >= 0 ? (
                       <h3 className={styles.green}>
-                        {coin.market_data.price_change_percentage_24h}%
+                        +{coin.market_data.price_change_percentage_24h.toFixed(3)}%
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin.market_data.price_change_percentage_24h}%
+                        {coin.market_data.price_change_percentage_24h.toFixed(3)}%
                       </h3>
                     )}
                   </div>
@@ -320,15 +338,15 @@ const Coin = ({ coin, market_chart, market_values }) => {
               ) : (
                 <div>
                   <div className={styles.card_description}>
-                    <p>Past Day:</p>
-                    {/* <h3></h3> */}
+                    <p>Day Gain/Loss</p>
+                    {/* <p>Past Day %:</p> */}
                     {coin.market_data.price_change_percentage_24h >= 0 ? (
                       <h3 className={styles.green}>
-                        {coin.market_data.price_change_percentage_24h}%
+                        +{coin.market_data.price_change_percentage_24h.toFixed(3)}%
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin.market_data.price_change_percentage_24h}%
+                        {coin.market_data.price_change_percentage_24h.toFixed(3)}%
                       </h3>
                     )}
                   </div>
@@ -338,15 +356,15 @@ const Coin = ({ coin, market_chart, market_values }) => {
               {currentChartPeriod === "week" ? (
                 <div className={styles.selected_card}>
                   <div className={styles.card_description}>
-                    <p>Past Week:</p>
+                    <p>Week Gain/Loss</p>
                     {/* <h3></h3> */}
                     {coin.market_data.price_change_percentage_7d >= 0 ? (
                       <h3 className={styles.green}>
-                        {coin.market_data.price_change_percentage_7d}%
+                        +{coin.market_data.price_change_percentage_7d.toFixed(3)}%
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin.market_data.price_change_percentage_7d}%
+                        {coin.market_data.price_change_percentage_7d.toFixed(3)}%
                       </h3>
                     )}
                   </div>
@@ -354,15 +372,15 @@ const Coin = ({ coin, market_chart, market_values }) => {
               ) : (
                 <div>
                   <div className={styles.card_description}>
-                    <p>Past Week:</p>
+                    <p>Week Gain/Loss</p>
                     {/* <h3></h3> */}
                     {coin.market_data.price_change_percentage_7d >= 0 ? (
                       <h3 className={styles.green}>
-                        {coin.market_data.price_change_percentage_7d}%
+                        +{coin.market_data.price_change_percentage_7d.toFixed(3)}%
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin.market_data.price_change_percentage_7d}%
+                        {coin.market_data.price_change_percentage_7d.toFixed(3)}%
                       </h3>
                     )}
                   </div>
@@ -372,15 +390,14 @@ const Coin = ({ coin, market_chart, market_values }) => {
               {currentChartPeriod === "month" ? (
                 <div className={styles.selected_card}>
                   <div className={styles.card_description}>
-                    <p>Past Month:</p>
-                    {/* <h3></h3> */}
+                    <p>Month Gain/Loss:</p>
                     {coin.market_data.price_change_percentage_30d >= 0 ? (
                       <h3 className={styles.green}>
-                        {coin.market_data.price_change_percentage_30d}%
+                        +{coin.market_data.price_change_percentage_30d.toFixed(3)}%
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin.market_data.price_change_percentage_30d}%
+                        {coin.market_data.price_change_percentage_30d.toFixed(3)}%
                       </h3>
                     )}
                   </div>
@@ -388,15 +405,14 @@ const Coin = ({ coin, market_chart, market_values }) => {
               ) : (
                 <div>
                   <div className={styles.card_description}>
-                    <p>Past Month:</p>
-                    <h3></h3>
+                    <p>Month Gain/Loss:</p>
                     {coin.market_data.price_change_percentage_30d >= 0 ? (
                       <h3 className={styles.green}>
-                        {coin.market_data.price_change_percentage_30d}%
+                        +{coin.market_data.price_change_percentage_30d.toFixed(3)}%
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin.market_data.price_change_percentage_30d}%
+                        {coin.market_data.price_change_percentage_30d.toFixed(3)}%
                       </h3>
                     )}
                   </div>
@@ -406,15 +422,16 @@ const Coin = ({ coin, market_chart, market_values }) => {
               {currentChartPeriod === "year" ? (
                 <div className={styles.selected_card}>
                   <div className={styles.card_description}>
-                    <p>Past Year:</p>
+                    {/* <p>Past Year:</p> */}
+                    <p>Year Gain/Loss</p>
                     {/* <h3></h3> */}
                     {coin.market_data.price_change_percentage_1y >= 0 ? (
                       <h3 className={styles.green}>
-                        {coin.market_data.price_change_percentage_1y}%
+                        +{coin.market_data.price_change_percentage_1y.toFixed(3)}%
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin.market_data.price_change_percentage_1y}%
+                        {coin.market_data.price_change_percentage_1y.toFixed(3)}%
                       </h3>
                     )}
                   </div>
@@ -422,15 +439,15 @@ const Coin = ({ coin, market_chart, market_values }) => {
               ) : (
                 <div>
                   <div className={styles.card_description}>
-                    <p>Past Year:</p>
+                    <p>Year Gain/Loss</p>
                     {/* <h3></h3> */}
                     {coin.market_data.price_change_percentage_1y >= 0 ? (
                       <h3 className={styles.green}>
-                        {coin.market_data.price_change_percentage_1y}%
+                        +{coin.market_data.price_change_percentage_1y.toFixed(3)}%
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin.market_data.price_change_percentage_1y}%
+                        {coin.market_data.price_change_percentage_1y.toFixed(3)}%
                       </h3>
                     )}
                   </div>
@@ -439,11 +456,7 @@ const Coin = ({ coin, market_chart, market_values }) => {
             </div>
           </div>
 
-          <div className={styles.chart_details}>
-            {/* <div>
-              <h3>Price change for the past Day:</h3>
-              <p>{coin.market_data.price_change_24h}</p>
-            </div> */}
+          {/* <div className={styles.chart_details}>
             <div className={styles.chart_title}>
               <h3>Percentage Change</h3>
             </div>
@@ -582,7 +595,7 @@ const Coin = ({ coin, market_chart, market_values }) => {
                 </div>
               </>
             )}
-          </div>
+          </div> */}
         </div>
       </div>
 

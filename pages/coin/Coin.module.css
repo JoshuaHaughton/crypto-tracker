@@ -1,7 +1,8 @@
 .container {
   width: 100vw;
   min-height: calc(100vh - 90px);
-  height: fit-content;
+  height: calc(100vh - 90px);
+  /* height: fit-content; */
 }
 
 .row {
@@ -17,6 +18,7 @@
   width: 1px;
   height: calc(100vh - 130px);
   margin: 24px 0 0 0;
+  border-color: #ff9500;
 }
 
 .coin_info {
@@ -24,11 +26,15 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  /* border: 1px solid #2fffe5; */
   border-radius: 10px;
-  padding: 24px 1rem;
+  height: calc(100vh - 159px);
+  padding: 0 24px;
   width: 30%;
-  color: white
+  color: white;
+  margin: auto 0;
+  background-color: rgba(0, 0, 0, 0.377);
+  box-shadow: 0 4px 12px 0px rgba(0, 0, 0, 0.3);
+  /* border-bottom: 3px solid rgba(0, 0, 0, 0.08); */
 }
 
 .header {
@@ -36,7 +42,6 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding-top: 12px;
   /* width: 400px; */
 }
 
@@ -47,10 +52,6 @@
   justify-content: center;
 }
 
-.description {
-  text-align: center;
-}
-
 .image > img {
   height: 50px;
 }
@@ -58,6 +59,7 @@
 .description {
   width: 100%;
   text-align: center;
+  margin-bottom: 12px;
 }
 
 .name {
@@ -78,46 +80,69 @@
 }
 
 .info_card {
-  margin-top: 40px;
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  /* padding: 16px; */
+  /* border-radius: 8px; */
+  /* background-color: rgba(0, 0, 0, 0.377);
+  box-shadow: 0 4px 12px 0px rgba(0, 0, 0, 0.3); */
 }
 
 .info_row {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  margin-top: 24px;
+  width: 80%;
+  margin-top: 16px;
 }
 
 .info_row > h3, .info_row > p {
   text-align: center;
   margin: 0;
+  width: 100%;
 }
 
 .info_row > h3 {
   margin-right: 16px;
-  font-size: 26px;
+  font-size: 16px;
 }
 
 .info_row > p {
-  font-size: 22px;
+  font-size: 16px;
 }
 
 .chart_wrapper {
   width: 60%;
+  /* max-height: 100vh; */
+  height: calc(100vh - 160px);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 0;
+  margin: auto 0;
+}
+
+.chart_card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 24px 12px 24px;
+  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.377);
+  box-shadow: 0 4px 12px 0px rgba(0, 0, 0, 0.3);
 }
 
 .chart {
-  width: 95%;
+  width: 100%;
 }
 
 .chart_buttons {
-  width: 95%;
+  width: 100%;
   display: flex;
   justify-content: space-between;
   margin-top: 24px;
@@ -126,23 +151,27 @@
 .chart_buttons > button {
   width: 180px;
   padding: 12px 8px;
-  border: 3px solid red;
+  border: 3px solid #ff9500;
   color: white;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 22px;
+  font-size: 16px;
   font-weight: bold;
   background-color: transparent;
   transition: all 300ms ease;
 }
+.chart_buttons > button:active {
+  transform: scale(0.95);
+}
 
 .selected_button {
   border: 3px solid white !important;
+  background-color: #ff9500 !important;
 }
 
 .chart_buttons > button:hover {
   border: 3px solid white;
-  background-color: red;
+  background-color: #ff9500;
 }
 
 .chart_details {
@@ -151,6 +180,7 @@
   margin-top: 32px;
   padding: 24px 0;
   width: 100%;
+  box-shadow: 0 4px 12px 0px rgba(0, 0, 0, 0.3);
 }
 
 .chart_details > div {
@@ -169,7 +199,7 @@
 }
 
 .percentage_details {
-  width: 95%;
+  width: 100%;
   margin-top: 32px;
 }
 
@@ -186,19 +216,48 @@
 }
 
 .cards_wrapper > div {
-  border: 3px solid red;
+  border: 3px solid black;
+  background-color: black;
   border-radius: 6px;
   width: 180px;
   text-align: center;
   transition: all 300ms ease;
+  box-shadow: 0 4px 12px 0px rgba(0, 0, 0, 0.4);
+  height: 97px;
+}
+
+.cards_wrapper > div:hover {
+  box-shadow: 0 4px 20px 0px rgba(0, 0, 0, 0.6);
+}
+
+.card_description {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
 }
 
 .card_description > p {
+  margin: 0;
   color: white;
+  transition: all 300ms ease;
+}
+
+.card_description > h3 {
+  margin: 0;
+  font-size: 28px;
 }
 
 .selected_card {
-  border: 3px solid white !important;
+  border: 3px solid #fff !important;
+  background-color: #ff9500 !important;
+  
+}
+
+.selected_card > div > p {
+  font-weight: bold;
+  color: white;
 }
 
 .selected_period {
@@ -210,7 +269,7 @@
 }
 
 .green {
-  color: #13c783;
+  color: #358a24;
 }
 
 .red {
