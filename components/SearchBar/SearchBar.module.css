@@ -1,8 +1,11 @@
 .search {
-  margin-bottom: 64px;
+  margin-bottom: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 85%;
+  max-width: 1100px;
+  height: 72px;
 }
 
 .input {
@@ -13,9 +16,10 @@
   border-radius: 4px;
   outline: none;
   height: 100%;
-  width: 300px;
+  width: 100%;
+  font-size: 18px;
 }
 
-.input:placeholder {
-  color: #e2e2e2;
+.input::placeholder {
+  color: #fff;
 }

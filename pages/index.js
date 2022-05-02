@@ -48,7 +48,7 @@ export default function Home({ filteredCoins, trendingCoins }) {
     <div className={styles.container}>
       <Banner trendingCoins={carouselCoins} />
       <h1>Search your favourite crypto!</h1>
-      <SearchBar type="text" placeholder="Search" onChange={handleChange} />
+      <SearchBar type="text" placeholder="Search your favourite cryptocurrency" onChange={handleChange} />
       <CoinList filteredCoins={shownCoins} />
       <Pagination
         currentPage={currentPage}

@@ -9,7 +9,7 @@ const Banner = ({ trendingCoins }) => {
       <div className={styles.banner}>
         <div className={styles.title_wrapper}>
           <h2>Crypto City</h2>
-          <p>Get info on your favourite cryptocurrency</p>
+          <p>Get the latest info on your favourite crypto!</p>
         </div>
         <Carousel trendingCoins={trendingCoins} />
       </div>

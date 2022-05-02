@@ -42,14 +42,14 @@
   justify-content: space-between;
   align-items: center;
   text-align: left;
-  width: 240px;
+  width: 180px;
 }
 
 .link_wrapper {
   display: flex;
   align-items: center;
   color: #ff9500;
-  padding: 12px;
+  padding: 4px;
   border-radius: 8px;
 }
 

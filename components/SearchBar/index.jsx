@@ -1,10 +1,10 @@
 import styles from "./SearchBar.module.css";
 
-const SearchBar = ({ ...rest }) => {
+const SearchBar = ({ placeholder, ...rest }) => {
   return (
-    <div className={styles.search}>
-      <input className={styles.input} {...rest} />
-    </div>
+    <form className={styles.search} autoComplete="off">
+      <input className={styles.input} id='input' placeholder={placeholder} {...rest} />
+    </form>
   );
 };
 
