@@ -3,7 +3,6 @@ import HistoryChart from "../../components/UI/HistoryChart";
 import styles from "./Coin.module.css";
 import { Chart as ChartJS } from "chart.js/auto";
 import Image from "next/image";
-import { Dispatch } from "redux";
 // import { ResponsiveContainer, AreaChart, XAxis, YAxis, Area, Tooltip, CartesianGrid } from 'recharts';
 const Coin = ({ coin, market_chart, market_values }) => {
   const [chartData, setChartData] = useState({

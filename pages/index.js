@@ -2,12 +2,16 @@ import { useEffect, useMemo } from "react";
 import { useState } from "react";
 import CoinList from "../components/CoinList";
 import SearchBar from "../components/SearchBar";
+import Banner from "../components/UI/Banner/Banner";
 import Pagination from "../components/UI/Pagination";
 import styles from "./Home.module.css";
+import "react-alice-carousel/lib/alice-carousel.css";
 
-export default function Home({ filteredCoins }) {
+export default function Home({ filteredCoins, trendingCoins }) {
   console.log(filteredCoins);
-  let PageSize = 10;
+  console.log('trendaz', trendingCoins);
+  const PageSize = 10;
+  const [carouselCoins, setCarouselCoins] = useState(trendingCoins || []);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [shownCoins, setShownCoins] = useState(
@@ -42,6 +46,7 @@ export default function Home({ filteredCoins }) {
   };
   return (
     <div className={styles.container}>
+      <Banner trendingCoins={carouselCoins} />
       <h1>Search your favourite crypto!</h1>
       <SearchBar type="text" placeholder="Search" onChange={handleChange} />
       <CoinList filteredCoins={shownCoins} />
@@ -55,15 +60,20 @@ export default function Home({ filteredCoins }) {
 }
 
 export const getServerSideProps = async () => {
-  const res = await fetch(
-    "https://api.coingecko.com/api/v3/coins/markets?vs_currency=cad&order=market_cap_desc&per_page=100&page=1&sparkline=false",
-  );
+  const filteredCoins = await (await fetch(
+    "https://api.coingecko.com/api/v3/coins/markets?vs_currency=cad&order=market_cap_desc&per_page=100&page=1&sparkline=false"
+  )).json();
+  // const trendingCoins = await (await fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currency}&order=gecko_desc&per_page=10&page=1&sparkline=false&price_change_percentage=24h`)).json();
+  
+  const trendingCoins = await (await fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=cad&order=gecko_desc&per_page=10&page=1&sparkline=false&price_change_percentage=24h`)).json();
+  console.log(trendingCoins)
 
-  const filteredCoins = await res.json();
+  
 
   return {
     props: {
       filteredCoins,
+      trendingCoins
     },
   };
 };

@@ -8,7 +8,8 @@
   display: flex;
   /* justify-content: center; */ 
   height: 64px;
-  background-color: blue;
+  background-color: #ff9500;
+  border-radius: 2px;
 }
 
 .header > div {

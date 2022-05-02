@@ -18,3 +18,55 @@ a {
 * {
   box-sizing: border-box;
 }
+
+
+
+
+/* Carousel couldnt be edited in it's css file  */
+
+.alice-carousel__stage-item, .alice-carousel__stage-item__active {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.alice-carousel__stage-item > div {
+  overflow: visible !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  /* width: fit-content !important; */
+}
+
+.alice-carousel__stage-item > div > span {
+  overflow: visible !important;
+  height: fit-content !important;
+  width: fit-content !important;
+}
+
+.alice-carousel__stage-item > div > span > img {
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.alice-carousel__stage-item > div > span > img:hover {
+  transform: scale(1.1);
+}
+
+.alice-carousel__stage-item > div > span > img:active {
+  transform: scale(0.97);
+}
+
+.alice-carousel__stage-item > div > h6 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.alice-carousel__stage-item > div > p { 
+  margin: 8px 0;
+}
+

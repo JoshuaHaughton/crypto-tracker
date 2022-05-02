@@ -30,8 +30,8 @@ const Navbar = () => {
         <div className={styles.nav_list}>
           <Link href="/">
             <div className={styles.link_wrapper}>
-              <HomeIcon />
-              <a className={styles.nav_link}>Home</a>
+              
+              <a className={styles.nav_link}><HomeIcon /> Home</a>
             </div>
           </Link>
 
@@ -58,8 +58,8 @@ const Navbar = () => {
 
           <Link href="/">
             <div className={styles.link_wrapper}>
-              <LoginIcon />
-              <a className={styles.nav_link}>Login</a>
+              
+              <a className={styles.nav_link}><LoginIcon />Login</a>
             </div>
           </Link>
 

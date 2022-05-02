@@ -1,7 +1,7 @@
 .container {
   width: 100vw;
-  min-height: calc(100vh - 90px);
-  height: calc(100vh - 90px);
+  min-height: calc(100vh - 74px);
+  height: calc(100vh - 74px);
   /* height: fit-content; */
 }
 
@@ -27,7 +27,7 @@
   justify-content: center;
   align-items: center;
   border-radius: 10px;
-  height: calc(100vh - 159px);
+  height: calc(100vh - 158px);
   padding: 0 24px;
   width: 30%;
   color: white;

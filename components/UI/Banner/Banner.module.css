@@ -1,0 +1,31 @@
+.container {
+  width: 100vw;
+  background-image: url(../../../public/BannerPic.png);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.banner {
+  height: 400px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.title_wrapper {
+  text-align: center;
+  margin-top: 24px;
+}
+
+.title_wrapper > h2 {
+  font-size: 56px;
+  margin: 10px;
+  font-weight: 500;
+}
+
+.title_wrapper > p {
+  font-size: 22px;
+  margin: 0;
+}
