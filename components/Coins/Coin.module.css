@@ -50,10 +50,6 @@
   width: 80%;
 }
 
-.name_wrapper {
-
-}
-
 .name_wrapper > h1 {
   font-size: 16px;
   margin: 0;
@@ -82,23 +78,125 @@
 }
 
 .price {
-  width: 16.25%;
+  width: 20%;
+  transition: all 300ms ease;
 }
 
 .volume {
-  width: 21.25%;
+  width: 20%;
 }
 
 .market_cap {
-  width: 21.25%;
+  width: 20%;
 }
 
 .red_percent {
-  width: 16.25%;
+  width: 20%;
   color: #f00606;
 }
 
 .green_percent {
-  width: 16.25%;
+  width: 20%;
   color: #13c783;
+}
+
+@media(max-width: 990px) {
+
+  .coin_wrapper {
+    width: 30%;
+  }
+
+  .name_header {
+    width: 30%;
+  }
+
+  .price_header {
+    width: 20%;
+  }
+  
+  .volume_header {
+    width: 20%;
+  }
+  
+  .dayChange_header {
+    width: 20%;
+  }
+  
+  .marketCap_header {
+    width: 20%;
+  }
+}
+
+@media(max-width: 680px) {
+
+  .coin_wrapper {
+    width: 50%;
+  }
+
+  /* .coin {
+    width: 80%;
+  } */
+  
+  .price {
+    width: 25%;
+  }
+
+  .red_percent, .green_percent {
+    width: 25%;
+  }
+}
+
+@media(max-width: 370px) {
+
+  .name_wrapper > p, .name_wrapper > h1{
+    font-size: 4vw;
+  }
+  .price {
+    font-size: 4vw;
+  }
+
+  .red_percent, .green_percent {
+    font-size: 4vw;
+  }
+}
+
+@media(max-width: 300px) {
+  .container {
+    flex-direction: column;
+    height: fit-content;
+    padding: 24px 0;
+  }
+
+  .image {
+    margin: 0 0 8px 0;
+  }
+
+  .coin {
+    flex-direction: column;
+  }
+
+  .coin_wrapper, .coin {
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .name_wrapper {
+    text-align: center;
+    width: 90%;
+  }
+
+  .name_wrapper > p, .name_wrapper > h1{
+    font-size: 7vw;
+    margin: 0;
+  }
+  .price {
+    font-size: 5vw;
+    width: 70%;
+  }
+
+  .red_percent, .green_percent {
+    font-size: 5vw;
+    width: 70%;
+  }
 }

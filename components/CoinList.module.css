@@ -18,14 +18,14 @@
   align-items: center;
 }
 
-.header > div:nth-child(1) {
-  text-align: left;
-
-}
-
 .header > div > p {
   margin: 0;
   height: fit-content;
+  text-align: center;
+}
+
+.header > div:nth-child(1) > p {
+  text-align: left;
 }
 
 .name_header {
@@ -53,3 +53,48 @@
   width: 21.25%;
 }
 
+@media(max-width: 990px) {
+  .name_header {
+    width: 30%;
+  }
+  .price_header {
+    width: 20%;
+  }
+  
+  .volume_header {
+    width: 20%;
+  }
+  
+  .dayChange_header {
+    width: 20%;
+  }
+  
+  .marketCap_header {
+    width: 20%;
+  }
+}
+
+@media(max-width: 680px) {
+  .header > div {
+    margin: 0 auto;
+  }
+
+  .name_header {
+    width: 50%;
+    margin: 0 !important;
+  }
+}
+
+@media(max-width:300px) {
+  .header {
+    justify-content: center;
+  }
+
+  .header > div > p {
+    margin: 0;
+  }
+  .name_header {
+    text-align: center;
+    margin: 0;
+  }
+}
