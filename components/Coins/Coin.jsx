@@ -1,6 +1,7 @@
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import styles from "./Coin.module.css";
+import Image from "next/image";
 
 const bigNumberFormatter = (num) => {
   if (num > 999 && num < 1000000) {
@@ -16,7 +17,6 @@ const bigNumberFormatter = (num) => {
   }
 };
 
-
 export const useMediaQuery = (width) => {
   const [targetReached, setTargetReached] = useState(false);
 
@@ -30,7 +30,7 @@ export const useMediaQuery = (width) => {
 
   useEffect(() => {
     const media = window.matchMedia(`(max-width: ${width}px)`);
-    media.addEventListener("change", updateTarget)
+    media.addEventListener("change", updateTarget);
 
     // Check on mount (callback is not called until a change occurs)
     if (media.matches) {
@@ -54,56 +54,55 @@ const Coin = ({
   id,
 }) => {
 
-  const isBreakpoint1250 = useMediaQuery(1250)
-  const isBreakpoint680 = useMediaQuery(680)
-  
   return (
-    <Link href='/coin/[id]' as={`coin/${id}`} >
+    <Link href="/coin/[id]" as={`coin/${id}`}>
       <div className={styles.container}>
-          <div className={styles.coin_wrapper}>
-            <div className={styles.coin}>
-              <img src={image} alt={`${name} image`} className={styles.image} />
-              <div className={styles.name_wrapper}>
-                <p className={styles.symbol}>{symbol}</p>
-                <h1>{name}</h1> 
-              </div>
-
+        <div className={styles.coin_wrapper}>
+          <div className={styles.coin}>
+          <figure className={styles.image_wrapper}>
+            <Image src={image} height={38} width={38} alt={`${name} image`} className={styles.image} />
+          </figure>
+            <div className={styles.name_wrapper}>
+              <p className={styles.symbol}>{symbol}</p>
+              <h1>{name}</h1>
             </div>
           </div>
-   
-            <p className={styles.price}>${price}</p>
+        </div>
 
+        <p className={styles.price}>${price}</p>
 
+        {/* {!isBreakpoint680 &&
+          (isBreakpoint1250 ? (
+            <p className={styles.volume}>${bigNumberFormatter(volume)}</p>
+          ) : (
+            <p className={styles.volume}>${volume.toLocaleString()}</p>
+          ))} */}
 
-{!isBreakpoint680 &&
+          {(volume !== 0 && volume) && <p className={styles.volume}>${volume}</p>}
+          {volume === 0 && <p className={styles.volume}>Info Missing</p>}
 
-(isBreakpoint1250 ? <p className={styles.volume}>${bigNumberFormatter(volume)}</p> : <p className={styles.volume}>${volume.toLocaleString()}</p>)
+        {/* <p className={styles.volume}>${volume}</p> */}
+        {priceChange < 0 ? (
+          <p className={styles.red_percent}>{priceChange.toFixed(2)}%</p>
+        ) : (
+          <p className={styles.green_percent}>{priceChange.toFixed(2)}%</p>
+        )}
 
-}
+        {/* {!isBreakpoint680 &&
+          (isBreakpoint1250 ? (
+            <p className={styles.market_cap}>
+              ${bigNumberFormatter(marketcap)}
+            </p>
+          ) : (
+            <p className={styles.market_cap}>${marketcap.toLocaleString()}</p>
+          ))} */}
 
+{marketcap && <p className={styles.market_cap}>${marketcap}</p>}
 
-            
-            {/* <p className={styles.volume}>${volume}</p> */}
-            {priceChange < 0 ? (
-              <p className={styles.red_percent}>{priceChange.toFixed(2)}%</p>
-            ) : (
-              <p className={styles.green_percent}>{priceChange.toFixed(2)}%</p>
-            )}
-
-{!isBreakpoint680 &&  
-
-
-(isBreakpoint1250 ? <p className={styles.market_cap}>${bigNumberFormatter(marketcap)}</p> : <p className={styles.market_cap}>${marketcap.toLocaleString()}</p>)
-
-
-}
-
-
-            {/* <p className={styles.market_cap}>
+        {/* <p className={styles.market_cap}>
               Mkt Cap: ${marketcap}
             </p> */}
-
-        </div>
+      </div>
     </Link>
   );
 };

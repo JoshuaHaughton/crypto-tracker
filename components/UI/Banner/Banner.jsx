@@ -17,4 +17,4 @@ const Banner = ({ trendingCoins }) => {
   )
 }
 
-export default Banner
+export default React.memo(Banner)

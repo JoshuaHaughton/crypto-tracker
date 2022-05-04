@@ -39,9 +39,6 @@ const Coin = ({ coin, market_chart, market_values }) => {
 
   const [currentChartPeriod, setCurrentChartPeriod] = useState("day");
 
-  console.log(coin);
-  console.log("resultsDay etc.", chartData.day);
-
   const dayClickHandler = () => {
     setChartData((prev) => {
       return {
@@ -86,7 +83,6 @@ const Coin = ({ coin, market_chart, market_values }) => {
 
   const monthClickHandler = () => {
     setChartData((prev) => {
-      console.log(market_chart);
       return {
         labels: market_chart.month.map((data) =>
           new Date(data[0]).toLocaleDateString(),
@@ -146,10 +142,6 @@ const Coin = ({ coin, market_chart, market_values }) => {
   }
 
   const removeHTML = (str) => str.replace(/<\/?[^>]+(>|$)/g, "");
-
-  console.log(removeHTML(coin.description.en));
-
-  console.log(coin.market_data.price_change_24h);
 
   return (
     <div className={styles.container}>

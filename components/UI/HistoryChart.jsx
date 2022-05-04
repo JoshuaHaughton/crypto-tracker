@@ -31,7 +31,6 @@ const HistoryChart = ({ chartData, currentChartPeriod }) => {
     ],
   };
 
-  console.log(chartData2);
 
   let maxTicks = 20;
 
@@ -56,8 +55,6 @@ const HistoryChart = ({ chartData, currentChartPeriod }) => {
   return (
     <Line
       data={chartData}
-      pointRadius={30}
-      pointStyle={"circle"}
       options={{
         scales: {
           xAxis: {
@@ -73,8 +70,6 @@ const HistoryChart = ({ chartData, currentChartPeriod }) => {
               color: "rgb(75,75,76, 0.4)"
             }
           },
-          responsive: true,
-          maintainAspectRatio: false,
         },
       }}
     />
