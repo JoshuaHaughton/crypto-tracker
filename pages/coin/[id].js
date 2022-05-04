@@ -3,6 +3,10 @@ import HistoryChart from "../../components/UI/HistoryChart";
 import styles from "./Coin.module.css";
 import { Chart as ChartJS } from "chart.js/auto";
 import Image from "next/image";
+import { FilledInput } from "@mui/material";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { useRouter } from "next/router";
 // import { ResponsiveContainer, AreaChart, XAxis, YAxis, Area, Tooltip, CartesianGrid } from 'recharts';
 const Coin = ({ coin, market_chart, market_values }) => {
   const [chartData, setChartData] = useState({
@@ -19,6 +23,8 @@ const Coin = ({ coin, market_chart, market_values }) => {
       },
     ],
   });
+  const router = useRouter();
+
 
   // {
   //   labels: starterChartInfo.marketLabels.oneDayLabels,
@@ -135,6 +141,10 @@ const Coin = ({ coin, market_chart, market_values }) => {
     }
   };
 
+  const goBack= () => {
+    router.back()
+  }
+
   const removeHTML = (str) => str.replace(/<\/?[^>]+(>|$)/g, "");
 
   console.log(removeHTML(coin.description.en));
@@ -145,29 +155,38 @@ const Coin = ({ coin, market_chart, market_values }) => {
     <div className={styles.container}>
       <div className={styles.row}>
         <div className={styles.coin_info}>
+          <div onClick={goBack} className={styles.back_link}>
+              <FontAwesomeIcon icon={faArrowLeft}/>
+          </div>
           <header className={styles.header}>
             <div className={styles.title_wrapper}>
-              <Image
-                src={coin.image.large}
-                alt={coin.name}
-                width={160}
-                height={160}
-                className={styles.image}
-              />
-              <h1 className={styles.name}>{coin.name}</h1>
-              <h4 className={styles.symbol}>{coin.symbol.toUpperCase()}</h4>
+                <Image
+                  src={coin.image.large}
+                  alt={coin.name}
+                  // layout={'fill'}
+                  width={88}
+                  height={88}
+                  className={styles.image}
+                />
+                {/* <div className={styles.text_wrapper}> */}
+                  <h1 className={styles.name}>{coin.name}</h1>
+                  <h4 className={styles.symbol}>{coin.symbol.toUpperCase()}</h4>
+
+                {/* </div> */}
+            </div>
+            <div className={styles.description}>
+              <p>
+                {coin.description.en.split(".").length > 2
+                  ? `${removeHTML(coin.description.en)
+                      .split(".")
+                      .slice(0, 2)
+                      .join(". ")}.`
+                  : `${removeHTML(coin.description.en).slice(0, 170)}...`}
+              </p>
             </div>
           </header>
 
           <div className={styles.info_card}>
-            <div className={styles.description}>
-              {coin.description.en.split(".").length > 2
-                ? `${removeHTML(coin.description.en)
-                    .split(".")
-                    .slice(0, 2)
-                    .join(". ")}.`
-                : `${removeHTML(coin.description.en).slice(0, 170)}...`}
-            </div>
 
             <div className={styles.info_row}>
               <h3>Current Price:</h3>
@@ -212,6 +231,47 @@ const Coin = ({ coin, market_chart, market_values }) => {
                 {coin.market_data.circulating_supply}
               </p>
             </div> */}
+            {/* <div className={styles.info_row}>
+              <h3>24h Price Change:</h3>
+              {+coin.market_data.price_change_24h > 0 ? (
+                <p className={styles.current}>
+                  {+coin.market_data.price_change_24h < 1 &&
+                    `$${coin.market_data.price_change_24h}`}
+                  {+coin.market_data.price_change_24h > 1 &&
+                    `$${coin.market_data.price_change_24h.toFixed(2)}`}
+                </p>
+              ) : (
+                <p className={styles.current}>
+                  {+coin.market_data.price_change_24h < -1 &&
+                    `${coin.market_data.price_change_24h.toLocaleString(
+                      "en-US",
+                      {
+                        style: "currency",
+                        currency: "USD",
+                      },
+                    )}`}
+                  {+coin.market_data.price_change_24h > -1 &&
+                    `-$${Math.abs(coin.market_data.price_change_24h).toFixed(
+                      8,
+                    )}`}
+                </p>
+              )}
+            </div> */}
+            <div className={styles.info_row}>
+              <h3>Market Cap:</h3>
+              <p className={styles.current}>
+                ${bigNumberFormatter(coin.market_data.market_cap.cad)}
+              </p>
+            </div>
+            <div className={styles.info_row}>
+              <h3>Total Volume:</h3>
+              <p className={styles.current}>
+                $
+                {coin.market_data.total_volume.cad.toLocaleString("en-US", {
+                  maximumFractionDigits: 8,
+                })}
+              </p>
+            </div>
             <div className={styles.info_row}>
               <h3>24h Price Change:</h3>
               {+coin.market_data.price_change_24h > 0 ? (
@@ -237,21 +297,6 @@ const Coin = ({ coin, market_chart, market_values }) => {
                     )}`}
                 </p>
               )}
-            </div>
-            <div className={styles.info_row}>
-              <h3>Market Cap:</h3>
-              <p className={styles.current}>
-                ${bigNumberFormatter(coin.market_data.market_cap.cad)}
-              </p>
-            </div>
-            <div className={styles.info_row}>
-              <h3>Total Volume:</h3>
-              <p className={styles.current}>
-                $
-                {coin.market_data.total_volume.cad.toLocaleString("en-US", {
-                  maximumFractionDigits: 8,
-                })}
-              </p>
             </div>
           </div>
           {/* <p className={styles.symbol}>{coin.symbol.toUpperCase()}</p> */}

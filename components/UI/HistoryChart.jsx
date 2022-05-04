@@ -72,7 +72,9 @@ const HistoryChart = ({ chartData, currentChartPeriod }) => {
             grid: {
               color: "rgb(75,75,76, 0.4)"
             }
-          }
+          },
+          responsive: true,
+          maintainAspectRatio: false,
         },
       }}
     />

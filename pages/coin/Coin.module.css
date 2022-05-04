@@ -1,5 +1,6 @@
 .container {
   width: 100vw;
+  max-width: 1440px;
   min-height: calc(100vh - 74px);
   height: calc(100vh - 74px);
   /* height: fit-content; */
@@ -11,6 +12,7 @@
   height: 100%;
   justify-content: space-evenly;
   align-items: flex-start;
+  padding: 24px 0;
 }
 
 .row > hr { 
@@ -27,13 +29,17 @@
   justify-content: center;
   align-items: center;
   border-radius: 10px;
-  height: calc(100vh - 158px);
-  padding: 0 24px;
+  min-height: calc(100vh - 160px);
+  height: 100%;
+  /* max-height: calc(100vh - 160px); */
+  padding: 24px;
   width: 30%;
   color: white;
   margin: auto 0;
   background-color: rgba(0, 0, 0, 0.377);
   box-shadow: 0 4px 12px 0px rgba(0, 0, 0, 0.3);
+  position: relative;
+  transition: all 300ms ease;
   /* border-bottom: 3px solid rgba(0, 0, 0, 0.08); */
 }
 
@@ -52,18 +58,18 @@
   justify-content: center;
 }
 
-.image > img {
-  height: 50px;
-}
-
 .description {
   width: 100%;
   text-align: center;
-  margin-bottom: 12px;
+  /* margin-bottom: 12px; */
+}
+
+.description > p {
+  font-size: 14px;
 }
 
 .name {
-  margin: 16px 0 0 0;
+  margin: 8px 0 0 0;
 }
 
 .symbol {
@@ -80,7 +86,7 @@
 }
 
 .info_card {
-  margin-top: 24px;
+  /* margin-top: 24px; */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -90,6 +96,24 @@
   /* border-radius: 8px; */
   /* background-color: rgba(0, 0, 0, 0.377);
   box-shadow: 0 4px 12px 0px rgba(0, 0, 0, 0.3); */
+}
+
+.back_link {
+  position: absolute;
+  top: 16px;
+  left: 24px;
+  font-size: 36px;
+  cursor: pointer;
+  transition: all 300ms ease;
+}
+
+.back_link:hover {
+  color: #ff9500;
+  transform: scale(1.05);
+}
+
+.back_link:active {
+  transform: scale(0.97);
 }
 
 .info_row {
@@ -118,11 +142,15 @@
 .chart_wrapper {
   width: 60%;
   /* max-height: 100vh; */
-  height: calc(100vh - 160px);
+  min-height: calc(100vh - 160px);
+  height: 100%;
+  /* height: calc(100vh - 160px); */
+  /* max-height: calc(100vh - 160px); */
+  /* overflow: hidden; */
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   margin: auto 0;
 }
 
@@ -139,17 +167,20 @@
 
 .chart {
   width: 100%;
+  height: 100%;
 }
 
 .chart_buttons {
   width: 100%;
   display: flex;
   justify-content: space-between;
-  margin-top: 24px;
+  /* margin-top: 24px; */
 }
 
 .chart_buttons > button {
-  width: 180px;
+  width: 23%;
+  max-width: 23%;
+  text-align: center;
   padding: 12px 8px;
   border: 3px solid #ff9500;
   color: white;
@@ -200,7 +231,7 @@
 
 .percentage_details {
   width: 100%;
-  margin-top: 32px;
+  /* margin-top: 32px; */
 }
 
 .percentage_details > h3 {
@@ -219,7 +250,8 @@
   border: 3px solid black;
   background-color: black;
   border-radius: 6px;
-  width: 180px;
+  width: 23%;
+  max-width: 23%;
   text-align: center;
   transition: all 300ms ease;
   box-shadow: 0 4px 12px 0px rgba(0, 0, 0, 0.4);
@@ -247,6 +279,7 @@
 .card_description > h3 {
   margin: 0;
   font-size: 28px;
+  transition: all 300ms ease;
 }
 
 .selected_card {
@@ -274,4 +307,207 @@
 
 .red {
   color: #f00606;
+}
+
+@media(max-width: 1250px) {
+  .row {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 0;
+  }
+
+  .coin_info {
+    height: fit-content;
+    max-height: none;
+    min-height: auto;
+    width: 55%;
+    padding: 64px 40px;
+  }
+
+  .info_row > h3 {
+    width: 40%;
+    margin: 0;
+    font-size: 15px;
+  }
+  
+  .info_row > p {
+    width: 40%;
+    font-size: 15px;
+  }
+
+  .container {
+    height: fit-content;
+  }
+
+  .row > hr { 
+    display: inline-block;
+    width: 80%;
+    height: auto;
+    margin: 24px 0;
+    border-color: #ff9500;
+  }
+
+  .chart_wrapper {
+    width: 80%;
+    max-height: none;
+    min-height: auto;
+    height: fit-content;
+  }
+
+  .chart_buttons {
+    margin-top: 16px;
+  }
+
+  .cards_wrapper > div {
+
+  }
+
+  .percentage_details {
+    margin-top: 24px;
+  }
+
+}
+
+@media(max-width: 850px) {
+
+  .coin_info {
+    width: 70%;
+  }
+
+  .chart_wrapper {
+    width: 80%;
+  }
+
+  .card_description > h3 {
+    font-size: 24px;
+  }
+}
+
+
+@media(max-width: 700px) {
+
+  .coin_info {
+    padding: 40px 24px;
+  }
+
+  .card_description > h3 {
+    font-size: 14px;
+  }
+
+  .card_description > p {
+    font-size: 12px;
+    width: 100%;
+  }
+
+  .header {
+    flex-direction: row;
+    justify-content: space-evenly;
+    margin-right: 8px;
+  }
+
+  .description {
+    width: 70%;
+  }
+
+  .description > p {
+    font-size: 15px;
+  }
+
+  .back_link {
+    top: 12px;
+    font-size: 28px;
+  }
+  
+}
+
+@media(max-width: 615px) {
+  .coin_info {
+    width: 90%;
+  }
+
+  .chart_wrapper {
+    width: 90%;
+  }
+}
+
+
+@media(max-width: 550px) {
+  .coin_info {
+    width: 95%;
+  }
+
+  .info_row {
+    width: 85%;
+    /* font-size: 12px; */
+  }
+
+  .chart_wrapper {
+    width: 95%;
+  }
+
+  .cards_wrapper {
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    height: 32vh;
+  }
+
+  .cards_wrapper > div {
+    width: 90%;
+    max-width: none;
+    height: 20%;
+  }
+
+  .description {
+    font-size: 14px;
+  }
+
+  .chart_card {
+    padding: 8px 8px 12px 8px;
+  }
+
+}
+
+@media(max-width: 450px) {
+  .info_row {
+    width: 100%;
+  }
+
+  .info_row > h3 {
+    width: 60%;
+    font-size: 14px;
+  }
+  
+  .info_row > p {
+    width: 40%;
+    font-size: 14px;
+  }
+
+  .header {
+    flex-direction: column;
+  }
+
+  .description {
+    width: 85%;
+  }
+  
+}
+
+@media(max-width: 335px) {
+  .info_row > h3 {
+    font-size: 12px;
+  }
+  
+  .info_row > p {
+    font-size: 12px;
+  }
+
+  .description {
+    width: 100%;
+  }
+
+  .chart_buttons > button {
+    font-size: 12px;
+  }
 }

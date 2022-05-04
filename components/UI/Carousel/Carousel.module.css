@@ -12,40 +12,6 @@
   align-items: center !important;
 }
 
-.carousel > div {
-  /* width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center; */
-}
-
-/* .carousel > div {
-
-} */
-
-/* .carousel_wrapper > ul > li {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-
-.alice-carousel__stage-item {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-
-.alice-carousel__stage-item > div > h6 {
-  margin: 0;
-  font-size: 22px;
-} */
-
 .green {
   color: #13c783;
 }

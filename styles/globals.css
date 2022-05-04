@@ -67,6 +67,9 @@ a {
 }
 
 .alice-carousel__stage-item > div > p { 
-  margin: 8px 0;
+  margin: 18px 0 0 0;
 }
 
+@media(max-width: 1250px) {
+
+}
