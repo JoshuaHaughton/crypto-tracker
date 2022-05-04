@@ -13,11 +13,20 @@ const Carousel = ({ trendingCoins }) => {
   const [a, setA] = useState(trendingCoins || []);
   const responsive = {
     0: {
-      items: 2,
+      items: 1,
+    },
+    360: {
+      items: 2
     },
     512: {
-      items: 4,
+      items: 3,
     },
+    750: {
+      items: 4
+    },
+    1000: {
+      items: 5
+    }
   };
 
   let items = a.map((coin) => {

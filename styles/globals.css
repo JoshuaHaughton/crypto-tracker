@@ -32,6 +32,10 @@ a {
   text-align: center;
 }
 
+.alice-carousel__stage-item {
+  padding: 8px 24px;
+}
+
 .alice-carousel__stage-item > div {
   overflow: visible !important;
   display: flex;

@@ -48,6 +48,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  margin-bottom: 8px;
   /* width: 400px; */
 }
 
@@ -56,6 +57,7 @@
   flex-direction: column ;
   align-items: center;
   justify-content: center;
+  text-align: center;
 }
 
 .description {
@@ -359,9 +361,6 @@
     margin-top: 16px;
   }
 
-  .cards_wrapper > div {
-
-  }
 
   .percentage_details {
     margin-top: 24px;

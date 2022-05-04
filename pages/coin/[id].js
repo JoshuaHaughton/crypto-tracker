@@ -647,6 +647,7 @@ export default Coin;
 
 export async function getServerSideProps(context) {
   const { id } = context.query;
+  console.log(context);
 
   const urls = [
     `https://api.coingecko.com/api/v3/coins/${id}?vs_currency=cad`,
