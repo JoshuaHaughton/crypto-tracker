@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import styles from "./Coin.module.css";
 import Image from "next/image";
+import { useSelector } from "react-redux";
 
 const bigNumberFormatter = (num) => {
   if (num > 999 && num < 1000000) {
@@ -31,15 +32,15 @@ export const useMediaQuery = (width) => {
   useEffect(() => {
     const media = window.matchMedia(`(max-width: ${width}px)`);
     media.addEventListener("change", updateTarget);
-
+    
     // Check on mount (callback is not called until a change occurs)
     if (media.matches) {
       setTargetReached(true);
     }
-
+    
     return () => media.removeEventListener("change", updateTarget);
   }, []);
-
+  
   return targetReached;
 };
 
@@ -53,6 +54,8 @@ const Coin = ({
   priceChange,
   id,
 }) => {
+  
+  const currentSymbol = useSelector((state) => state.currency.symbol);
 
   return (
     <Link href="/coin/[id]" as={`coin/${id}`}>
@@ -69,7 +72,7 @@ const Coin = ({
           </div>
         </div>
 
-        <p className={styles.price}>${price}</p>
+        <p className={styles.price}>{currentSymbol}{price}</p>
 
         {/* {!isBreakpoint680 &&
           (isBreakpoint1250 ? (
@@ -78,7 +81,7 @@ const Coin = ({
             <p className={styles.volume}>${volume.toLocaleString()}</p>
           ))} */}
 
-          {(volume !== 0 && volume) && <p className={styles.volume}>${volume}</p>}
+          {(volume !== 0 && volume) && <p className={styles.volume}>{currentSymbol}{volume}</p>}
           {volume === 0 && <p className={styles.volume}>Info Missing</p>}
 
         {/* <p className={styles.volume}>${volume}</p> */}
@@ -97,7 +100,7 @@ const Coin = ({
             <p className={styles.market_cap}>${marketcap.toLocaleString()}</p>
           ))} */}
 
-{marketcap && <p className={styles.market_cap}>${marketcap}</p>}
+{marketcap && <p className={styles.market_cap}>{currentSymbol}{marketcap}</p>}
 
         {/* <p className={styles.market_cap}>
               Mkt Cap: ${marketcap}

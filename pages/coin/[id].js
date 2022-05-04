@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import HistoryChart from "../../components/UI/HistoryChart";
+import HistoryChart from "../../src/components/UI/HistoryChart";
 import styles from "./Coin.module.css";
 import { Chart as ChartJS } from "chart.js/auto";
 import Image from "next/image";
@@ -7,8 +7,10 @@ import { FilledInput } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/router";
+import { useSelector } from "react-redux";
 // import { ResponsiveContainer, AreaChart, XAxis, YAxis, Area, Tooltip, CartesianGrid } from 'recharts';
 const Coin = ({ coin, market_chart, market_values }) => {
+  const currentSymbol = useSelector((state) => state.currency.symbol);
   const [chartData, setChartData] = useState({
     labels: market_chart.day.map((data) =>
       new Date(data[0]).toLocaleTimeString(),
@@ -183,7 +185,7 @@ const Coin = ({ coin, market_chart, market_values }) => {
             <div className={styles.info_row}>
               <h3>Current Price:</h3>
               <p className={styles.current}>
-                $
+                {currentSymbol}
                 {coin.market_data.current_price.cad.toLocaleString("en-US", {
                   maximumFractionDigits: 8,
                 })}
@@ -197,7 +199,7 @@ const Coin = ({ coin, market_chart, market_values }) => {
             <div className={styles.info_row}>
               <h3>All Time High:</h3>
               <p className={styles.current}>
-                $
+                {currentSymbol}
                 {coin.market_data.ath.cad.toLocaleString("en-US", {
                   maximumFractionDigits: 8,
                   minimumFractionDigits: 2
@@ -207,7 +209,7 @@ const Coin = ({ coin, market_chart, market_values }) => {
             <div className={styles.info_row}>
               <h3>All Time Low:</h3>
               <p className={styles.current}>
-                $
+                {currentSymbol}
                 {coin.market_data.atl.cad.toLocaleString("en-US", {
                   maximumFractionDigits: 8,
                 })}
@@ -252,13 +254,13 @@ const Coin = ({ coin, market_chart, market_values }) => {
             <div className={styles.info_row}>
               <h3>Market Cap:</h3>
               <p className={styles.current}>
-                ${bigNumberFormatter(coin.market_data.market_cap.cad)}
+                {currentSymbol}{bigNumberFormatter(coin.market_data.market_cap.cad)}
               </p>
             </div>
             <div className={styles.info_row}>
               <h3>Total Volume:</h3>
               <p className={styles.current}>
-                $
+                {currentSymbol}
                 {coin.market_data.total_volume.cad.toLocaleString("en-US", {
                   maximumFractionDigits: 8,
                 })}
@@ -269,9 +271,9 @@ const Coin = ({ coin, market_chart, market_values }) => {
               {+coin.market_data.price_change_24h > 0 ? (
                 <p className={styles.current}>
                   {+coin.market_data.price_change_24h < 1 &&
-                    `$${coin.market_data.price_change_24h}`}
+                    `${currentSymbol}${coin.market_data.price_change_24h}`}
                   {+coin.market_data.price_change_24h > 1 &&
-                    `$${coin.market_data.price_change_24h.toFixed(2)}`}
+                    `${currentSymbol}${coin.market_data.price_change_24h.toFixed(2)}`}
                 </p>
               ) : (
                 <p className={styles.current}>
@@ -284,7 +286,7 @@ const Coin = ({ coin, market_chart, market_values }) => {
                       },
                     )}`}
                   {+coin.market_data.price_change_24h > -1 &&
-                    `-$${Math.abs(coin.market_data.price_change_24h).toFixed(
+                    `-${currentSymbol}${Math.abs(coin.market_data.price_change_24h).toFixed(
                       8,
                     )}`}
                 </p>

@@ -1,6 +1,6 @@
 .container {
   width: 100vw;
-  background-image: url(../../../public/BannerPic.png);
+  background-image: url(../../../../public/BannerPic.png);
   display: flex;
   justify-content: center;
   align-items: center;

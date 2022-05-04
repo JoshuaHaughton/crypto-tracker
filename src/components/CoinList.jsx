@@ -36,7 +36,7 @@ const CoinList = ({ filteredCoins, currentPageCoins, isBreakpoint680, isBreakpoi
 
   useEffect(() => {
     if (search !== "") {
-      let searchedCoins = filteredCoins.filter((coin) => {
+      let searchedCoins = filteredCoins?.filter((coin) => {
         return coin.name.toLowerCase().includes(search.toLowerCase());
       });
       setShownCoins(searchedCoins);
@@ -112,7 +112,7 @@ const CoinList = ({ filteredCoins, currentPageCoins, isBreakpoint680, isBreakpoi
           </div>
         )}
       </header>
-      {shownCoins.map((coin) => {
+      {shownCoins?.map((coin) => {
         let transformedMarketCap = null
         let transformedVolume = null
 

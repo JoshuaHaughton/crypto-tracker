@@ -5,12 +5,15 @@ import Image from "next/image";
 import Link from "next/link";
 // import "react-alice-carousel/lib/alice-carousel.css";
 import dynamic from "next/dynamic";
+import { useSelector } from "react-redux";
 const AliceCarousel = dynamic(() => import("react-alice-carousel"), {
   ssr: false,
 });
 
 const Carousel = ({ trendingCoins }) => {
   const [a, setA] = useState(trendingCoins || []);
+  const currentSymbol = useSelector((state) => state.currency.symbol);
+
   const responsive = {
     0: {
       items: 1,
@@ -55,7 +58,7 @@ const Carousel = ({ trendingCoins }) => {
             )}
           </p>
           <h6>
-            ${coin?.current_price.toLocaleString("en-US", {
+            {currentSymbol}{coin?.current_price.toLocaleString("en-US", {
               maximumFractionDigits: 8,
               minimumFractionDigits: 2,
             })}

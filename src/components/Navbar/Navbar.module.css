@@ -44,7 +44,8 @@
   justify-content: space-between;
   align-items: center;
   text-align: left;
-  width: 180px;
+  width: 35%;
+  max-width: 220px;
 }
 
 .link_wrapper {
@@ -64,14 +65,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ff9500;
+  color: #fff;
   margin-left: 8px;
   transition: all 300ms ease;
   cursor: pointer;
+  font-size: 17px;
 }
 
 .nav_link:hover {
-  color: white;
+  color: #ff9500;
 }
 
 .nav_link > svg {

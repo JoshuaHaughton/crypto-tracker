@@ -1,5 +1,5 @@
 import React from 'react'
-import BackgroundImage from '../../../public/BannerPic.png'
+import BackgroundImage from '../../../../public/BannerPic.png'
 import Carousel from '../Carousel/Carousel'
 import styles from './Banner.module.css'
 
