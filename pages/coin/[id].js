@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import HistoryChart from "../../src/components/UI/HistoryChart";
 import styles from "./Coin.module.css";
 import { Chart as ChartJS } from "chart.js/auto";
@@ -8,17 +8,30 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
+import { useMediaQuery } from "../../src/components/Coins/Coin";
 // import { ResponsiveContainer, AreaChart, XAxis, YAxis, Area, Tooltip, CartesianGrid } from 'recharts';
-const Coin = ({ coin, market_chart, market_values }) => {
+const Coin = ({
+  coin,
+  marketChartFromServer,
+  marketValuesFromServer,
+  pageId,
+}) => {
+  let firstUpdate = useRef(true);
+  // const [coin, setCoin] = useState(coin)
+  const [marketValues, setMarketValues] = useState(marketValuesFromServer);
+  const [marketChart, setMarketChart] = useState(marketChartFromServer);
   const currentSymbol = useSelector((state) => state.currency.symbol);
+  const currentCurrency = useSelector((state) => state.currency.currency);
+  const isBreakpoint1040 = useMediaQuery(1040);
+
   const [chartData, setChartData] = useState({
-    labels: market_chart.day.map((data) =>
+    labels: marketChartFromServer?.day.map((data) =>
       new Date(data[0]).toLocaleTimeString(),
     ),
     datasets: [
       {
         label: `${coin.name} Price (Past day) in CAD`,
-        data: market_values.dayMarketValues,
+        data: marketValuesFromServer.dayMarketValues,
         type: "line",
         pointRadius: 1.3,
         borderColor: "#ff9500",
@@ -27,12 +40,11 @@ const Coin = ({ coin, market_chart, market_values }) => {
   });
   const router = useRouter();
 
-
   // {
   //   labels: starterChartInfo.marketLabels.oneDayLabels,
   //   datasets: [ {
   //   label: "Price (Past 1 day) in CAD",
-  //   data: starterChartInfo.marketValues.oneDayValues,
+  //   data: starterChartInfo.marketValues?.oneDayValues,
   //   backgroundColor: ["red"],
   //   fill: "origin",
   //   pointRadius: 1.5,
@@ -44,13 +56,13 @@ const Coin = ({ coin, market_chart, market_values }) => {
   const dayClickHandler = () => {
     setChartData((prev) => {
       return {
-        labels: market_chart.day.map((data) =>
+        labels: marketChart?.day.map((data) =>
           new Date(data[0]).toLocaleTimeString(),
         ),
         datasets: [
           {
             label: `${coin.name} Price (Past day) in CAD`,
-            data: market_values.dayMarketValues,
+            data: marketValues?.dayMarketValues,
             type: "line",
             pointRadius: 1.3,
             borderColor: "#ff9500",
@@ -65,13 +77,13 @@ const Coin = ({ coin, market_chart, market_values }) => {
   const weekClickHandler = () => {
     setChartData((prev) => {
       return {
-        labels: market_chart.week.map((data) =>
+        labels: marketChart?.week.map((data) =>
           new Date(data[0]).toLocaleDateString(),
         ),
         datasets: [
           {
             label: `${coin.name} Price (Past week) in CAD`,
-            data: market_values.weekMarketValues,
+            data: marketValues?.weekMarketValues,
             type: "line",
             pointRadius: 1.3,
             borderColor: "#ff9500",
@@ -86,13 +98,13 @@ const Coin = ({ coin, market_chart, market_values }) => {
   const monthClickHandler = () => {
     setChartData((prev) => {
       return {
-        labels: market_chart.month.map((data) =>
+        labels: marketChart?.month.map((data) =>
           new Date(data[0]).toLocaleDateString(),
         ),
         datasets: [
           {
             label: `${coin.name} Price (Past month) in CAD`,
-            data: market_values.monthMarketValues,
+            data: marketValues?.monthMarketValues,
             type: "line",
             pointRadius: 1.3,
             borderColor: "#ff9500",
@@ -107,13 +119,13 @@ const Coin = ({ coin, market_chart, market_values }) => {
   const yearClickHandler = () => {
     setChartData((prev) => {
       return {
-        labels: market_chart.year.map((data) =>
+        labels: marketChart?.year.map((data) =>
           new Date(data[0]).toLocaleDateString(),
         ),
         datasets: [
           {
             label: `${coin.name} Price (Past year) in CAD`,
-            data: market_values.yearMarketValues,
+            data: marketValues?.yearMarketValues,
             type: "line",
             pointRadius: 1.3,
             borderColor: "#ff9500",
@@ -139,34 +151,96 @@ const Coin = ({ coin, market_chart, market_values }) => {
     }
   };
 
-  const goBack= () => {
-    router.back()
-  }
+  const goBack = () => {
+    router.back();
+  };
 
   const removeHTML = (str) => str.replace(/<\/?[^>]+(>|$)/g, "");
+
+  useEffect(() => {
+    //remember to stop this from happening on first render!!!!!!!!!!!!!
+    if (firstUpdate.current) {
+      firstUpdate.current = false;
+      return;
+    }
+
+    const setNewCurrency = async () => {
+      console.log("setting new cur", currentCurrency);
+
+      const urls = [
+        `https://api.coingecko.com/api/v3/coins/${pageId}?vs_currency=${currentCurrency}`,
+        `https://api.coingecko.com/api/v3/coins/${pageId}/market_chart?vs_currency=${currentCurrency}&days=1`,
+        `https://api.coingecko.com/api/v3/coins/${pageId}/market_chart?vs_currency=${currentCurrency}&days=7`,
+        `https://api.coingecko.com/api/v3/coins/${pageId}/market_chart?vs_currency=${currentCurrency}&days=30`,
+        `https://api.coingecko.com/api/v3/coins/${pageId}/market_chart?vs_currency=${currentCurrency}&days=365`,
+      ];
+
+      const coinInfo = await Promise.all(
+        urls.map((url) => fetch(url).then((resp) => resp.json())),
+      );
+
+      const dayMarketValues = coinInfo[1].prices.map((data) => data[1]);
+      const weekMarketValues = coinInfo[2].prices.map((data) => data[1]);
+      const monthMarketValues = coinInfo[3].prices.map((data) => data[1]);
+      const yearMarketValues = coinInfo[4].prices.map((data) => data[1]);
+
+      console.log("setting", coinInfo[0]);
+
+      // setCoin(coinInfo[0])
+      setMarketChart({
+        day: coinInfo[1].prices,
+        week: coinInfo[2].prices,
+        month: coinInfo[3].prices,
+        year: coinInfo[4].prices,
+      });
+      setMarketValues({
+        dayMarketValues,
+        weekMarketValues,
+        monthMarketValues,
+        yearMarketValues,
+      });
+
+      setChartData({
+        labels: coinInfo[1].prices.map((data) =>
+          new Date(data[0]).toLocaleTimeString(),
+        ),
+        datasets: [
+          {
+            label: `${coin.name} Price (Past day) in CAD`,
+            data: dayMarketValues,
+            type: "line",
+            pointRadius: 1.3,
+            borderColor: "#ff9500",
+          },
+        ],
+      });
+    };
+
+    setNewCurrency();
+  }, [currentCurrency]);
 
   return (
     <div className={styles.container}>
       <div className={styles.row}>
         <div className={styles.coin_info}>
           <div onClick={goBack} className={styles.back_link}>
-              <FontAwesomeIcon icon={faArrowLeft}/>
+            <FontAwesomeIcon icon={faArrowLeft} />
           </div>
           <header className={styles.header}>
             <div className={styles.title_wrapper}>
-                <Image
-                  src={coin.image.large}
-                  alt={coin.name}
-                  // layout={'fill'}
-                  width={88}
-                  height={88}
-                  className={styles.image}
-                />
-                {/* <div className={styles.text_wrapper}> */}
-                  <h1 className={styles.name}>{coin.name}</h1>
-                  <h4 className={styles.symbol}>{coin.symbol.toUpperCase()}</h4>
+              <Image
+                src={coin.image.large}
+                alt={coin.name}
+                // layout={'fill'}
+                width={88}
+                height={88}
+                className={styles.image}
+              />
+              {/* <div className={styles.text_wrapper}> */}
+              <h1 className={styles.name}>{coin.name}</h1>
+              <h4 className={styles.symbol}>{coin.symbol.toUpperCase()}</h4>
 
-                {/* </div> */}
+              {/* </div> */}
             </div>
             <div className={styles.description}>
               <p>
@@ -181,14 +255,16 @@ const Coin = ({ coin, market_chart, market_values }) => {
           </header>
 
           <div className={styles.info_card}>
-
             <div className={styles.info_row}>
               <h3>Current Price:</h3>
               <p className={styles.current}>
                 {currentSymbol}
-                {coin.market_data.current_price.cad.toLocaleString("en-US", {
-                  maximumFractionDigits: 8,
-                })}
+                {coin.market_data.current_price[currentCurrency].toLocaleString(
+                  "en-US",
+                  {
+                    maximumFractionDigits: 8,
+                  },
+                )}
               </p>
             </div>
 
@@ -200,9 +276,9 @@ const Coin = ({ coin, market_chart, market_values }) => {
               <h3>All Time High:</h3>
               <p className={styles.current}>
                 {currentSymbol}
-                {coin.market_data.ath.cad.toLocaleString("en-US", {
+                {coin.market_data.ath[currentCurrency].toLocaleString("en-US", {
                   maximumFractionDigits: 8,
-                  minimumFractionDigits: 2
+                  minimumFractionDigits: 2,
                 })}
               </p>
             </div>
@@ -210,7 +286,7 @@ const Coin = ({ coin, market_chart, market_values }) => {
               <h3>All Time Low:</h3>
               <p className={styles.current}>
                 {currentSymbol}
-                {coin.market_data.atl.cad.toLocaleString("en-US", {
+                {coin.market_data.atl[currentCurrency].toLocaleString("en-US", {
                   maximumFractionDigits: 8,
                 })}
               </p>
@@ -254,16 +330,24 @@ const Coin = ({ coin, market_chart, market_values }) => {
             <div className={styles.info_row}>
               <h3>Market Cap:</h3>
               <p className={styles.current}>
-                {currentSymbol}{bigNumberFormatter(coin.market_data.market_cap.cad)}
+                {currentSymbol}
+                {bigNumberFormatter(coin.market_data.market_cap.cad)}
               </p>
             </div>
             <div className={styles.info_row}>
               <h3>Total Volume:</h3>
               <p className={styles.current}>
                 {currentSymbol}
-                {coin.market_data.total_volume.cad.toLocaleString("en-US", {
-                  maximumFractionDigits: 8,
-                })}
+                {!isBreakpoint1040
+                  ? coin.market_data.total_volume[
+                      currentCurrency
+                    ].toLocaleString("en-US", {
+                      maximumFractionDigits: 8,
+                    })
+                  : bigNumberFormatter(
+                      coin.market_data.total_volume[currentCurrency],
+                    )}
+                {}
               </p>
             </div>
             <div className={styles.info_row}>
@@ -273,7 +357,9 @@ const Coin = ({ coin, market_chart, market_values }) => {
                   {+coin.market_data.price_change_24h < 1 &&
                     `${currentSymbol}${coin.market_data.price_change_24h}`}
                   {+coin.market_data.price_change_24h > 1 &&
-                    `${currentSymbol}${coin.market_data.price_change_24h.toFixed(2)}`}
+                    `${currentSymbol}${coin.market_data.price_change_24h.toFixed(
+                      2,
+                    )}`}
                 </p>
               ) : (
                 <p className={styles.current}>
@@ -286,9 +372,9 @@ const Coin = ({ coin, market_chart, market_values }) => {
                       },
                     )}`}
                   {+coin.market_data.price_change_24h > -1 &&
-                    `-${currentSymbol}${Math.abs(coin.market_data.price_change_24h).toFixed(
-                      8,
-                    )}`}
+                    `-${currentSymbol}${Math.abs(
+                      coin.market_data.price_change_24h,
+                    ).toFixed(8)}`}
                 </p>
               )}
             </div>
@@ -306,7 +392,6 @@ const Coin = ({ coin, market_chart, market_values }) => {
                 currentChartPeriod={currentChartPeriod}
               />
             </div>
-
           </div>
           <div className={styles.chart_buttons}>
             {currentChartPeriod === "day" ? (
@@ -364,11 +449,18 @@ const Coin = ({ coin, market_chart, market_values }) => {
                     {/* <p>Past Day %:</p> */}
                     {coin.market_data.price_change_percentage_24h >= 0 ? (
                       <h3 className={styles.green}>
-                        +{coin.market_data.price_change_percentage_24h.toFixed(3)}%
+                        +
+                        {coin.market_data.price_change_percentage_24h.toFixed(
+                          3,
+                        )}
+                        %
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin.market_data.price_change_percentage_24h.toFixed(3)}%
+                        {coin.market_data.price_change_percentage_24h.toFixed(
+                          3,
+                        )}
+                        %
                       </h3>
                     )}
                   </div>
@@ -380,11 +472,18 @@ const Coin = ({ coin, market_chart, market_values }) => {
                     {/* <p>Past Day %:</p> */}
                     {coin.market_data.price_change_percentage_24h >= 0 ? (
                       <h3 className={styles.green}>
-                        +{coin.market_data.price_change_percentage_24h.toFixed(3)}%
+                        +
+                        {coin.market_data.price_change_percentage_24h.toFixed(
+                          3,
+                        )}
+                        %
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin.market_data.price_change_percentage_24h.toFixed(3)}%
+                        {coin.market_data.price_change_percentage_24h.toFixed(
+                          3,
+                        )}
+                        %
                       </h3>
                     )}
                   </div>
@@ -398,11 +497,14 @@ const Coin = ({ coin, market_chart, market_values }) => {
                     {/* <h3></h3> */}
                     {coin.market_data.price_change_percentage_7d >= 0 ? (
                       <h3 className={styles.green}>
-                        +{coin.market_data.price_change_percentage_7d.toFixed(3)}%
+                        +
+                        {coin.market_data.price_change_percentage_7d.toFixed(3)}
+                        %
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin.market_data.price_change_percentage_7d.toFixed(3)}%
+                        {coin.market_data.price_change_percentage_7d.toFixed(3)}
+                        %
                       </h3>
                     )}
                   </div>
@@ -414,11 +516,14 @@ const Coin = ({ coin, market_chart, market_values }) => {
                     {/* <h3></h3> */}
                     {coin.market_data.price_change_percentage_7d >= 0 ? (
                       <h3 className={styles.green}>
-                        +{coin.market_data.price_change_percentage_7d.toFixed(3)}%
+                        +
+                        {coin.market_data.price_change_percentage_7d.toFixed(3)}
+                        %
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin.market_data.price_change_percentage_7d.toFixed(3)}%
+                        {coin.market_data.price_change_percentage_7d.toFixed(3)}
+                        %
                       </h3>
                     )}
                   </div>
@@ -431,11 +536,18 @@ const Coin = ({ coin, market_chart, market_values }) => {
                     <p>Month Gain/Loss:</p>
                     {coin.market_data.price_change_percentage_30d >= 0 ? (
                       <h3 className={styles.green}>
-                        +{coin.market_data.price_change_percentage_30d.toFixed(3)}%
+                        +
+                        {coin.market_data.price_change_percentage_30d.toFixed(
+                          3,
+                        )}
+                        %
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin.market_data.price_change_percentage_30d.toFixed(3)}%
+                        {coin.market_data.price_change_percentage_30d.toFixed(
+                          3,
+                        )}
+                        %
                       </h3>
                     )}
                   </div>
@@ -446,11 +558,18 @@ const Coin = ({ coin, market_chart, market_values }) => {
                     <p>Month Gain/Loss:</p>
                     {coin.market_data.price_change_percentage_30d >= 0 ? (
                       <h3 className={styles.green}>
-                        +{coin.market_data.price_change_percentage_30d.toFixed(3)}%
+                        +
+                        {coin.market_data.price_change_percentage_30d.toFixed(
+                          3,
+                        )}
+                        %
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin.market_data.price_change_percentage_30d.toFixed(3)}%
+                        {coin.market_data.price_change_percentage_30d.toFixed(
+                          3,
+                        )}
+                        %
                       </h3>
                     )}
                   </div>
@@ -465,11 +584,14 @@ const Coin = ({ coin, market_chart, market_values }) => {
                     {/* <h3></h3> */}
                     {coin.market_data.price_change_percentage_1y >= 0 ? (
                       <h3 className={styles.green}>
-                        +{coin.market_data.price_change_percentage_1y.toFixed(3)}%
+                        +
+                        {coin.market_data.price_change_percentage_1y.toFixed(3)}
+                        %
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin.market_data.price_change_percentage_1y.toFixed(3)}%
+                        {coin.market_data.price_change_percentage_1y.toFixed(3)}
+                        %
                       </h3>
                     )}
                   </div>
@@ -481,11 +603,14 @@ const Coin = ({ coin, market_chart, market_values }) => {
                     {/* <h3></h3> */}
                     {coin.market_data.price_change_percentage_1y >= 0 ? (
                       <h3 className={styles.green}>
-                        +{coin.market_data.price_change_percentage_1y.toFixed(3)}%
+                        +
+                        {coin.market_data.price_change_percentage_1y.toFixed(3)}
+                        %
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin.market_data.price_change_percentage_1y.toFixed(3)}%
+                        {coin.market_data.price_change_percentage_1y.toFixed(3)}
+                        %
                       </h3>
                     )}
                   </div>
@@ -660,11 +785,7 @@ export async function getServerSideProps(context) {
   ];
 
   const coinInfo = await Promise.all(
-    urls.map((url) => fetch(url).then((resp) => resp.json())),
-  ).then((res) => {
-    // console.log('yup', res)
-    return res;
-  });
+    urls.map((url) => fetch(url).then((resp) => resp.json())));
 
   const dayMarketValues = coinInfo[1].prices.map((data) => data[1]);
   const weekMarketValues = coinInfo[2].prices.map((data) => data[1]);
@@ -674,18 +795,19 @@ export async function getServerSideProps(context) {
   return {
     props: {
       coin: coinInfo[0],
-      market_chart: {
+      marketChartFromServer: {
         day: coinInfo[1].prices,
         week: coinInfo[2].prices,
         month: coinInfo[3].prices,
         year: coinInfo[4].prices,
       },
-      market_values: {
+      marketValuesFromServer: {
         dayMarketValues,
         weekMarketValues,
         monthMarketValues,
         yearMarketValues,
       },
+      pageId: id,
     },
   };
 }

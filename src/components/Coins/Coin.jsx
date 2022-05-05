@@ -53,6 +53,7 @@ const Coin = ({
   image,
   priceChange,
   id,
+  coinSymbol
 }) => {
   
   const currentSymbol = useSelector((state) => state.currency.symbol);
@@ -72,7 +73,7 @@ const Coin = ({
           </div>
         </div>
 
-        <p className={styles.price}>{currentSymbol}{price}</p>
+        <p className={styles.price}>{coinSymbol}{price}</p>
 
         {/* {!isBreakpoint680 &&
           (isBreakpoint1250 ? (
@@ -81,7 +82,7 @@ const Coin = ({
             <p className={styles.volume}>${volume.toLocaleString()}</p>
           ))} */}
 
-          {(volume !== 0 && volume) && <p className={styles.volume}>{currentSymbol}{volume}</p>}
+          {(volume !== 0 && volume) && <p className={styles.volume}>{coinSymbol}{volume}</p>}
           {volume === 0 && <p className={styles.volume}>Info Missing</p>}
 
         {/* <p className={styles.volume}>${volume}</p> */}
@@ -100,7 +101,7 @@ const Coin = ({
             <p className={styles.market_cap}>${marketcap.toLocaleString()}</p>
           ))} */}
 
-{marketcap && <p className={styles.market_cap}>{currentSymbol}{marketcap}</p>}
+{marketcap && <p className={styles.market_cap}>{coinSymbol}{marketcap}</p>}
 
         {/* <p className={styles.market_cap}>
               Mkt Cap: ${marketcap}

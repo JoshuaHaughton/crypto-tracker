@@ -3,7 +3,7 @@ import BackgroundImage from '../../../../public/BannerPic.png'
 import Carousel from '../Carousel/Carousel'
 import styles from './Banner.module.css'
 
-const Banner = ({ trendingCoins }) => {
+const Banner = ({ carouselCoins, nonReduxSymbol }) => {
   return (
     <div className={styles.container}>
       <div className={styles.banner}>
@@ -11,7 +11,7 @@ const Banner = ({ trendingCoins }) => {
           <h2>Crypto City</h2>
           <p>Get the latest info on your favourite crypto!</p>
         </div>
-        <Carousel trendingCoins={trendingCoins} />
+        <Carousel carouselCoins={carouselCoins} nonReduxSymbol={nonReduxSymbol}/>
       </div>
     </div>
   )

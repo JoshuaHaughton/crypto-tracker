@@ -93,7 +93,8 @@ const Navbar = () => {
 
     console.log(e.target.value.split(","));
 
-    const currency = e.target.value.split(",")[0]
+    const currency = e.target.value.split(",")[0].toLowerCase();
+    console.log('new currency', currency);
     const symbol = e.target.value.split(",")[1]
 
     dispatch(currencyActions.changeCurrency({currency, symbol}))

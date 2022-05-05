@@ -6,35 +6,16 @@ import Link from "next/link";
 // import "react-alice-carousel/lib/alice-carousel.css";
 import dynamic from "next/dynamic";
 import { useSelector } from "react-redux";
+import { useEffect } from "react";
 const AliceCarousel = dynamic(() => import("react-alice-carousel"), {
   ssr: false,
 });
 
-const Carousel = ({ trendingCoins }) => {
-  const [a, setA] = useState(trendingCoins || []);
-  const currentSymbol = useSelector((state) => state.currency.symbol);
-
-  const responsive = {
-    0: {
-      items: 1,
-    },
-    360: {
-      items: 2
-    },
-    512: {
-      items: 3,
-    },
-    750: {
-      items: 4
-    },
-    1000: {
-      items: 5
-    }
-  };
-
-  let items = a.map((coin) => {
+const Carousel = ({ carouselCoins, nonReduxSymbol }) => {
+  // const currentSymbol = useSelector((state) => state.currency.symbol);
+  const [carouselItems, setCarouselItems] = useState(carouselCoins.map((coin) => {
     let profit = coin.price_change_percentage_24h >= 0;
-    console.log(profit);
+    console.log(nonReduxSymbol);
     console.log(coin);
     return (
       <div className={styles.carousel_item} key={coin.id}>
@@ -58,16 +39,76 @@ const Carousel = ({ trendingCoins }) => {
             )}
           </p>
           <h6>
-            {currentSymbol}{coin?.current_price.toLocaleString("en-US", {
+            {nonReduxSymbol}
+            {coin?.current_price.toLocaleString("en-US", {
               maximumFractionDigits: 8,
               minimumFractionDigits: 2,
             })}
           </h6>
         </div>
     );
-  });
+  }))
 
-  console.log(items);
+  const responsive = {
+    0: {
+      items: 1,
+    },
+    360: {
+      items: 2
+    },
+    512: {
+      items: 3,
+    },
+    750: {
+      items: 4
+    },
+    1000: {
+      items: 5
+    }
+  };
+
+  useEffect(() => {
+    setCarouselItems(carouselCoins.map((coin) => {
+      let profit = coin.price_change_percentage_24h >= 0;
+      console.log(profit);
+      console.log(coin);
+      return (
+        <div className={styles.carousel_item} key={coin.id}>
+            <Link
+              href={`/coin/${coin.id}`}
+            >
+            <Image
+              key={coin.id}
+              src={coin?.image}
+              alt={coin.name}
+              height={80}
+              width={80}
+            />
+              </Link>
+            <p>
+              {coin?.symbol.toUpperCase()}&nbsp;
+              {profit ? (
+                <span className={styles.green}>+{coin.price_change_percentage_24h}%</span>
+              ) : (
+                <span className={styles.red}>{coin.price_change_percentage_24h}%</span>
+              )}
+            </p>
+            <h6>
+            {nonReduxSymbol}
+              {coin?.current_price.toLocaleString("en-US", {
+                maximumFractionDigits: 8,
+                minimumFractionDigits: 2,
+              })}
+            </h6>
+          </div>
+      );
+    }))
+
+  }, [carouselCoins])
+
+
+
+  console.log(carouselItems);
 
   return (
     <div className={styles.carousel}>
@@ -80,10 +121,10 @@ const Carousel = ({ trendingCoins }) => {
         disableButtonsControls
         responsive={responsive}
         autoPlay
-        items={items}
+        items={carouselItems}
       />
     </div>
   );
 };
 
-export default Carousel;
+export default React.memo(Carousel);

@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import { Line, Bar } from "react-chartjs-2";
 import { Chart as ChartJS } from "chart.js";
+import { useMediaQuery } from "../Coins/Coin";
 
 const HistoryChart = ({ chartData, currentChartPeriod }) => {
   // const chartRef = useRef()
@@ -33,23 +34,28 @@ const HistoryChart = ({ chartData, currentChartPeriod }) => {
 
 
   let maxTicks = 20;
+  const isBreakpoint520 = useMediaQuery(520)
 
-  switch (currentChartPeriod) {
-    case "day":
-      maxTicks = 25;
-      break;
-
-    case "week":
-      maxTicks = 7;
-      break;
-
-    case "month":
-      maxTicks = 31;
-      break;
-
-    case "year":
-      maxTicks = 12;
-      break;
+  if (!isBreakpoint520) {
+    switch (currentChartPeriod) {
+      case "day":
+        maxTicks = 25;
+        break;
+  
+      case "week":
+        maxTicks = 7;
+        break;
+  
+      case "month":
+        maxTicks = 31;
+        break;
+  
+      case "year":
+        maxTicks = 12;
+        break;
+    }
+  } else {
+    maxTicks = 5
   }
 
   return (

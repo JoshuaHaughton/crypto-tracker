@@ -402,11 +402,12 @@
   .header {
     flex-direction: row;
     justify-content: space-evenly;
-    margin-right: 8px;
+    width: 100%;
   }
 
   .description {
     width: 70%;
+    margin-left: 16px;
   }
 
   .description > p {
@@ -414,7 +415,7 @@
   }
 
   .back_link {
-    top: 12px;
+    top: 10px;
     font-size: 28px;
   }
   
@@ -493,6 +494,11 @@
 
   .description {
     width: 85%;
+  }
+  
+  .chart > canvas {
+    width: 100%;
+    /* height: 300px !important; */
   }
   
 }

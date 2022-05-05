@@ -1,8 +1,9 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import Coin, { useMediaQuery } from "./Coins/Coin";
 import styles from "./CoinList.module.css";
 import { TextField } from "@mui/material";
 import { BorderBottomOutlined } from "@mui/icons-material";
+import { useSelector } from "react-redux";
 
 const bigNumberFormatter = (num) => {
   if (num > 999 && num < 1000000) {
@@ -18,9 +19,11 @@ const bigNumberFormatter = (num) => {
   }
 };
 
-const CoinList = ({ filteredCoins, currentPageCoins, isBreakpoint680, isBreakpoint380, isBreakpoint1250 }) => {
+const CoinList = ({ filteredCoins, currentPageCoins, isBreakpoint680, isBreakpoint380, isBreakpoint1250, currentSymbol }) => {
+  const firstUpdate = useRef(true);
   const [search, setSearch] = useState("");
   const [shownCoins, setShownCoins] = useState(currentPageCoins);
+  const [coinSymbol, setCoinSymbol] = useState(currentSymbol || '$')
 
   const handleChange = (e) => {
     e.preventDefault();
@@ -47,7 +50,19 @@ const CoinList = ({ filteredCoins, currentPageCoins, isBreakpoint680, isBreakpoi
 
   useEffect(() => {
     setShownCoins(currentPageCoins)
+    // setCoinSymbol(currentSymbol)
   }, [currentPageCoins])
+
+  useEffect(() => {
+    if (firstUpdate.current) {
+      firstUpdate.current = false;
+      return;
+    } else {
+      setCoinSymbol(currentSymbol)
+      console.log('sett', currentSymbol);
+
+    }
+  }, [filteredCoins])
 
   // const isBreakpoint1250 = useMediaQuery(1250);
   // const isBreakpoint680 = useMediaQuery(680);
@@ -152,6 +167,7 @@ const CoinList = ({ filteredCoins, currentPageCoins, isBreakpoint680, isBreakpoi
             volume={transformedVolume}
             image={coin.image}
             priceChange={coin.price_change_percentage_24h}
+            coinSymbol={coinSymbol}
           />
         );
       })}
