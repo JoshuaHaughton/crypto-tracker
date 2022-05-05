@@ -34,6 +34,9 @@ a {
 
 .alice-carousel__stage-item {
   padding: 8px 24px;
+  display: inline-flex !important;
+  justify-content: center;
+  align-items: center;
 }
 
 .alice-carousel__stage-item > div {
@@ -46,22 +49,22 @@ a {
   /* width: fit-content !important; */
 }
 
-.alice-carousel__stage-item > div > span {
+.alice-carousel__stage-item > div {
   overflow: visible !important;
   height: fit-content !important;
   width: fit-content !important;
 }
 
-.alice-carousel__stage-item > div > span > img {
+.alice-carousel__stage-item > div > img {
   cursor: pointer;
   transition: all 200ms ease;
 }
 
-.alice-carousel__stage-item > div > span > img:hover {
+.alice-carousel__stage-item > div > img:hover {
   transform: scale(1.1);
 }
 
-.alice-carousel__stage-item > div > span > img:active {
+.alice-carousel__stage-item > div > img:active {
   transform: scale(0.97);
 }
 
@@ -87,7 +90,7 @@ a {
 }
 
 .css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected {
-  background-color: #ff950094;
+  background-color: #ff950094 !important;
 }
 
 .css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected:hover {

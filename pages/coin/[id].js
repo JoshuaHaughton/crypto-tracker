@@ -7,21 +7,24 @@ import { FilledInput } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/router";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useMediaQuery } from "../../src/components/Coins/Coin";
+import { coinsActions } from "../../src/store/coins";
 // import { ResponsiveContainer, AreaChart, XAxis, YAxis, Area, Tooltip, CartesianGrid } from 'recharts';
 const Coin = ({
-  coin,
+  initialCoin,
   marketChartFromServer,
   marketValuesFromServer,
   pageId,
 }) => {
-  let firstUpdate = useRef(true);
-  // const [coin, setCoin] = useState(coin)
+  const firstUpdate = useRef(true);
+  const [coin, setCoin] = useState(initialCoin)
   const [marketValues, setMarketValues] = useState(marketValuesFromServer);
   const [marketChart, setMarketChart] = useState(marketChartFromServer);
   const currentSymbol = useSelector((state) => state.currency.symbol);
   const currentCurrency = useSelector((state) => state.currency.currency);
+  const dispatch = useDispatch()
+
   const isBreakpoint1040 = useMediaQuery(1040);
 
   const [chartData, setChartData] = useState({
@@ -158,65 +161,124 @@ const Coin = ({
   const removeHTML = (str) => str.replace(/<\/?[^>]+(>|$)/g, "");
 
   useEffect(() => {
-    //remember to stop this from happening on first render!!!!!!!!!!!!!
+
     if (firstUpdate.current) {
       firstUpdate.current = false;
       return;
-    }
+    } 
+    console.log('first time');
 
-    const setNewCurrency = async () => {
-      console.log("setting new cur", currentCurrency);
+      const setNewCurrency = async () => {
 
-      const urls = [
-        `https://api.coingecko.com/api/v3/coins/${pageId}?vs_currency=${currentCurrency}`,
-        `https://api.coingecko.com/api/v3/coins/${pageId}/market_chart?vs_currency=${currentCurrency}&days=1`,
-        `https://api.coingecko.com/api/v3/coins/${pageId}/market_chart?vs_currency=${currentCurrency}&days=7`,
-        `https://api.coingecko.com/api/v3/coins/${pageId}/market_chart?vs_currency=${currentCurrency}&days=30`,
-        `https://api.coingecko.com/api/v3/coins/${pageId}/market_chart?vs_currency=${currentCurrency}&days=365`,
-      ];
 
-      const coinInfo = await Promise.all(
-        urls.map((url) => fetch(url).then((resp) => resp.json())),
-      );
 
-      const dayMarketValues = coinInfo[1].prices.map((data) => data[1]);
-      const weekMarketValues = coinInfo[2].prices.map((data) => data[1]);
-      const monthMarketValues = coinInfo[3].prices.map((data) => data[1]);
-      const yearMarketValues = coinInfo[4].prices.map((data) => data[1]);
 
-      console.log("setting", coinInfo[0]);
+        console.log("setting new cur", currentCurrency);
+  
+        const urls = [
+          `https://api.coingecko.com/api/v3/coins/${pageId}?vs_currency=${currentCurrency}`,
+          `https://api.coingecko.com/api/v3/coins/${pageId}/market_chart?vs_currency=${currentCurrency}&days=1`,
+          `https://api.coingecko.com/api/v3/coins/${pageId}/market_chart?vs_currency=${currentCurrency}&days=7`,
+          `https://api.coingecko.com/api/v3/coins/${pageId}/market_chart?vs_currency=${currentCurrency}&days=30`,
+          `https://api.coingecko.com/api/v3/coins/${pageId}/market_chart?vs_currency=${currentCurrency}&days=365`,
+        ];
+  
+        const coinInfo = await Promise.all(
+          urls.map((url) => fetch(url).then((resp) => resp.json())),
+        );
+  
+        // const coinListInfo = await (await fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currentCurrency}&order=market_cap_desc&per_page=100&page=1&sparkline=false`).then((resp) => resp.json()))
+  
+        // console.log('new coin list', coinListInfo);
+  
+        // updateCoins(prev => {return {...prev, initialHundredCoins: coinListInfo}})
+        // asd
+  
+        
+        
+        
+        const dayMarketValues = coinInfo[1].prices.map((data) => data[1]);
+        const weekMarketValues = coinInfo[2].prices.map((data) => data[1]);
+        const monthMarketValues = coinInfo[3].prices.map((data) => data[1]);
+        const yearMarketValues = coinInfo[4].prices.map((data) => data[1]);
+        // dispatch(coinsActions.updateCoins({coinListCoins: coinInfo[5] , trendingCarouselCoins: coinInfo[6], symbol: currentSymbol}))
+        
+  
+        console.log("setting", coinInfo[0]);
+  
+        setCoin(coinInfo[0])
+        setMarketChart({
+          day: coinInfo[1].prices,
+          week: coinInfo[2].prices,
+          month: coinInfo[3].prices,
+          year: coinInfo[4].prices,
+        });
+        setMarketValues({
+          dayMarketValues,
+          weekMarketValues,
+          monthMarketValues,
+          yearMarketValues,
+        });
+  
+        setChartData({
+          labels: coinInfo[1].prices.map((data) =>
+            new Date(data[0]).toLocaleTimeString(),
+          ),
+          datasets: [
+            {
+              label: `${coin.name} Price (Past day) in CAD`,
+              data: dayMarketValues,
+              type: "line",
+              pointRadius: 1.3,
+              borderColor: "#ff9500",
+            },
+          ],
+        });
+  
+  
+  
+  
+  
+        //get coin info for main page AFTER coin info page data has been retrieved. Causes loading on coin info page to be faster, and user wont notice since they wont see the main page, and we're fetching it in the background asynchronously
+  
+  
+  
+  
+        const urls2 = [
+          `https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currentCurrency}&order=market_cap_desc&per_page=100&page=1&sparkline=false`,
+          `https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currentCurrency}&order=gecko_desc&per_page=10&page=1&sparkline=false&price_change_percentage=24h`,
+        ];
+  
+  
+        Promise.all(urls2.map((u) => fetch(u)))
+          .then((responses) => Promise.all(responses.map((res) => res.json())))
+          .then((data) => {
+            console.log("yebuddy", data);
+  
+            const hundredNewCoins = data[0];
+            const trendingCoins = data[1];
+  
+            console.log('latest man', hundredNewCoins, trendingCoins)
+  
+            // updateCoins({initialHundredCoins: hundredNewCoins, trendingCoins});
+            dispatch(coinsActions.updateCoins({coinListCoins: hundredNewCoins , trendingCarouselCoins: trendingCoins, symbol: currentSymbol}))
+            // setCarouselCoins(trendingCoins);
+            // setNonReduxSymbol(currentSymbol);
+          });
+  
+  
+  
+  
+  
+  
+        
+      };
+  
+      setNewCurrency();
+      
 
-      // setCoin(coinInfo[0])
-      setMarketChart({
-        day: coinInfo[1].prices,
-        week: coinInfo[2].prices,
-        month: coinInfo[3].prices,
-        year: coinInfo[4].prices,
-      });
-      setMarketValues({
-        dayMarketValues,
-        weekMarketValues,
-        monthMarketValues,
-        yearMarketValues,
-      });
 
-      setChartData({
-        labels: coinInfo[1].prices.map((data) =>
-          new Date(data[0]).toLocaleTimeString(),
-        ),
-        datasets: [
-          {
-            label: `${coin.name} Price (Past day) in CAD`,
-            data: dayMarketValues,
-            type: "line",
-            pointRadius: 1.3,
-            borderColor: "#ff9500",
-          },
-        ],
-      });
-    };
-
-    setNewCurrency();
+    
   }, [currentCurrency]);
 
   return (
@@ -288,6 +350,7 @@ const Coin = ({
                 {currentSymbol}
                 {coin.market_data.atl[currentCurrency].toLocaleString("en-US", {
                   maximumFractionDigits: 8,
+                  minimumFractionDigits: 2,
                 })}
               </p>
             </div>
@@ -774,7 +837,7 @@ export default Coin;
 
 export async function getServerSideProps(context) {
   const { id } = context.query;
-  console.log(context);
+  // console.log(context);
 
   const urls = [
     `https://api.coingecko.com/api/v3/coins/${id}?vs_currency=cad`,
@@ -794,7 +857,7 @@ export async function getServerSideProps(context) {
 
   return {
     props: {
-      coin: coinInfo[0],
+      initialCoin: coinInfo[0],
       marketChartFromServer: {
         day: coinInfo[1].prices,
         week: coinInfo[2].prices,

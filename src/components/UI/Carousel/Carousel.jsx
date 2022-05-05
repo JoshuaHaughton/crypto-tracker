@@ -13,11 +13,12 @@ const AliceCarousel = dynamic(() => import("react-alice-carousel"), {
 
 const Carousel = ({ carouselCoins, nonReduxSymbol }) => {
   const firstRender = useRef(true)
+  // const trendingCarouselCoins = useSelector(state => state.coins.trendingCarouselCoins)
   // const currentSymbol = useSelector((state) => state.currency.symbol);
   const [carouselItems, setCarouselItems] = useState(carouselCoins.map((coin) => {
     let profit = coin.price_change_percentage_24h >= 0;
     console.log(nonReduxSymbol);
-    console.log(coin);
+    // console.log(coin);
     return (
       <div className={styles.carousel_item} key={coin.id}>
           <Link
@@ -25,7 +26,7 @@ const Carousel = ({ carouselCoins, nonReduxSymbol }) => {
           >
           <Image
             key={coin.id}
-            src={coin?.image}
+            src={coin.image}
             alt={coin.name}
             height={80}
             width={80}
@@ -76,15 +77,15 @@ const Carousel = ({ carouselCoins, nonReduxSymbol }) => {
     } else {
       setCarouselItems(carouselCoins.map((coin) => {
         let profit = coin.price_change_percentage_24h >= 0;
-        console.log(profit);
-        console.log(coin);
+        // console.log(profit);
+        // console.log(coin);
         return (
           <div className={styles.carousel_item} key={coin.id}>
               <Link
                 href={`/coin/${coin.id}`}
               >
-              <Image
-                key={coin.id}
+                {/* Didnt use nextjs Image component here because it was causing images to load slowly on first render (bad UX) */}
+              <img
                 src={coin?.image}
                 alt={coin.name}
                 height={80}
@@ -112,11 +113,11 @@ const Carousel = ({ carouselCoins, nonReduxSymbol }) => {
 
     }
 
-  }, [carouselCoins])
+  }, [carouselCoins, nonReduxSymbol])
 
 
 
-  console.log(carouselItems);
+  // console.log(carouselItems);
 
   return (
     <div className={styles.carousel}>

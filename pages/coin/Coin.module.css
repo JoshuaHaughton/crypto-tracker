@@ -18,8 +18,8 @@
 .row > hr { 
   display: inline-block;
   width: 1px;
-  height: calc(100vh - 130px);
-  margin: 24px 0 0 0;
+  height: calc(100vh - 148px);
+  margin: auto 0;
   border-color: #ff9500;
 }
 
@@ -72,6 +72,7 @@
 
 .name {
   margin: 8px 0 0 0;
+  line-height: 1;
 }
 
 .symbol {
@@ -336,6 +337,11 @@
   .info_row > p {
     width: 40%;
     font-size: 15px;
+  }
+
+  .back_link {
+    top: 16px;
+    left: 16px;
   }
 
   .container {

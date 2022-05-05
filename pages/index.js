@@ -6,21 +6,28 @@ import Pagination from "../src/components/UI/Pagination";
 import styles from "./Home.module.css";
 import "react-alice-carousel/lib/alice-carousel.css";
 import { useMediaQuery } from "../src/components/Coins/Coin";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { coinsActions } from "../src/store/coins";
 
-export default function Home({ initialHundredCoins, trendingCoins }) {
+export default function Home({ }) {
+
+  const trendingCarouselCoins = useSelector((state) => state.coins.trendingCarouselCoins);
+  const coinListCoins = useSelector((state) => state.coins.coinListCoins);
+  const dispatch = useDispatch();
+
+
+
+
+  // console.log('da coins mayne', coins)
   const firstRender = useRef(true)
-  const [filteredCoins, setFilteredCoins] = useState(initialHundredCoins);
+  // const [filteredCoins, setFilteredCoins] = useState(coinListCoins);
   const PageSize = 10;
-  console.log("trending", trendingCoins);
-  console.log("init", initialHundredCoins);
+
   let lastSymbol = null;
 
   const currentCurrency = useSelector((state) => state.currency.currency);
   const currentSymbol = useSelector((state) => state.currency.symbol);
-  // const [allCoins, setAllCoins] = useState(filteredCoins || []);
-  // const [carouselCoins, setCarouselCoins] = useState(trendingCoins || []);
-  const [carouselCoins, setCarouselCoins] = useState(trendingCoins || []);
+
   // Isn't changed until after data is fetched, prevents jumpiness in carousel component due to double reload of currencySymbol and carouselCoins
   const [nonReduxSymbol, setNonReduxSymbol] = useState(currentSymbol || "$");
   // const [search, setSearch] = useState("");
@@ -29,8 +36,8 @@ export default function Home({ initialHundredCoins, trendingCoins }) {
   const currentPageCoins = useMemo(() => {
     const firstPageIndex = (currentPage - 1) * PageSize;
     const lastPageIndex = firstPageIndex + PageSize;
-    return filteredCoins?.slice(firstPageIndex, lastPageIndex);
-  }, [currentPage, filteredCoins]);
+    return coinListCoins?.slice(firstPageIndex, lastPageIndex);
+  }, [currentPage, coinListCoins]);
 
   const isBreakpoint680 = useMediaQuery(680);
   const isBreakpoint380 = useMediaQuery(380);
@@ -58,10 +65,14 @@ export default function Home({ initialHundredCoins, trendingCoins }) {
     
                 const hundredNewCoins = data[0];
                 const trendingCoins = data[1];
+
+                console.log('latest man', hundredNewCoins)
     
-                setFilteredCoins(hundredNewCoins);
-                setCarouselCoins(trendingCoins);
+                // updateCoins({initialHundredCoins: hundredNewCoins, trendingCoins});
+                console.log('local symbol', currentSymbol)
                 setNonReduxSymbol(currentSymbol);
+                dispatch(coinsActions.updateCoins({coinListCoins: hundredNewCoins , trendingCarouselCoins: trendingCoins, symbol: currentSymbol}))
+                // setCarouselCoins(trendingCoins);
               });
 
           } catch (err) {
@@ -75,23 +86,14 @@ export default function Home({ initialHundredCoins, trendingCoins }) {
 
   }, [currentCurrency]);
 
-  // useEffect(() => {
-  //   if (search !== "") {
-  //     let searchedCoins = filteredCoins.filter((coin) => {
-  //       return coin.name.toLowerCase().includes(search.toLowerCase());
-  //     })
-  //     setShownCoins(searchedCoins);
-  //   } else {
-  //     setShownCoins(currentPageCoins)
-  //   }
-  // }, [currentPage, search, filteredCoins]);
+
 
   return (
     <div className={styles.container}>
-      <Banner carouselCoins={carouselCoins} nonReduxSymbol={nonReduxSymbol} />
+      <Banner carouselCoins={trendingCarouselCoins} nonReduxSymbol={nonReduxSymbol} />
       <h1>Search your favourite crypto!</h1>
       <CoinList
-        filteredCoins={filteredCoins}
+        filteredCoins={coinListCoins}
         currentPageCoins={currentPageCoins}
         isBreakpoint380={isBreakpoint380}
         isBreakpoint680={isBreakpoint680}
@@ -100,38 +102,10 @@ export default function Home({ initialHundredCoins, trendingCoins }) {
       />
       <Pagination
         currentPage={currentPage}
-        totalCount={filteredCoins?.length}
+        totalCount={coinListCoins.length}
         pageSize={PageSize}
         onPageChange={(page) => setCurrentPage(page)}
       />
     </div>
   );
 }
-
-export const getServerSideProps = async () => {
-
-  try {
-      const urls = [
-        `https://api.coingecko.com/api/v3/coins/markets?vs_currency=cad&order=market_cap_desc&per_page=100&page=1&sparkline=false`,
-        `https://api.coingecko.com/api/v3/coins/markets?vs_currency=cad&order=gecko_desc&per_page=10&page=1&sparkline=false&price_change_percentage=24h`,
-      ];
-    
-      const initialData = await Promise.all(urls.map((u) => fetch(u)))
-      .then((responses) => Promise.all(responses.map((res) => res.json())))
-      
-      
-      const initialHundredCoins = initialData[0]
-      const trendingCoins = initialData[1]
-    
-      return {
-        props: {
-          initialHundredCoins,
-          trendingCoins,
-        },
-      };
-    
-  } catch(err) {
-    console.log(err);
-  }
-
-};

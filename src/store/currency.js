@@ -16,23 +16,6 @@ const currencySlice = createSlice({
       if (action.payload.symbol) {
         state.symbol = action.payload.symbol
       }
-
-      // const itemIndex = state.cart.findIndex(
-      //   (item) => item.id === action.payload.id,
-      // );
-
-      // const originalItemQuantity = state.cart[itemIndex].quantity;
-      // const newTotalCartQuantity =
-      //   state.quantity - originalItemQuantity + +action.payload.newQuantity;
-
-      // if (newTotalCartQuantity === 0) {
-      //   state.quantity -= originalItemQuantity;
-      //   state.cart = state.cart.filter((item) => item.id !== action.payload.id);
-      //   return;
-      // } else {
-      //   state.cart[itemIndex].quantity = +action.payload.newQuantity;
-      //   state.quantity = newTotalCartQuantity;
-      // }
     },
     resetCart(state) {
       state.currency = 'cad';

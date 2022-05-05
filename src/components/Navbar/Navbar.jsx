@@ -17,6 +17,7 @@ import { styled } from "@mui/system";
 import { outlinedInputClasses } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { currencyActions } from "../../store/currency";
+import { useRouter } from "next/router";
 
 const StyledSelect = styled(Select)(`
   & .${outlinedInputClasses.notchedOutline} {
@@ -83,22 +84,28 @@ const Navbar = () => {
   // const classes = useStyles();
   const currentCurrency = useSelector((state) => state.currency.currency);
   const currentSymbol = useSelector((state) => state.currency.symbol);
-  console.log('cur cur',currentCurrency);
-  console.log('sym sym',currentSymbol);
+  // const router = useRouter();
+
+  // console.log('cur cur',currentCurrency);
+  // console.log('sym sym',currentSymbol);
   // const dispatch = useDispatch();
   // dispatch(currencyActions.changeCurrency({currency: "test"}))
   const dispatch = useDispatch();
 
   const handleCurrencyChange = (e) => {
 
-    console.log(e.target.value.split(","));
+    // console.log(e.target.value.split(","));
 
     const currency = e.target.value.split(",")[0].toLowerCase();
-    console.log('new currency', currency);
+    // console.log('new currency', currency);
     const symbol = e.target.value.split(",")[1]
 
     dispatch(currencyActions.changeCurrency({currency, symbol}))
   }
+
+  // const handleHomeNavigate = () => {
+  //   router.push({pathname: '/', query: {currentCurrency, currentSymbol}})
+  // }
   
 
   return (
