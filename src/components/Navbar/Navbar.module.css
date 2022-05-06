@@ -132,3 +132,11 @@
     width: fit-content;
   }
 }
+
+@media(max-width: 320px) {
+  .nav_list {
+    width: 80%;
+    justify-content: center;
+  }
+
+}

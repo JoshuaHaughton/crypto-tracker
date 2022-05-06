@@ -201,3 +201,10 @@ a {
   justify-content: center;
   align-items: center;
 }
+
+
+@media(max-width: 320px) {
+  .css-hfutr2-MuiSvgIcon-root-MuiSelect-icon {
+    display: none !important;
+  }
+}
