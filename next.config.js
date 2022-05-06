@@ -7,5 +7,8 @@ module.exports = {
   ...nextConfig,
   images: {
     domains: ['assets.coingecko.com']
-  }
+  },
+  devIndicators: {
+    buildActivity: false
+}
 }

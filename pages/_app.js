@@ -4,6 +4,14 @@ import { Layout } from "../src/components/Layout/Layout";
 import store from "../src/store";
 import { coinsActions } from "../src/store/coins";
 import "../styles/globals.css";
+import dynamic from 'next/dynamic';
+import nProgress from "nprogress";
+import { Router } from "next/router";
+// const ProgressBar = dynamic(() => import('../src/components/UI/ProgressBar'), { ssr: false });
+Router.events.on("routeChangeStart", nProgress.start);
+Router.events.on("routeChangeError", nProgress.done);
+Router.events.on("routeChangeComplete", nProgress.done);
+
 
 function MyApp({ Component, pageProps, appProps}) {
   console.log('supposedly app' , appProps)
@@ -12,6 +20,7 @@ function MyApp({ Component, pageProps, appProps}) {
   return (
     <Provider store={store}>
       <Layout coins={appProps}>
+        {/* <ProgressBar /> */}
         <Component {...pageProps} />
       </Layout>
     </Provider>
