@@ -26,8 +26,8 @@ export const Layout = ({ children, title = "Crypto Tracker", coins }) => {
         <Navbar />
 
         <main>
-          {children}
-          {/* {React.cloneElement(children, {coins: layoutCoins, updateCoins: setLayoutCoins})} */}
+          {/* {children} */}
+          {React.cloneElement(children, {coins})}
           {/* <footer className={styles.footer}>
             <div className={styles.footer_links}>
               <Link href="/" className={styles.footer_link}>

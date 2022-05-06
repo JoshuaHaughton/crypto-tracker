@@ -7,6 +7,14 @@ import "../styles/globals.css";
 import dynamic from 'next/dynamic';
 import nProgress from "nprogress";
 import { Router } from "next/router";
+
+nProgress.configure({
+  minimum: 0.3,
+  easing: "ease",
+  speed: 500,
+  showSpinner: true,
+});
+
 // const ProgressBar = dynamic(() => import('../src/components/UI/ProgressBar'), { ssr: false });
 Router.events.on("routeChangeStart", nProgress.start);
 Router.events.on("routeChangeError", nProgress.done);

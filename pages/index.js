@@ -9,7 +9,7 @@ import { useMediaQuery } from "../src/components/Coins/Coin";
 import { useDispatch, useSelector } from "react-redux";
 import { coinsActions } from "../src/store/coins";
 
-export default function Home({ }) {
+export default function Home({ coins }) {
 
   const trendingCarouselCoins = useSelector((state) => state.coins.trendingCarouselCoins);
   const coinListCoins = useSelector((state) => state.coins.coinListCoins);
@@ -36,7 +36,14 @@ export default function Home({ }) {
   const currentPageCoins = useMemo(() => {
     const firstPageIndex = (currentPage - 1) * PageSize;
     const lastPageIndex = firstPageIndex + PageSize;
-    return coinListCoins?.slice(firstPageIndex, lastPageIndex);
+
+    if (coinListCoins.length < 1) {
+      return coins.initialHundredCoins.slice(firstPageIndex, lastPageIndex);
+    } else {
+      return coinListCoins?.slice(firstPageIndex, lastPageIndex);
+    }
+
+
   }, [currentPage, coinListCoins]);
 
   const isBreakpoint680 = useMediaQuery(680);
@@ -90,10 +97,10 @@ export default function Home({ }) {
 
   return (
     <div className={styles.container}>
-      <Banner carouselCoins={trendingCarouselCoins} nonReduxSymbol={nonReduxSymbol} />
+      <Banner carouselCoins={trendingCarouselCoins.length > 1 ? trendingCarouselCoins : coins.trendingCoins} nonReduxSymbol={nonReduxSymbol} />
       <h1>Search your favourite crypto!</h1>
       <CoinList
-        filteredCoins={coinListCoins}
+        filteredCoins={coinListCoins.length > 1 ? coinListCoins : coins.initialHundredCoins}
         currentPageCoins={currentPageCoins}
         isBreakpoint380={isBreakpoint380}
         isBreakpoint680={isBreakpoint680}
