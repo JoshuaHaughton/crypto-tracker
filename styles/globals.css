@@ -23,8 +23,8 @@ a {
 
 
 /* Carousel couldnt be edited in it's css file  */
-
-.alice-carousel__stage-item, .alice-carousel__stage-item__active {
+.alice-carousel__stage-item,
+.alice-carousel__stage-item__active {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -73,9 +73,14 @@ a {
   font-size: 24px;
 }
 
-.alice-carousel__stage-item > div > p { 
+.alice-carousel__stage-item > div > p {
   margin: 18px 0 0 0;
 }
+
+
+
+
+/* Currency Select Dropdown */
 
 .css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input {
   padding: 8px;
@@ -104,7 +109,8 @@ a {
 
 
 
-/* I made these changes in nprogress.css */
+
+/* Nprogress bar css */
 #nprogress {
   --primary-color: #ff9500;
   pointer-events: none;
@@ -118,7 +124,7 @@ a {
   top: 0;
   left: 0;
   width: 100%;
-  height: 5px;
+  height: 4px;
   transition: all 300ms ease;
 }
 
@@ -130,11 +136,11 @@ a {
   width: 100px;
   height: 100%;
   box-shadow: 0 0 10px var(--primary-color), 0 0 5px var(--primary-color);
-  opacity: 1.0;
+  opacity: 1;
 
   -webkit-transform: rotate(3deg) translate(0px, -4px);
-      -ms-transform: rotate(3deg) translate(0px, -4px);
-          transform: rotate(3deg) translate(0px, -4px);
+  -ms-transform: rotate(3deg) translate(0px, -4px);
+  transform: rotate(3deg) translate(0px, -4px);
 }
 
 /* Remove these to get rid of the spinner */
@@ -157,7 +163,7 @@ a {
   border-radius: 50%;
 
   -webkit-animation: nprogress-spinner 400ms linear infinite;
-          animation: nprogress-spinner 400ms linear infinite;
+  animation: nprogress-spinner 400ms linear infinite;
 }
 
 .nprogress-custom-parent {
@@ -171,10 +177,27 @@ a {
 }
 
 @-webkit-keyframes nprogress-spinner {
-  0%   { -webkit-transform: rotate(0deg); }
-  100% { -webkit-transform: rotate(360deg); }
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
 }
 @keyframes nprogress-spinner {
-  0%   { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.errorClass {
+  color: "red";
+  background-color: green;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

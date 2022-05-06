@@ -86,6 +86,12 @@
   margin-right: 4px;
 }
 
+@media(max-width: 1200px) {
+  .container {
+    padding: 0 24px;
+  }
+}
+
 @media(max-width: 555px) {
 
   .nav_list {

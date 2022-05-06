@@ -22,16 +22,6 @@ const HistoryChart = ({ chartData, currentChartPeriod }) => {
 
   // const chartData;
 
-  const chartData2 = {
-    ...chartData,
-    labels: [...chartData.labels],
-    datasets: [
-      {
-        ...chartData.datasets,
-      },
-    ],
-  };
-
 
   let maxTicks = 20;
   const isBreakpoint520 = useMediaQuery(520)

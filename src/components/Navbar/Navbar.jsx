@@ -9,7 +9,7 @@ import LoginIcon from "@mui/icons-material/Login";
 import LogoutIcon from "@mui/icons-material/Logout";
 import NewspaperIcon from "@mui/icons-material/Newspaper";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
-import { createTheme, MenuItem, Select } from "@mui/material";
+import { createTheme, MenuItem, Select, Snackbar } from "@mui/material";
 import { borderColor, ThemeProvider } from "@mui/system";
 import { makeStyles } from "@mui/styles";
 // import { styled } from "@material-ui/core/styles";
@@ -19,6 +19,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { currencyActions } from "../../store/currency";
 import { useMediaQuery } from "../Coins/Coin";
 import { useRouter } from "next/router";
+import { useEffect } from "react";
+import { useState } from "react";
+
+const vertical = 'bottom'
+  const horizontal = 'center'
 
 const StyledSelect = styled(Select)(`
   & .${outlinedInputClasses.notchedOutline} {
@@ -85,6 +90,8 @@ const Navbar = () => {
   // const classes = useStyles();
   const currentCurrency = useSelector((state) => state.currency.currency);
   const currentSymbol = useSelector((state) => state.currency.symbol);
+  const coinListCoins = useSelector((state) => state.coins.coinListCoins);
+  const [openNotificationBar, setOpenNotificationBar] = useState(false);
   const isBreakpoint555 = useMediaQuery(555);
   // const router = useRouter();
 
@@ -95,53 +102,58 @@ const Navbar = () => {
   const dispatch = useDispatch();
 
   const handleCurrencyChange = (e) => {
-
     // console.log(e.target.value.split(","));
 
     const currency = e.target.value.split(",")[0].toLowerCase();
     // console.log('new currency', currency);
-    const symbol = e.target.value.split(",")[1]
+    const symbol = e.target.value.split(",")[1];
 
-    dispatch(currencyActions.changeCurrency({currency, symbol}))
-  }
+    dispatch(currencyActions.changeCurrency({ currency, symbol }));
+    setOpenNotificationBar(true)
+  };
+
+  useEffect(() => {
+    setOpenNotificationBar(false) 
+
+  }, [coinListCoins])
 
   // const handleHomeNavigate = () => {
   //   router.push({pathname: '/', query: {currentCurrency, currentSymbol}})
   // }
-  
 
   return (
-    <nav className={styles.nav}>
-      <div className={styles.container}>
-        <div className={styles.logo_container}>
-          <Image
-            src={logo}
-            alt=""
-            height={50}
-            width={50}
-            className={styles.logo}
-          />
-          <Link href="/" passHref>
-            <a className={styles.title}>Crypto-Tracker</a>
-          </Link>
-        </div>
+    <>
+      <nav className={styles.nav}>
+        <div className={styles.container}>
+          <div className={styles.logo_container}>
+            <Image
+              src={logo}
+              alt=""
+              height={50}
+              width={50}
+              className={styles.logo}
+            />
+            <Link href="/" passHref>
+              <a className={styles.title}>Crypto-Tracker</a>
+            </Link>
+          </div>
 
-        <div className={styles.nav_list}>
-          <Link href="/">
-            <div className={styles.link_wrapper}>
-              <a className={styles.nav_link}>
-                <HomeIcon /> {!isBreakpoint555 && `Home`}
-              </a>
-            </div>
-          </Link>
+          <div className={styles.nav_list}>
+            <Link href="/">
+              <div className={styles.link_wrapper}>
+                <a className={styles.nav_link}>
+                  <HomeIcon /> {!isBreakpoint555 && `Home`}
+                </a>
+              </div>
+            </Link>
 
-          {/* <div className={styles.link_wrapper}>
+            {/* <div className={styles.link_wrapper}>
             <ListIcon />
             <Link href="/">
             <a className={styles.nav_link}>Cryptocurrencies</a>
             </Link>
           </div> */}
-          {/* 
+            {/* 
           <Link href="/">
           <div className={styles.link_wrapper}>
           <NewspaperIcon />
@@ -156,7 +168,7 @@ const Navbar = () => {
           </div>
         </Link> */}
 
-          {/* <Link href="/">
+            {/* <Link href="/">
             <div className={styles.link_wrapper}>
               <a className={styles.nav_link}>
                 <LoginIcon />
@@ -165,42 +177,51 @@ const Navbar = () => {
             </div>
           </Link> */}
 
-          <StyledSelect
-            variant="outlined"
-            style={{
-              width: 100,
-              height: 40,
-              marginLeft: 15,
-              color: "white",
-            }}
-            value={`${currentCurrency.toUpperCase()},${currentSymbol}`}
-            defaultValue={`${currentCurrency.toUpperCase()},${currentSymbol}`}
-            onChange={handleCurrencyChange}
-          >
-            <MenuItem value={"CAD,$"}>CAD</MenuItem> 
-            <MenuItem value={"USD,$"}>USD</MenuItem> 
-            <MenuItem value={"GBP,£"}>GBP</MenuItem>
-            <MenuItem value={"AUD,AU$"}>AUD</MenuItem> 
+            <StyledSelect
+              variant="outlined"
+              style={{
+                width: 100,
+                height: 40,
+                marginLeft: 15,
+                color: "white",
+              }}
+              value={`${currentCurrency.toUpperCase()},${currentSymbol}`}
+              defaultValue={`${currentCurrency.toUpperCase()},${currentSymbol}`}
+              onChange={handleCurrencyChange}
+            >
+              <MenuItem value={"CAD,$"}>CAD</MenuItem>
+              <MenuItem value={"USD,$"}>USD</MenuItem>
+              <MenuItem value={"GBP,£"}>GBP</MenuItem>
+              <MenuItem value={"AUD,AU$"}>AUD</MenuItem>
 
-
-            {/* {!isBreakpoint555 ? <MenuItem value={"CAD,$"}>CAD</MenuItem> : <MenuItem value={"CAD,$"}></MenuItem>}
+              {/* {!isBreakpoint555 ? <MenuItem value={"CAD,$"}>CAD</MenuItem> : <MenuItem value={"CAD,$"}></MenuItem>}
             {!isBreakpoint555 ? <MenuItem value={"USD,$"}>USD</MenuItem> : <MenuItem value={"USD,$"}></MenuItem>}
             {!isBreakpoint555 ? <MenuItem value={"GBP,£"}>GBP</MenuItem> : <MenuItem value={"GBP,£"}></MenuItem>}
             {!isBreakpoint555 ? <MenuItem value={"AUD,AU$"}>AUD</MenuItem> : <MenuItem value={"AUD,AU$"}></MenuItem>} */}
-            
-            
-            
-          </StyledSelect>
+            </StyledSelect>
 
-          {/* <Link href="/">
+            {/* <Link href="/">
             <div className={styles.link_wrapper}>
             <LogoutIcon />
             <a className={styles.nav_link}>Logout</a>
             </div>
           </Link> */}
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+      <Snackbar
+        anchorOrigin={{ vertical, horizontal }}
+        open={openNotificationBar}
+        onClose={() => setOpenNotificationBar(false)}
+        message="Retrieving New Currency..."
+        key={vertical + horizontal}
+        ContentProps={{
+          classes: {
+            root: "errorClass",
+          },
+        }}
+      />
+    </>
   );
 };
 

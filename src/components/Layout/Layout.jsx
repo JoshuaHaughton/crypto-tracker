@@ -6,6 +6,7 @@ import { coinsActions } from "../../store/coins";
 import { useDispatch } from "react-redux";
 import { useState } from "react";
 export const Layout = ({ children, title = "Crypto Tracker", coins }) => {
+  
 
   const dispatch = useDispatch();
   // dispatch(coinsActions.updateCoins({initialHundredCoins: coins.initialHundredCoins, trendingCoins: coins.trendingCoins, symbol: "$"}));
@@ -52,6 +53,7 @@ export const Layout = ({ children, title = "Crypto Tracker", coins }) => {
             </div>
           </footer> */}
         </main>
+      
       </div>
   );
 };

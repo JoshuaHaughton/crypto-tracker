@@ -3,7 +3,7 @@ import HistoryChart from "../../src/components/UI/HistoryChart";
 import styles from "./Coin.module.css";
 import { Chart as ChartJS } from "chart.js/auto";
 import Image from "next/image";
-import { FilledInput } from "@mui/material";
+import { FilledInput, Snackbar } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/router";
@@ -11,6 +11,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useMediaQuery } from "../../src/components/Coins/Coin";
 import { coinsActions } from "../../src/store/coins";
 // import { ResponsiveContainer, AreaChart, XAxis, YAxis, Area, Tooltip, CartesianGrid } from 'recharts';
+const vertical = 'bottom'
+const horizontal = 'center'
 const Coin = ({
   initialCoin,
   marketChartFromServer,
@@ -33,7 +35,7 @@ const Coin = ({
     ),
     datasets: [
       {
-        label: `${coin.name} Price (Past day) in CAD`,
+        label: `${coin.name} Price (Past day) in ${currentCurrency.toUpperCase()}`,
         data: marketValuesFromServer.dayMarketValues,
         type: "line",
         pointRadius: 1.3,
@@ -46,7 +48,7 @@ const Coin = ({
   // {
   //   labels: starterChartInfo.marketLabels.oneDayLabels,
   //   datasets: [ {
-  //   label: "Price (Past 1 day) in CAD",
+  //   label: "Price (Past 1 day) in ${currentCurrency.toUpperCase()}",
   //   data: starterChartInfo.marketValues?.oneDayValues,
   //   backgroundColor: ["red"],
   //   fill: "origin",
@@ -64,7 +66,7 @@ const Coin = ({
         ),
         datasets: [
           {
-            label: `${coin.name} Price (Past day) in CAD`,
+            label: `${coin.name} Price (Past day) in ${currentCurrency.toUpperCase()}`,
             data: marketValues?.dayMarketValues,
             type: "line",
             pointRadius: 1.3,
@@ -85,7 +87,7 @@ const Coin = ({
         ),
         datasets: [
           {
-            label: `${coin.name} Price (Past week) in CAD`,
+            label: `${coin.name} Price (Past week) in ${currentCurrency.toUpperCase()}`,
             data: marketValues?.weekMarketValues,
             type: "line",
             pointRadius: 1.3,
@@ -106,7 +108,7 @@ const Coin = ({
         ),
         datasets: [
           {
-            label: `${coin.name} Price (Past month) in CAD`,
+            label: `${coin.name} Price (Past month) in ${currentCurrency.toUpperCase()}`,
             data: marketValues?.monthMarketValues,
             type: "line",
             pointRadius: 1.3,
@@ -127,7 +129,7 @@ const Coin = ({
         ),
         datasets: [
           {
-            label: `${coin.name} Price (Past year) in CAD`,
+            label: `${coin.name} Price (Past year) in ${currentCurrency.toUpperCase()}`,
             data: marketValues?.yearMarketValues,
             type: "line",
             pointRadius: 1.3,
@@ -162,16 +164,18 @@ const Coin = ({
 
   useEffect(() => {
 
-    if (firstUpdate.current) {
-      firstUpdate.current = false;
-      return;
-    } 
-    console.log('first time');
+  
 
       const setNewCurrency = async () => {
+        if (firstUpdate.current) {
+          firstUpdate.current = false;
+          console.log('true first');
+          return;
+        } 
 
 
 
+        // setOpenNotificationBar(true)
 
         console.log("setting new cur", currentCurrency);
   
@@ -226,7 +230,7 @@ const Coin = ({
           ),
           datasets: [
             {
-              label: `${coin.name} Price (Past day) in CAD`,
+              label: `${coin.name} Price (Past day) in ${currentCurrency.toUpperCase()}`,
               data: dayMarketValues,
               type: "line",
               pointRadius: 1.3,
@@ -236,6 +240,7 @@ const Coin = ({
         });
   
   
+        // setOpenNotificationBar(false)
   
   
   
@@ -273,7 +278,10 @@ const Coin = ({
   
         
       };
-  
+
+
+      
+      console.log('then false');
       setNewCurrency();
       
 
@@ -680,6 +688,7 @@ const Coin = ({
                 </div>
               )}
             </div>
+
           </div>
 
           {/* <div className={styles.chart_details}>
