@@ -17,6 +17,7 @@ import { styled } from "@mui/system";
 import { outlinedInputClasses } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { currencyActions } from "../../store/currency";
+import { useMediaQuery } from "../Coins/Coin";
 import { useRouter } from "next/router";
 
 const StyledSelect = styled(Select)(`
@@ -84,6 +85,7 @@ const Navbar = () => {
   // const classes = useStyles();
   const currentCurrency = useSelector((state) => state.currency.currency);
   const currentSymbol = useSelector((state) => state.currency.symbol);
+  const isBreakpoint555 = useMediaQuery(555);
   // const router = useRouter();
 
   // console.log('cur cur',currentCurrency);
@@ -128,7 +130,7 @@ const Navbar = () => {
           <Link href="/">
             <div className={styles.link_wrapper}>
               <a className={styles.nav_link}>
-                <HomeIcon /> Home
+                <HomeIcon /> {!isBreakpoint555 && `Home`}
               </a>
             </div>
           </Link>
@@ -175,10 +177,19 @@ const Navbar = () => {
             defaultValue={`${currentCurrency.toUpperCase()},${currentSymbol}`}
             onChange={handleCurrencyChange}
           >
-            <MenuItem value={"CAD,$"}>CAD</MenuItem>
-            <MenuItem value={"USD,$"}>USD</MenuItem>
+            <MenuItem value={"CAD,$"}>CAD</MenuItem> 
+            <MenuItem value={"USD,$"}>USD</MenuItem> 
             <MenuItem value={"GBP,£"}>GBP</MenuItem>
-            <MenuItem value={"AUD,AU$"}>AUD</MenuItem>
+            <MenuItem value={"AUD,AU$"}>AUD</MenuItem> 
+
+
+            {/* {!isBreakpoint555 ? <MenuItem value={"CAD,$"}>CAD</MenuItem> : <MenuItem value={"CAD,$"}></MenuItem>}
+            {!isBreakpoint555 ? <MenuItem value={"USD,$"}>USD</MenuItem> : <MenuItem value={"USD,$"}></MenuItem>}
+            {!isBreakpoint555 ? <MenuItem value={"GBP,£"}>GBP</MenuItem> : <MenuItem value={"GBP,£"}></MenuItem>}
+            {!isBreakpoint555 ? <MenuItem value={"AUD,AU$"}>AUD</MenuItem> : <MenuItem value={"AUD,AU$"}></MenuItem>} */}
+            
+            
+            
           </StyledSelect>
 
           {/* <Link href="/">
