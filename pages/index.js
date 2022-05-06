@@ -111,7 +111,7 @@ export default function Home({ coins }) {
         }
         nonReduxSymbol={nonReduxSymbol}
       />
-      <h1>Search your favourite crypto!</h1>
+      <h2>Crypto Prices</h2>
       <CoinList
         filteredCoins={
           coinListCoins.length > 1 ? coinListCoins : coins.initialHundredCoins

@@ -71,7 +71,7 @@ const CoinList = ({ filteredCoins, currentPageCoins, isBreakpoint680, isBreakpoi
   return (
     <div className={styles.container}>
       <TextField
-        label="Test Input"
+        label="Search for a cryptocurrency"
         variant="outlined"
         sx={{
           "& .MuiInputLabel-root": {color: '#b2b2b2'},//styles the label
