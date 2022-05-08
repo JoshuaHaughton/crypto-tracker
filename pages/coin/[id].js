@@ -8,8 +8,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
-import { useMediaQuery } from "../../src/components/Coins/Coin";
+import { useMediaQuery } from "../../src/components/Coin/Coin";
 import { coinsActions } from "../../src/store/coins";
+import Link from "next/link";
 // import { ResponsiveContainer, AreaChart, XAxis, YAxis, Area, Tooltip, CartesianGrid } from 'recharts';
 const vertical = 'bottom'
 const horizontal = 'center'
@@ -18,6 +19,7 @@ const Coin = ({
   marketChartFromServer,
   marketValuesFromServer,
   pageId,
+  isBreakpoint1040
 }) => {
   const firstUpdate = useRef(true);
   const [coin, setCoin] = useState(initialCoin)
@@ -25,9 +27,7 @@ const Coin = ({
   const [marketChart, setMarketChart] = useState(marketChartFromServer);
   const currentSymbol = useSelector((state) => state.currency.symbol);
   const currentCurrency = useSelector((state) => state.currency.currency);
-  const dispatch = useDispatch()
-
-  const isBreakpoint1040 = useMediaQuery(1040);
+  const dispatch = useDispatch();
 
   const [chartData, setChartData] = useState({
     labels: marketChartFromServer?.day.map((data) =>
@@ -289,13 +289,14 @@ const Coin = ({
     
   }, [currentCurrency]);
 
+
   return (
     <div className={styles.container}>
       <div className={styles.row}>
         <div className={styles.coin_info}>
-          <div onClick={goBack} className={styles.back_link}>
-            <FontAwesomeIcon icon={faArrowLeft} />
-          </div>
+          <Link href="/" className={styles.back_link}>
+            <FontAwesomeIcon icon={faArrowLeft} className={styles.back_link} />
+          </Link>
           <header className={styles.header}>
             <div className={styles.title_wrapper}>
               <Image

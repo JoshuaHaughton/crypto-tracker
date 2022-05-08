@@ -17,7 +17,7 @@ import { styled } from "@mui/system";
 import { outlinedInputClasses } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { currencyActions } from "../../store/currency";
-import { useMediaQuery } from "../Coins/Coin";
+import { useMediaQuery } from "../Coin/Coin";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useState } from "react";

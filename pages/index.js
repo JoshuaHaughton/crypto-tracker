@@ -5,12 +5,12 @@ import Banner from "../src/components/UI/Banner/Banner";
 import Pagination from "../src/components/UI/Pagination";
 import styles from "./Home.module.css";
 import "react-alice-carousel/lib/alice-carousel.css";
-import { useMediaQuery } from "../src/components/Coins/Coin";
+import { useMediaQuery } from "../src/components/Coin/Coin";
 import { useDispatch, useSelector } from "react-redux";
 import { coinsActions } from "../src/store/coins";
 import { Snackbar } from "@mui/material";
 
-export default function Home({ coins }) {
+export default function Home({ coins, isBreakpoint380, isBreakpoint680, isBreakpoint1250, currentPage, setCurrentPage }) {
   // const [openNotificationBar, setOpenNotificationBar] = useState(false);
 
   const trendingCarouselCoins = useSelector(
@@ -34,7 +34,6 @@ export default function Home({ coins }) {
   // Isn't changed until after data is fetched, prevents jumpiness in carousel component due to double reload of currencySymbol and carouselCoins
   const [nonReduxSymbol, setNonReduxSymbol] = useState(currentSymbol || "$");
   // const [search, setSearch] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
 
   const currentPageCoins = useMemo(() => {
     const firstPageIndex = (currentPage - 1) * PageSize;
@@ -47,9 +46,9 @@ export default function Home({ coins }) {
     }
   }, [currentPage, coinListCoins]);
 
-  const isBreakpoint680 = useMediaQuery(680);
-  const isBreakpoint380 = useMediaQuery(380);
-  const isBreakpoint1250 = useMediaQuery(1250);
+  // const isBreakpoint680 = useMediaQuery(680);
+  // const isBreakpoint380 = useMediaQuery(380);
+  // const isBreakpoint1250 = useMediaQuery(1250);
 
   useEffect(() => {
     //remember to stop this from happening on first render!!!!!!!!!!!!!
@@ -99,6 +98,21 @@ export default function Home({ coins }) {
       setNewCurrency();
     }
   }, [currentCurrency]);
+
+  // useEffect(() => {
+  //   if (firstRender.current) {
+  //     firstRender.current = false;
+  //     return;
+  //   } else {
+
+  //   }
+  // }, [currentPage]);  
+  
+  useEffect(() => {
+    if (currentPage !== 1) {
+      window.scrollTo(0, 400)
+    }
+  }, []);
 
 
   return (

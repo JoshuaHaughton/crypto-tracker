@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
-import Coin, { useMediaQuery } from "./Coins/Coin";
+import Coin, { useMediaQuery } from "./Coin/Coin";
 import styles from "./CoinList.module.css";
 import { TextField } from "@mui/material";
 import { BorderBottomOutlined } from "@mui/icons-material";
