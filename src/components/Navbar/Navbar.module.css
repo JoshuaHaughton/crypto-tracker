@@ -33,10 +33,18 @@
 .logo_container {
   display: flex;
   align-items: center;
-  /* justify-content: center; */
+  justify-content: flex-start;
   color: white;
+  width: 120px;
+  height: 100%;
   /* width: 100%; */
-  padding: 12px 12px;
+  /* padding: 12px 12px; */
+  position: relative;
+}
+
+.logo_container > span > img {
+  width: fit-content !important;
+  /* min-width: auto !important; */
 }
 
 .title {

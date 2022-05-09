@@ -110,7 +110,7 @@ export default function Home({ coins, isBreakpoint380, isBreakpoint680, isBreakp
   
   useEffect(() => {
     if (currentPage !== 1) {
-      window.scrollTo(0, 400)
+      window.scrollTo(0, 448)
     }
   }, []);
 

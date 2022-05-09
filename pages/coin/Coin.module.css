@@ -67,7 +67,7 @@
 }
 
 .description > p {
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .name {
@@ -499,7 +499,7 @@
   }
 
   .description {
-    width: 85%;
+    width: 100%;
   }
   
   .chart > canvas {

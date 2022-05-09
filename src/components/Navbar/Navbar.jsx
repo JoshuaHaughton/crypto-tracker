@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./Navbar.module.css";
-import logo from "../../../public/logo.svg";
+import logo from "../../../public/Crypto.svg";
 import Link from "next/link";
 import Image from "next/image";
 import HomeIcon from "@mui/icons-material/Home";
@@ -129,13 +129,14 @@ const Navbar = () => {
             <Image
               src={logo}
               alt=""
-              height={50}
-              width={50}
+              // height={50}
+              // width={50}
+              layout="fill"
               className={styles.logo}
             />
-            <Link href="/" passHref>
-              <a className={styles.title}>Crypto-Tracker</a>
-            </Link>
+            {/* <Link href="/" passHref>
+              <a className={styles.title}>m</a>
+            </Link> */}
           </div>
 
           <div className={styles.nav_list}>
