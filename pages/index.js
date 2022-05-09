@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { useState } from "react";
 import CoinList from "../src/components/CoinList";
 import Banner from "../src/components/UI/Banner/Banner";
-import Pagination from "../src/components/UI/Pagination";
+import Pagination from "../src/components/UI/Pagination.jsx";
 import styles from "./Home.module.css";
 import "react-alice-carousel/lib/alice-carousel.css";
 import { useMediaQuery } from "../src/components/Coin/Coin";
@@ -17,6 +17,7 @@ export default function Home({ coins, isBreakpoint380, isBreakpoint680, isBreakp
     (state) => state.coins.trendingCarouselCoins,
   );
   const coinListCoins = useSelector((state) => state.coins.coinListCoins);
+  
   const dispatch = useDispatch();
 
   // console.log('da coins mayne', coins)
@@ -52,7 +53,6 @@ export default function Home({ coins, isBreakpoint380, isBreakpoint680, isBreakp
 
   useEffect(() => {
     //remember to stop this from happening on first render!!!!!!!!!!!!!
-
     if (firstRender.current) {
       firstRender.current = false;
       return;
@@ -138,8 +138,8 @@ export default function Home({ coins, isBreakpoint380, isBreakpoint680, isBreakp
       />
       <Pagination
         currentPage={currentPage}
-        totalCount={coinListCoins.length}
-        pageSize={PageSize}
+        totalCount={100}
+        pageSize={10}
         onPageChange={(page) => setCurrentPage(page)}
       />
       {/* <Snackbar

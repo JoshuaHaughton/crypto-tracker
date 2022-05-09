@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "analyze": "cross-env ANALYZE=true next build"
   },
   "dependencies": {
     "@badrap/bar-of-progress": "^0.1.2",
@@ -19,15 +20,22 @@
     "@mui/icons-material": "^5.6.1",
     "@mui/material": "^5.6.1",
     "@mui/styles": "^5.6.2",
+    "@next/bundle-analyzer": "^12.1.6",
     "@reduxjs/toolkit": "^1.8.1",
     "chart.js": "^3.7.1",
     "classnames": "^2.3.1",
-    "next": "12.1.5",
+    "cross-env": "^7.0.3",
+    "next": "^12.1.5",
+    "next-plugin-preact": "^3.0.6",
     "nprogress": "^0.2.0",
-    "react": "18.0.0",
+    "preact": "^10.7.2",
+    "preact-render-to-string": "^5.2.0",
+    "react": "npm:@preact/compat@^17.0.3",
     "react-alice-carousel": "^2.5.1",
     "react-chartjs-2": "^4.1.0",
+    "react-dom": "npm:@preact/compat@^17.0.3",
     "react-redux": "^8.0.1",
+    "react-ssr-prepass": "npm:preact-ssr-prepass@^1.2.0",
     "sass": "^1.51.0"
   },
   "devDependencies": {
