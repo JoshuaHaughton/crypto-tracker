@@ -94,8 +94,31 @@
   margin-right: 4px;
 }
 
+.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root:hover {
+  background-color: #ff9500;
+}
+
+.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root > svg, .MuiMenuItem-root > svg {
+  color: white !important;
+}
+
+.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected:hover, .Mui-selected:hover {
+  background-color: #ff9500;
+}
+
+.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected, .Mui-selected {
+  background-color: #ff950094 !important;
+}
+
+.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected:hover, .Mui-selected:hover {
+  background-color: #ff9500d8;
+}
+
+.menu_item:hover {
+  background-color: #ff9500;
+} 
+
 .snackbar {
-  color: "red";
   background-color: green;
   text-align: center;
   display: flex;

@@ -190,7 +190,7 @@ const Navbar = () => {
               defaultValue={`${currentCurrency.toUpperCase()},${currentSymbol}`}
               onChange={handleCurrencyChange}
             >
-              <MenuItem value={"CAD,$"}>CAD</MenuItem>
+              <MenuItem value={"CAD,$"} className={styles.menu_item}>CAD</MenuItem>
               <MenuItem value={"USD,$"}>USD</MenuItem>
               <MenuItem value={"GBP,£"}>GBP</MenuItem>
               <MenuItem value={"AUD,AU$"}>AUD</MenuItem>

@@ -216,8 +216,7 @@ a {
   }
 }
 
-.errorClass {
-  color: "red";
+.errorClass, .MuiSnackbar-anchorOriginBottomCenter {
   background-color: green;
   text-align: center;
   display: flex;
