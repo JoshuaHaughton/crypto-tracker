@@ -28,7 +28,7 @@
     "react-alice-carousel": "^2.5.1",
     "react-chartjs-2": "^4.1.0",
     "react-redux": "^8.0.1",
-    "sass": "^1.50.0"
+    "sass": "^1.51.0"
   },
   "devDependencies": {
     "eslint": "8.13.0",
