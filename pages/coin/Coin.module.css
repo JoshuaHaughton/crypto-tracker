@@ -106,6 +106,7 @@
   top: 16px;
   left: 24px;
   font-size: 36px;
+  width: 36px;
   cursor: pointer;
   transition: all 300ms ease;
 }
@@ -423,6 +424,7 @@
   .back_link {
     top: 10px;
     font-size: 28px;
+    width: 28px;
   }
   
 }

@@ -71,26 +71,26 @@ a {
   width: fit-content !important;
 }
 
-.alice-carousel__stage-item > div > img {
+.alice-carousel__stage-item > div > span > img {
   cursor: pointer;
   transition: all 200ms ease;
 }
 
-.alice-carousel__stage-item > div > img:hover {
+.alice-carousel__stage-item > div > span > img:hover {
   transform: scale(1.1);
 }
 
-.alice-carousel__stage-item > div > img:active {
+.alice-carousel__stage-item > div > span > img:active {
   transform: scale(0.97);
 }
 
-.alice-carousel__stage-item > div > h6 {
+.alice-carousel__stage-item > div > span > h6 {
   margin: 0;
   font-size: 26px;
   font-weight: 600;
 }
 
-.alice-carousel__stage-item > div > p {
+.alice-carousel__stage-item > div > span > p {
   margin: 18px 0 0 0;
 }
 

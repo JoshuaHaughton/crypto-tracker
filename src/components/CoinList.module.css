@@ -6,7 +6,6 @@
 .input {
   /* background-color: #000; */
   width: 100%;
-  margin-bottom: 18px;
 }
 
 .input > div {
@@ -25,6 +24,7 @@
   height: 64px;
   background-color: #ff9500;
   border-radius: 2px;
+  margin-top: 18px;
 }
 
 .header > div {
