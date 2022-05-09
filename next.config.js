@@ -16,3 +16,4 @@ module.exports = withBundleAnalyzer(withPreact({
     buildActivity: false
 }
 }))
+
