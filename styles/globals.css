@@ -117,11 +117,11 @@ a {
   background-color: #ff9500;
 }
 
-.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected {
+.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected, .css-1km1ehz.Mui-selected {
   background-color: #ff950094 !important;
 }
 
-.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected:hover {
+.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected:hover, .css-1km1ehz.Mui-selected:hover {
   background-color: #ff9500d8;
 }
 

@@ -184,9 +184,9 @@ const Navbar = () => {
               onChange={handleCurrencyChange}
             >
               <MenuItem value={"CAD,$"} className={styles.menu_item}>CAD</MenuItem>
-              <MenuItem value={"USD,$"}>USD</MenuItem>
-              <MenuItem value={"GBP,£"}>GBP</MenuItem>
-              <MenuItem value={"AUD,AU$"}>AUD</MenuItem>
+              <MenuItem value={"USD,$"} className={styles.menu_item}>USD</MenuItem>
+              <MenuItem value={"GBP,£"} className={styles.menu_item}>GBP</MenuItem>
+              <MenuItem value={"AUD,AU$"} className={styles.menu_item} >AUD</MenuItem>
 
               {/* {!isBreakpoint555 ? <MenuItem value={"CAD,$"}>CAD</MenuItem> : <MenuItem value={"CAD,$"}></MenuItem>}
             {!isBreakpoint555 ? <MenuItem value={"USD,$"}>USD</MenuItem> : <MenuItem value={"USD,$"}></MenuItem>}
