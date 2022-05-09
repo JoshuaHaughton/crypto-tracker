@@ -140,7 +140,7 @@ const Navbar = () => {
           </div>
 
           <div className={styles.nav_list}>
-            <Link href="/">
+            <Link href="/" passHref>
               <div className={styles.link_wrapper}>
                 <a className={styles.nav_link}>
                   <HomeIcon /> {!isBreakpoint555 && `Home`}
@@ -217,9 +217,10 @@ const Navbar = () => {
         message="Retrieving New Currency..."
         key={vertical + horizontal}
         ContentProps={{
+          className: styles.snackbar,
           classes: {
             root: "errorClass",
-          },
+          }
         }}
       />
     </>

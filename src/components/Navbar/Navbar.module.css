@@ -94,6 +94,15 @@
   margin-right: 4px;
 }
 
+.snackbar {
+  color: "red";
+  background-color: green;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 @media(max-width: 1200px) {
   .container {
     width: 90%;

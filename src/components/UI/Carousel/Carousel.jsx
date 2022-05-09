@@ -23,6 +23,7 @@ const Carousel = ({ carouselCoins, nonReduxSymbol }) => {
       <div className={styles.carousel_item} key={coin.id}>
           <Link
             href={`/coin/${coin.id}`}
+            passHref
           >
           <Image
             key={coin.id}
@@ -83,6 +84,7 @@ const Carousel = ({ carouselCoins, nonReduxSymbol }) => {
           <div className={styles.carousel_item} key={coin.id}>
               <Link
                 href={`/coin/${coin.id}`}
+                passHref
               >
                 {/* Didnt use nextjs Image component here because it was causing images to load slowly on first render (bad UX) */}
               <img

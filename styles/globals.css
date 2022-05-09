@@ -65,32 +65,30 @@ a {
   /* width: fit-content !important; */
 }
 
-.alice-carousel__stage-item > div {
+.alice-carousel__stage-item > div > span, .alice-carousel__stage-item > div {
   overflow: visible !important;
-  height: fit-content !important;
-  width: fit-content !important;
 }
 
-.alice-carousel__stage-item > div > span > img {
+.alice-carousel__stage-item > div > span > img, .alice-carousel__stage-item > div > img {
   cursor: pointer;
   transition: all 200ms ease;
 }
 
-.alice-carousel__stage-item > div > span > img:hover {
+.alice-carousel__stage-item > div > span > img:hover, .alice-carousel__stage-item > div > img:hover {
   transform: scale(1.1);
 }
 
-.alice-carousel__stage-item > div > span > img:active {
+.alice-carousel__stage-item > div > span > img:active, .alice-carousel__stage-item > div > img:active {
   transform: scale(0.97);
 }
 
-.alice-carousel__stage-item > div > span > h6 {
+.alice-carousel__stage-item > div > h6 {
   margin: 0;
   font-size: 26px;
   font-weight: 600;
 }
 
-.alice-carousel__stage-item > div > span > p {
+.alice-carousel__stage-item > div > p {
   margin: 18px 0 0 0;
 }
 
@@ -109,6 +107,10 @@ a {
 
 .css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root:hover {
   background-color: #ff9500;
+}
+
+.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root > svg {
+  color: white !important;
 }
 
 .css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected:hover {
