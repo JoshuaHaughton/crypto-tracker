@@ -1,7 +1,10 @@
-import React, { useRef } from "react";
-import { Line, Bar } from "react-chartjs-2";
-import { Chart as ChartJS } from "chart.js";
+import React from "react";
+import { Line } from "react-chartjs-2";
+import { Chart as ChartJs } from "chart.js";
+import Chart from 'chart.js/auto'
 import { useMediaQuery } from "../Coin/Coin";
+
+
 
 const HistoryChart = ({ chartData, currentChartPeriod }) => {
   // const chartRef = useRef()

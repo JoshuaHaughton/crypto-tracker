@@ -5,10 +5,8 @@ import Banner from "../src/components/UI/Banner/Banner";
 import Pagination from "../src/components/UI/Pagination.jsx";
 import styles from "./Home.module.css";
 import "react-alice-carousel/lib/alice-carousel.css";
-import { useMediaQuery } from "../src/components/Coin/Coin";
 import { useDispatch, useSelector } from "react-redux";
 import { coinsActions } from "../src/store/coins";
-import { Snackbar } from "@mui/material";
 
 export default function Home({ coins, isBreakpoint380, isBreakpoint680, isBreakpoint1250, currentPage, setCurrentPage }) {
   // const [openNotificationBar, setOpenNotificationBar] = useState(false);

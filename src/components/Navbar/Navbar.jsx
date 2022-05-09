@@ -4,21 +4,14 @@ import logo from "../../../public/Crypto.svg";
 import Link from "next/link";
 import Image from "next/image";
 import HomeIcon from "@mui/icons-material/Home";
-import ListIcon from "@mui/icons-material/List";
-import LoginIcon from "@mui/icons-material/Login";
-import LogoutIcon from "@mui/icons-material/Logout";
-import NewspaperIcon from "@mui/icons-material/Newspaper";
-import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
-import { createTheme, MenuItem, Select, Snackbar } from "@mui/material";
-import { borderColor, ThemeProvider } from "@mui/system";
-import { makeStyles } from "@mui/styles";
-// import { styled } from "@material-ui/core/styles";
-import { styled } from "@mui/system";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
+import Snackbar from "@mui/material/Snackbar";
+import styled from "@mui/system/styled";
 import { outlinedInputClasses } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { currencyActions } from "../../store/currency";
 import { useMediaQuery } from "../Coin/Coin";
-import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useState } from "react";
 
@@ -74,17 +67,17 @@ const StyledSelect = styled(Select)(`
 //   },
 // }));
 
-const darkTheme = createTheme({
-  palette: {
-    primary: {
-      main: "#fff",
-    },
-    secondary: {
-      main: "#fff",
-    },
-    type: "dark",
-  },
-});
+// const darkTheme = createTheme({
+//   palette: {
+//     primary: {
+//       main: "#fff",
+//     },
+//     secondary: {
+//       main: "#fff",
+//     },
+//     type: "dark",
+//   },
+// });
 
 const Navbar = () => {
   // const classes = useStyles();

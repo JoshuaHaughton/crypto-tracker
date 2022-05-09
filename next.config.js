@@ -7,7 +7,7 @@ const nextConfig = {
   reactStrictMode: true,
 
 }
-module.exports = withBundleAnalyzer(withPreact({
+module.exports = withPreact(withBundleAnalyzer({
   ...nextConfig,
   images: {
     domains: ['assets.coingecko.com']

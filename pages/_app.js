@@ -1,10 +1,7 @@
-import App from "next/app";
-import { Provider, useDispatch } from "react-redux";
+import { Provider } from "react-redux";
 import { Layout } from "../src/components/Layout/Layout";
 import store from "../src/store";
-import { coinsActions } from "../src/store/coins";
 import "../styles/globals.css";
-import dynamic from "next/dynamic";
 import nProgress from "nprogress";
 import { Router } from "next/router";
 import { useMediaQuery } from "../src/components/Coin/Coin";
@@ -87,8 +84,8 @@ export default MyApp;
 
 MyApp.getInitialProps = async (appContext) => {
   // calls page's `getInitialProps` and fills `appProps.pageProps`
-  const appProps = await App.getInitialProps(appContext);
-  console.log("uh props?", appProps);
+  // const appProps = await App.getInitialProps(appContext);
+  // console.log("uh props?", appProps);
 
   //will check account default currency etc. after authentication setup
   try {

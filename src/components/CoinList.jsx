@@ -1,9 +1,7 @@
-import React, { useState, useCallback, useEffect, useRef } from "react";
-import Coin, { useMediaQuery } from "./Coin/Coin";
+import React, { useState, useEffect, useRef } from "react";
+import Coin from "./Coin/Coin";
 import styles from "./CoinList.module.css";
 import { TextField } from "@mui/material";
-import { BorderBottomOutlined } from "@mui/icons-material";
-import { useSelector } from "react-redux";
 
 const bigNumberFormatter = (num) => {
   if (num > 999 && num < 1000000) {

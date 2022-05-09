@@ -1,16 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
 import HistoryChart from "../../src/components/UI/HistoryChart";
 import styles from "./Coin.module.css";
-import { Chart as ChartJS } from "chart.js/auto";
 import Image from "next/image";
-import { FilledInput, Snackbar } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
-import { useMediaQuery } from "../../src/components/Coin/Coin";
 import { coinsActions } from "../../src/store/coins";
 import Link from "next/link";
+// import { HistoryChart } from "../../src/components/UI/HistoryChart";
+import dynamic from 'next/dynamic'
+
+// const HistoryChart = dynamic(() => import('../../src/components/UI/HistoryChart').then((mod) => mod.HistoryChart))
 // import { ResponsiveContainer, AreaChart, XAxis, YAxis, Area, Tooltip, CartesianGrid } from 'recharts';
 const vertical = 'bottom'
 const horizontal = 'center'
@@ -23,8 +24,8 @@ const Coin = ({
 }) => {
   const firstUpdate = useRef(true);
   const [coin, setCoin] = useState(initialCoin)
-  const [marketValues, setMarketValues] = useState(marketValuesFromServer);
-  const [marketChart, setMarketChart] = useState(marketChartFromServer);
+  const [marketValues, setMarketValues] = useState(marketValuesFromServer || []); 
+  const [marketChart, setMarketChart] = useState(marketChartFromServer || []);
   const currentSymbol = useSelector((state) => state.currency.symbol);
   const currentCurrency = useSelector((state) => state.currency.currency);
   const dispatch = useDispatch();
@@ -36,7 +37,8 @@ const Coin = ({
     datasets: [
       {
         label: `${coin.name} Price (Past day) in ${currentCurrency.toUpperCase()}`,
-        data: marketValuesFromServer.dayMarketValues,
+        data: marketValues.dayMarketValues,
+        // data: marketValuesFromServer.dayMarketValues,
         type: "line",
         pointRadius: 1.3,
         borderColor: "#ff9500",
@@ -167,11 +169,11 @@ const Coin = ({
   
 
       const setNewCurrency = async () => {
-        if (firstUpdate.current) {
-          firstUpdate.current = false;
-          console.log('true first');
-          return;
-        } 
+        // if (firstUpdate.current) {
+        //   firstUpdate.current = false;
+        //   console.log('true first');
+        //   return;
+        // } 
 
 
 
@@ -851,35 +853,44 @@ export async function getServerSideProps(context) {
 
   const urls = [
     `https://api.coingecko.com/api/v3/coins/${id}?vs_currency=cad`,
-    `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=cad&days=1`,
-    `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=cad&days=7`,
-    `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=cad&days=30`,
-    `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=cad&days=365`,
   ];
 
   const coinInfo = await Promise.all(
     urls.map((url) => fetch(url).then((resp) => resp.json())));
 
-  const dayMarketValues = coinInfo[1].prices.map((data) => data[1]);
-  const weekMarketValues = coinInfo[2].prices.map((data) => data[1]);
-  const monthMarketValues = coinInfo[3].prices.map((data) => data[1]);
-  const yearMarketValues = coinInfo[4].prices.map((data) => data[1]);
+  const dayMarketValues = null
+  const weekMarketValues = null
+  const monthMarketValues = null
+  const yearMarketValues = null 
+  
+  // const dayMarketValues = coinInfo[1].prices.map((data) => data[1]);
+  // const weekMarketValues = coinInfo[2].prices.map((data) => data[1]);
+  // const monthMarketValues = coinInfo[3].prices.map((data) => data[1]);
+  // const yearMarketValues = coinInfo[4].prices.map((data) => data[1]);
 
+  // return {
+  //   props: {
+  //     initialCoin: coinInfo[0],
+  //     marketChartFromServer: {
+  //       day: coinInfo[1].prices,
+  //       week: coinInfo[2].prices,
+  //       month: coinInfo[3].prices,
+  //       year: coinInfo[4].prices,
+  //     },
+  //     marketValuesFromServer: {
+  //       dayMarketValues,
+  //       weekMarketValues,
+  //       monthMarketValues,
+  //       yearMarketValues,
+  //     },
+  //     pageId: id,
+  //   },
+  // };
+  
   return {
     props: {
       initialCoin: coinInfo[0],
-      marketChartFromServer: {
-        day: coinInfo[1].prices,
-        week: coinInfo[2].prices,
-        month: coinInfo[3].prices,
-        year: coinInfo[4].prices,
-      },
-      marketValuesFromServer: {
-        dayMarketValues,
-        weekMarketValues,
-        monthMarketValues,
-        yearMarketValues,
-      },
+ 
       pageId: id,
     },
   };
