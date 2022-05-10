@@ -15,10 +15,11 @@ View Live HERE: [Crypto Tracker](https://jh-crypto-tracker.vercel.app/)
 
 
 ## Description / Features
-- Fully responsive page layouts and styling built from scratch with HTML and CSS
+- Page layouts fully responsive on all devices
 - Use of React hooks
 - Use of Server-Side Rendering
 - Use of Custom Hooks for Input Validation
+- Trending Crypto Carousel on home page
 - Dynamcally search for cryptocurrencies by name
 - Filter through list of coins using the pagnation component
 - User can choose what currency the cryto will be displayed as (CAD, USD, GBP, AUD)
