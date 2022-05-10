@@ -1,4 +1,46 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Crypto Tracker
+ A Nextjs app where users can search & find detailed information and chart data on their favourite cryptocurrencies. Users can also change the currency being displayed to CAD, USD, GBP, or AUD.
+
+View Live HERE: [Crypto Tracker](https://jh-crypto-tracker.vercel.app/)
+
+
+
+## Built With
+- HTML5
+- CSS3
+- JavaScript
+- React.js
+- Next.js
+- Redux/Redux Toolkit
+
+
+## Description / Features
+- Fully responsive page layouts and styling built from scratch with HTML and CSS
+- Use of React hooks
+- Use of Server-Side Rendering
+- Use of Custom Hooks for Input Validation
+- Dynamcally search for cryptocurrencies by name
+- Filter through list of coins using the pagnation component
+- User can choose what currency the cryto will be displayed as (CAD, USD, GBP, AUD)
+- Final app and subsequent edits connected and deployed to Vercel
+
+
+
+
+## Images
+
+
+### Landing
+!['Landing page of website'](https://github.com/JoshuaHaughton/crypto-tracker/blob/main/public/Landing.png)
+
+### Coin Info
+!['Coin Details Page'](https://github.com/JoshuaHaughton/crypto-tracker/blob/main/public/CoinInfo.png)
+
+### Pagination Feature
+!['Pagination Component'](https://github.com/JoshuaHaughton/crypto-tracker/blob/main/public/Pagination.png)
+
+
+
 
 ## Getting Started
 
