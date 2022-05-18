@@ -115,7 +115,7 @@ const CoinList = ({ filteredCoins, currentPageCoins, isBreakpoint680, isBreakpoi
 
         {!isBreakpoint380 && (
           <div className={styles.dayChange_header}>
-            <p>24 Hr Change</p>
+            <p>24hr Change</p>
           </div>
         )}
 

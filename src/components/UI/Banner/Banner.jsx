@@ -8,7 +8,7 @@ const Banner = ({ carouselCoins, nonReduxSymbol }) => {
     <div className={styles.container}>
       <div className={styles.banner}>
         <div className={styles.title_wrapper}>
-          <h2> <span className={styles.orange}>Crypto</span> Tracker</h2>
+          <h2> <span className={styles.orange}>CRYPTO</span> TRACKER</h2>
           <p>Get the latest info on your favourite crypto!</p>
         </div>
         <Carousel carouselCoins={carouselCoins} nonReduxSymbol={nonReduxSymbol}/>
