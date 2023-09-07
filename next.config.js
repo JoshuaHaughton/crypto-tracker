@@ -1,19 +1,19 @@
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.ANALYZE === 'true',
-})
-const withPreact = require('next-plugin-preact')
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true",
+});
+const withPreact = require("next-plugin-preact");
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-
-}
-module.exports = withPreact(withBundleAnalyzer({
-  ...nextConfig,
-  images: {
-    domains: ['assets.coingecko.com']
-  },
-  devIndicators: {
-    buildActivity: false
-}
-}))
-
+};
+module.exports = withPreact(
+  withBundleAnalyzer({
+    ...nextConfig,
+    images: {
+      domains: ["assets.coingecko.com", "cryptocompare.com"],
+    },
+    devIndicators: {
+      buildActivity: false,
+    },
+  }),
+);

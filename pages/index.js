@@ -68,15 +68,15 @@ export default function Home({ coins, isBreakpoint380, isBreakpoint680, isBreakp
               Promise.all(responses.map((res) => res.json())),
             )
             .then((data) => {
-              console.log("yebuddy", data);
+              // console.log("yebuddy", data);
 
               const hundredNewCoins = data[0];
               const trendingCoins = data[1];
 
-              console.log("latest man", hundredNewCoins);
+              // console.log("latest man", hundredNewCoins);
 
               // updateCoins({initialHundredCoins: hundredNewCoins, trendingCoins});
-              console.log("local symbol", currentSymbol);
+              // console.log("local symbol", currentSymbol);
               setNonReduxSymbol(currentSymbol);
               dispatch(
                 coinsActions.updateCoins({

@@ -57,6 +57,9 @@ const Coin = ({
 }) => {
   
   const currentSymbol = useSelector((state) => state.currency.symbol);
+  // console.log('props', props)
+  // console.log('typeof priceChange', typeof priceChange)
+  console.log('image', image)
 
   return (
     <Link href="/coin/[id]" as={`coin/${id}`}>

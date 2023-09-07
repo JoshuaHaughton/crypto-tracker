@@ -28,7 +28,7 @@ Router.events.on("routeChangeComplete", () => {
 });
 
 function MyApp({ Component, pageProps, appProps }) {
-  console.log("supposedly app", appProps);
+  // console.log("supposedly app", appProps);
   const isBreakpoint680 = useMediaQuery(680);
   const isBreakpoint380 = useMediaQuery(380);
   const isBreakpoint1040 = useMediaQuery(1040);
@@ -55,61 +55,81 @@ function MyApp({ Component, pageProps, appProps }) {
 
 export default MyApp;
 
-// export const getServerSideProps = async () => {
-
-//   try {
-//       const urls = [
-//         `https://api.coingecko.com/api/v3/coins/markets?vs_currency=cad&order=market_cap_desc&per_page=100&page=1&sparkline=false`,
-//         `https://api.coingecko.com/api/v3/coins/markets?vs_currency=cad&order=gecko_desc&per_page=10&page=1&sparkline=false&price_change_percentage=24h`,
-//       ];
-
-//       const initialData = await Promise.all(urls.map((u) => fetch(u)))
-//       .then((responses) => Promise.all(responses.map((res) => res.json())))
-
-//       const initialHundredCoins = initialData[0]
-//       const trendingCoins = initialData[1]
-
-//       return {
-//         props: {
-//           initialHundredCoins,
-//           trendingCoins,
-//         },
-//       };
-
-//   } catch(err) {
-//     console.log(err);
-//   }
-
-// };
-
 MyApp.getInitialProps = async (appContext) => {
-  // calls page's `getInitialProps` and fills `appProps.pageProps`
-  // const appProps = await App.getInitialProps(appContext);
-  // console.log("uh props?", appProps);
+  const apiKey = process.env.NEXT_PUBLIC_CRYPTOCOMPARE_API_KEY;
+  const fetchOptions = {
+    headers: {
+      Authorization: `Apikey ${apiKey}`,
+    },
+  };
 
-  //will check account default currency etc. after authentication setup
   try {
-    const urls = [
-      `https://api.coingecko.com/api/v3/coins/markets?vs_currency=cad&order=market_cap_desc&per_page=100&page=1&sparkline=false`,
-      `https://api.coingecko.com/api/v3/coins/markets?vs_currency=cad&order=gecko_desc&per_page=10&page=1&sparkline=false&price_change_percentage=24h`,
-    ];
-
-    const initialData = await Promise.all(urls.map((u) => fetch(u))).then(
-      (responses) => Promise.all(responses.map((res) => res.json())),
+    // Fetching all available rates from CryptoCompare's price multi-full endpoint for CAD, USD, AUD, and GBP
+    const exchangeRateResponse = await fetch(
+      `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=USD&tsyms=CAD,USD,AUD,GBP`,
+      fetchOptions,
     );
+    const exchangeData = await exchangeRateResponse.json();
 
-    const initialHundredCoins = initialData[0];
-    const trendingCoins = initialData[1];
+    const rates = {
+      USD: 1,
+      CAD: exchangeData.RAW.USD.CAD,
+      AUD: exchangeData.RAW.USD.AUD,
+      GBP: exchangeData.RAW.USD.GBP,
+    };
+
+    const currencySymbols = {
+      USD: "$",
+      CAD: "CA$",
+      AUD: "A$",
+      GBP: "£",
+    };
+
+    // Fetching the top 100 assets by market cap from CryptoCompare in CAD
+    const assetsResponse = await fetch(
+      "https://min-api.cryptocompare.com/data/top/mktcapfull?limit=100&tsym=CAD",
+      fetchOptions,
+    );
+    const assetsData = await assetsResponse.json();
+
+    const initialHundredCoins = assetsData.Data.map((entry, i) => {
+      const coin = entry.CoinInfo;
+      const metrics = entry.RAW?.CAD; // Notice the change from USD to CAD
+      if (!metrics) {
+        console.warn(`Metrics not found for coin: ${coin.Name}`);
+        return null;
+      }
+      return {
+        id: coin.Name.toLowerCase(),
+        symbol: coin.Name,
+        name: coin.FullName,
+        image: `https://cryptocompare.com${coin.ImageUrl}`,
+        current_price_CAD: metrics.PRICE,
+        current_price_USD: metrics.PRICE / rates.CAD, // Convert CAD to USD for the client-side option
+        current_price_AUD: (metrics.PRICE / rates.CAD) * rates.AUD, // Convert from CAD to USD first, then to AUD
+        current_price_GBP: (metrics.PRICE / rates.CAD) * rates.GBP, // Convert from CAD to USD first, then to GBP
+        market_cap: metrics.MKTCAP,
+        market_cap_rank: i + 1,
+        total_volume: metrics.TOTALVOLUME24HTO,
+        high_24h: metrics.HIGH24HOUR,
+        low_24h: metrics.LOW24HOUR,
+        price_change_24h: metrics.CHANGE24HOUR,
+        price_change_percentage_24h: metrics.CHANGEPCT24HOUR,
+        circulating_supply: metrics.SUPPLY,
+      };
+    }).filter(Boolean);
+
+    const trendingCoins = initialHundredCoins.slice(0, 10);
 
     return {
       appProps: {
         initialHundredCoins,
         trendingCoins,
+        rates,
+        currencySymbols,
       },
     };
   } catch (err) {
     console.log(err);
   }
-
-  // return { ...appProps }
 };

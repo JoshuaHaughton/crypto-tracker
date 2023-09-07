@@ -179,7 +179,7 @@ const Coin = ({
 
         // setOpenNotificationBar(true)
 
-        console.log("setting new cur", currentCurrency);
+        // console.log("setting new cur", currentCurrency);
   
         const urls = [
           `https://api.coingecko.com/api/v3/coins/${pageId}?vs_currency=${currentCurrency}`,
@@ -210,7 +210,7 @@ const Coin = ({
         // dispatch(coinsActions.updateCoins({coinListCoins: coinInfo[5] , trendingCarouselCoins: coinInfo[6], symbol: currentSymbol}))
         
   
-        console.log("setting", coinInfo[0]);
+        // console.log("setting", coinInfo[0]);
   
         setCoin(coinInfo[0])
         setMarketChart({
@@ -260,12 +260,12 @@ const Coin = ({
         Promise.all(urls2.map((u) => fetch(u)))
           .then((responses) => Promise.all(responses.map((res) => res.json())))
           .then((data) => {
-            console.log("yebuddy", data);
+            // console.log("yebuddy", data);
   
             const hundredNewCoins = data[0];
             const trendingCoins = data[1];
   
-            console.log('latest man', hundredNewCoins, trendingCoins)
+            // console.log('latest man', hundredNewCoins, trendingCoins)
   
             // updateCoins({initialHundredCoins: hundredNewCoins, trendingCoins});
             dispatch(coinsActions.updateCoins({coinListCoins: hundredNewCoins , trendingCarouselCoins: trendingCoins, symbol: currentSymbol}))
@@ -283,7 +283,7 @@ const Coin = ({
 
 
       
-      console.log('then false');
+      // console.log('then false');
       setNewCurrency();
       
 
