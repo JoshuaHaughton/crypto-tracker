@@ -217,18 +217,27 @@ const Coin = ({
         ];
       // console.log("retrieved assetData", assetData);
 
-      // Format the ID for Coinpaprika (symbol-name)
-      const coinPaprikaId = `${coinData.FROMSYMBOL.toLowerCase()}-${initialCoin.name.toLowerCase()}`;
+      // Search for coin ID from Coinpaprika based on coin name
+      const searchResponse = await fetch(
+        `https://api.coinpaprika.com/v1/search?q=${coinData.FROMSYMBOL}`,
+      );
+      const searchData = await searchResponse.json();
 
-      // Fetch all-time high and all-time low from Coinpaprika
-      const coinPaprikaResponse = await fetch(
+      // Assuming the first result is the desired coin (additional checks might be needed)
+      const coinPaprikaId = searchData.currencies[0].id;
+
+      // Fetch coin details including ATH from Coinpaprika
+      const coinDetailsResponse = await fetch(
         `https://api.coinpaprika.com/v1/tickers/${coinPaprikaId}`,
       );
-      const coinPaprikaData = await coinPaprikaResponse.json();
-      console.log(rates)
+      const coinDetails = await coinDetailsResponse.json();
+
+      // ATH price; Note: ATH might be in USD, you might need conversion based on your requirements
+      const athPrice = coinDetails.quotes.USD.ath_price;
+      console.log(rates);
 
       // Convert Coinpaprika's USD values to CAD
-      const cadAthPrice = coinPaprikaData.quotes.USD.ath_price * rates.CAD;
+      const cadAthPrice = athPrice * rates.CAD;
 
       const dayMarketValues = coinInfo[1].Data.Data.map((data) => data.close);
       const weekMarketValues = coinInfo[2].Data.Data.map((data) => data.close);
@@ -272,7 +281,7 @@ const Coin = ({
 
       dispatch(
         coinsActions.updateCoins({
-          //this the issue 
+          //this the issue
           coinListCoins: allFormattedCoins,
           trendingCarouselCoins: formattedTrendingCoins,
           symbol: currentSymbol,
@@ -925,19 +934,27 @@ export async function getServerSideProps(context) {
   const coinData = cryptoCompareData.RAW[id.toUpperCase()].CAD;
   const assetData = cryptoCompareAssetData.Data;
 
-  // Format the ID for Coinpaprika (symbol-name)
-  const coinPaprikaId = `${coinData.FROMSYMBOL.toLowerCase()}-${assetData.NAME.toLowerCase()}`;
+  // Search for the coin on Coinpaprika
+  const coinPaprikaSearchResponse = await fetch(
+    `https://api.coinpaprika.com/v1/search?q=${coinData.FROMSYMBOL}`,
+  );
+  const searchData = await coinPaprikaSearchResponse.json();
 
-  // Fetch all-time high and all-time low from Coinpaprika
-  const coinPaprikaResponse = await fetch(
+  // Check if the coin exists on Coinpaprika
+  if (!searchData.currencies || searchData.currencies.length === 0) {
+    throw new Error("Coin not found on Coinpaprika");
+  }
+
+  const coinPaprikaId = searchData.currencies[0].id;
+
+  // Fetch coin details including ATH from Coinpaprika
+  const coinPaprikaCoinDetailsResponse = await fetch(
     `https://api.coinpaprika.com/v1/tickers/${coinPaprikaId}`,
   );
-  const coinPaprikaData = await coinPaprikaResponse.json();
+  const coinPaprikaCoinDetails = await coinPaprikaCoinDetailsResponse.json();
 
-  console.log('ratesrates', rates);
-
-  // Convert Coinpaprika's USD values to CAD
-  const cadAthPrice = coinPaprikaData.quotes.USD.ath_price * rates.CAD;
+  // Extract the ATH from Coinpaprika's response
+  const cadAthPrice = coinPaprikaCoinDetails.quotes.USD.ath_price * rates.CAD;
 
   if (
     !cryptoCompareData ||
