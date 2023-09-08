@@ -10,7 +10,11 @@ module.exports = withPreact(
   withBundleAnalyzer({
     ...nextConfig,
     images: {
-      domains: ["assets.coingecko.com", "cryptocompare.com"],
+      domains: [
+        "assets.coingecko.com",
+        "cryptocompare.com",
+        "resources.cryptocompare.com",
+      ],
     },
     devIndicators: {
       buildActivity: false,

@@ -109,7 +109,7 @@ const CoinList = ({ filteredCoins, currentPageCoins, isBreakpoint680, isBreakpoi
         )}
         {!isBreakpoint680 && (
           <div className={styles.volume_header}>
-            <p>Volume</p>
+            <p>24hr Volume</p>
           </div>
         )}
 
@@ -159,7 +159,7 @@ const CoinList = ({ filteredCoins, currentPageCoins, isBreakpoint680, isBreakpoi
             key={coin.id}
             name={coin.name}
             id={coin.id}
-            price={coin.current_price_CAD}
+            price={coin.current_price}
             symbol={coin.symbol}
             marketcap={transformedMarketCap}
             volume={transformedVolume}

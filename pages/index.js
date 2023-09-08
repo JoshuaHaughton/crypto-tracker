@@ -37,6 +37,8 @@ export default function Home({ coins, isBreakpoint380, isBreakpoint680, isBreakp
   const currentPageCoins = useMemo(() => {
     const firstPageIndex = (currentPage - 1) * PageSize;
     const lastPageIndex = firstPageIndex + PageSize;
+    console.log("coinListCoins", coinListCoins);
+    console.log("coins.initialHundredCoins", coins.initialHundredCoins);
 
     if (coinListCoins.length < 1) {
       return coins.initialHundredCoins.slice(firstPageIndex, lastPageIndex);

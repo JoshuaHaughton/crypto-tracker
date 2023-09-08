@@ -99,12 +99,13 @@ MyApp.getInitialProps = async (appContext) => {
         console.warn(`Metrics not found for coin: ${coin.Name}`);
         return null;
       }
+      
       return {
-        id: coin.Name.toLowerCase(),
+        id: coin.Name,
         symbol: coin.Name,
         name: coin.FullName,
         image: `https://cryptocompare.com${coin.ImageUrl}`,
-        current_price_CAD: metrics.PRICE,
+        current_price: metrics.PRICE,
         current_price_USD: metrics.PRICE / rates.CAD, // Convert CAD to USD for the client-side option
         current_price_AUD: (metrics.PRICE / rates.CAD) * rates.AUD, // Convert from CAD to USD first, then to AUD
         current_price_GBP: (metrics.PRICE / rates.CAD) * rates.GBP, // Convert from CAD to USD first, then to GBP
@@ -120,6 +121,8 @@ MyApp.getInitialProps = async (appContext) => {
     }).filter(Boolean);
 
     const trendingCoins = initialHundredCoins.slice(0, 10);
+    // console.log("trendingCoins", trendingCoins[0]);
+    // console.log(initialHundredCoins);
 
     return {
       appProps: {

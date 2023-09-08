@@ -15,6 +15,7 @@ const Carousel = ({ carouselCoins, nonReduxSymbol }) => {
   const firstRender = useRef(true);
   // const trendingCarouselCoins = useSelector(state => state.coins.trendingCarouselCoins)
   // const currentSymbol = useSelector((state) => state.currency.symbol);
+  console.log("carouselCoins", carouselCoins);
   const [carouselItems, setCarouselItems] = useState(
     carouselCoins.map((coin) => {
       let profit = coin.price_change_percentage_24h >= 0;
@@ -54,7 +55,7 @@ const Carousel = ({ carouselCoins, nonReduxSymbol }) => {
           </p>
           <h6>
             {nonReduxSymbol}
-            {coin?.current_price_CAD.toLocaleString("en-US", {
+            {coin?.current_price.toLocaleString("en-US", {
               maximumFractionDigits: 8,
               minimumFractionDigits: 2,
             })}
@@ -112,7 +113,7 @@ const Carousel = ({ carouselCoins, nonReduxSymbol }) => {
               </p>
               <h6>
                 {nonReduxSymbol}
-                {coin?.current_price_CAD.toLocaleString("en-US", {
+                {coin?.current_price.toLocaleString("en-US", {
                   maximumFractionDigits: 8,
                   minimumFractionDigits: 2,
                 })}

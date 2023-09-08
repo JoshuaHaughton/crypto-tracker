@@ -9,22 +9,30 @@ import { useDispatch, useSelector } from "react-redux";
 import { coinsActions } from "../../src/store/coins";
 import Link from "next/link";
 // import { HistoryChart } from "../../src/components/UI/HistoryChart";
-import dynamic from 'next/dynamic'
+import dynamic from "next/dynamic";
 
 // const HistoryChart = dynamic(() => import('../../src/components/UI/HistoryChart').then((mod) => mod.HistoryChart))
 // import { ResponsiveContainer, AreaChart, XAxis, YAxis, Area, Tooltip, CartesianGrid } from 'recharts';
-const vertical = 'bottom'
-const horizontal = 'center'
+const vertical = "bottom";
+const horizontal = "center";
 const Coin = ({
   initialCoin,
   marketChartFromServer,
   marketValuesFromServer,
   pageId,
-  isBreakpoint1040
+  isBreakpoint1040,
+  coinData,
+  assetData,
+  rates,
 }) => {
+  console.log("initialCoin", initialCoin);
+  console.log("coinData", coinData);
+  console.log("assetData", assetData);
   const firstUpdate = useRef(true);
-  const [coin, setCoin] = useState(initialCoin)
-  const [marketValues, setMarketValues] = useState(marketValuesFromServer || []); 
+  const [coin, setCoin] = useState(initialCoin);
+  const [marketValues, setMarketValues] = useState(
+    marketValuesFromServer || [],
+  );
   const [marketChart, setMarketChart] = useState(marketChartFromServer || []);
   const currentSymbol = useSelector((state) => state.currency.symbol);
   const currentCurrency = useSelector((state) => state.currency.currency);
@@ -36,7 +44,9 @@ const Coin = ({
     ),
     datasets: [
       {
-        label: `${coin.name} Price (Past day) in ${currentCurrency.toUpperCase()}`,
+        label: `${
+          coin.name
+        } Price (Past day) in ${currentCurrency.toUpperCase()}`,
         data: marketValues.dayMarketValues,
         // data: marketValuesFromServer.dayMarketValues,
         type: "line",
@@ -68,7 +78,9 @@ const Coin = ({
         ),
         datasets: [
           {
-            label: `${coin.name} Price (Past day) in ${currentCurrency.toUpperCase()}`,
+            label: `${
+              coin.name
+            } Price (Past day) in ${currentCurrency.toUpperCase()}`,
             data: marketValues?.dayMarketValues,
             type: "line",
             pointRadius: 1.3,
@@ -89,7 +101,9 @@ const Coin = ({
         ),
         datasets: [
           {
-            label: `${coin.name} Price (Past week) in ${currentCurrency.toUpperCase()}`,
+            label: `${
+              coin.name
+            } Price (Past week) in ${currentCurrency.toUpperCase()}`,
             data: marketValues?.weekMarketValues,
             type: "line",
             pointRadius: 1.3,
@@ -110,7 +124,9 @@ const Coin = ({
         ),
         datasets: [
           {
-            label: `${coin.name} Price (Past month) in ${currentCurrency.toUpperCase()}`,
+            label: `${
+              coin.name
+            } Price (Past month) in ${currentCurrency.toUpperCase()}`,
             data: marketValues?.monthMarketValues,
             type: "line",
             pointRadius: 1.3,
@@ -131,7 +147,9 @@ const Coin = ({
         ),
         datasets: [
           {
-            label: `${coin.name} Price (Past year) in ${currentCurrency.toUpperCase()}`,
+            label: `${
+              coin.name
+            } Price (Past year) in ${currentCurrency.toUpperCase()}`,
             data: marketValues?.yearMarketValues,
             type: "line",
             pointRadius: 1.3,
@@ -165,132 +183,175 @@ const Coin = ({
   const removeHTML = (str) => str.replace(/<\/?[^>]+(>|$)/g, "");
 
   useEffect(() => {
+    const setNewCurrency = async () => {
+      const cryptoCompareApiKey = process.env.NEXT_PUBLIC_CRYPTOCOMPARE_API_KEY;
 
-  
-
-      const setNewCurrency = async () => {
-        // if (firstUpdate.current) {
-        //   firstUpdate.current = false;
-        //   console.log('true first');
-        //   return;
-        // } 
-
-
-
-        // setOpenNotificationBar(true)
-
-        // console.log("setting new cur", currentCurrency);
-  
-        const urls = [
-          `https://api.coingecko.com/api/v3/coins/${pageId}?vs_currency=${currentCurrency}`,
-          `https://api.coingecko.com/api/v3/coins/${pageId}/market_chart?vs_currency=${currentCurrency}&days=1`,
-          `https://api.coingecko.com/api/v3/coins/${pageId}/market_chart?vs_currency=${currentCurrency}&days=7`,
-          `https://api.coingecko.com/api/v3/coins/${pageId}/market_chart?vs_currency=${currentCurrency}&days=30`,
-          `https://api.coingecko.com/api/v3/coins/${pageId}/market_chart?vs_currency=${currentCurrency}&days=365`,
-        ];
-  
-        const coinInfo = await Promise.all(
-          urls.map((url) => fetch(url).then((resp) => resp.json())),
-        );
-  
-        // const coinListInfo = await (await fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currentCurrency}&order=market_cap_desc&per_page=100&page=1&sparkline=false`).then((resp) => resp.json()))
-  
-        // console.log('new coin list', coinListInfo);
-  
-        // updateCoins(prev => {return {...prev, initialHundredCoins: coinListInfo}})
-        // asd
-  
-        
-        
-        
-        const dayMarketValues = coinInfo[1].prices.map((data) => data[1]);
-        const weekMarketValues = coinInfo[2].prices.map((data) => data[1]);
-        const monthMarketValues = coinInfo[3].prices.map((data) => data[1]);
-        const yearMarketValues = coinInfo[4].prices.map((data) => data[1]);
-        // dispatch(coinsActions.updateCoins({coinListCoins: coinInfo[5] , trendingCarouselCoins: coinInfo[6], symbol: currentSymbol}))
-        
-  
-        // console.log("setting", coinInfo[0]);
-  
-        setCoin(coinInfo[0])
-        setMarketChart({
-          day: coinInfo[1].prices,
-          week: coinInfo[2].prices,
-          month: coinInfo[3].prices,
-          year: coinInfo[4].prices,
-        });
-        setMarketValues({
-          dayMarketValues,
-          weekMarketValues,
-          monthMarketValues,
-          yearMarketValues,
-        });
-  
-        setChartData({
-          labels: coinInfo[1].prices.map((data) =>
-            new Date(data[0]).toLocaleTimeString(),
-          ),
-          datasets: [
-            {
-              label: `${coin.name} Price (Past day) in ${currentCurrency.toUpperCase()}`,
-              data: dayMarketValues,
-              type: "line",
-              pointRadius: 1.3,
-              borderColor: "#ff9500",
-            },
-          ],
-        });
-  
-  
-        // setOpenNotificationBar(false)
-  
-  
-  
-        //get coin info for main page AFTER coin info page data has been retrieved. Causes loading on coin info page to be faster, and user wont notice since they wont see the main page, and we're fetching it in the background asynchronously
-  
-  
-  
-  
-        const urls2 = [
-          `https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currentCurrency}&order=market_cap_desc&per_page=100&page=1&sparkline=false`,
-          `https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currentCurrency}&order=gecko_desc&per_page=10&page=1&sparkline=false&price_change_percentage=24h`,
-        ];
-  
-  
-        Promise.all(urls2.map((u) => fetch(u)))
-          .then((responses) => Promise.all(responses.map((res) => res.json())))
-          .then((data) => {
-            // console.log("yebuddy", data);
-  
-            const hundredNewCoins = data[0];
-            const trendingCoins = data[1];
-  
-            // console.log('latest man', hundredNewCoins, trendingCoins)
-  
-            // updateCoins({initialHundredCoins: hundredNewCoins, trendingCoins});
-            dispatch(coinsActions.updateCoins({coinListCoins: hundredNewCoins , trendingCarouselCoins: trendingCoins, symbol: currentSymbol}))
-            // setCarouselCoins(trendingCoins);
-            // setNonReduxSymbol(currentSymbol);
-          });
-  
-  
-  
-  
-  
-  
-        
+      const fetchOptions = {
+        headers: {
+          Authorization: `Apikey ${cryptoCompareApiKey}`,
+        },
       };
 
+      const urls = [
+        `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${pageId.toUpperCase()}&tsyms=${currentCurrency}`,
+        `https://min-api.cryptocompare.com/data/v2/histohour?fsym=${pageId}&tsym=${currentCurrency}&limit=24`, // 1 day
+        `https://min-api.cryptocompare.com/data/v2/histoday?fsym=${pageId}&tsym=${currentCurrency}&limit=7`, // 1 week
+        `https://min-api.cryptocompare.com/data/v2/histoday?fsym=${pageId}&tsym=${currentCurrency}&limit=30`, // 1 month
+        `https://min-api.cryptocompare.com/data/v2/histoday?fsym=${pageId}&tsym=${currentCurrency}&limit=365`, // 1 year
+        `https://min-api.cryptocompare.com/data/top/mktcapfull?limit=100&tsym=${currentCurrency}`,
+        `https://min-api.cryptocompare.com/data/top/totalvolfull?limit=10&tsym=${currentCurrency}`,
+      ];
 
-      
-      // console.log('then false');
-      setNewCurrency();
-      
+      const coinInfo = await Promise.all(
+        urls.map((url) => fetch(url, fetchOptions).then((resp) => resp.json())),
+      );
 
+      const coinData =
+        coinInfo[0].RAW[pageId.toUpperCase()][currentCurrency.toUpperCase()];
+      // console.log("retrieved coindata", coinData);
+      // console.log("retrieved coininfo", coinInfo);
+      // console.log("currentCurrency", currentCurrency);
+      const assetData =
+        coinInfo[0].DISPLAY[pageId.toUpperCase()][
+          currentCurrency.toUpperCase()
+        ];
+      // console.log("retrieved assetData", assetData);
 
-    
+      // Format the ID for Coinpaprika (symbol-name)
+      const coinPaprikaId = `${coinData.FROMSYMBOL.toLowerCase()}-${initialCoin.name.toLowerCase()}`;
+
+      // Fetch all-time high and all-time low from Coinpaprika
+      const coinPaprikaResponse = await fetch(
+        `https://api.coinpaprika.com/v1/tickers/${coinPaprikaId}`,
+      );
+      const coinPaprikaData = await coinPaprikaResponse.json();
+      console.log(rates)
+
+      // Convert Coinpaprika's USD values to CAD
+      const cadAthPrice = coinPaprikaData.quotes.USD.ath_price * rates.CAD;
+
+      const dayMarketValues = coinInfo[1].Data.Data.map((data) => data.close);
+      const weekMarketValues = coinInfo[2].Data.Data.map((data) => data.close);
+      const monthMarketValues = coinInfo[3].Data.Data.map((data) => data.close);
+      const yearMarketValues = coinInfo[4].Data.Data.map((data) => data.close);
+
+      const marketCapCoinsData = coinInfo[5].Data;
+
+      // Format the coins from the marketCapCoinsData
+      const allFormattedCoins = marketCapCoinsData
+        .map((entry, i) => {
+          const coin = entry.CoinInfo;
+          const metrics = entry.RAW?.[currentCurrency.toUpperCase()];
+          if (!metrics) {
+            console.warn(`Metrics not found for coin: ${coin.Name}`);
+            return null;
+          }
+          return {
+            id: coin.Name,
+            symbol: coin.Name,
+            name: coin.FullName,
+            image: `https://cryptocompare.com${coin.ImageUrl}`,
+            current_price: metrics.PRICE,
+            current_price_USD: metrics.PRICE / rates.CAD, // Convert CAD to USD for the client-side option
+            current_price_AUD: (metrics.PRICE / rates.CAD) * rates.AUD, // Convert from CAD to USD first, then to AUD
+            current_price_GBP: (metrics.PRICE / rates.CAD) * rates.GBP, // Convert from CAD to USD first, then to GBP
+            market_cap: metrics.MKTCAP,
+            market_cap_rank: i + 1,
+            total_volume: metrics.TOTALVOLUME24HTO,
+            high_24h: metrics.HIGH24HOUR,
+            low_24h: metrics.LOW24HOUR,
+            price_change_24h: metrics.CHANGE24HOUR,
+            price_change_percentage_24h: metrics.CHANGEPCT24HOUR,
+            circulating_supply: metrics.SUPPLY,
+          };
+        })
+        .filter(Boolean);
+
+      // Format the trending coins
+      const formattedTrendingCoins = allFormattedCoins.slice(0, 10);
+
+      dispatch(
+        coinsActions.updateCoins({
+          //this the issue 
+          coinListCoins: allFormattedCoins,
+          trendingCarouselCoins: formattedTrendingCoins,
+          symbol: currentSymbol,
+        }),
+      );
+
+      setCoin({
+        id: initialCoin.id,
+        symbol: initialCoin.symbol,
+        name: initialCoin.name,
+        image: initialCoin.image,
+        description: initialCoin.description,
+        current_price: coinData.PRICE,
+        all_time_high: cadAthPrice, // This is previously fetched from Coinpaprika.
+        market_cap: coinData.MKTCAP,
+        price_change_1d:
+          dayMarketValues[dayMarketValues.length - 1] - dayMarketValues[0],
+        price_change_percentage_24h:
+          ((dayMarketValues[dayMarketValues.length - 1] - dayMarketValues[0]) /
+            dayMarketValues[0]) *
+          100,
+        price_change_7d:
+          weekMarketValues[weekMarketValues.length - 1] - weekMarketValues[0],
+        price_change_percentage_7d:
+          ((weekMarketValues[weekMarketValues.length - 1] -
+            weekMarketValues[0]) /
+            weekMarketValues[0]) *
+          100,
+        price_change_30d:
+          monthMarketValues[monthMarketValues.length - 1] -
+          monthMarketValues[0],
+        price_change_percentage_30d:
+          ((monthMarketValues[monthMarketValues.length - 1] -
+            monthMarketValues[0]) /
+            monthMarketValues[0]) *
+          100,
+        price_change_365d:
+          yearMarketValues[yearMarketValues.length - 1] - yearMarketValues[0],
+        price_change_percentage_1y:
+          ((yearMarketValues[yearMarketValues.length - 1] -
+            yearMarketValues[0]) /
+            yearMarketValues[0]) *
+          100,
+      });
+
+      setMarketChart({
+        day: coinInfo[1].Data.Data.map((data) => [data.time, data.close]),
+        week: coinInfo[2].Data.Data.map((data) => [data.time, data.close]),
+        month: coinInfo[3].Data.Data.map((data) => [data.time, data.close]),
+        year: coinInfo[4].Data.Data.map((data) => [data.time, data.close]),
+      });
+
+      setMarketValues({
+        dayMarketValues,
+        weekMarketValues,
+        monthMarketValues,
+        yearMarketValues,
+      });
+
+      setChartData({
+        labels: coinInfo[1].Data.Data.map((data) =>
+          new Date(data.time * 1000).toLocaleTimeString(),
+        ),
+        datasets: [
+          {
+            label: `${
+              assetData.FROMSYMBOL
+            } Price (Past day) in ${currentCurrency.toUpperCase()}`,
+            data: dayMarketValues,
+            type: "line",
+            pointRadius: 1.3,
+            borderColor: "#ff9500",
+          },
+        ],
+      });
+    };
+
+    setNewCurrency();
   }, [currentCurrency]);
-
 
   return (
     <div className={styles.container}>
@@ -302,7 +363,7 @@ const Coin = ({
           <header className={styles.header}>
             <div className={styles.title_wrapper}>
               <Image
-                src={coin.image.large}
+                src={coin.image}
                 alt={coin.name}
                 // layout={'fill'}
                 width={88}
@@ -317,12 +378,12 @@ const Coin = ({
             </div>
             <div className={styles.description}>
               <p>
-                {coin.description.en.split(".").length > 2
-                  ? `${removeHTML(coin.description.en)
+                {coin.description.split(".").length > 2
+                  ? `${removeHTML(coin.description)
                       .split(".")
                       .slice(0, 2)
                       .join(". ")}.`
-                  : `${removeHTML(coin.description.en).slice(0, 170)}...`}
+                  : `${removeHTML(coin.description).slice(0, 170)}...`}
               </p>
             </div>
           </header>
@@ -332,12 +393,9 @@ const Coin = ({
               <h3>Current Price:</h3>
               <p className={styles.current}>
                 {currentSymbol}
-                {coin.market_data.current_price[currentCurrency].toLocaleString(
-                  "en-US",
-                  {
-                    maximumFractionDigits: 8,
-                  },
-                )}
+                {coin.current_price.toLocaleString("en-US", {
+                  maximumFractionDigits: 8,
+                })}
               </p>
             </div>
 
@@ -349,53 +407,53 @@ const Coin = ({
               <h3>All Time High:</h3>
               <p className={styles.current}>
                 {currentSymbol}
-                {coin.market_data.ath[currentCurrency].toLocaleString("en-US", {
-                  maximumFractionDigits: 8,
-                  minimumFractionDigits: 2,
-                })}
-              </p>
-            </div>
-            <div className={styles.info_row}>
-              <h3>All Time Low:</h3>
-              <p className={styles.current}>
-                {currentSymbol}
-                {coin.market_data.atl[currentCurrency].toLocaleString("en-US", {
+                {coin.all_time_high.toLocaleString("en-US", {
                   maximumFractionDigits: 8,
                   minimumFractionDigits: 2,
                 })}
               </p>
             </div>
             {/* <div className={styles.info_row}>
+              <h3>All Time Low:</h3>
+              <p className={styles.current}>
+                {currentSymbol}
+                {coin.toLocaleString("en-US", {
+                  maximumFractionDigits: 8,
+                  minimumFractionDigits: 2,
+                })}
+              </p>
+            </div> */}
+            {/* <div className={styles.info_row}>
               <h3>Total Supply:</h3>
-              <p className={styles.current}>{coin.market_data.total_supply}</p>
+              <p className={styles.current}>{coin?.total_supply}</p>
             </div>
             <div className={styles.info_row}>
               <h3>Circulating Supply:</h3>
               <p className={styles.current}>
-                {coin.market_data.circulating_supply}
+                {coin?.circulating_supply}
               </p>
             </div> */}
             {/* <div className={styles.info_row}>
               <h3>24h Price Change:</h3>
-              {+coin.market_data.price_change_24h > 0 ? (
+              {+coin?.price_change_1d > 0 ? (
                 <p className={styles.current}>
-                  {+coin.market_data.price_change_24h < 1 &&
-                    `$${coin.market_data.price_change_24h}`}
-                  {+coin.market_data.price_change_24h > 1 &&
-                    `$${coin.market_data.price_change_24h.toFixed(2)}`}
+                  {+coin?.price_change_1d < 1 &&
+                    `$${coin?.price_change_1d}`}
+                  {+coin?.price_change_1d > 1 &&
+                    `$${coin?.price_change_1d.toFixed(2)}`}
                 </p>
               ) : (
                 <p className={styles.current}>
-                  {+coin.market_data.price_change_24h < -1 &&
-                    `${coin.market_data.price_change_24h.toLocaleString(
+                  {+coin?.price_change_1d < -1 &&
+                    `${coin?.price_change_1d.toLocaleString(
                       "en-US",
                       {
                         style: "currency",
                         currency: "USD",
                       },
                     )}`}
-                  {+coin.market_data.price_change_24h > -1 &&
-                    `-$${Math.abs(coin.market_data.price_change_24h).toFixed(
+                  {+coin?.price_change_1d > -1 &&
+                    `-$${Math.abs(coin?.price_change_1d).toFixed(
                       8,
                     )}`}
                 </p>
@@ -405,50 +463,41 @@ const Coin = ({
               <h3>Market Cap:</h3>
               <p className={styles.current}>
                 {currentSymbol}
-                {bigNumberFormatter(coin.market_data.market_cap.cad)}
+                {bigNumberFormatter(coin.market_cap)}
               </p>
             </div>
-            <div className={styles.info_row}>
+            {/* <div className={styles.info_row}>
               <h3>Total Volume:</h3>
               <p className={styles.current}>
                 {currentSymbol}
                 {!isBreakpoint1040
-                  ? coin.market_data.total_volume[
-                      currentCurrency
-                    ].toLocaleString("en-US", {
+                  ? coin?.total_volume.toLocaleString("en-US", {
                       maximumFractionDigits: 8,
                     })
-                  : bigNumberFormatter(
-                      coin.market_data.total_volume[currentCurrency],
-                    )}
+                  : bigNumberFormatter(coin?.total_volume)}
                 {}
               </p>
-            </div>
+            </div> */}
             <div className={styles.info_row}>
               <h3>24h Price Change:</h3>
-              {+coin.market_data.price_change_24h > 0 ? (
+              {+coin?.price_change_1d > 0 ? (
                 <p className={styles.current}>
-                  {+coin.market_data.price_change_24h < 1 &&
-                    `${currentSymbol}${coin.market_data.price_change_24h}`}
-                  {+coin.market_data.price_change_24h > 1 &&
-                    `${currentSymbol}${coin.market_data.price_change_24h.toFixed(
-                      2,
-                    )}`}
+                  {+coin?.price_change_1d < 1 &&
+                    `${currentSymbol}${coin?.price_change_1d}`}
+                  {+coin?.price_change_1d > 1 &&
+                    `${currentSymbol}${coin?.price_change_1d.toFixed(2)}`}
                 </p>
               ) : (
                 <p className={styles.current}>
-                  {+coin.market_data.price_change_24h < -1 &&
-                    `${coin.market_data.price_change_24h.toLocaleString(
-                      "en-US",
-                      {
-                        style: "currency",
-                        currency: "USD",
-                      },
+                  {+coin?.price_change_1d < -1 &&
+                    `${coin?.price_change_1d.toLocaleString("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                    })}`}
+                  {+coin?.price_change_1d > -1 &&
+                    `-${currentSymbol}${Math.abs(coin?.price_change_1d).toFixed(
+                      8,
                     )}`}
-                  {+coin.market_data.price_change_24h > -1 &&
-                    `-${currentSymbol}${Math.abs(
-                      coin.market_data.price_change_24h,
-                    ).toFixed(8)}`}
                 </p>
               )}
             </div>
@@ -521,20 +570,13 @@ const Coin = ({
                   <div className={styles.card_description}>
                     <p>Day Gain/Loss</p>
                     {/* <p>Past Day %:</p> */}
-                    {coin.market_data.price_change_percentage_24h >= 0 ? (
+                    {coin?.price_change_percentage_24h >= 0 ? (
                       <h3 className={styles.green}>
-                        +
-                        {coin.market_data.price_change_percentage_24h.toFixed(
-                          3,
-                        )}
-                        %
+                        +{coin?.price_change_percentage_24h.toFixed(3)}%
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin.market_data.price_change_percentage_24h.toFixed(
-                          3,
-                        )}
-                        %
+                        {coin?.price_change_percentage_24h.toFixed(3)}%
                       </h3>
                     )}
                   </div>
@@ -544,20 +586,13 @@ const Coin = ({
                   <div className={styles.card_description}>
                     <p>Day Gain/Loss</p>
                     {/* <p>Past Day %:</p> */}
-                    {coin.market_data.price_change_percentage_24h >= 0 ? (
+                    {coin?.price_change_percentage_24h >= 0 ? (
                       <h3 className={styles.green}>
-                        +
-                        {coin.market_data.price_change_percentage_24h.toFixed(
-                          3,
-                        )}
-                        %
+                        +{coin?.price_change_percentage_24h.toFixed(3)}%
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin.market_data.price_change_percentage_24h.toFixed(
-                          3,
-                        )}
-                        %
+                        {coin?.price_change_percentage_24h.toFixed(3)}%
                       </h3>
                     )}
                   </div>
@@ -569,16 +604,13 @@ const Coin = ({
                   <div className={styles.card_description}>
                     <p>Week Gain/Loss</p>
                     {/* <h3></h3> */}
-                    {coin.market_data.price_change_percentage_7d >= 0 ? (
+                    {coin?.price_change_percentage_7d >= 0 ? (
                       <h3 className={styles.green}>
-                        +
-                        {coin.market_data.price_change_percentage_7d.toFixed(3)}
-                        %
+                        +{coin?.price_change_percentage_7d.toFixed(3)}%
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin.market_data.price_change_percentage_7d.toFixed(3)}
-                        %
+                        {coin?.price_change_percentage_7d.toFixed(3)}%
                       </h3>
                     )}
                   </div>
@@ -588,16 +620,13 @@ const Coin = ({
                   <div className={styles.card_description}>
                     <p>Week Gain/Loss</p>
                     {/* <h3></h3> */}
-                    {coin.market_data.price_change_percentage_7d >= 0 ? (
+                    {coin?.price_change_percentage_7d >= 0 ? (
                       <h3 className={styles.green}>
-                        +
-                        {coin.market_data.price_change_percentage_7d.toFixed(3)}
-                        %
+                        +{coin?.price_change_percentage_7d.toFixed(3)}%
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin.market_data.price_change_percentage_7d.toFixed(3)}
-                        %
+                        {coin?.price_change_percentage_7d.toFixed(3)}%
                       </h3>
                     )}
                   </div>
@@ -608,20 +637,13 @@ const Coin = ({
                 <div className={styles.selected_card}>
                   <div className={styles.card_description}>
                     <p>Month Gain/Loss:</p>
-                    {coin.market_data.price_change_percentage_30d >= 0 ? (
+                    {coin?.price_change_percentage_30d >= 0 ? (
                       <h3 className={styles.green}>
-                        +
-                        {coin.market_data.price_change_percentage_30d.toFixed(
-                          3,
-                        )}
-                        %
+                        +{coin?.price_change_percentage_30d.toFixed(3)}%
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin.market_data.price_change_percentage_30d.toFixed(
-                          3,
-                        )}
-                        %
+                        {coin?.price_change_percentage_30d.toFixed(3)}%
                       </h3>
                     )}
                   </div>
@@ -630,20 +652,13 @@ const Coin = ({
                 <div>
                   <div className={styles.card_description}>
                     <p>Month Gain/Loss:</p>
-                    {coin.market_data.price_change_percentage_30d >= 0 ? (
+                    {coin?.price_change_percentage_30d >= 0 ? (
                       <h3 className={styles.green}>
-                        +
-                        {coin.market_data.price_change_percentage_30d.toFixed(
-                          3,
-                        )}
-                        %
+                        +{coin?.price_change_percentage_30d.toFixed(3)}%
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin.market_data.price_change_percentage_30d.toFixed(
-                          3,
-                        )}
-                        %
+                        {coin?.price_change_percentage_30d.toFixed(3)}%
                       </h3>
                     )}
                   </div>
@@ -656,16 +671,13 @@ const Coin = ({
                     {/* <p>Past Year:</p> */}
                     <p>Year Gain/Loss</p>
                     {/* <h3></h3> */}
-                    {coin.market_data.price_change_percentage_1y >= 0 ? (
+                    {coin?.price_change_percentage_1y >= 0 ? (
                       <h3 className={styles.green}>
-                        +
-                        {coin.market_data.price_change_percentage_1y.toFixed(3)}
-                        %
+                        +{coin?.price_change_percentage_1y.toFixed(3)}%
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin.market_data.price_change_percentage_1y.toFixed(3)}
-                        %
+                        {coin?.price_change_percentage_1y.toFixed(3)}%
                       </h3>
                     )}
                   </div>
@@ -675,23 +687,19 @@ const Coin = ({
                   <div className={styles.card_description}>
                     <p>Year Gain/Loss</p>
                     {/* <h3></h3> */}
-                    {coin.market_data.price_change_percentage_1y >= 0 ? (
+                    {coin?.price_change_percentage_1y >= 0 ? (
                       <h3 className={styles.green}>
-                        +
-                        {coin.market_data.price_change_percentage_1y.toFixed(3)}
-                        %
+                        +{coin?.price_change_percentage_1y.toFixed(3)}%
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin.market_data.price_change_percentage_1y.toFixed(3)}
-                        %
+                        {coin?.price_change_percentage_1y.toFixed(3)}%
                       </h3>
                     )}
                   </div>
                 </div>
               )}
             </div>
-
           </div>
 
           {/* <div className={styles.chart_details}>
@@ -702,15 +710,15 @@ const Coin = ({
               <>
                 <div className={styles.selected_period}>
                   <p>Percentage change for the past day: </p>
-                  {coin.market_data.price_change_percentage_24h >= 0 ? (
+                  {coin?.price_change_percentage_24h >= 0 ? (
                     <p className={styles.green}>
                       {" "}
-                      {coin.market_data.price_change_percentage_24h}%
+                      {coin?.price_change_percentage_24h}%
                     </p>
                   ) : (
                     <p className={styles.red}>
                       {" "}
-                      {coin.market_data.price_change_percentage_24h}%
+                      {coin?.price_change_percentage_24h}%
                     </p>
                   )}
                 </div>
@@ -719,13 +727,13 @@ const Coin = ({
               <>
                 <div>
                   <p>Percentage change for the past day: </p>
-                  {coin.market_data.price_change_percentage_24h >= 0 ? (
+                  {coin?.price_change_percentage_24h >= 0 ? (
                     <p className={styles.green}>
-                      {coin.market_data.price_change_percentage_24h}%
+                      {coin?.price_change_percentage_24h}%
                     </p>
                   ) : (
                     <p className={styles.red}>
-                      {coin.market_data.price_change_percentage_24h}%
+                      {coin?.price_change_percentage_24h}%
                     </p>
                   )}
                 </div>
@@ -736,14 +744,14 @@ const Coin = ({
               <>
                 <div className={styles.selected_period}>
                   <p>Percentage change for the past week: </p>
-                  {coin.market_data.price_change_percentage_7d >= 0 ? (
+                  {coin?.price_change_percentage_7d >= 0 ? (
                     <p className={styles.green}>
-                      {coin.market_data.price_change_percentage_7d}%
+                      {coin?.price_change_percentage_7d}%
                     </p>
                   ) : (
                     <p className={styles.red}>
                       {" "}
-                      {coin.market_data.price_change_percentage_7d}%
+                      {coin?.price_change_percentage_7d}%
                     </p>
                   )}
                 </div>
@@ -752,14 +760,14 @@ const Coin = ({
               <>
                 <div>
                   <p>Percentage change for the past week: </p>
-                  {coin.market_data.price_change_percentage_7d >= 0 ? (
+                  {coin?.price_change_percentage_7d >= 0 ? (
                     <p className={styles.green}>
-                      {coin.market_data.price_change_percentage_7d}%
+                      {coin?.price_change_percentage_7d}%
                     </p>
                   ) : (
                     <p className={styles.red}>
                       {" "}
-                      {coin.market_data.price_change_percentage_7d}%
+                      {coin?.price_change_percentage_7d}%
                     </p>
                   )}
                 </div>
@@ -770,14 +778,14 @@ const Coin = ({
               <>
                 <div className={styles.selected_period}>
                   <p>Percentage change for the past month: </p>
-                  {coin.market_data.price_change_percentage_30d >= 0 ? (
+                  {coin?.price_change_percentage_30d >= 0 ? (
                     <p className={styles.green}>
-                      {coin.market_data.price_change_percentage_30d}%
+                      {coin?.price_change_percentage_30d}%
                     </p>
                   ) : (
                     <p className={styles.red}>
                       {" "}
-                      {coin.market_data.price_change_percentage_30d}%
+                      {coin?.price_change_percentage_30d}%
                     </p>
                   )}
                 </div>
@@ -786,14 +794,14 @@ const Coin = ({
               <>
                 <div>
                   <p>Percentage change for the past month: </p>
-                  {coin.market_data.price_change_percentage_30d >= 0 ? (
+                  {coin?.price_change_percentage_30d >= 0 ? (
                     <p className={styles.green}>
-                      {coin.market_data.price_change_percentage_30d}%
+                      {coin?.price_change_percentage_30d}%
                     </p>
                   ) : (
                     <p className={styles.red}>
                       {" "}
-                      {coin.market_data.price_change_percentage_30d}%
+                      {coin?.price_change_percentage_30d}%
                     </p>
                   )}
                 </div>
@@ -804,14 +812,14 @@ const Coin = ({
               <>
                 <div className={styles.selected_period}>
                   <p>Percentage change for the past year: </p>
-                  {coin.market_data.price_change_percentage_1y >= 0 ? (
+                  {coin?.price_change_percentage_1y >= 0 ? (
                     <p className={styles.green}>
-                      {coin.market_data.price_change_percentage_1y}%
+                      {coin?.price_change_percentage_1y}%
                     </p>
                   ) : (
                     <p className={styles.red}>
                       {" "}
-                      {coin.market_data.price_change_percentage_1y}%
+                      {coin?.price_change_percentage_1y}%
                     </p>
                   )}
                 </div>
@@ -820,14 +828,14 @@ const Coin = ({
               <>
                 <div>
                   <p>Percentage change for the past year: </p>
-                  {coin.market_data.price_change_percentage_1y >= 0 ? (
+                  {coin?.price_change_percentage_1y >= 0 ? (
                     <p className={styles.green}>
-                      {coin.market_data.price_change_percentage_1y}%
+                      {coin?.price_change_percentage_1y}%
                     </p>
                   ) : (
                     <p className={styles.red}>
                       {" "}
-                      {coin.market_data.price_change_percentage_1y}%
+                      {coin?.price_change_percentage_1y}%
                     </p>
                   )}
                 </div>
@@ -849,49 +857,127 @@ export default Coin;
 
 export async function getServerSideProps(context) {
   const { id } = context.query;
-  // console.log(context);
+  const currency = "CAD";
+  const cryptoCompareApiKey = process.env.NEXT_PUBLIC_CRYPTOCOMPARE_API_KEY;
 
-  const urls = [
-    `https://api.coingecko.com/api/v3/coins/${id}?vs_currency=cad`,
-  ];
+  const cryptoCompareFetchOptions = {
+    headers: {
+      Authorization: `Apikey ${cryptoCompareApiKey}`,
+    },
+  };
 
-  const coinInfo = await Promise.all(
-    urls.map((url) => fetch(url).then((resp) => resp.json())));
+  // Fetching all available rates from CryptoCompare's price multi-full endpoint for CAD, USD, AUD, and GBP
+  const exchangeRateResponse = await fetch(
+    `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=USD&tsyms=CAD,USD,AUD,GBP`,
+    cryptoCompareFetchOptions,
+  );
+  const exchangeData = await exchangeRateResponse.json();
 
-  const dayMarketValues = null
-  const weekMarketValues = null
-  const monthMarketValues = null
-  const yearMarketValues = null 
-  
-  // const dayMarketValues = coinInfo[1].prices.map((data) => data[1]);
-  // const weekMarketValues = coinInfo[2].prices.map((data) => data[1]);
-  // const monthMarketValues = coinInfo[3].prices.map((data) => data[1]);
-  // const yearMarketValues = coinInfo[4].prices.map((data) => data[1]);
+  const rates = {
+    USD: 1,
+    CAD: exchangeData.RAW.USD.CAD.PRICE,
+    AUD: exchangeData.RAW.USD.AUD.PRICE,
+    GBP: exchangeData.RAW.USD.GBP.PRICE,
+  };
 
-  // return {
-  //   props: {
-  //     initialCoin: coinInfo[0],
-  //     marketChartFromServer: {
-  //       day: coinInfo[1].prices,
-  //       week: coinInfo[2].prices,
-  //       month: coinInfo[3].prices,
-  //       year: coinInfo[4].prices,
-  //     },
-  //     marketValuesFromServer: {
-  //       dayMarketValues,
-  //       weekMarketValues,
-  //       monthMarketValues,
-  //       yearMarketValues,
-  //     },
-  //     pageId: id,
-  //   },
-  // };
-  
+  // Fetch detailed data and price metrics from CryptoCompare
+  const cryptoCompareInfoUrl = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${id.toUpperCase()}&tsyms=${currency}`;
+  const cryptoCompareInfoResponse = await fetch(
+    cryptoCompareInfoUrl,
+    cryptoCompareFetchOptions,
+  );
+  const cryptoCompareData = await cryptoCompareInfoResponse.json();
+
+  // Fetch 365-day historical data
+  const historical365DataResponse = await fetch(
+    `https://min-api.cryptocompare.com/data/v2/histoday?fsym=${id}&tsym=${currency}&limit=365`,
+    cryptoCompareFetchOptions,
+  );
+  const historical365Data = await historical365DataResponse.json();
+
+  // Extract necessary data points
+  const data365 = historical365Data.Data.Data;
+  const data30 = data365.slice(-30);
+  const data7 = data365.slice(-7);
+  const data1 = data365.slice(-1);
+
+  // Calculate price changes
+  const priceChange1d = data1[0].close - data365[data365.length - 2].close;
+  const priceChange7d = data7[data7.length - 1].close - data7[0].close;
+  const priceChange30d = data30[data30.length - 1].close - data30[0].close;
+  const priceChange365d = data365[data365.length - 1].close - data365[0].close;
+
+  // Calculate percentage changes
+  const priceChangePercentage1d =
+    (priceChange1d / data365[data365.length - 2].close) * 100;
+  const priceChangePercentage7d = (priceChange7d / data7[0].close) * 100;
+  const priceChangePercentage30d = (priceChange30d / data30[0].close) * 100;
+  const priceChangePercentage365d = (priceChange365d / data365[0].close) * 100;
+
+  // Fetch additional details from CryptoCompare asset endpoint
+  const cryptoCompareAssetInfoUrl = `https://data-api.cryptocompare.com/asset/v1/data/by/symbol?asset_symbol=${id.toUpperCase()}`;
+  const cryptoCompareAssetInfoResponse = await fetch(
+    cryptoCompareAssetInfoUrl,
+    cryptoCompareFetchOptions,
+  );
+  const cryptoCompareAssetData = await cryptoCompareAssetInfoResponse.json();
+
+  const coinData = cryptoCompareData.RAW[id.toUpperCase()].CAD;
+  const assetData = cryptoCompareAssetData.Data;
+
+  // Format the ID for Coinpaprika (symbol-name)
+  const coinPaprikaId = `${coinData.FROMSYMBOL.toLowerCase()}-${assetData.NAME.toLowerCase()}`;
+
+  // Fetch all-time high and all-time low from Coinpaprika
+  const coinPaprikaResponse = await fetch(
+    `https://api.coinpaprika.com/v1/tickers/${coinPaprikaId}`,
+  );
+  const coinPaprikaData = await coinPaprikaResponse.json();
+
+  console.log('ratesrates', rates);
+
+  // Convert Coinpaprika's USD values to CAD
+  const cadAthPrice = coinPaprikaData.quotes.USD.ath_price * rates.CAD;
+
+  if (
+    !cryptoCompareData ||
+    !cryptoCompareData.RAW ||
+    !cryptoCompareData.RAW[id.toUpperCase()]
+  ) {
+    return {
+      notFound: true,
+    };
+  }
+
+  // Construct the coin information
+  const coinInfo = {
+    id,
+    symbol: coinData.FROMSYMBOL,
+    name: assetData.NAME,
+    image: assetData.LOGO_URL,
+    description: assetData.ASSET_DESCRIPTION_SUMMARY,
+    current_price: coinData.PRICE,
+    all_time_high: cadAthPrice,
+    //: cadAtlPrice,
+    market_cap: coinData.MKTCAP,
+    // total_volume: coinData.TOTALVOLUME24H,
+    price_change_1d: priceChange1d,
+    price_change_percentage_24h: priceChangePercentage1d,
+    price_change_7d: priceChange7d,
+    price_change_percentage_7d: priceChangePercentage7d,
+    price_change_30d: priceChange30d,
+    price_change_percentage_30d: priceChangePercentage30d,
+    price_change_365d: priceChange365d,
+    price_change_percentage_1y: priceChangePercentage365d,
+  };
+
   return {
     props: {
-      initialCoin: coinInfo[0],
- 
+      initialCoin: coinInfo,
       pageId: id,
+      coinData,
+      assetData,
+      rates,
     },
   };
 }
