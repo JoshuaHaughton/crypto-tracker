@@ -4,18 +4,15 @@ import styles from "./Layout.module.css";
 import Navbar from "../Navbar/Navbar";
 import { coinsActions } from "../../store/coins";
 import { useDispatch } from "react-redux";
-import { useState } from "react";
 export const Layout = ({ children, title = "Crypto Tracker", coins }) => {
-  
-
   const dispatch = useDispatch();
   // dispatch(coinsActions.updateCoins({initialHundredCoins: coins.initialHundredCoins, trendingCoins: coins.trendingCoins, symbol: "$"}));
-  
-  //sets coins to redux state before beginning to render page component (Children) so that there wont be a loading state on intial load 
-  dispatch(coinsActions.updateCoins({...coins, symbol: "$"}));
+
+  //sets coins to redux state before beginning to render page component (Children) so that there wont be a loading state on intial load
+  dispatch(coinsActions.updateCoins({ ...coins, symbol: "$" }));
 
   // const [layoutCoins, setLayoutCoins] = useState(coins)
-  
+
   return (
     <div className={styles.container}>
       <Head>
@@ -24,12 +21,12 @@ export const Layout = ({ children, title = "Crypto Tracker", coins }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-        <Navbar />
+      <Navbar />
 
-        <main>
-          {/* {children} */}
-          {React.cloneElement(children, {coins})}
-          {/* <footer className={styles.footer}>
+      <main>
+        {/* {children} */}
+        {React.cloneElement(children, { coins })}
+        {/* <footer className={styles.footer}>
             <div className={styles.footer_links}>
               <Link href="/" className={styles.footer_link}>
                   <a >Home</a>
@@ -52,8 +49,7 @@ export const Layout = ({ children, title = "Crypto Tracker", coins }) => {
               </Link>
             </div>
           </footer> */}
-        </main>
-      
-      </div>
+      </main>
+    </div>
   );
 };

@@ -14,7 +14,6 @@ nProgress.configure({
   showSpinner: true,
 });
 
-// const ProgressBar = dynamic(() => import('../src/components/UI/ProgressBar'), { ssr: false });
 Router.events.on("routeChangeStart", nProgress.start);
 Router.events.on("routeChangeError", nProgress.done);
 Router.events.on("routeChangeComplete", nProgress.done);
@@ -28,7 +27,6 @@ Router.events.on("routeChangeComplete", () => {
 });
 
 function MyApp({ Component, pageProps, appProps }) {
-  // console.log("supposedly app", appProps);
   const isBreakpoint680 = useMediaQuery(680);
   const isBreakpoint380 = useMediaQuery(380);
   const isBreakpoint1040 = useMediaQuery(1040);
@@ -38,7 +36,6 @@ function MyApp({ Component, pageProps, appProps }) {
   return (
     <Provider store={store}>
       <Layout coins={appProps}>
-        {/* <ProgressBar /> */}
         <Component
           {...pageProps}
           isBreakpoint380={isBreakpoint380}
@@ -64,25 +61,18 @@ MyApp.getInitialProps = async (appContext) => {
   };
 
   try {
-    // Fetching all available rates from CryptoCompare's price multi-full endpoint for CAD, USD, AUD, and GBP
+    // Fetching all available rates from CryptoCompare's price multi-full endpoint for CAD
     const exchangeRateResponse = await fetch(
-      `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=USD&tsyms=CAD,USD,AUD,GBP`,
+      `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=CAD&tsyms=USD,AUD,GBP`,
       fetchOptions,
     );
     const exchangeData = await exchangeRateResponse.json();
 
     const rates = {
-      USD: 1,
-      CAD: exchangeData.RAW.USD.CAD,
-      AUD: exchangeData.RAW.USD.AUD,
-      GBP: exchangeData.RAW.USD.GBP,
-    };
-
-    const currencySymbols = {
-      USD: "$",
-      CAD: "CA$",
-      AUD: "A$",
-      GBP: "£",
+      CAD: 1,
+      USD: exchangeData.RAW.CAD.USD.PRICE,
+      AUD: exchangeData.RAW.CAD.AUD.PRICE,
+      GBP: exchangeData.RAW.CAD.GBP.PRICE,
     };
 
     // Fetching the top 100 assets by market cap from CryptoCompare in CAD
@@ -94,21 +84,18 @@ MyApp.getInitialProps = async (appContext) => {
 
     const initialHundredCoins = assetsData.Data.map((entry, i) => {
       const coin = entry.CoinInfo;
-      const metrics = entry.RAW?.CAD; // Notice the change from USD to CAD
+      const metrics = entry.RAW?.CAD;
       if (!metrics) {
         console.warn(`Metrics not found for coin: ${coin.Name}`);
         return null;
       }
-      
+
       return {
         id: coin.Name,
         symbol: coin.Name,
         name: coin.FullName,
         image: `https://cryptocompare.com${coin.ImageUrl}`,
         current_price: metrics.PRICE,
-        current_price_USD: metrics.PRICE / rates.CAD, // Convert CAD to USD for the client-side option
-        current_price_AUD: (metrics.PRICE / rates.CAD) * rates.AUD, // Convert from CAD to USD first, then to AUD
-        current_price_GBP: (metrics.PRICE / rates.CAD) * rates.GBP, // Convert from CAD to USD first, then to GBP
         market_cap: metrics.MKTCAP,
         market_cap_rank: i + 1,
         total_volume: metrics.TOTALVOLUME24HTO,
@@ -121,15 +108,13 @@ MyApp.getInitialProps = async (appContext) => {
     }).filter(Boolean);
 
     const trendingCoins = initialHundredCoins.slice(0, 10);
-    // console.log("trendingCoins", trendingCoins[0]);
-    // console.log(initialHundredCoins);
+    console.log(initialHundredCoins[0]);
 
     return {
       appProps: {
         initialHundredCoins,
         trendingCoins,
         rates,
-        currencySymbols,
       },
     };
   } catch (err) {
