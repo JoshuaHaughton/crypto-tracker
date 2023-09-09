@@ -710,154 +710,8 @@ const Coin = ({
               )}
             </div>
           </div>
-
-          {/* <div className={styles.chart_details}>
-            <div className={styles.chart_title}>
-              <h3>Percentage Change</h3>
-            </div>
-            {currentChartPeriod === "day" ? (
-              <>
-                <div className={styles.selected_period}>
-                  <p>Percentage change for the past day: </p>
-                  {coin?.price_change_percentage_24h >= 0 ? (
-                    <p className={styles.green}>
-                      {" "}
-                      {coin?.price_change_percentage_24h}%
-                    </p>
-                  ) : (
-                    <p className={styles.red}>
-                      {" "}
-                      {coin?.price_change_percentage_24h}%
-                    </p>
-                  )}
-                </div>
-              </>
-            ) : (
-              <>
-                <div>
-                  <p>Percentage change for the past day: </p>
-                  {coin?.price_change_percentage_24h >= 0 ? (
-                    <p className={styles.green}>
-                      {coin?.price_change_percentage_24h}%
-                    </p>
-                  ) : (
-                    <p className={styles.red}>
-                      {coin?.price_change_percentage_24h}%
-                    </p>
-                  )}
-                </div>
-              </>
-            )}
-
-            {currentChartPeriod === "week" ? (
-              <>
-                <div className={styles.selected_period}>
-                  <p>Percentage change for the past week: </p>
-                  {coin?.price_change_percentage_7d >= 0 ? (
-                    <p className={styles.green}>
-                      {coin?.price_change_percentage_7d}%
-                    </p>
-                  ) : (
-                    <p className={styles.red}>
-                      {" "}
-                      {coin?.price_change_percentage_7d}%
-                    </p>
-                  )}
-                </div>
-              </>
-            ) : (
-              <>
-                <div>
-                  <p>Percentage change for the past week: </p>
-                  {coin?.price_change_percentage_7d >= 0 ? (
-                    <p className={styles.green}>
-                      {coin?.price_change_percentage_7d}%
-                    </p>
-                  ) : (
-                    <p className={styles.red}>
-                      {" "}
-                      {coin?.price_change_percentage_7d}%
-                    </p>
-                  )}
-                </div>
-              </>
-            )}
-
-            {currentChartPeriod === "month" ? (
-              <>
-                <div className={styles.selected_period}>
-                  <p>Percentage change for the past month: </p>
-                  {coin?.price_change_percentage_30d >= 0 ? (
-                    <p className={styles.green}>
-                      {coin?.price_change_percentage_30d}%
-                    </p>
-                  ) : (
-                    <p className={styles.red}>
-                      {" "}
-                      {coin?.price_change_percentage_30d}%
-                    </p>
-                  )}
-                </div>
-              </>
-            ) : (
-              <>
-                <div>
-                  <p>Percentage change for the past month: </p>
-                  {coin?.price_change_percentage_30d >= 0 ? (
-                    <p className={styles.green}>
-                      {coin?.price_change_percentage_30d}%
-                    </p>
-                  ) : (
-                    <p className={styles.red}>
-                      {" "}
-                      {coin?.price_change_percentage_30d}%
-                    </p>
-                  )}
-                </div>
-              </>
-            )}
-
-            {currentChartPeriod === "year" ? (
-              <>
-                <div className={styles.selected_period}>
-                  <p>Percentage change for the past year: </p>
-                  {coin?.price_change_percentage_1y >= 0 ? (
-                    <p className={styles.green}>
-                      {coin?.price_change_percentage_1y}%
-                    </p>
-                  ) : (
-                    <p className={styles.red}>
-                      {" "}
-                      {coin?.price_change_percentage_1y}%
-                    </p>
-                  )}
-                </div>
-              </>
-            ) : (
-              <>
-                <div>
-                  <p>Percentage change for the past year: </p>
-                  {coin?.price_change_percentage_1y >= 0 ? (
-                    <p className={styles.green}>
-                      {coin?.price_change_percentage_1y}%
-                    </p>
-                  ) : (
-                    <p className={styles.red}>
-                      {" "}
-                      {coin?.price_change_percentage_1y}%
-                    </p>
-                  )}
-                </div>
-              </>
-            )}
-          </div> */}
         </div>
       </div>
-
-      {/* <ResponsiveContainer width="100%" height={400}>
-        <AreaChart data={chartData}>
-        </AreaChart>
-      </ResponsiveContainer> */}
     </div>
   );
 };
@@ -875,34 +729,46 @@ export async function getServerSideProps(context) {
     },
   };
 
-  // Fetching all available rates from CryptoCompare's price multi-full endpoint for CAD, USD, AUD, and GBP
-  const exchangeRateResponse = await fetch(
-    `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=USD&tsyms=CAD,USD,AUD,GBP`,
+  // Prepare all the fetch requests
+  const cryptoCompareInfoRequest = fetch(
+    `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${id.toUpperCase()}&tsyms=CAD,USD,AUD,GBP`,
     cryptoCompareFetchOptions,
   );
-  const exchangeData = await exchangeRateResponse.json();
 
-  const rates = {
-    USD: 1,
-    CAD: exchangeData.RAW.USD.CAD.PRICE,
-    AUD: exchangeData.RAW.USD.AUD.PRICE,
-    GBP: exchangeData.RAW.USD.GBP.PRICE,
-  };
-
-  // Fetch detailed data and price metrics from CryptoCompare
-  const cryptoCompareInfoUrl = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${id.toUpperCase()}&tsyms=${currency}`;
-  const cryptoCompareInfoResponse = await fetch(
-    cryptoCompareInfoUrl,
-    cryptoCompareFetchOptions,
-  );
-  const cryptoCompareData = await cryptoCompareInfoResponse.json();
-
-  // Fetch 365-day historical data
-  const historical365DataResponse = await fetch(
+  const historical365DataRequest = fetch(
     `https://min-api.cryptocompare.com/data/v2/histoday?fsym=${id}&tsym=${currency}&limit=365`,
     cryptoCompareFetchOptions,
   );
-  const historical365Data = await historical365DataResponse.json();
+
+  const cryptoCompareAssetInfoRequest = fetch(
+    `https://data-api.cryptocompare.com/asset/v1/data/by/symbol?asset_symbol=${id.toUpperCase()}`,
+    cryptoCompareFetchOptions,
+  );
+
+  const coinPaprikaSearchRequest = fetch(
+    `https://api.coinpaprika.com/v1/search?q=${id}`,
+  );
+
+  // Execute all requests concurrently
+  const [
+    cryptoCompareData,
+    historical365Data,
+    cryptoCompareAssetData,
+    searchData,
+  ] = await Promise.all([
+    cryptoCompareInfoRequest.then((res) => res.json()),
+    historical365DataRequest.then((res) => res.json()),
+    cryptoCompareAssetInfoRequest.then((res) => res.json()),
+    coinPaprikaSearchRequest.then((res) => res.json()),
+  ]);
+
+  // Extract rates
+  const rates = {
+    USD: 1,
+    CAD: cryptoCompareData.RAW[id.toUpperCase()].CAD.PRICE,
+    AUD: cryptoCompareData.RAW[id.toUpperCase()].AUD.PRICE,
+    GBP: cryptoCompareData.RAW[id.toUpperCase()].GBP.PRICE,
+  };
 
   // Extract necessary data points
   const data365 = historical365Data.Data.Data;
@@ -923,31 +789,13 @@ export async function getServerSideProps(context) {
   const priceChangePercentage30d = (priceChange30d / data30[0].close) * 100;
   const priceChangePercentage365d = (priceChange365d / data365[0].close) * 100;
 
-  // Fetch additional details from CryptoCompare asset endpoint
-  const cryptoCompareAssetInfoUrl = `https://data-api.cryptocompare.com/asset/v1/data/by/symbol?asset_symbol=${id.toUpperCase()}`;
-  const cryptoCompareAssetInfoResponse = await fetch(
-    cryptoCompareAssetInfoUrl,
-    cryptoCompareFetchOptions,
-  );
-  const cryptoCompareAssetData = await cryptoCompareAssetInfoResponse.json();
-
-  const coinData = cryptoCompareData.RAW[id.toUpperCase()].CAD;
-  const assetData = cryptoCompareAssetData.Data;
-
-  // Search for the coin on Coinpaprika
-  const coinPaprikaSearchResponse = await fetch(
-    `https://api.coinpaprika.com/v1/search?q=${coinData.FROMSYMBOL}`,
-  );
-  const searchData = await coinPaprikaSearchResponse.json();
-
-  // Check if the coin exists on Coinpaprika
+  // Verify if the coin exists on Coinpaprika
   if (!searchData.currencies || searchData.currencies.length === 0) {
     throw new Error("Coin not found on Coinpaprika");
   }
 
-  const coinPaprikaId = searchData.currencies[0].id;
-
   // Fetch coin details including ATH from Coinpaprika
+  const coinPaprikaId = searchData.currencies[0].id;
   const coinPaprikaCoinDetailsResponse = await fetch(
     `https://api.coinpaprika.com/v1/tickers/${coinPaprikaId}`,
   );
@@ -956,14 +804,15 @@ export async function getServerSideProps(context) {
   // Extract the ATH from Coinpaprika's response
   const cadAthPrice = coinPaprikaCoinDetails.quotes.USD.ath_price * rates.CAD;
 
+  const coinData = cryptoCompareData.RAW[id.toUpperCase()].CAD;
+  const assetData = cryptoCompareAssetData.Data;
+
   if (
     !cryptoCompareData ||
     !cryptoCompareData.RAW ||
     !cryptoCompareData.RAW[id.toUpperCase()]
   ) {
-    return {
-      notFound: true,
-    };
+    return { notFound: true };
   }
 
   // Construct the coin information
@@ -975,9 +824,7 @@ export async function getServerSideProps(context) {
     description: assetData.ASSET_DESCRIPTION_SUMMARY,
     current_price: coinData.PRICE,
     all_time_high: cadAthPrice,
-    //: cadAtlPrice,
     market_cap: coinData.MKTCAP,
-    // total_volume: coinData.TOTALVOLUME24H,
     price_change_1d: priceChange1d,
     price_change_percentage_24h: priceChangePercentage1d,
     price_change_7d: priceChange7d,
