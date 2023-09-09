@@ -1,13 +1,16 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import HistoryChart from "../../src/components/UI/HistoryChart";
 import styles from "./Coin.module.css";
 import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
 import { coinsActions } from "../../src/store/coins";
 import Link from "next/link";
+
+export const convertCurrency = (value, fromCurrency, toCurrency, allRates) => {
+  return value * allRates[fromCurrency][toCurrency];
+};
 
 const Coin = ({
   pageId,
@@ -18,11 +21,12 @@ const Coin = ({
   assetData,
   rates,
 }) => {
-  console.log("initialCoin", initialCoin);
-  console.log("coinData", coinData);
-  console.log("assetData", assetData);
+  const coinListCoins = useSelector((state) => state.coins.coinListCoins);
   const currentSymbol = useSelector((state) => state.currency.symbol);
   const currentCurrency = useSelector((state) => state.currency.currency);
+  const cachedCurrency = useSelector((state) =>
+    state.currency.cachedCurrency.toUpperCase(),
+  );
   const dispatch = useDispatch();
   const [coin, setCoin] = useState(initialCoin);
   const [currentChartPeriod, setCurrentChartPeriod] = useState("day");
@@ -157,16 +161,92 @@ const Coin = ({
   const removeHTML = (str) => str.replace(/<\/?[^>]+(>|$)/g, "");
 
   useEffect(() => {
-    const updateCurrencyValues = () => {
+    const prefetchHomePage = async () => {
+      console.log("prefetchHomePage");
+      const cryptoCompareApiKey = process.env.NEXT_PUBLIC_CRYPTOCOMPARE_API_KEY;
+      const fetchOptions = {
+        headers: {
+          Authorization: `Apikey ${cryptoCompareApiKey}`,
+        },
+      };
+
+      const urls = [
+        `https://min-api.cryptocompare.com/data/top/mktcapfull?limit=100&tsym=${currentCurrency.toUpperCase()}`,
+      ];
+
+      const [marketCapCoinsData] = await Promise.all(
+        urls.map((url) => fetch(url, fetchOptions).then((resp) => resp.json())),
+      );
+      console.log("marketCapCoinsData", marketCapCoinsData);
+
+      const allFormattedCoins = marketCapCoinsData.Data.map((entry, i) => {
+        const coin = entry.CoinInfo;
+        const metrics = entry.RAW?.[currentCurrency.toUpperCase()];
+        if (!metrics) {
+          console.warn(`Metrics not found for coin: ${coin.Name}`);
+          return null;
+        }
+
+        return {
+          id: coin.Name,
+          symbol: coin.Name,
+          name: coin.FullName,
+          image: `https://cryptocompare.com${coin.ImageUrl}`,
+          current_price: metrics.PRICE,
+          market_cap: metrics.MKTCAP,
+          market_cap_rank: i + 1,
+          total_volume: metrics.TOTALVOLUME24HTO,
+          high_24h: metrics.HIGH24HOUR,
+          low_24h: metrics.LOW24HOUR,
+          price_change_24h: metrics.CHANGE24HOUR,
+          price_change_percentage_24h: metrics.CHANGEPCT24HOUR,
+          circulating_supply: metrics.SUPPLY,
+        };
+      }).filter(Boolean);
+
+      const formattedTrendingCoins = allFormattedCoins.slice(0, 10);
+      console.log("formattedTrendingCoins", formattedTrendingCoins);
+
+      // Dispatch the action with the new formatted coins
+      dispatch(
+        coinsActions.updateCoins({
+          coinListCoins: allFormattedCoins,
+          trendingCarouselCoins: formattedTrendingCoins,
+          symbol: currentSymbol,
+        }),
+      );
+    };
+
+    prefetchHomePage();
+  }, []);
+
+  useEffect(() => {
+    const updateSelectedCoinCurrencyValues = () => {
       // Convert the initial coin values using the rates
-      const updatedCoinPrice =
-        coin.current_price * rates[currentCurrency.toUpperCase()];
-      const updatedMarketCap =
-        coin.market_cap * rates[currentCurrency.toUpperCase()];
-      const updatedAth =
-        coin.all_time_high * rates[currentCurrency.toUpperCase()];
-      const updatedPriceChange1d =
-        coin.price_change_1d * rates[currentCurrency.toUpperCase()];
+      const updatedCoinPrice = convertCurrency(
+        coin.current_price,
+        cachedCurrency.toUpperCase(),
+        currentCurrency.toUpperCase(),
+        rates,
+      );
+      const updatedMarketCap = convertCurrency(
+        coin.market_cap,
+        cachedCurrency.toUpperCase(),
+        currentCurrency.toUpperCase(),
+        rates,
+      );
+      const updatedAth = convertCurrency(
+        coin.all_time_high,
+        cachedCurrency.toUpperCase(),
+        currentCurrency.toUpperCase(),
+        rates,
+      );
+      const updatedPriceChange1d = convertCurrency(
+        coin.price_change_1d,
+        cachedCurrency.toUpperCase(),
+        currentCurrency.toUpperCase(),
+        rates,
+      );
 
       // Update the coin values
       setCoin((prevState) => ({
@@ -179,21 +259,42 @@ const Coin = ({
 
       // Update market chart and values
       setMarketChart((prevState) => ({
+        ...prevState,
         day: prevState.day.map((dataPoint) => [
           dataPoint[0],
-          dataPoint[1] * rates[currentCurrency.toUpperCase()],
+          convertCurrency(
+            dataPoint[1],
+            cachedCurrency.toUpperCase(),
+            currentCurrency,
+            rates,
+          ),
         ]),
         week: prevState.week.map((dataPoint) => [
           dataPoint[0],
-          dataPoint[1] * rates[currentCurrency.toUpperCase()],
+          convertCurrency(
+            dataPoint[1],
+            cachedCurrency.toUpperCase(),
+            currentCurrency,
+            rates,
+          ),
         ]),
         month: prevState.month.map((dataPoint) => [
           dataPoint[0],
-          dataPoint[1] * rates[currentCurrency.toUpperCase()],
+          convertCurrency(
+            dataPoint[1],
+            cachedCurrency.toUpperCase(),
+            currentCurrency,
+            rates,
+          ),
         ]),
         year: prevState.year.map((dataPoint) => [
           dataPoint[0],
-          dataPoint[1] * rates[currentCurrency.toUpperCase()],
+          convertCurrency(
+            dataPoint[1],
+            cachedCurrency.toUpperCase(),
+            currentCurrency,
+            rates,
+          ),
         ]),
       }));
 
@@ -217,77 +318,81 @@ const Coin = ({
         ...prevState,
         datasets: prevState.datasets.map((dataset) => ({
           ...dataset,
-          data: dataset.data.map(
-            (value) => value * rates[currentCurrency.toUpperCase()],
+          label: `${
+            dataset.label.split(" ").slice(0, -1).join(" ") +
+            " " +
+            currentCurrency.toUpperCase()
+          }`,
+          data: dataset.data.map((value) =>
+            convertCurrency(
+              value,
+              cachedCurrency.toUpperCase(),
+              currentCurrency.toUpperCase(),
+              rates,
+            ),
           ),
         })),
       }));
     };
 
-    const prefetchHomePage = async () => {
-      const cryptoCompareApiKey = process.env.NEXT_PUBLIC_CRYPTOCOMPARE_API_KEY;
-      const fetchOptions = {
-        headers: {
-          Authorization: `Apikey ${cryptoCompareApiKey}`,
-        },
-      };
+    const updateHomePageCoinsWithNewCurrency = async () => {
+      console.log("updateHomePageCoinsWithNewCurrency");
+      const updatedCoins = coinListCoins.map((coin) => ({
+        ...coin,
+        current_price: convertCurrency(
+          coin.current_price,
+          cachedCurrency.toUpperCase(),
+          currentCurrency.toUpperCase(),
+          rates,
+        ),
+        market_cap: convertCurrency(
+          coin.market_cap,
+          cachedCurrency.toUpperCase(),
+          currentCurrency.toUpperCase(),
+          rates,
+        ),
+        total_volume: convertCurrency(
+          coin.total_volume,
+          cachedCurrency.toUpperCase(),
+          currentCurrency.toUpperCase(),
+          rates,
+        ),
+        high_24h: convertCurrency(
+          coin.high_24h,
+          cachedCurrency.toUpperCase(),
+          currentCurrency.toUpperCase(),
+          rates,
+        ),
+        low_24h: convertCurrency(
+          coin.low_24h,
+          cachedCurrency.toUpperCase(),
+          currentCurrency.toUpperCase(),
+          rates,
+        ),
+        price_change_24h: convertCurrency(
+          coin.price_change_24h,
+          cachedCurrency.toUpperCase(),
+          currentCurrency.toUpperCase(),
+          rates,
+        ),
+      }));
 
-      const urls = [
-        `https://min-api.cryptocompare.com/data/top/mktcapfull?limit=100&tsym=USD`,
-      ];
-
-      const [marketCapCoinsData] = await Promise.all(
-        urls.map((url) => fetch(url, fetchOptions).then((resp) => resp.json())),
-      );
-
-      const allFormattedCoins = marketCapCoinsData.Data.map((entry, i) => {
-        const coin = entry.CoinInfo;
-        const metrics = entry.RAW?.USD;
-        if (!metrics) {
-          console.warn(`Metrics not found for coin: ${coin.Name}`);
-          return null;
-        }
-
-        return {
-          id: coin.Name,
-          symbol: coin.Name,
-          name: coin.FullName,
-          image: `https://cryptocompare.com${coin.ImageUrl}`,
-          current_price: metrics.PRICE * rates[currentCurrency.toUpperCase()],
-          current_price_USD: metrics.PRICE,
-          current_price_AUD: metrics.PRICE * rates.AUD,
-          current_price_GBP: metrics.PRICE * rates.GBP,
-          market_cap: metrics.MKTCAP * rates[currentCurrency.toUpperCase()],
-          market_cap_rank: i + 1,
-          total_volume:
-            metrics.TOTALVOLUME24HTO * rates[currentCurrency.toUpperCase()],
-          high_24h: metrics.HIGH24HOUR * rates[currentCurrency.toUpperCase()],
-          low_24h: metrics.LOW24HOUR * rates[currentCurrency.toUpperCase()],
-          price_change_24h:
-            metrics.CHANGE24HOUR * rates[currentCurrency.toUpperCase()],
-          price_change_percentage_24h: metrics.CHANGEPCT24HOUR,
-          circulating_supply: metrics.SUPPLY,
-        };
-      }).filter(Boolean);
-
-      const formattedTrendingCoins = allFormattedCoins.slice(0, 10);
+      const updatedCarouselCoins = updatedCoins.slice(0, 10);
 
       // Dispatch the action with the new formatted coins
       dispatch(
         coinsActions.updateCoins({
-          coinListCoins: allFormattedCoins,
-          trendingCarouselCoins: formattedTrendingCoins,
+          coinListCoins: updatedCoins,
+          trendingCarouselCoins: updatedCarouselCoins,
           symbol: currentSymbol,
         }),
       );
     };
 
     // Check if it's the first render
-    if (firstRender) {
-      setFirstRender(false); // Set firstRender to false for subsequent renders
-    } else {
-      updateCurrencyValues();
-      prefetchHomePage();
+    if (cachedCurrency !== currentCurrency) {
+      updateSelectedCoinCurrencyValues();
+      updateHomePageCoinsWithNewCurrency();
     }
   }, [currentCurrency]);
 
@@ -399,9 +504,9 @@ const Coin = ({
                       },
                     )}`}
                   {+coin?.price_change_1d > -1 &&
-                    `-${currentSymbol}${Math.abs(coin?.price_change_1d).toFixed(
-                      8,
-                    )}`}
+                    `- ${currentSymbol}${Math.abs(
+                      coin?.price_change_1d,
+                    ).toFixed(8)}`}
                 </p>
               )}
             </div>
@@ -623,15 +728,11 @@ export async function getServerSideProps(context) {
     },
   };
 
-  // Prepare all fetch requests
   const urls = [
-    // coin info
-    `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${id.toUpperCase()},USD&tsyms=CAD,USD,AUD,GBP`,
+    `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${id.toUpperCase()},CAD&tsyms=USD,AUD,GBP,CAD`,
     `https://data-api.cryptocompare.com/asset/v1/data/by/symbol?asset_symbol=${id.toUpperCase()}`,
-    // chart data
-    `https://min-api.cryptocompare.com/data/v2/histohour?fsym=${id}&tsym=${currency}&limit=24`, // 1 day
-    `https://min-api.cryptocompare.com/data/v2/histoday?fsym=${id}&tsym=${currency}&limit=365`, // 1 year
-    // get paprika id to search for ath
+    `https://min-api.cryptocompare.com/data/v2/histohour?fsym=${id}&tsym=${currency}&limit=24`,
+    `https://min-api.cryptocompare.com/data/v2/histoday?fsym=${id}&tsym=${currency}&limit=365`,
     `https://api.coinpaprika.com/v1/search?q=${id}`,
   ];
 
@@ -648,12 +749,43 @@ export async function getServerSideProps(context) {
     ),
   );
 
-  // Extract rates and coin details
   const rates = {
-    USD: 1,
-    CAD: cryptoCompareData.RAW.USD.CAD.PRICE,
-    AUD: cryptoCompareData.RAW.USD.AUD.PRICE,
-    GBP: cryptoCompareData.RAW.USD.GBP.PRICE,
+    CAD: {
+      CAD: 1,
+      USD: cryptoCompareData.RAW.CAD.USD.PRICE,
+      AUD: cryptoCompareData.RAW.CAD.AUD.PRICE,
+      GBP: cryptoCompareData.RAW.CAD.GBP.PRICE,
+    },
+    USD: {
+      CAD: 1 / cryptoCompareData.RAW.CAD.USD.PRICE,
+      USD: 1,
+      AUD:
+        cryptoCompareData.RAW.CAD.AUD.PRICE /
+        cryptoCompareData.RAW.CAD.USD.PRICE,
+      GBP:
+        cryptoCompareData.RAW.CAD.GBP.PRICE /
+        cryptoCompareData.RAW.CAD.USD.PRICE,
+    },
+    AUD: {
+      CAD: 1 / cryptoCompareData.RAW.CAD.AUD.PRICE,
+      USD:
+        cryptoCompareData.RAW.CAD.USD.PRICE /
+        cryptoCompareData.RAW.CAD.AUD.PRICE,
+      AUD: 1,
+      GBP:
+        cryptoCompareData.RAW.CAD.GBP.PRICE /
+        cryptoCompareData.RAW.CAD.AUD.PRICE,
+    },
+    GBP: {
+      CAD: 1 / cryptoCompareData.RAW.CAD.GBP.PRICE,
+      USD:
+        cryptoCompareData.RAW.CAD.USD.PRICE /
+        cryptoCompareData.RAW.CAD.GBP.PRICE,
+      AUD:
+        cryptoCompareData.RAW.CAD.AUD.PRICE /
+        cryptoCompareData.RAW.CAD.GBP.PRICE,
+      GBP: 1,
+    },
   };
 
   const coinData = cryptoCompareData.RAW[id.toUpperCase()][currency];
@@ -662,7 +794,7 @@ export async function getServerSideProps(context) {
   // Derive 7-day and 30-day data from the 365-day data
   const weekData = {
     Data: {
-      Data: yearData.Data.Data.slice(-7), // Last 7 days data
+      Data: yearData.Data.Data.slice(-7),
     },
   };
   const monthData = {
@@ -721,7 +853,8 @@ export async function getServerSideProps(context) {
   const coinPaprikaCoinDetails = await coinPaprikaCoinDetailsResponse.json();
 
   // Extract the ATH from Coinpaprika's response
-  const cadAthPrice = coinPaprikaCoinDetails.quotes.USD.ath_price * rates.CAD;
+  const cadAthPrice =
+    coinPaprikaCoinDetails.quotes.USD.ath_price * rates.USD.CAD;
 
   if (
     !cryptoCompareData ||

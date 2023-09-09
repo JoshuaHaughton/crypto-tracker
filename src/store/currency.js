@@ -1,7 +1,10 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-
-const initialCurrencyState = { currency: "cad", symbol: "$" };
+const initialCurrencyState = {
+  currency: "cad",
+  cachedCurrency: "cad",
+  symbol: "$",
+};
 
 //Cart Reducers
 const currencySlice = createSlice({
@@ -9,17 +12,19 @@ const currencySlice = createSlice({
   initialState: initialCurrencyState,
   reducers: {
     changeCurrency(state, action) {
+      console.log('currency change')
       if (action.payload.currency) {
-        state.currency = action.payload.currency
+        state.cachedCurrency = state.currency;
+        state.currency = action.payload.currency;
       }
 
       if (action.payload.symbol) {
-        state.symbol = action.payload.symbol
+        state.symbol = action.payload.symbol;
       }
     },
     resetCart(state) {
-      state.currency = 'cad';
-      state.symbol = '$';
+      state.currency = "cad";
+      state.symbol = "$";
     },
   },
 });

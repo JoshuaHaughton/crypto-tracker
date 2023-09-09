@@ -18,12 +18,12 @@ const Carousel = ({ carouselCoins, nonReduxSymbol }) => {
   const firstRender = useRef(true);
   // const trendingCarouselCoins = useSelector(state => state.coins.trendingCarouselCoins)
   // const currentSymbol = useSelector((state) => state.currency.symbol);
-  console.log("carouselCoins", carouselCoins);
+  // console.log("carouselCoins", carouselCoins);
   const [carouselItems, setCarouselItems] = useState(
     carouselCoins.map((coin) => {
       let profit = coin.price_change_percentage_24h >= 0;
       // console.log(nonReduxSymbol);
-      console.log(coin);
+      // console.log(coin);
       return (
         <div className={styles.carousel_item} key={coin.id}>
           <Link href={`/coin/${coin.id}`} passHref>

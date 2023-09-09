@@ -9,6 +9,7 @@ const coinsSlice = createSlice({
   initialState: initialCoinsState,
   reducers: {
     updateCoins(state, action) {
+      console.log('update', action)
       if (action.payload.coinListCoins) {
         state.coinListCoins = action.payload.coinListCoins
       }

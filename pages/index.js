@@ -7,9 +7,11 @@ import styles from "./Home.module.css";
 import "react-alice-carousel/lib/alice-carousel.css";
 import { useDispatch, useSelector } from "react-redux";
 import { coinsActions } from "../src/store/coins";
+import { convertCurrency } from "./coin/[id]";
 
 export default function Home({
   coins,
+  rates,
   isBreakpoint380,
   isBreakpoint680,
   isBreakpoint1250,
@@ -20,12 +22,16 @@ export default function Home({
     (state) => state.coins.trendingCarouselCoins,
   );
   const coinListCoins = useSelector((state) => state.coins.coinListCoins);
+  // console.log("coinListCoins", coinListCoins);
+  // console.log("trendingCarouselCoins", trendingCarouselCoins);
 
   const dispatch = useDispatch();
 
   const firstRender = useRef(true);
+  const isHydrated = useRef(false);
   const PageSize = 10;
 
+  const cachedCurrency = useSelector((state) => state.currency.cachedCurrency);
   const currentCurrency = useSelector((state) => state.currency.currency);
   const currentSymbol = useSelector((state) => state.currency.symbol);
 
@@ -44,64 +50,84 @@ export default function Home({
   }, [currentPage, coinListCoins]);
 
   useEffect(() => {
+    if (coinListCoins.length === 0) {
+      console.log("empty dispatch");
+      dispatch(
+        coinsActions.updateCoins({
+          coinListCoins: coins.initialHundredCoins,
+          trendingCarouselCoins: coins.trendingCoins,
+          symbol: currentSymbol,
+        }),
+      );
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isHydrated.current) {
+      isHydrated.current = true;
+      return;
+    }
+
     if (firstRender.current) {
       firstRender.current = false;
-      return;
     } else {
-      const setNewCurrency = async () => {
-        try {
-          const apiKey = process.env.NEXT_PUBLIC_CRYPTOCOMPARE_API_KEY;
-          const fetchOptions = {
-            headers: {
-              Authorization: `Apikey ${apiKey}`,
-            },
-          };
-
-          // Fetching the top 100 assets by market cap from CryptoCompare in new currency
-          const assetsResponse = await fetch(
-            `https://min-api.cryptocompare.com/data/top/mktcapfull?limit=100&tsym=${currentCurrency.toUpperCase()}`,
-            fetchOptions,
-          );
-          const assetsData = await assetsResponse.json();
-
-          const initialHundredCoins = assetsData.Data.map((entry, i) => {
-            const coin = entry.CoinInfo;
-            const metrics = entry.RAW?.CAD; // Notice the change from USD to CAD
-            if (!metrics) {
-              console.warn(`Metrics not found for coin: ${coin.Name}`);
-              return null;
-            }
-
+      const setNewCurrency = () => {
+        console.log("setNewCurrency");
+        const updatedCurrencyCoins = coinListCoins
+          .map((coin, i) => {
             return {
-              id: coin.Name,
-              symbol: coin.Name,
-              name: coin.FullName,
-              image: `https://cryptocompare.com${coin.ImageUrl}`,
-              current_price: metrics.PRICE,
-              market_cap: metrics.MKTCAP,
+              ...coin,
+              current_price: convertCurrency(
+                coin.current_price,
+                cachedCurrency.toUpperCase(),
+                currentCurrency.toUpperCase(),
+                rates,
+              ),
+              market_cap: convertCurrency(
+                coin.market_cap,
+                cachedCurrency.toUpperCase(),
+                currentCurrency.toUpperCase(),
+                rates,
+              ),
               market_cap_rank: i + 1,
-              total_volume: metrics.TOTALVOLUME24HTO,
-              high_24h: metrics.HIGH24HOUR,
-              low_24h: metrics.LOW24HOUR,
-              price_change_24h: metrics.CHANGE24HOUR,
-              price_change_percentage_24h: metrics.CHANGEPCT24HOUR,
-              circulating_supply: metrics.SUPPLY,
+              total_volume: convertCurrency(
+                coin.total_volume,
+                cachedCurrency.toUpperCase(),
+                currentCurrency.toUpperCase(),
+                rates,
+              ),
+              high_24h: convertCurrency(
+                coin.high_24h,
+                cachedCurrency.toUpperCase(),
+                currentCurrency.toUpperCase(),
+                rates,
+              ),
+              low_24h: convertCurrency(
+                coin.low_24h,
+                cachedCurrency.toUpperCase(),
+                currentCurrency.toUpperCase(),
+                rates,
+              ),
+              price_change_24h: convertCurrency(
+                coin.price_change_24h,
+                cachedCurrency.toUpperCase(),
+                currentCurrency.toUpperCase(),
+                rates,
+              ),
             };
-          }).filter(Boolean);
+          })
+          .filter(Boolean);
 
-          const trendingCoins = initialHundredCoins.slice(0, 10);
+        const trendingCoins = updatedCurrencyCoins.slice(0, 10);
 
-          setNonReduxSymbol(currentSymbol);
-          dispatch(
-            coinsActions.updateCoins({
-              coinListCoins: hundredNewCoins,
-              trendingCarouselCoins: trendingCoins,
-              symbol: currentSymbol,
-            }),
-          );
-        } catch (err) {
-          console.log(err);
-        }
+        setNonReduxSymbol(currentSymbol);
+        dispatch(
+          coinsActions.updateCoins({
+            coinListCoins: updatedCurrencyCoins,
+            trendingCarouselCoins: trendingCoins,
+            symbol: currentSymbol,
+          }),
+        );
       };
 
       setNewCurrency();
@@ -174,10 +200,30 @@ export async function getServerSideProps(context) {
     const exchangeData = await exchangeRateResponse.json();
 
     const rates = {
-      CAD: 1,
-      USD: exchangeData.RAW.CAD.USD.PRICE,
-      AUD: exchangeData.RAW.CAD.AUD.PRICE,
-      GBP: exchangeData.RAW.CAD.GBP.PRICE,
+      CAD: {
+        CAD: 1,
+        USD: exchangeData.RAW.CAD.USD.PRICE,
+        AUD: exchangeData.RAW.CAD.AUD.PRICE,
+        GBP: exchangeData.RAW.CAD.GBP.PRICE,
+      },
+      USD: {
+        CAD: 1 / exchangeData.RAW.CAD.USD.PRICE,
+        USD: 1,
+        AUD: exchangeData.RAW.CAD.AUD.PRICE / exchangeData.RAW.CAD.USD.PRICE,
+        GBP: exchangeData.RAW.CAD.GBP.PRICE / exchangeData.RAW.CAD.USD.PRICE,
+      },
+      AUD: {
+        CAD: 1 / exchangeData.RAW.CAD.AUD.PRICE,
+        USD: exchangeData.RAW.CAD.USD.PRICE / exchangeData.RAW.CAD.AUD.PRICE,
+        AUD: 1,
+        GBP: exchangeData.RAW.CAD.GBP.PRICE / exchangeData.RAW.CAD.AUD.PRICE,
+      },
+      GBP: {
+        CAD: 1 / exchangeData.RAW.CAD.GBP.PRICE,
+        USD: exchangeData.RAW.CAD.USD.PRICE / exchangeData.RAW.CAD.GBP.PRICE,
+        AUD: exchangeData.RAW.CAD.AUD.PRICE / exchangeData.RAW.CAD.GBP.PRICE,
+        GBP: 1,
+      },
     };
 
     // Fetching the top 100 assets by market cap from CryptoCompare in CAD
@@ -220,8 +266,8 @@ export async function getServerSideProps(context) {
         coins: {
           initialHundredCoins,
           trendingCoins,
-          rates,
         },
+        rates,
       },
     };
   } catch (err) {
