@@ -15,8 +15,8 @@ import { useMediaQuery } from "../Coin/Coin";
 import { useEffect } from "react";
 import { useState } from "react";
 
-const vertical = 'bottom'
-  const horizontal = 'center'
+const vertical = "bottom";
+const horizontal = "center";
 
 const StyledSelect = styled(Select)(`
   & .${outlinedInputClasses.notchedOutline} {
@@ -35,101 +35,32 @@ const StyledSelect = styled(Select)(`
   }
 `);
 
-// const useStyles = makeStyles(() => ({
-//   customOutline: {
-//     "& .MuiOutlinedInput-notchedOutline": {
-//       borderColor: "white"
-//     }
-//   },
-//   select: {
-//     "&:before": {
-//       borderColor: "white",
-//     },
-//     "&:after": {
-//       borderColor: "white",
-//     },
-//     "&:not(.Mui-disabled):hover::before": {
-//       borderColor: "white",
-//     },
-//   '.MuiOutlinedInput-root-MuiSelect-root': {
-//     borderColor: 'white',
-//   },
-//   '&:hover .MuiOutlinedInput-root': {
-//     borderColor: 'white',
-//     borderWidth: '0.15rem',
-//   },
-//   },
-//   icon: {
-//     fill: "white",
-//   },
-//   root: {
-//     color: "white",
-//   },
-// }));
-
-// const darkTheme = createTheme({
-//   palette: {
-//     primary: {
-//       main: "#fff",
-//     },
-//     secondary: {
-//       main: "#fff",
-//     },
-//     type: "dark",
-//   },
-// });
-
 const Navbar = () => {
-  // const classes = useStyles();
+  const [openNotificationBar, setOpenNotificationBar] = useState(false);
   const currentCurrency = useSelector((state) => state.currency.currency);
   const currentSymbol = useSelector((state) => state.currency.symbol);
   const coinListCoins = useSelector((state) => state.coins.coinListCoins);
-  const [openNotificationBar, setOpenNotificationBar] = useState(false);
   const isBreakpoint555 = useMediaQuery(555);
-  // const router = useRouter();
-
-  // console.log('cur cur',currentCurrency);
-  // console.log('sym sym',currentSymbol);
-  // const dispatch = useDispatch();
-  // dispatch(currencyActions.changeCurrency({currency: "test"}))
   const dispatch = useDispatch();
 
   const handleCurrencyChange = (e) => {
-    // console.log(e.target.value.split(","));
-
     const currency = e.target.value.split(",")[0].toLowerCase();
-    // console.log('new currency', currency);
     const symbol = e.target.value.split(",")[1];
 
     dispatch(currencyActions.changeCurrency({ currency, symbol }));
-    setOpenNotificationBar(true)
+    setOpenNotificationBar(true);
   };
 
   useEffect(() => {
-    setOpenNotificationBar(false) 
-
-  }, [coinListCoins])
-
-  // const handleHomeNavigate = () => {
-  //   router.push({pathname: '/', query: {currentCurrency, currentSymbol}})
-  // }
+    if (openNotificationBar) setOpenNotificationBar(false);
+  }, [coinListCoins]);
 
   return (
     <>
       <nav className={styles.nav}>
         <div className={styles.container}>
           <div className={styles.logo_container}>
-            <Image
-              src={logo}
-              alt=""
-              // height={50}
-              // width={50}
-              layout="fill"
-              className={styles.logo}
-            />
-            {/* <Link href="/" passHref>
-              <a className={styles.title}>m</a>
-            </Link> */}
+            <Image src={logo} alt="" layout="fill" className={styles.logo} />
           </div>
 
           <div className={styles.nav_list}>
@@ -140,36 +71,6 @@ const Navbar = () => {
                 </a>
               </div>
             </Link>
-
-            {/* <div className={styles.link_wrapper}>
-            <ListIcon />
-            <Link href="/">
-            <a className={styles.nav_link}>Cryptocurrencies</a>
-            </Link>
-          </div> */}
-            {/* 
-          <Link href="/">
-          <div className={styles.link_wrapper}>
-          <NewspaperIcon />
-          <a className={styles.nav_link}>News</a>
-          </div>
-          </Link>
-          
-          <Link href="/">
-          <div className={styles.link_wrapper}>
-          <BusinessCenterIcon />
-          <a className={styles.nav_link}>Portfolio</a>
-          </div>
-        </Link> */}
-
-            {/* <Link href="/">
-            <div className={styles.link_wrapper}>
-              <a className={styles.nav_link}>
-                <LoginIcon />
-                Login
-              </a>
-            </div>
-          </Link> */}
 
             <StyledSelect
               variant="outlined"
@@ -183,23 +84,19 @@ const Navbar = () => {
               defaultValue={`${currentCurrency.toUpperCase()},${currentSymbol}`}
               onChange={handleCurrencyChange}
             >
-              <MenuItem value={"CAD,$"} className={styles.menu_item}>CAD</MenuItem>
-              <MenuItem value={"USD,$"} className={styles.menu_item}>USD</MenuItem>
-              <MenuItem value={"GBP,£"} className={styles.menu_item}>GBP</MenuItem>
-              <MenuItem value={"AUD,AU$"} className={styles.menu_item} >AUD</MenuItem>
-
-              {/* {!isBreakpoint555 ? <MenuItem value={"CAD,$"}>CAD</MenuItem> : <MenuItem value={"CAD,$"}></MenuItem>}
-            {!isBreakpoint555 ? <MenuItem value={"USD,$"}>USD</MenuItem> : <MenuItem value={"USD,$"}></MenuItem>}
-            {!isBreakpoint555 ? <MenuItem value={"GBP,£"}>GBP</MenuItem> : <MenuItem value={"GBP,£"}></MenuItem>}
-            {!isBreakpoint555 ? <MenuItem value={"AUD,AU$"}>AUD</MenuItem> : <MenuItem value={"AUD,AU$"}></MenuItem>} */}
+              <MenuItem value={"CAD,$"} className={styles.menu_item}>
+                CAD
+              </MenuItem>
+              <MenuItem value={"USD,$"} className={styles.menu_item}>
+                USD
+              </MenuItem>
+              <MenuItem value={"GBP,£"} className={styles.menu_item}>
+                GBP
+              </MenuItem>
+              <MenuItem value={"AUD,AU$"} className={styles.menu_item}>
+                AUD
+              </MenuItem>
             </StyledSelect>
-
-            {/* <Link href="/">
-            <div className={styles.link_wrapper}>
-            <LogoutIcon />
-            <a className={styles.nav_link}>Logout</a>
-            </div>
-          </Link> */}
           </div>
         </div>
       </nav>
@@ -213,7 +110,7 @@ const Navbar = () => {
           className: styles.snackbar,
           classes: {
             root: "errorClass",
-          }
+          },
         }}
       />
     </>
