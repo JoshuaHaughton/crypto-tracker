@@ -8,22 +8,29 @@ import "react-alice-carousel/lib/alice-carousel.css";
 import { useDispatch, useSelector } from "react-redux";
 import { coinsActions } from "../src/store/coins";
 
-export default function Home({ coins, isBreakpoint380, isBreakpoint680, isBreakpoint1250, currentPage, setCurrentPage }) {
+export default function Home({
+  coins,
+  isBreakpoint380,
+  isBreakpoint680,
+  isBreakpoint1250,
+  currentPage,
+  setCurrentPage,
+}) {
   // const [openNotificationBar, setOpenNotificationBar] = useState(false);
 
   const trendingCarouselCoins = useSelector(
     (state) => state.coins.trendingCarouselCoins,
   );
   const coinListCoins = useSelector((state) => state.coins.coinListCoins);
-  
+
   const dispatch = useDispatch();
 
   // console.log('da coins mayne', coins)
   const firstRender = useRef(true);
   // const [filteredCoins, setFilteredCoins] = useState(coinListCoins);
   const PageSize = 10;
-  const vertical = 'bottom'
-  const horizontal = 'center'
+  const vertical = "bottom";
+  const horizontal = "center";
 
   let lastSymbol = null;
 
@@ -52,44 +59,71 @@ export default function Home({ coins, isBreakpoint380, isBreakpoint680, isBreakp
   // const isBreakpoint1250 = useMediaQuery(1250);
 
   useEffect(() => {
-    //remember to stop this from happening on first render!!!!!!!!!!!!!
     if (firstRender.current) {
       firstRender.current = false;
       return;
     } else {
       const setNewCurrency = async () => {
         try {
-          // setOpenNotificationBar(true);
-          const urls = [
-            `https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currentCurrency}&order=market_cap_desc&per_page=100&page=1&sparkline=false`,
-            `https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currentCurrency}&order=gecko_desc&per_page=10&page=1&sparkline=false&price_change_percentage=24h`,
-          ];
+          const apiKey = process.env.NEXT_PUBLIC_CRYPTOCOMPARE_API_KEY;
+          const fetchOptions = {
+            headers: {
+              Authorization: `Apikey ${apiKey}`,
+            },
+          };
 
-          Promise.all(urls.map((u) => fetch(u)))
-            .then((responses) =>
-              Promise.all(responses.map((res) => res.json())),
-            )
-            .then((data) => {
-              // console.log("yebuddy", data);
+          console.log(currentCurrency);
+          // Fetching the top 100 assets by market cap from CryptoCompare in new currency
+          const assetsResponse = await fetch(
+            `https://min-api.cryptocompare.com/data/top/mktcapfull?limit=100&tsym=${currentCurrency.toUpperCase()}`,
+            fetchOptions,
+          );
+          const assetsData = await assetsResponse.json();
 
-              const hundredNewCoins = data[0];
-              const trendingCoins = data[1];
+          const initialHundredCoins = assetsData.Data.map((entry, i) => {
+            const coin = entry.CoinInfo;
+            const metrics = entry.RAW?.CAD; // Notice the change from USD to CAD
+            if (!metrics) {
+              console.warn(`Metrics not found for coin: ${coin.Name}`);
+              return null;
+            }
 
-              // console.log("latest man", hundredNewCoins);
+            return {
+              id: coin.Name,
+              symbol: coin.Name,
+              name: coin.FullName,
+              image: `https://cryptocompare.com${coin.ImageUrl}`,
+              current_price: metrics.PRICE,
+              current_price_USD: metrics.PRICE / rates.CAD, // Convert CAD to USD for the client-side option
+              current_price_AUD: (metrics.PRICE / rates.CAD) * rates.AUD, // Convert from CAD to USD first, then to AUD
+              current_price_GBP: (metrics.PRICE / rates.CAD) * rates.GBP, // Convert from CAD to USD first, then to GBP
+              market_cap: metrics.MKTCAP,
+              market_cap_rank: i + 1,
+              total_volume: metrics.TOTALVOLUME24HTO,
+              high_24h: metrics.HIGH24HOUR,
+              low_24h: metrics.LOW24HOUR,
+              price_change_24h: metrics.CHANGE24HOUR,
+              price_change_percentage_24h: metrics.CHANGEPCT24HOUR,
+              circulating_supply: metrics.SUPPLY,
+            };
+          }).filter(Boolean);
 
-              // updateCoins({initialHundredCoins: hundredNewCoins, trendingCoins});
-              // console.log("local symbol", currentSymbol);
-              setNonReduxSymbol(currentSymbol);
-              dispatch(
-                coinsActions.updateCoins({
-                  coinListCoins: hundredNewCoins,
-                  trendingCarouselCoins: trendingCoins,
-                  symbol: currentSymbol,
-                }),
-              );
-              // setOpenNotificationBar(false);
-              // setCarouselCoins(trendingCoins);
-            });
+          const trendingCoins = initialHundredCoins.slice(0, 10);
+
+          // console.log("latest man", hundredNewCoins);
+
+          // updateCoins({initialHundredCoins: hundredNewCoins, trendingCoins});
+          // console.log("local symbol", currentSymbol);
+          setNonReduxSymbol(currentSymbol);
+          dispatch(
+            coinsActions.updateCoins({
+              coinListCoins: hundredNewCoins,
+              trendingCarouselCoins: trendingCoins,
+              symbol: currentSymbol,
+            }),
+          );
+          // setOpenNotificationBar(false);
+          // setCarouselCoins(trendingCoins);
         } catch (err) {
           console.log(err);
         }
@@ -106,14 +140,13 @@ export default function Home({ coins, isBreakpoint380, isBreakpoint680, isBreakp
   //   } else {
 
   //   }
-  // }, [currentPage]);  
-  
+  // }, [currentPage]);
+
   useEffect(() => {
     if (currentPage !== 1) {
-      window.scrollTo(0, 448)
+      window.scrollTo(0, 448);
     }
   }, []);
-
 
   return (
     <div className={styles.container}>
