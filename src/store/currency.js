@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const initialCurrencyState = {
+  initialCurrency: "cad",
   currency: "cad",
   cachedCurrency: "cad",
   symbol: "$",

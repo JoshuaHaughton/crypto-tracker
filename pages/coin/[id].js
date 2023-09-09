@@ -16,11 +16,18 @@ const Coin = ({
   initialCoin,
   marketChartFromServer,
   marketValuesFromServer,
+  chartFromServer,
   rates,
 }) => {
+  const initialCoinListCoins = useSelector(
+    (state) => state.coins.initialCoinListCoins,
+  );
   const coinListCoins = useSelector((state) => state.coins.coinListCoins);
   const currentSymbol = useSelector((state) => state.currency.symbol);
   const currentCurrency = useSelector((state) => state.currency.currency);
+  const initialCurrency = useSelector((state) =>
+    state.currency.initialCurrency.toUpperCase(),
+  );
   const cachedCurrency = useSelector((state) =>
     state.currency.cachedCurrency.toUpperCase(),
   );
@@ -33,22 +40,7 @@ const Coin = ({
   const [marketValues, setMarketValues] = useState(
     marketValuesFromServer || [],
   );
-  const [chartData, setChartData] = useState({
-    labels: marketChartFromServer?.day.map((data) =>
-      new Date(data[0]).toLocaleTimeString(),
-    ),
-    datasets: [
-      {
-        label: `${
-          coin.name
-        } Price (Past day) in ${currentCurrency.toUpperCase()}`,
-        data: marketValues.dayMarketValues,
-        type: "line",
-        pointRadius: 1.3,
-        borderColor: "#ff9500",
-      },
-    ],
-  });
+  const [chartData, setChartData] = useState(chartFromServer);
 
   const dayClickHandler = () => {
     setChartData((prev) => {
@@ -165,7 +157,7 @@ const Coin = ({
     }
 
     if (firstRender.current) {
-      if (coinListCoins.length === 0) {
+      if (initialCoinListCoins.length === 0) {
         const prefetchHomePage = async () => {
           console.log("prefetchHomePage");
           const cryptoCompareApiKey =
@@ -185,7 +177,6 @@ const Coin = ({
               fetch(url, fetchOptions).then((resp) => resp.json()),
             ),
           );
-          console.log("marketCapCoinsData", marketCapCoinsData);
 
           const allFormattedCoins = marketCapCoinsData.Data.map((entry, i) => {
             const coin = entry.CoinInfo;
@@ -218,6 +209,7 @@ const Coin = ({
           // Dispatch the action with the new formatted coins
           dispatch(
             coinsActions.updateCoins({
+              initialCoinListCoins: allFormattedCoins,
               coinListCoins: allFormattedCoins,
               trendingCarouselCoins: formattedTrendingCoins,
               symbol: currentSymbol,
@@ -234,26 +226,26 @@ const Coin = ({
     const updateSelectedCoinCurrencyValues = () => {
       // Convert the initial coin values using the rates
       const updatedCoinPrice = convertCurrency(
-        coin.current_price,
-        cachedCurrency.toUpperCase(),
+        initialCoin.current_price,
+        initialCurrency.toUpperCase(),
         currentCurrency.toUpperCase(),
         rates,
       );
       const updatedMarketCap = convertCurrency(
-        coin.market_cap,
-        cachedCurrency.toUpperCase(),
+        initialCoin.market_cap,
+        initialCurrency.toUpperCase(),
         currentCurrency.toUpperCase(),
         rates,
       );
       const updatedAth = convertCurrency(
-        coin.all_time_high,
-        cachedCurrency.toUpperCase(),
+        initialCoin.all_time_high,
+        initialCurrency.toUpperCase(),
         currentCurrency.toUpperCase(),
         rates,
       );
       const updatedPriceChange1d = convertCurrency(
-        coin.price_change_1d,
-        cachedCurrency.toUpperCase(),
+        initialCoin.price_change_1d,
+        initialCurrency.toUpperCase(),
         currentCurrency.toUpperCase(),
         rates,
       );
@@ -268,65 +260,73 @@ const Coin = ({
       }));
 
       // Update market chart and values
-      setMarketChart((prevState) => ({
-        ...prevState,
-        day: prevState.day.map((dataPoint) => [
+      setMarketChart(() => ({
+        ...marketChartFromServer,
+        day: marketChartFromServer.day.map((dataPoint) => [
           dataPoint[0],
           convertCurrency(
             dataPoint[1],
-            cachedCurrency.toUpperCase(),
+            initialCurrency.toUpperCase(),
             currentCurrency,
             rates,
           ),
         ]),
-        week: prevState.week.map((dataPoint) => [
+        week: marketChartFromServer.week.map((dataPoint) => [
           dataPoint[0],
           convertCurrency(
             dataPoint[1],
-            cachedCurrency.toUpperCase(),
+            initialCurrency.toUpperCase(),
             currentCurrency,
             rates,
           ),
         ]),
-        month: prevState.month.map((dataPoint) => [
+        month: marketChartFromServer.month.map((dataPoint) => [
           dataPoint[0],
           convertCurrency(
             dataPoint[1],
-            cachedCurrency.toUpperCase(),
+            initialCurrency.toUpperCase(),
             currentCurrency,
             rates,
           ),
         ]),
-        year: prevState.year.map((dataPoint) => [
+        year: marketChartFromServer.year.map((dataPoint) => [
           dataPoint[0],
           convertCurrency(
             dataPoint[1],
-            cachedCurrency.toUpperCase(),
+            initialCurrency.toUpperCase(),
             currentCurrency,
             rates,
           ),
         ]),
       }));
 
-      setMarketValues((prevState) => ({
-        dayMarketValues: prevState.dayMarketValues.map(
-          (value) => value * rates[currentCurrency.toUpperCase()],
+      setMarketValues(() => ({
+        dayMarketValues: marketValuesFromServer.dayMarketValues.map(
+          (value) =>
+            value *
+            rates[initialCurrency.toUpperCase()][currentCurrency.toUpperCase()],
         ),
-        weekMarketValues: prevState.weekMarketValues.map(
-          (value) => value * rates[currentCurrency.toUpperCase()],
+        weekMarketValues: marketValuesFromServer.weekMarketValues.map(
+          (value) =>
+            value *
+            rates[initialCurrency.toUpperCase()][currentCurrency.toUpperCase()],
         ),
-        monthMarketValues: prevState.monthMarketValues.map(
-          (value) => value * rates[currentCurrency.toUpperCase()],
+        monthMarketValues: marketValuesFromServer.monthMarketValues.map(
+          (value) =>
+            value *
+            rates[initialCurrency.toUpperCase()][currentCurrency.toUpperCase()],
         ),
-        yearMarketValues: prevState.yearMarketValues.map(
-          (value) => value * rates[currentCurrency.toUpperCase()],
+        yearMarketValues: marketValuesFromServer.yearMarketValues.map(
+          (value) =>
+            value *
+            rates[initialCurrency.toUpperCase()][currentCurrency.toUpperCase()],
         ),
       }));
 
       // Update chart data
-      setChartData((prevState) => ({
-        ...prevState,
-        datasets: prevState.datasets.map((dataset) => ({
+      setChartData(() => ({
+        ...chartFromServer,
+        datasets: chartFromServer.datasets.map((dataset) => ({
           ...dataset,
           label: `${
             dataset.label.split(" ").slice(0, -1).join(" ") +
@@ -336,7 +336,7 @@ const Coin = ({
           data: dataset.data.map((value) =>
             convertCurrency(
               value,
-              cachedCurrency.toUpperCase(),
+              initialCurrency.toUpperCase(),
               currentCurrency.toUpperCase(),
               rates,
             ),
@@ -449,10 +449,6 @@ const Coin = ({
               </p>
             </div>
 
-            {/* <div className={styles.info_row}>
-              <h3>Rank:</h3>
-              <p className={styles.current}>{coin.coingecko_rank}</p>
-            </div> */}
             <div className={styles.info_row}>
               <h3>All Time High:</h3>
               <p className={styles.current}>
@@ -463,26 +459,6 @@ const Coin = ({
                 })}
               </p>
             </div>
-            {/* <div className={styles.info_row}>
-              <h3>All Time Low:</h3>
-              <p className={styles.current}>
-                {currentSymbol}
-                {coin.toLocaleString("en-US", {
-                  maximumFractionDigits: 8,
-                  minimumFractionDigits: 2,
-                })}
-              </p>
-            </div> */}
-            {/* <div className={styles.info_row}>
-              <h3>Total Supply:</h3>
-              <p className={styles.current}>{coin?.total_supply}</p>
-            </div>
-            <div className={styles.info_row}>
-              <h3>Circulating Supply:</h3>
-              <p className={styles.current}>
-                {coin?.circulating_supply}
-              </p>
-            </div> */}
             <div className={styles.info_row}>
               <h3>Market Cap:</h3>
               <p className={styles.current}>
@@ -896,6 +872,22 @@ export async function getServerSideProps(context) {
       initialCoin: coinInfo,
       marketChartFromServer,
       marketValuesFromServer,
+      chartFromServer: {
+        labels: marketChartFromServer?.day.map((data) =>
+          new Date(data[0]).toLocaleTimeString(),
+        ),
+        datasets: [
+          {
+            label: `${
+              coinInfo.name
+            } Price (Past day) in ${currency.toUpperCase()}`,
+            data: marketValuesFromServer.dayMarketValues,
+            type: "line",
+            pointRadius: 1.3,
+            borderColor: "#ff9500",
+          },
+        ],
+      },
       rates,
     },
   };

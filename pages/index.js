@@ -22,6 +22,9 @@ export default function Home({
     (state) => state.coins.trendingCarouselCoins,
   );
   const coinListCoins = useSelector((state) => state.coins.coinListCoins);
+  const initialCoinListCoins = useSelector(
+    (state) => state.coins.initialCoinListCoins,
+  );
 
   const dispatch = useDispatch();
 
@@ -29,7 +32,9 @@ export default function Home({
   const isHydrated = useRef(false);
   const PageSize = 10;
 
-  const cachedCurrency = useSelector((state) => state.currency.cachedCurrency);
+  const initialCurrency = useSelector(
+    (state) => state.currency.initialCurrency,
+  );
   const currentCurrency = useSelector((state) => state.currency.currency);
   const currentSymbol = useSelector((state) => state.currency.symbol);
 
@@ -43,10 +48,11 @@ export default function Home({
     }
 
     if (firstRender.current) {
-      if (coinListCoins.length === 0) {
+      if (initialCoinListCoins.length === 0) {
         console.log("empty dispatch");
         dispatch(
           coinsActions.updateCoins({
+            initialCoinListCoins: coins.initialHundredCoins,
             coinListCoins: coins.initialHundredCoins,
             trendingCarouselCoins: coins.trendingCoins,
             symbol: currentSymbol,
@@ -56,45 +62,45 @@ export default function Home({
       firstRender.current = false;
     } else {
       const setNewCurrency = () => {
-        console.log("setNewCurrency");
-        const updatedCurrencyCoins = coinListCoins
+        console.log("setNewCurrency", currentCurrency);
+        const updatedCurrencyCoins = coins.initialHundredCoins
           .map((coin, i) => {
             return {
               ...coin,
               current_price: convertCurrency(
                 coin.current_price,
-                cachedCurrency.toUpperCase(),
+                initialCurrency.toUpperCase(),
                 currentCurrency.toUpperCase(),
                 rates,
               ),
               market_cap: convertCurrency(
                 coin.market_cap,
-                cachedCurrency.toUpperCase(),
+                initialCurrency.toUpperCase(),
                 currentCurrency.toUpperCase(),
                 rates,
               ),
               market_cap_rank: i + 1,
               total_volume: convertCurrency(
                 coin.total_volume,
-                cachedCurrency.toUpperCase(),
+                initialCurrency.toUpperCase(),
                 currentCurrency.toUpperCase(),
                 rates,
               ),
               high_24h: convertCurrency(
                 coin.high_24h,
-                cachedCurrency.toUpperCase(),
+                initialCurrency.toUpperCase(),
                 currentCurrency.toUpperCase(),
                 rates,
               ),
               low_24h: convertCurrency(
                 coin.low_24h,
-                cachedCurrency.toUpperCase(),
+                initialCurrency.toUpperCase(),
                 currentCurrency.toUpperCase(),
                 rates,
               ),
               price_change_24h: convertCurrency(
                 coin.price_change_24h,
-                cachedCurrency.toUpperCase(),
+                initialCurrency.toUpperCase(),
                 currentCurrency.toUpperCase(),
                 rates,
               ),
@@ -162,18 +168,6 @@ export default function Home({
         pageSize={10}
         onPageChange={(page) => setCurrentPage(page)}
       />
-      {/* <Snackbar
-        anchorOrigin={{ vertical, horizontal }}
-        open={openNotificationBar}
-        onClose={() => setOpenNotificationBar(false)}
-        message="Retrieving New Currency..."
-        key={vertical + horizontal}
-        ContentProps={{
-          classes: {
-            root: 'errorClass'
-          }
-        }}
-      /> */}
     </div>
   );
 }
