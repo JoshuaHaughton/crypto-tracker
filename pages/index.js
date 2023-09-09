@@ -22,8 +22,6 @@ export default function Home({
     (state) => state.coins.trendingCarouselCoins,
   );
   const coinListCoins = useSelector((state) => state.coins.coinListCoins);
-  // console.log("coinListCoins", coinListCoins);
-  // console.log("trendingCarouselCoins", trendingCarouselCoins);
 
   const dispatch = useDispatch();
 
@@ -38,30 +36,6 @@ export default function Home({
   // Isn't changed until after data is fetched, prevents jumpiness in carousel component due to double reload of currencySymbol and carouselCoins
   const [nonReduxSymbol, setNonReduxSymbol] = useState(currentSymbol || "$");
 
-  const currentPageCoins = useMemo(() => {
-    const firstPageIndex = (currentPage - 1) * PageSize;
-    const lastPageIndex = firstPageIndex + PageSize;
-
-    if (coinListCoins.length < 1) {
-      return coins.initialHundredCoins.slice(firstPageIndex, lastPageIndex);
-    } else {
-      return coinListCoins?.slice(firstPageIndex, lastPageIndex);
-    }
-  }, [currentPage, coinListCoins]);
-
-  useEffect(() => {
-    if (coinListCoins.length === 0) {
-      console.log("empty dispatch");
-      dispatch(
-        coinsActions.updateCoins({
-          coinListCoins: coins.initialHundredCoins,
-          trendingCarouselCoins: coins.trendingCoins,
-          symbol: currentSymbol,
-        }),
-      );
-    }
-  }, []);
-
   useEffect(() => {
     if (!isHydrated.current) {
       isHydrated.current = true;
@@ -69,6 +43,16 @@ export default function Home({
     }
 
     if (firstRender.current) {
+      if (coinListCoins.length === 0) {
+        console.log("empty dispatch");
+        dispatch(
+          coinsActions.updateCoins({
+            coinListCoins: coins.initialHundredCoins,
+            trendingCarouselCoins: coins.trendingCoins,
+            symbol: currentSymbol,
+          }),
+        );
+      }
       firstRender.current = false;
     } else {
       const setNewCurrency = () => {
@@ -139,6 +123,17 @@ export default function Home({
       window.scrollTo(0, 448);
     }
   }, []);
+
+  const currentPageCoins = useMemo(() => {
+    const firstPageIndex = (currentPage - 1) * PageSize;
+    const lastPageIndex = firstPageIndex + PageSize;
+
+    if (coinListCoins.length < 1) {
+      return coins.initialHundredCoins.slice(firstPageIndex, lastPageIndex);
+    } else {
+      return coinListCoins?.slice(firstPageIndex, lastPageIndex);
+    }
+  }, [currentPage, coinListCoins]);
 
   return (
     <div className={styles.container}>
