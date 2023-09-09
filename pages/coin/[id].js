@@ -224,6 +224,7 @@ const Coin = ({
     }
 
     const updateSelectedCoinCurrencyValues = () => {
+      console.log("updateSelectedCoinCurrencyValues");
       // Convert the initial coin values using the rates
       const updatedCoinPrice = convertCurrency(
         initialCoin.current_price,
