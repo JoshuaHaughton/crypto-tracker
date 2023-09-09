@@ -7,9 +7,12 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useSelector } from "react-redux";
 import { useEffect } from "react";
-const AliceCarousel = dynamic(() => import("react-alice-carousel"), {
-  ssr: false,
-});
+const AliceCarousel = dynamic(
+  import("react-alice-carousel").then((mod) => mod.default),
+  {
+    ssr: false,
+  },
+);
 
 const Carousel = ({ carouselCoins, nonReduxSymbol }) => {
   const firstRender = useRef(true);

@@ -66,9 +66,7 @@ const Navbar = () => {
           <div className={styles.nav_list}>
             <Link href="/" passHref>
               <div className={styles.link_wrapper}>
-                <a className={styles.nav_link}>
-                  <HomeIcon /> {!isBreakpoint555 && `Home`}
-                </a>
+                <HomeIcon /> {!isBreakpoint555 && `Home`}
               </div>
             </Link>
 
