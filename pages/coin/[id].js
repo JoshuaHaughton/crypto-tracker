@@ -8,19 +8,12 @@ import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
 import { coinsActions } from "../../src/store/coins";
 import Link from "next/link";
-// import { HistoryChart } from "../../src/components/UI/HistoryChart";
-import dynamic from "next/dynamic";
 
-// const HistoryChart = dynamic(() => import('../../src/components/UI/HistoryChart').then((mod) => mod.HistoryChart))
-// import { ResponsiveContainer, AreaChart, XAxis, YAxis, Area, Tooltip, CartesianGrid } from 'recharts';
-const vertical = "bottom";
-const horizontal = "center";
 const Coin = ({
   initialCoin,
   marketChartFromServer,
   marketValuesFromServer,
   pageId,
-  isBreakpoint1040,
   coinData,
   assetData,
   rates,
@@ -28,15 +21,15 @@ const Coin = ({
   console.log("initialCoin", initialCoin);
   console.log("coinData", coinData);
   console.log("assetData", assetData);
-  const firstUpdate = useRef(true);
-  const [coin, setCoin] = useState(initialCoin);
-  const [marketValues, setMarketValues] = useState(
-    marketValuesFromServer || [],
-  );
-  const [marketChart, setMarketChart] = useState(marketChartFromServer || []);
   const currentSymbol = useSelector((state) => state.currency.symbol);
   const currentCurrency = useSelector((state) => state.currency.currency);
   const dispatch = useDispatch();
+  const [coin, setCoin] = useState(initialCoin);
+  const [currentChartPeriod, setCurrentChartPeriod] = useState("day");
+  const [marketChart, setMarketChart] = useState(marketChartFromServer || []);
+  const [marketValues, setMarketValues] = useState(
+    marketValuesFromServer || [],
+  );
 
   const [chartData, setChartData] = useState({
     labels: marketChartFromServer?.day.map((data) =>
@@ -48,27 +41,12 @@ const Coin = ({
           coin.name
         } Price (Past day) in ${currentCurrency.toUpperCase()}`,
         data: marketValues.dayMarketValues,
-        // data: marketValuesFromServer.dayMarketValues,
         type: "line",
         pointRadius: 1.3,
         borderColor: "#ff9500",
       },
     ],
   });
-  const router = useRouter();
-
-  // {
-  //   labels: starterChartInfo.marketLabels.oneDayLabels,
-  //   datasets: [ {
-  //   label: "Price (Past 1 day) in ${currentCurrency.toUpperCase()}",
-  //   data: starterChartInfo.marketValues?.oneDayValues,
-  //   backgroundColor: ["red"],
-  //   fill: "origin",
-  //   pointRadius: 1.5,
-  //   pointStyle: 'circle'
-  // }] }
-
-  const [currentChartPeriod, setCurrentChartPeriod] = useState("day");
 
   const dayClickHandler = () => {
     setChartData((prev) => {
@@ -174,10 +152,6 @@ const Coin = ({
     } else if (num <= 999) {
       return num; // if value < 1000, nothing to do
     }
-  };
-
-  const goBack = () => {
-    router.back();
   };
 
   const removeHTML = (str) => str.replace(/<\/?[^>]+(>|$)/g, "");
