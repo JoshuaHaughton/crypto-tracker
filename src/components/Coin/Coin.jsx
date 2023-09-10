@@ -2,8 +2,6 @@ import Link from "next/link";
 import styles from "./Coin.module.css";
 import Image from "next/image";
 
-import { useMediaQuery } from "../../hooks/useMediaQuery";
-
 const Coin = ({
   name,
   price,
@@ -15,11 +13,8 @@ const Coin = ({
   id,
   coinSymbol,
 }) => {
-  const isBreakpoint680 = useMediaQuery(680);
-  const isBreakpoint1250 = useMediaQuery(1250);
-
   return (
-    <Link href="/coin/[id]" as={`coin/${id}`}>
+    <Link href="/coin/[id]" as={`coin/${id}`} passHref>
       <div className={styles.container}>
         <div className={styles.coin_wrapper}>
           <div className={styles.coin}>

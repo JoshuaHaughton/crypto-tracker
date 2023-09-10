@@ -39,7 +39,6 @@ const Navbar = () => {
   const [openNotificationBar, setOpenNotificationBar] = useState(false);
   const currentCurrency = useSelector((state) => state.currency.currency);
   const currentSymbol = useSelector((state) => state.currency.symbol);
-  const coinListCoins = useSelector((state) => state.coins.coinListCoins);
   const isBreakpoint555 = useMediaQuery(555);
   const dispatch = useDispatch();
 
@@ -48,12 +47,7 @@ const Navbar = () => {
     const symbol = e.target.value.split(",")[1];
 
     dispatch(currencyActions.changeCurrency({ currency, symbol }));
-    setOpenNotificationBar(true);
   };
-
-  useEffect(() => {
-    if (openNotificationBar) setOpenNotificationBar(false);
-  }, [coinListCoins]);
 
   return (
     <>

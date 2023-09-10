@@ -480,13 +480,7 @@ const Coin = ({
               ) : (
                 <p className={styles.current}>
                   {+coin?.price_change_1d < -1 &&
-                    `${currentSymbol}${coin?.price_change_1d.toLocaleString(
-                      "en-US",
-                      {
-                        style: "currency",
-                        currency: "USD",
-                      },
-                    )}`}
+                    `${currentSymbol}${coin?.price_change_1d.toLocaleString()}`}
                   {+coin?.price_change_1d > -1 &&
                     `- ${currentSymbol}${Math.abs(
                       coin?.price_change_1d,
