@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import CoinList from "../src/components/CoinList";
 import Banner from "../src/components/UI/Banner/Banner";
 import Pagination from "../src/components/UI/Pagination.jsx";
@@ -18,8 +18,11 @@ export default function Home({
   const firstRender = useRef(true);
   const isHydrated = useRef(false);
   const dispatch = useDispatch();
-  const initialCoinListCoins = useSelector(
-    (state) => state.coins.initialCoinListCoins,
+  const coinListCoinsByCurrency = useSelector(
+    (state) => state.coins.coinListCoinsByCurrency,
+  );
+  const displayedCoinListCoins = useSelector(
+    (state) => state.coins.displayedCoinListCoins,
   );
   const initialCurrency = useSelector(
     (state) => state.currency.initialCurrency,
@@ -31,18 +34,53 @@ export default function Home({
   );
 
   useEffect(() => {
+    if (
+      Object.values(coinListCoinsByCurrency).some(
+        (dataArr) => dataArr.length === 0,
+      )
+    ) {
+      const worker = new Worker("/webWorkers/currencyTransformerWorker.js");
+
+      worker.addEventListener("message", function (e) {
+        // Dispatch action to update Redux state
+        dispatch(
+          coinsActions.setCoinsForCurrency({
+            currency: e.data.currency,
+            coinData: e.data.transformedData,
+          }),
+        );
+      });
+
+      if (isHydrated.current) {
+        ["CAD", "USD", "AUD", "GBP"].forEach((currency) => {
+          worker.postMessage({
+            coins: coins.initialHundredCoins,
+            rates,
+            currency,
+          });
+        });
+      }
+
+      // Clean up the worker when the component is unmounted
+      return () => {
+        console.log("unmount");
+        worker.terminate();
+      };
+    }
+  }, [isHydrated]);
+
+  useEffect(() => {
     if (!isHydrated.current) {
       isHydrated.current = true;
       return;
     }
 
     if (firstRender.current) {
-      if (initialCoinListCoins.length === 0) {
+      if (displayedCoinListCoins.length === 0) {
         console.log("empty dispatch");
         dispatch(
           coinsActions.updateCoins({
-            initialCoinListCoins: coins.initialHundredCoins,
-            coinListCoins: coins.initialHundredCoins,
+            displayedCoinListCoins: coins.initialHundredCoins,
             trendingCarouselCoins: coins.trendingCoins,
             symbol: currentSymbol,
           }),
@@ -52,56 +90,75 @@ export default function Home({
     } else {
       const setNewCurrency = () => {
         console.log("setNewCurrency", currentCurrency);
-        const updatedCurrencyCoins = coins.initialHundredCoins
-          .map((coin, i) => {
-            return {
-              ...coin,
-              current_price: convertCurrency(
-                coin.current_price,
-                initialCurrency.toUpperCase(),
-                currentCurrency.toUpperCase(),
-                rates,
-              ),
-              market_cap: convertCurrency(
-                coin.market_cap,
-                initialCurrency.toUpperCase(),
-                currentCurrency.toUpperCase(),
-                rates,
-              ),
-              market_cap_rank: i + 1,
-              total_volume: convertCurrency(
-                coin.total_volume,
-                initialCurrency.toUpperCase(),
-                currentCurrency.toUpperCase(),
-                rates,
-              ),
-              high_24h: convertCurrency(
-                coin.high_24h,
-                initialCurrency.toUpperCase(),
-                currentCurrency.toUpperCase(),
-                rates,
-              ),
-              low_24h: convertCurrency(
-                coin.low_24h,
-                initialCurrency.toUpperCase(),
-                currentCurrency.toUpperCase(),
-                rates,
-              ),
-              price_change_24h: convertCurrency(
-                coin.price_change_24h,
-                initialCurrency.toUpperCase(),
-                currentCurrency.toUpperCase(),
-                rates,
-              ),
-            };
-          })
-          .filter(Boolean);
+
+        let updatedCurrencyCoins;
+
+        if (
+          coinListCoinsByCurrency[currentCurrency] &&
+          coinListCoinsByCurrency[currentCurrency].length > 0
+        ) {
+          updatedCurrencyCoins = coinListCoinsByCurrency[currentCurrency];
+        } else {
+          // On-the-fly transformation
+          updatedCurrencyCoins = coins.initialHundredCoins
+            .map((coin, i) => {
+              return {
+                ...coin,
+                current_price: convertCurrency(
+                  coin.current_price,
+                  initialCurrency.toUpperCase(),
+                  currentCurrency.toUpperCase(),
+                  rates,
+                ),
+                market_cap: convertCurrency(
+                  coin.market_cap,
+                  initialCurrency.toUpperCase(),
+                  currentCurrency.toUpperCase(),
+                  rates,
+                ),
+                market_cap_rank: i + 1,
+                total_volume: convertCurrency(
+                  coin.total_volume,
+                  initialCurrency.toUpperCase(),
+                  currentCurrency.toUpperCase(),
+                  rates,
+                ),
+                high_24h: convertCurrency(
+                  coin.high_24h,
+                  initialCurrency.toUpperCase(),
+                  currentCurrency.toUpperCase(),
+                  rates,
+                ),
+                low_24h: convertCurrency(
+                  coin.low_24h,
+                  initialCurrency.toUpperCase(),
+                  currentCurrency.toUpperCase(),
+                  rates,
+                ),
+                price_change_24h: convertCurrency(
+                  coin.price_change_24h,
+                  initialCurrency.toUpperCase(),
+                  currentCurrency.toUpperCase(),
+                  rates,
+                ),
+              };
+            })
+            .filter(Boolean);
+
+          // Save the newly computed data to the cache
+          dispatch(
+            coinsActions.setCoinsForCurrency({
+              currency: currentCurrency,
+              coinData: updatedCurrencyCoins,
+            }),
+          );
+        }
 
         const trendingCoins = updatedCurrencyCoins.slice(0, 10);
 
         dispatch(
           coinsActions.updateCoins({
-            coinListCoins: updatedCurrencyCoins,
+            displayedCoinListCoins: updatedCurrencyCoins,
             trendingCarouselCoins: trendingCoins,
             symbol: currentSymbol,
           }),

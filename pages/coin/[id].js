@@ -19,17 +19,11 @@ const Coin = ({
   chartFromServer,
   rates,
 }) => {
-  const initialCoinListCoins = useSelector(
-    (state) => state.coins.initialCoinListCoins,
-  );
-  const coinListCoins = useSelector((state) => state.coins.coinListCoins);
+  const displayedCoinListCoins = useSelector((state) => state.coins.displayedCoinListCoins);
   const currentSymbol = useSelector((state) => state.currency.symbol);
   const currentCurrency = useSelector((state) => state.currency.currency);
   const initialCurrency = useSelector((state) =>
     state.currency.initialCurrency.toUpperCase(),
-  );
-  const cachedCurrency = useSelector((state) =>
-    state.currency.cachedCurrency.toUpperCase(),
   );
   const dispatch = useDispatch();
   const [coin, setCoin] = useState(initialCoin);
@@ -157,7 +151,7 @@ const Coin = ({
     }
 
     if (firstRender.current) {
-      if (initialCoinListCoins.length === 0) {
+      if (displayedCoinListCoins.length === 0) {
         const prefetchHomePage = async () => {
           console.log("prefetchHomePage");
           const cryptoCompareApiKey =
@@ -209,8 +203,7 @@ const Coin = ({
           // Dispatch the action with the new formatted coins
           dispatch(
             coinsActions.updateCoins({
-              initialCoinListCoins: allFormattedCoins,
-              coinListCoins: allFormattedCoins,
+              displayedCoinListCoins: allFormattedCoins,
               trendingCarouselCoins: formattedTrendingCoins,
               symbol: currentSymbol,
             }),
@@ -346,62 +339,7 @@ const Coin = ({
       }));
     };
 
-    const updateHomePageCoinsWithNewCurrency = async () => {
-      console.log("updateHomePageCoinsWithNewCurrency");
-      const updatedCoins = coinListCoins.map((coin) => ({
-        ...coin,
-        current_price: convertCurrency(
-          coin.current_price,
-          cachedCurrency.toUpperCase(),
-          currentCurrency.toUpperCase(),
-          rates,
-        ),
-        market_cap: convertCurrency(
-          coin.market_cap,
-          cachedCurrency.toUpperCase(),
-          currentCurrency.toUpperCase(),
-          rates,
-        ),
-        total_volume: convertCurrency(
-          coin.total_volume,
-          cachedCurrency.toUpperCase(),
-          currentCurrency.toUpperCase(),
-          rates,
-        ),
-        high_24h: convertCurrency(
-          coin.high_24h,
-          cachedCurrency.toUpperCase(),
-          currentCurrency.toUpperCase(),
-          rates,
-        ),
-        low_24h: convertCurrency(
-          coin.low_24h,
-          cachedCurrency.toUpperCase(),
-          currentCurrency.toUpperCase(),
-          rates,
-        ),
-        price_change_24h: convertCurrency(
-          coin.price_change_24h,
-          cachedCurrency.toUpperCase(),
-          currentCurrency.toUpperCase(),
-          rates,
-        ),
-      }));
-
-      const updatedCarouselCoins = updatedCoins.slice(0, 10);
-
-      // Dispatch the action with the new formatted coins
-      dispatch(
-        coinsActions.updateCoins({
-          coinListCoins: updatedCoins,
-          trendingCarouselCoins: updatedCarouselCoins,
-          symbol: currentSymbol,
-        }),
-      );
-    };
-
     updateSelectedCoinCurrencyValues();
-    updateHomePageCoinsWithNewCurrency();
   }, [currentCurrency]);
 
   return (

@@ -26,7 +26,9 @@ const CoinList = ({
   isBreakpoint380,
   isBreakpoint1250,
 }) => {
-  const coinListCoins = useSelector((state) => state.coins.coinListCoins);
+  const displayedCoinListCoins = useSelector(
+    (state) => state.coins.displayedCoinListCoins,
+  );
   const coinListPageNumber = useSelector(
     (state) => state.appInfo.coinListPageNumber,
   );
@@ -37,12 +39,12 @@ const CoinList = ({
     const firstPageIndex = (coinListPageNumber - 1) * PageSize;
     const lastPageIndex = firstPageIndex + PageSize;
 
-    if (coinListCoins.length < 1) {
+    if (displayedCoinListCoins.length < 1) {
       return initialHundredCoins.slice(firstPageIndex, lastPageIndex);
     } else {
-      return coinListCoins?.slice(firstPageIndex, lastPageIndex);
+      return displayedCoinListCoins?.slice(firstPageIndex, lastPageIndex);
     }
-  }, [coinListPageNumber, coinListCoins, initialHundredCoins]);
+  }, [coinListPageNumber, displayedCoinListCoins, initialHundredCoins]);
   const [shownCoins, setShownCoins] = useState(currentPageCoins);
   const [search, setSearch] = useState("");
 
@@ -53,7 +55,7 @@ const CoinList = ({
 
   useEffect(() => {
     if (search !== "") {
-      let searchedCoins = coinListCoins?.filter((coin) => {
+      let searchedCoins = displayedCoinListCoins?.filter((coin) => {
         return coin.name.toLowerCase().includes(search.toLowerCase());
       });
       setShownCoins(searchedCoins);

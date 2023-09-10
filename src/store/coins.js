@@ -1,25 +1,26 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialCoinsState = {
-  initialCoinListCoins: [],
-  coinListCoins: [],
+  displayedCoinListCoins: [],
   trendingCarouselCoins: [],
+  coinListCoinsByCurrency: {
+    CAD: [],
+    USD: [],
+    AUD: [],
+    GBP: [],
+  },
   symbol: "$",
 };
 
-//Cart Reducers
+// Coins Reducers
 const coinsSlice = createSlice({
   name: "coins",
   initialState: initialCoinsState,
   reducers: {
     updateCoins(state, action) {
-      console.log("update", action);
-      if (action.payload.initialCoinListCoins) {
-        state.initialCoinListCoins = action.payload.initialCoinListCoins;
-      }
-
-      if (action.payload.coinListCoins) {
-        state.coinListCoins = action.payload.coinListCoins;
+      console.log("updateCoins", action);
+      if (action.payload.displayedCoinListCoins) {
+        state.displayedCoinListCoins = action.payload.displayedCoinListCoins;
       }
 
       if (action.payload.trendingCarouselCoins) {
@@ -29,6 +30,11 @@ const coinsSlice = createSlice({
       if (action.payload.symbol) {
         state.symbol = action.payload.symbol;
       }
+    },
+    setCoinsForCurrency(state, action) {
+      console.log("setCoinsForCurrency", action);
+      const { currency, coinData } = action.payload;
+      state.coinListCoinsByCurrency[currency] = coinData;
     },
     resetCart(state) {
       state.coins = "cad";
