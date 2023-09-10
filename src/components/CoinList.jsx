@@ -33,6 +33,18 @@ const CoinList = ({
     (state) => state.appInfo.coinListPageNumber,
   );
   const currentSymbol = useSelector((state) => state.currency.symbol);
+  const [search, setSearch] = useState("");
+  const [shownCoins, setShownCoins] = useState(
+    displayedCoinListCoins.length < 1
+      ? initialHundredCoins.slice(
+          (coinListPageNumber - 1) * PageSize,
+          (coinListPageNumber - 1) * PageSize + PageSize,
+        )
+      : displayedCoinListCoins.slice(
+          (coinListPageNumber - 1) * PageSize,
+          (coinListPageNumber - 1) * PageSize + PageSize,
+        ),
+  );
 
   const currentPageCoins = useMemo(() => {
     console.log("currentPageCoins");
@@ -40,13 +52,15 @@ const CoinList = ({
     const lastPageIndex = firstPageIndex + PageSize;
 
     if (displayedCoinListCoins.length < 1) {
+      setShownCoins(initialHundredCoins.slice(firstPageIndex, lastPageIndex));
       return initialHundredCoins.slice(firstPageIndex, lastPageIndex);
     } else {
-      return displayedCoinListCoins?.slice(firstPageIndex, lastPageIndex);
+      setShownCoins(
+        displayedCoinListCoins.slice(firstPageIndex, lastPageIndex),
+      );
+      return displayedCoinListCoins.slice(firstPageIndex, lastPageIndex);
     }
   }, [coinListPageNumber, displayedCoinListCoins, initialHundredCoins]);
-  const [shownCoins, setShownCoins] = useState(currentPageCoins);
-  const [search, setSearch] = useState("");
 
   const handleChange = (e) => {
     e.preventDefault();
@@ -63,10 +77,6 @@ const CoinList = ({
       setShownCoins(currentPageCoins);
     }
   }, [search]);
-
-  useEffect(() => {
-    setShownCoins(currentPageCoins);
-  }, [currentPageCoins]);
 
   return (
     <div className={styles.container}>
