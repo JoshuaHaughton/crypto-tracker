@@ -7,10 +7,11 @@ import "react-alice-carousel/lib/alice-carousel.css";
 import { useDispatch, useSelector } from "react-redux";
 import { coinsActions } from "../src/store/coins";
 import { convertCurrency } from "./coin/[id]";
+import { currencyActions } from "../src/store/currency";
 
 export default function Home({
   coins,
-  rates,
+  initialRates,
   isBreakpoint380,
   isBreakpoint680,
   isBreakpoint1250,
@@ -27,6 +28,7 @@ export default function Home({
   const initialCurrency = useSelector(
     (state) => state.currency.initialCurrency,
   );
+  const currencyRates = useSelector((state) => state.currency.currencyRates);
   const currentCurrency = useSelector((state) => state.currency.currency);
   const currentSymbol = useSelector((state) => state.currency.symbol);
   const coinListPageNumber = useSelector(
@@ -55,7 +57,7 @@ export default function Home({
         ["CAD", "USD", "AUD", "GBP"].forEach((currency) => {
           worker.postMessage({
             coins: coins.initialHundredCoins,
-            rates,
+            rates: initialRates,
             currency,
           });
         });
@@ -86,6 +88,9 @@ export default function Home({
           }),
         );
       }
+      if (Object.values(currencyRates).length === 0) {
+        dispatch(currencyActions.updateRates({ currencyRates: initialRates }));
+      }
       firstRender.current = false;
     } else {
       const setNewCurrency = () => {
@@ -108,38 +113,38 @@ export default function Home({
                   coin.current_price,
                   initialCurrency.toUpperCase(),
                   currentCurrency.toUpperCase(),
-                  rates,
+                  initialRates,
                 ),
                 market_cap: convertCurrency(
                   coin.market_cap,
                   initialCurrency.toUpperCase(),
                   currentCurrency.toUpperCase(),
-                  rates,
+                  initialRates,
                 ),
                 market_cap_rank: i + 1,
                 total_volume: convertCurrency(
                   coin.total_volume,
                   initialCurrency.toUpperCase(),
                   currentCurrency.toUpperCase(),
-                  rates,
+                  initialRates,
                 ),
                 high_24h: convertCurrency(
                   coin.high_24h,
                   initialCurrency.toUpperCase(),
                   currentCurrency.toUpperCase(),
-                  rates,
+                  initialRates,
                 ),
                 low_24h: convertCurrency(
                   coin.low_24h,
                   initialCurrency.toUpperCase(),
                   currentCurrency.toUpperCase(),
-                  rates,
+                  initialRates,
                 ),
                 price_change_24h: convertCurrency(
                   coin.price_change_24h,
                   initialCurrency.toUpperCase(),
                   currentCurrency.toUpperCase(),
-                  rates,
+                  initialRates,
                 ),
               };
             })
@@ -199,14 +204,14 @@ export async function getServerSideProps(context) {
   };
 
   try {
-    // Fetching all available rates from CryptoCompare's price multi-full endpoint for CAD
+    // Fetching all available initialRates from CryptoCompare's price multi-full endpoint for CAD
     const exchangeRateResponse = await fetch(
       `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=CAD&tsyms=USD,AUD,GBP`,
       fetchOptions,
     );
     const exchangeData = await exchangeRateResponse.json();
 
-    const rates = {
+    const initialRates = {
       CAD: {
         CAD: 1,
         USD: exchangeData.RAW.CAD.USD.PRICE,
@@ -274,7 +279,7 @@ export async function getServerSideProps(context) {
           initialHundredCoins,
           trendingCoins,
         },
-        rates,
+        initialRates,
       },
     };
   } catch (err) {

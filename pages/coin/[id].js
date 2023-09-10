@@ -7,6 +7,7 @@ import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { coinsActions } from "../../src/store/coins";
 import Link from "next/link";
+import { currencyActions } from "../../src/store/currency";
 
 export const convertCurrency = (value, fromCurrency, toCurrency, allRates) => {
   return value * allRates[fromCurrency][toCurrency];
@@ -17,9 +18,12 @@ const Coin = ({
   marketChartFromServer,
   marketValuesFromServer,
   chartFromServer,
-  rates,
+  initialRates,
 }) => {
-  const displayedCoinListCoins = useSelector((state) => state.coins.displayedCoinListCoins);
+  const displayedCoinListCoins = useSelector(
+    (state) => state.coins.displayedCoinListCoins,
+  );
+  const currencyRates = useSelector((state) => state.currency.currencyRates);
   const currentSymbol = useSelector((state) => state.currency.symbol);
   const currentCurrency = useSelector((state) => state.currency.currency);
   const initialCurrency = useSelector((state) =>
@@ -212,36 +216,39 @@ const Coin = ({
 
         prefetchHomePage();
       }
+      if (Object.values(currencyRates).length === 0) {
+        dispatch(currencyActions.updateRates({ currencyRates: initialRates }));
+      }
       firstRender.current = false;
       return;
     }
 
     const updateSelectedCoinCurrencyValues = () => {
       console.log("updateSelectedCoinCurrencyValues");
-      // Convert the initial coin values using the rates
+      // Convert the initial coin values using the initialRates
       const updatedCoinPrice = convertCurrency(
         initialCoin.current_price,
         initialCurrency.toUpperCase(),
         currentCurrency.toUpperCase(),
-        rates,
+        initialRates,
       );
       const updatedMarketCap = convertCurrency(
         initialCoin.market_cap,
         initialCurrency.toUpperCase(),
         currentCurrency.toUpperCase(),
-        rates,
+        initialRates,
       );
       const updatedAth = convertCurrency(
         initialCoin.all_time_high,
         initialCurrency.toUpperCase(),
         currentCurrency.toUpperCase(),
-        rates,
+        initialRates,
       );
       const updatedPriceChange1d = convertCurrency(
         initialCoin.price_change_1d,
         initialCurrency.toUpperCase(),
         currentCurrency.toUpperCase(),
-        rates,
+        initialRates,
       );
 
       // Update the coin values
@@ -262,7 +269,7 @@ const Coin = ({
             dataPoint[1],
             initialCurrency.toUpperCase(),
             currentCurrency,
-            rates,
+            initialRates,
           ),
         ]),
         week: marketChartFromServer.week.map((dataPoint) => [
@@ -271,7 +278,7 @@ const Coin = ({
             dataPoint[1],
             initialCurrency.toUpperCase(),
             currentCurrency,
-            rates,
+            initialRates,
           ),
         ]),
         month: marketChartFromServer.month.map((dataPoint) => [
@@ -280,7 +287,7 @@ const Coin = ({
             dataPoint[1],
             initialCurrency.toUpperCase(),
             currentCurrency,
-            rates,
+            initialRates,
           ),
         ]),
         year: marketChartFromServer.year.map((dataPoint) => [
@@ -289,7 +296,7 @@ const Coin = ({
             dataPoint[1],
             initialCurrency.toUpperCase(),
             currentCurrency,
-            rates,
+            initialRates,
           ),
         ]),
       }));
@@ -298,22 +305,30 @@ const Coin = ({
         dayMarketValues: marketValuesFromServer.dayMarketValues.map(
           (value) =>
             value *
-            rates[initialCurrency.toUpperCase()][currentCurrency.toUpperCase()],
+            initialRates[initialCurrency.toUpperCase()][
+              currentCurrency.toUpperCase()
+            ],
         ),
         weekMarketValues: marketValuesFromServer.weekMarketValues.map(
           (value) =>
             value *
-            rates[initialCurrency.toUpperCase()][currentCurrency.toUpperCase()],
+            initialRates[initialCurrency.toUpperCase()][
+              currentCurrency.toUpperCase()
+            ],
         ),
         monthMarketValues: marketValuesFromServer.monthMarketValues.map(
           (value) =>
             value *
-            rates[initialCurrency.toUpperCase()][currentCurrency.toUpperCase()],
+            initialRates[initialCurrency.toUpperCase()][
+              currentCurrency.toUpperCase()
+            ],
         ),
         yearMarketValues: marketValuesFromServer.yearMarketValues.map(
           (value) =>
             value *
-            rates[initialCurrency.toUpperCase()][currentCurrency.toUpperCase()],
+            initialRates[initialCurrency.toUpperCase()][
+              currentCurrency.toUpperCase()
+            ],
         ),
       }));
 
@@ -332,7 +347,7 @@ const Coin = ({
               value,
               initialCurrency.toUpperCase(),
               currentCurrency.toUpperCase(),
-              rates,
+              initialRates,
             ),
           ),
         })),
@@ -665,7 +680,7 @@ export async function getServerSideProps(context) {
     ),
   );
 
-  const rates = {
+  const initialRates = {
     CAD: {
       CAD: 1,
       USD: cryptoCompareData.RAW.CAD.USD.PRICE,
@@ -770,7 +785,7 @@ export async function getServerSideProps(context) {
 
   // Extract the ATH from Coinpaprika's response
   const cadAthPrice =
-    coinPaprikaCoinDetails.quotes.USD.ath_price * rates.USD.CAD;
+    coinPaprikaCoinDetails.quotes.USD.ath_price * initialRates.USD.CAD;
 
   if (
     !cryptoCompareData ||
@@ -821,7 +836,7 @@ export async function getServerSideProps(context) {
           },
         ],
       },
-      rates,
+      initialRates,
     },
   };
 }

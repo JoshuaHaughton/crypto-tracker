@@ -43,7 +43,7 @@ const Navbar = () => {
   const dispatch = useDispatch();
 
   const handleCurrencyChange = (e) => {
-    const currency = e.target.value.split(",")[0].toLowerCase();
+    const currency = e.target.value.split(",")[0].toUpperCase();
     const symbol = e.target.value.split(",")[1];
 
     dispatch(currencyActions.changeCurrency({ currency, symbol }));

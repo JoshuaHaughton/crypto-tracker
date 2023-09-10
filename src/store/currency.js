@@ -1,10 +1,10 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialCurrencyState = {
   initialCurrency: "CAD",
   currency: "cad",
-  cachedCurrency: "cad",
   symbol: "$",
+  currencyRates: {},
 };
 
 // Currency Reducers
@@ -13,14 +13,19 @@ const currencySlice = createSlice({
   initialState: initialCurrencyState,
   reducers: {
     changeCurrency(state, action) {
-      console.log("currency change");
+      console.log("changeCurrency", action);
       if (action.payload.currency) {
-        state.cachedCurrency = state.currency;
         state.currency = action.payload.currency;
       }
 
       if (action.payload.symbol) {
         state.symbol = action.payload.symbol;
+      }
+    },
+    updateRates(state, action) {
+      console.log("updateRates", action);
+      if (action.payload.currencyRates) {
+        state.currencyRates = action.payload.currencyRates;
       }
     },
   },
