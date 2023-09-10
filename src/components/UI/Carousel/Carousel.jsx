@@ -1,9 +1,7 @@
 import React, { useRef, useState } from "react";
 import styles from "./Carousel.module.css";
-// import AliceCarousel from "react-alice-carousel";
 import Image from "next/image";
 import Link from "next/link";
-// import "react-alice-carousel/lib/alice-carousel.css";
 import dynamic from "next/dynamic";
 import { useSelector } from "react-redux";
 import { useEffect } from "react";
@@ -14,16 +12,16 @@ const AliceCarousel = dynamic(
   },
 );
 
-const Carousel = ({ carouselCoins, nonReduxSymbol }) => {
+const Carousel = () => {
   const firstRender = useRef(true);
-  // const trendingCarouselCoins = useSelector(state => state.coins.trendingCarouselCoins)
-  // const currentSymbol = useSelector((state) => state.currency.symbol);
-  // console.log("carouselCoins", carouselCoins);
+  const currentSymbol = useSelector((state) => state.currency.symbol);
+  const carouselCoins = useSelector(
+    (state) => state.coins.trendingCarouselCoins,
+  );
   const [carouselItems, setCarouselItems] = useState(
     carouselCoins.map((coin) => {
       let profit = coin.price_change_percentage_24h >= 0;
-      // console.log(nonReduxSymbol);
-      // console.log(coin);
+
       return (
         <div className={styles.carousel_item} key={coin.id}>
           <Link href={`/coin/${coin.id}`} passHref>
@@ -57,7 +55,7 @@ const Carousel = ({ carouselCoins, nonReduxSymbol }) => {
             )}
           </p>
           <h6>
-            {nonReduxSymbol}
+            {currentSymbol}
             {coin?.current_price.toLocaleString("en-US", {
               maximumFractionDigits: 8,
               minimumFractionDigits: 2,
@@ -94,8 +92,7 @@ const Carousel = ({ carouselCoins, nonReduxSymbol }) => {
       setCarouselItems(
         carouselCoins.map((coin) => {
           let profit = coin.price_change_percentage_24h >= 0;
-          // console.log(profit);
-          // console.log(coin);
+
           return (
             <div className={styles.carousel_item} key={coin.id}>
               <Link href={`/coin/${coin.id}`} passHref>
@@ -115,7 +112,7 @@ const Carousel = ({ carouselCoins, nonReduxSymbol }) => {
                 )}
               </p>
               <h6>
-                {nonReduxSymbol}
+                {currentSymbol}
                 {coin?.current_price.toLocaleString("en-US", {
                   maximumFractionDigits: 8,
                   minimumFractionDigits: 2,
@@ -126,9 +123,7 @@ const Carousel = ({ carouselCoins, nonReduxSymbol }) => {
         }),
       );
     }
-  }, [carouselCoins, nonReduxSymbol]);
-
-  // console.log(carouselItems);
+  }, [carouselCoins, currentSymbol]);
 
   return (
     <div className={styles.carousel}>

@@ -4,8 +4,7 @@ import store from "../src/store";
 import "../styles/globals.css";
 import nProgress from "nprogress";
 import { Router } from "next/router";
-import { useMediaQuery } from "../src/components/Coin/Coin";
-import { useState } from "react";
+import { useMediaQuery } from "../src/hooks/useMediaQuery";
 
 nProgress.configure({
   minimum: 0.3,
@@ -31,7 +30,6 @@ function MyApp({ Component, pageProps }) {
   const isBreakpoint380 = useMediaQuery(380);
   const isBreakpoint1040 = useMediaQuery(1040);
   const isBreakpoint1250 = useMediaQuery(1250);
-  const [currentPage, setCurrentPage] = useState(1);
 
   return (
     <Provider store={store}>
@@ -42,8 +40,6 @@ function MyApp({ Component, pageProps }) {
           isBreakpoint680={isBreakpoint680}
           isBreakpoint1250={isBreakpoint1250}
           isBreakpoint1040={isBreakpoint1040}
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
         />
       </Layout>
     </Provider>

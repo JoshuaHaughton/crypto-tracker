@@ -1,37 +1,45 @@
 import React from "react";
-import { usePagination, DOTS } from "./usePagination";
+import { usePagination } from "./usePagination";
 import styles from "./pagination.module.scss";
-const Pagination = (props) => {
-  const {
-    onPageChange,
-    totalCount,
-    siblingCount = 1,
-    currentPage,
-    pageSize,
-    className,
-  } = props;
+import { useDispatch, useSelector } from "react-redux";
+import { appInfoActions } from "../../store/appInfo";
 
-  // const dots
+const siblingCount = 1;
+const totalCount = 100;
+const pageSize = 10;
+
+const Pagination = () => {
+  const dispatch = useDispatch();
+  const coinListPageNumber = useSelector(
+    (state) => state.appInfo.coinListPageNumber,
+  );
 
   const paginationRange = usePagination({
-    currentPage,
+    currentPage: coinListPageNumber,
     totalCount,
     siblingCount,
     pageSize,
   });
 
-
   // If there are less than 2 times in pagination range we shall not render the component
-  if (currentPage === 0 || paginationRange?.length < 2) {
+  if (coinListPageNumber === 0 || paginationRange?.length < 2) {
     return null;
   }
 
   const onNext = () => {
-    onPageChange(currentPage + 1);
+    dispatch(
+      appInfoActions.updateCoinListPageNumber({
+        coinListPageNumber: coinListPageNumber + 1,
+      }),
+    );
   };
 
   const onPrevious = () => {
-    onPageChange(currentPage - 1);
+    dispatch(
+      appInfoActions.updateCoinListPageNumber({
+        coinListPageNumber: coinListPageNumber - 1,
+      }),
+    );
   };
   let lastPage = null;
 
@@ -43,7 +51,9 @@ const Pagination = (props) => {
       {/* Left navigation arrow */}
       <li
         className={
-          currentPage === 1 ? `${styles.item} ${styles.disabled}` : styles.item
+          coinListPageNumber === 1
+            ? `${styles.item} ${styles.disabled}`
+            : styles.item
         }
         onClick={onPrevious}
       >
@@ -52,18 +62,28 @@ const Pagination = (props) => {
       {paginationRange?.map((pageNumber, idx) => {
         // If the pageItem is a DOT, render the DOTS unicode character
         if (pageNumber === "DOTS") {
-          return <li className={`${styles.item} ${styles.dots}`} key={idx}>&#8230;</li>;
+          return (
+            <li className={`${styles.item} ${styles.dots}`} key={idx}>
+              &#8230;
+            </li>
+          );
         }
 
         // Render our Page Pills
         return (
           <li
             className={
-              pageNumber === currentPage
+              pageNumber === coinListPageNumber
                 ? `${styles.item} ${styles.selected}`
                 : styles.item
             }
-            onClick={() => onPageChange(pageNumber)}
+            onClick={() =>
+              dispatch(
+                appInfoActions.updateCoinListPageNumber({
+                  coinListPageNumber: pageNumber,
+                }),
+              )
+            }
             key={idx}
           >
             {pageNumber}
@@ -73,7 +93,7 @@ const Pagination = (props) => {
       {/*  Right Navigation arrow */}
       <li
         className={
-          currentPage === lastPage
+          coinListPageNumber === lastPage
             ? `${styles.item} ${styles.disabled}`
             : styles.item
         }

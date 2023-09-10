@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Coin from "./Coin/Coin";
 import styles from "./CoinList.module.css";
 import { TextField } from "@mui/material";
+import { useSelector } from "react-redux";
 
 const bigNumberFormatter = (num) => {
   if (num > 999 && num < 1000000) {
@@ -17,27 +18,42 @@ const bigNumberFormatter = (num) => {
   }
 };
 
-const CoinList = ({ filteredCoins, currentPageCoins, isBreakpoint680, isBreakpoint380, isBreakpoint1250, currentSymbol }) => {
-  const firstUpdate = useRef(true);
-  const [search, setSearch] = useState("");
+const PageSize = 10;
+
+const CoinList = ({
+  initialHundredCoins,
+  isBreakpoint680,
+  isBreakpoint380,
+  isBreakpoint1250,
+}) => {
+  const coinListCoins = useSelector((state) => state.coins.coinListCoins);
+  const coinListPageNumber = useSelector(
+    (state) => state.appInfo.coinListPageNumber,
+  );
+  const currentSymbol = useSelector((state) => state.currency.symbol);
+
+  const currentPageCoins = useMemo(() => {
+    console.log("currentPageCoins");
+    const firstPageIndex = (coinListPageNumber - 1) * PageSize;
+    const lastPageIndex = firstPageIndex + PageSize;
+
+    if (coinListCoins.length < 1) {
+      return initialHundredCoins.slice(firstPageIndex, lastPageIndex);
+    } else {
+      return coinListCoins?.slice(firstPageIndex, lastPageIndex);
+    }
+  }, [coinListPageNumber, coinListCoins, initialHundredCoins]);
   const [shownCoins, setShownCoins] = useState(currentPageCoins);
-  const [coinSymbol, setCoinSymbol] = useState(currentSymbol || '$')
+  const [search, setSearch] = useState("");
 
   const handleChange = (e) => {
     e.preventDefault();
-
-    // useMemo(() => setShownCoins(searchedCoins), []);
     setSearch(e.target.value);
-
-    // setSearch(e.target.value.toLowerCase());
   };
-
-  // const isBreakpoint680 = useMediaQuery(680);
-  // const isBreakpoint380 = useMediaQuery(380);
 
   useEffect(() => {
     if (search !== "") {
-      let searchedCoins = filteredCoins?.filter((coin) => {
+      let searchedCoins = coinListCoins?.filter((coin) => {
         return coin.name.toLowerCase().includes(search.toLowerCase());
       });
       setShownCoins(searchedCoins);
@@ -47,24 +63,8 @@ const CoinList = ({ filteredCoins, currentPageCoins, isBreakpoint680, isBreakpoi
   }, [search]);
 
   useEffect(() => {
-    setShownCoins(currentPageCoins)
-    // setCoinSymbol(currentSymbol)
-  }, [currentPageCoins])
-
-  useEffect(() => {
-    if (firstUpdate.current) {
-      firstUpdate.current = false;
-      return;
-    } else {
-      setCoinSymbol(currentSymbol)
-      console.log('sett', currentSymbol);
-
-    }
-  }, [filteredCoins])
-
-  // const isBreakpoint1250 = useMediaQuery(1250);
-  // const isBreakpoint680 = useMediaQuery(680);
-
+    setShownCoins(currentPageCoins);
+  }, [currentPageCoins]);
 
   return (
     <div className={styles.container}>
@@ -72,27 +72,27 @@ const CoinList = ({ filteredCoins, currentPageCoins, isBreakpoint680, isBreakpoi
         label="Search for a cryptocurrency"
         variant="outlined"
         sx={{
-          "& .MuiInputLabel-root": {color: '#b2b2b2'},//styles the label
+          "& .MuiInputLabel-root": { color: "#b2b2b2" }, //styles the label
           "& .MuiOutlinedInput-root": {
             "& > fieldset": { borderColor: "white", color: "white" },
           },
           "& .MuiOutlinedInput-root.Mui-focused": {
             "& > fieldset": {
-      borderColor: "#ff9500"
-            }
+              borderColor: "#ff9500",
+            },
           },
           "& .MuiOutlinedInput-root:hover": {
             "& > fieldset": {
-              borderColor: "#ff9500"
-            }
+              borderColor: "#ff9500",
+            },
           },
           "& .MuiInputLabel-root.Mui-focused": {
-            color: 'white'
+            color: "white",
           },
           "& .MuiInputLabel-root.Mui-hover": {
-            color: 'white'
+            color: "white",
           },
-          input: { color: 'white' }
+          input: { color: "white" },
         }}
         value={search}
         className={styles.input}
@@ -126,35 +126,20 @@ const CoinList = ({ filteredCoins, currentPageCoins, isBreakpoint680, isBreakpoi
         )}
       </header>
       {shownCoins?.map((coin) => {
-        let transformedMarketCap = null
-        let transformedVolume = null
-
-        // if (isBreakpoint) {
-        //   transformedMarketCap = coin.market_cap.toLocaleString();
-        //   transformedVolume = coin.total_volume.toLocaleString();
-        // } else {
-        //   transformedMarketCap = bigNumberFormatter(coin.market_cap)
-        //   transformedVolume = bigNumberFormatter(coin.total_volume)
-        // }
-
-
+        let transformedMarketCap = null;
+        let transformedVolume = null;
 
         if (!isBreakpoint680) {
           if (isBreakpoint1250) {
-            transformedVolume = bigNumberFormatter(coin.total_volume)
-            transformedMarketCap = bigNumberFormatter(coin.market_cap)
+            transformedVolume = bigNumberFormatter(coin.total_volume);
+            transformedMarketCap = bigNumberFormatter(coin.market_cap);
           } else {
             transformedVolume = coin.total_volume.toLocaleString();
             transformedMarketCap = coin.market_cap.toLocaleString();
           }
         }
 
-
         return (
-
-
-          
-
           <Coin
             key={coin.id}
             name={coin.name}
@@ -165,7 +150,7 @@ const CoinList = ({ filteredCoins, currentPageCoins, isBreakpoint680, isBreakpoi
             volume={transformedVolume}
             image={coin.image}
             priceChange={coin.price_change_percentage_24h}
-            coinSymbol={coinSymbol}
+            coinSymbol={currentSymbol}
           />
         );
       })}

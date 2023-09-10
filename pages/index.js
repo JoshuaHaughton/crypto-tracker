@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
-import { useState } from "react";
+import { useEffect, useRef } from "react";
 import CoinList from "../src/components/CoinList";
 import Banner from "../src/components/UI/Banner/Banner";
 import Pagination from "../src/components/UI/Pagination.jsx";
@@ -15,31 +14,21 @@ export default function Home({
   isBreakpoint380,
   isBreakpoint680,
   isBreakpoint1250,
-  currentPage,
-  setCurrentPage,
 }) {
-  const trendingCarouselCoins = useSelector(
-    (state) => state.coins.trendingCarouselCoins,
-  );
-  const coinListCoins = useSelector((state) => state.coins.coinListCoins);
+  const firstRender = useRef(true);
+  const isHydrated = useRef(false);
+  const dispatch = useDispatch();
   const initialCoinListCoins = useSelector(
     (state) => state.coins.initialCoinListCoins,
   );
-
-  const dispatch = useDispatch();
-
-  const firstRender = useRef(true);
-  const isHydrated = useRef(false);
-  const PageSize = 10;
-
   const initialCurrency = useSelector(
     (state) => state.currency.initialCurrency,
   );
   const currentCurrency = useSelector((state) => state.currency.currency);
   const currentSymbol = useSelector((state) => state.currency.symbol);
-
-  // Isn't changed until after data is fetched, prevents jumpiness in carousel component due to double reload of currencySymbol and carouselCoins
-  const [nonReduxSymbol, setNonReduxSymbol] = useState(currentSymbol || "$");
+  const coinListPageNumber = useSelector(
+    (state) => state.appInfo.coinListPageNumber,
+  );
 
   useEffect(() => {
     if (!isHydrated.current) {
@@ -110,7 +99,6 @@ export default function Home({
 
         const trendingCoins = updatedCurrencyCoins.slice(0, 10);
 
-        setNonReduxSymbol(currentSymbol);
         dispatch(
           coinsActions.updateCoins({
             coinListCoins: updatedCurrencyCoins,
@@ -125,49 +113,22 @@ export default function Home({
   }, [currentCurrency]);
 
   useEffect(() => {
-    if (currentPage !== 1) {
+    if (coinListPageNumber !== 1) {
       window.scrollTo(0, 448);
     }
   }, []);
 
-  const currentPageCoins = useMemo(() => {
-    const firstPageIndex = (currentPage - 1) * PageSize;
-    const lastPageIndex = firstPageIndex + PageSize;
-
-    if (coinListCoins.length < 1) {
-      return coins.initialHundredCoins.slice(firstPageIndex, lastPageIndex);
-    } else {
-      return coinListCoins?.slice(firstPageIndex, lastPageIndex);
-    }
-  }, [currentPage, coinListCoins]);
-
   return (
     <div className={styles.container}>
-      <Banner
-        carouselCoins={
-          trendingCarouselCoins.length > 1
-            ? trendingCarouselCoins
-            : coins.trendingCoins
-        }
-        nonReduxSymbol={nonReduxSymbol}
-      />
+      <Banner />
       <h2>Crypto Prices</h2>
       <CoinList
-        filteredCoins={
-          coinListCoins.length > 1 ? coinListCoins : coins.initialHundredCoins
-        }
-        currentPageCoins={currentPageCoins}
+        initialHundredCoins={coins.initialHundredCoins}
         isBreakpoint380={isBreakpoint380}
         isBreakpoint680={isBreakpoint680}
         isBreakpoint1250={isBreakpoint1250}
-        currentSymbol={currentSymbol}
       />
-      <Pagination
-        currentPage={currentPage}
-        totalCount={100}
-        pageSize={10}
-        onPageChange={(page) => setCurrentPage(page)}
-      />
+      <Pagination />
     </div>
   );
 }
