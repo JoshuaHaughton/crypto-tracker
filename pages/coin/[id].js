@@ -168,7 +168,15 @@ const Coin = ({
       console.log(e.data);
       const { transformedCoins } = e.data;
 
-      // Iterate over the transformed coins and dispatch the action for each currency
+      // Dispatch initial data for the current currency
+      dispatch(
+        coinsActions.updateCoinDetailsForCurrency({
+          currency: currentCurrency.toUpperCase(),
+          coinDetail: initialCoin,
+        }),
+      );
+
+      // Dispatch transformed data for other currencies
       Object.keys(transformedCoins).forEach((currency) => {
         dispatch(
           coinsActions.updateCoinDetailsForCurrency({
@@ -191,6 +199,7 @@ const Coin = ({
         data: {
           coin: initialCoin,
           rates: initialRates,
+          currentCurrency: currentCurrency.toUpperCase(),
         },
       });
     }

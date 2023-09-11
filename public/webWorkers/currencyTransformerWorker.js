@@ -66,8 +66,10 @@ self.addEventListener(
     const { type, data } = e.data;
 
     if (type === "transformCoinList") {
-      const { coins, rates } = data;
-      const currencies = ["CAD", "USD", "AUD", "GBP"];
+      const { coins, rates, currentCurrency } = data;
+      const currencies = ["CAD", "USD", "AUD", "GBP"].filter(
+        (cur) => cur !== currentCurrency,
+      );
       const transformedCoins = {};
 
       currencies.forEach((currency) => {
@@ -80,8 +82,10 @@ self.addEventListener(
 
       self.postMessage({ transformedCoins });
     } else if (type === "transformCoin") {
-      const { coin, rates } = data;
-      const currencies = ["CAD", "USD", "AUD", "GBP"];
+      const { coin, rates, currentCurrency } = data;
+      const currencies = ["CAD", "USD", "AUD", "GBP"].filter(
+        (cur) => cur !== currentCurrency,
+      );
       const transformedCoins = {};
 
       currencies.forEach((currency) => {

@@ -36,15 +36,27 @@ export default function Home({
   );
 
   useEffect(() => {
+    // Check for hydration completion
     if (!isHydrated.current) {
       return;
     }
 
-    const worker = new Worker("/webWorkers/currencyTransformerWorker.js");
+    const currencyTransformerWorker = new Worker(
+      "/webWorkers/currencyTransformerWorker.js",
+    );
 
-    worker.addEventListener("message", function (e) {
+    const handleWorkerMessage = (e) => {
       const { transformedCoins } = e.data;
 
+      // Dispatch initial data for the current currency
+      dispatch(
+        coinsActions.setCoinListForCurrency({
+          currency: currentCurrency.toUpperCase(),
+          coinData: coins.initialHundredCoins,
+        }),
+      );
+
+      // Dispatch transformed data for other currencies
       Object.keys(transformedCoins).forEach((currency) => {
         dispatch(
           coinsActions.setCoinListForCurrency({
@@ -55,20 +67,27 @@ export default function Home({
       });
 
       console.log("home worker ran");
-    });
+    };
 
-    worker.postMessage({
+    currencyTransformerWorker.addEventListener("message", handleWorkerMessage);
+
+    currencyTransformerWorker.postMessage({
       type: "transformCoinList",
       data: {
         coins: coins.initialHundredCoins,
         rates: initialRates,
+        currentCurrency: currentCurrency.toUpperCase(),
       },
     });
 
     // Clean up the worker when the component is unmounted
     return () => {
       console.log("unmount home worker");
-      worker.terminate();
+      currencyTransformerWorker.removeEventListener(
+        "message",
+        handleWorkerMessage,
+      );
+      currencyTransformerWorker.terminate();
     };
   }, [isHydrated]);
 
