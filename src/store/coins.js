@@ -9,6 +9,12 @@ const initialCoinsState = {
     AUD: [],
     GBP: [],
   },
+  coinDetailsByCurrency: {
+    CAD: null,
+    USD: null,
+    AUD: null,
+    GBP: null,
+  },
   symbol: "$",
 };
 
@@ -36,9 +42,10 @@ const coinsSlice = createSlice({
       const { currency, coinData } = action.payload;
       state.coinListCoinsByCurrency[currency] = coinData;
     },
-    resetCart(state) {
-      state.coins = "cad";
-      state.symbol = "$";
+    updateCoinDetailsForCurrency(state, action) {
+      console.log("updateCoinDetailsForCurrency", action);
+      const { currency, coinDetail } = action.payload;
+      state.coinDetailsByCurrency[currency] = coinDetail;
     },
   },
 });

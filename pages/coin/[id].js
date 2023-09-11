@@ -25,10 +25,15 @@ const Coin = ({
   );
   const currencyRates = useSelector((state) => state.currency.currencyRates);
   const currentSymbol = useSelector((state) => state.currency.symbol);
+  const coinDetailsByCurrency = useSelector(
+    (state) => state.coins.coinDetailsByCurrency,
+  );
   const currentCurrency = useSelector((state) => state.currency.currency);
   const initialCurrency = useSelector((state) =>
     state.currency.initialCurrency.toUpperCase(),
   );
+
+  const coinDetailCurrencyTransformerWorker = useRef(null);
   const dispatch = useDispatch();
   const [coin, setCoin] = useState(initialCoin);
   const [currentChartPeriod, setCurrentChartPeriod] = useState("day");
@@ -150,6 +155,63 @@ const Coin = ({
 
   useEffect(() => {
     if (!isHydrated.current) {
+      return;
+    }
+
+    if (!coinDetailCurrencyTransformerWorker.current) {
+      coinDetailCurrencyTransformerWorker.current = new Worker(
+        "/webWorkers/coinDetailCurrencyTransformerWorker.js",
+      );
+
+      // Define the message handler for the worker
+      const handleWorkerMessage = (e) => {
+        const { transformedCoins } = e.data;
+        // Iterate over the transformed coins and dispatch the action for each currency
+
+        Object.keys(transformedCoins).forEach((currency) => {
+          dispatch(
+            coinsActions.updateCoinDetailsForCurrency({
+              currency,
+              coinDetail: transformedCoins[currency],
+            }),
+          );
+        });
+        console.log("coin worker ran");
+      };
+
+      // Add the event listener to the worker
+      coinDetailCurrencyTransformerWorker.current.addEventListener(
+        "message",
+        handleWorkerMessage,
+      );
+
+      // Cleanup: remove the event listener and terminate the worker when the component is unmounted
+      return () => {
+        console.log("unmount coin worker");
+        coinDetailCurrencyTransformerWorker.current.removeEventListener(
+          "message",
+          handleWorkerMessage,
+        );
+        coinDetailCurrencyTransformerWorker.current.terminate();
+      };
+    }
+  }, []);
+
+  useEffect(() => {
+    if (
+      initialCoin &&
+      initialRates &&
+      coinDetailCurrencyTransformerWorker.current
+    ) {
+      coinDetailCurrencyTransformerWorker.current.postMessage({
+        coin: initialCoin,
+        rates: initialRates,
+      });
+    }
+  }, [initialCoin, initialRates]);
+
+  useEffect(() => {
+    if (!isHydrated.current) {
       isHydrated.current = true;
       return;
     }
@@ -225,40 +287,61 @@ const Coin = ({
 
     const updateSelectedCoinCurrencyValues = () => {
       console.log("updateSelectedCoinCurrencyValues");
-      // Convert the initial coin values using the initialRates
-      const updatedCoinPrice = convertCurrency(
-        initialCoin.current_price,
-        initialCurrency.toUpperCase(),
-        currentCurrency.toUpperCase(),
-        initialRates,
-      );
-      const updatedMarketCap = convertCurrency(
-        initialCoin.market_cap,
-        initialCurrency.toUpperCase(),
-        currentCurrency.toUpperCase(),
-        initialRates,
-      );
-      const updatedAth = convertCurrency(
-        initialCoin.all_time_high,
-        initialCurrency.toUpperCase(),
-        currentCurrency.toUpperCase(),
-        initialRates,
-      );
-      const updatedPriceChange1d = convertCurrency(
-        initialCoin.price_change_1d,
-        initialCurrency.toUpperCase(),
-        currentCurrency.toUpperCase(),
-        initialRates,
-      );
 
-      // Update the coin values
-      setCoin((prevState) => ({
-        ...prevState,
-        current_price: updatedCoinPrice,
-        market_cap: updatedMarketCap,
-        all_time_high: updatedAth,
-        price_change_1d: updatedPriceChange1d,
-      }));
+      // Check if coin data for the current currency exists in the Redux store
+      if (coinDetailsByCurrency[currentCurrency.toUpperCase()]) {
+        console.log("currency cache used");
+        setCoin(coinDetailsByCurrency[currentCurrency.toUpperCase()]);
+        // TODO: Update marketChart, marketValues, and chartData similarly if stored in Redux
+      } else {
+        // Convert the initial coin values using the initialRates
+        const updatedCoinPrice = convertCurrency(
+          initialCoin.current_price,
+          initialCurrency.toUpperCase(),
+          currentCurrency.toUpperCase(),
+          initialRates,
+        );
+        const updatedMarketCap = convertCurrency(
+          initialCoin.market_cap,
+          initialCurrency.toUpperCase(),
+          currentCurrency.toUpperCase(),
+          initialRates,
+        );
+        const updatedAth = convertCurrency(
+          initialCoin.all_time_high,
+          initialCurrency.toUpperCase(),
+          currentCurrency.toUpperCase(),
+          initialRates,
+        );
+        const updatedPriceChange1d = convertCurrency(
+          initialCoin.price_change_1d,
+          initialCurrency.toUpperCase(),
+          currentCurrency.toUpperCase(),
+          initialRates,
+        );
+
+        // Update the coin values
+        setCoin((prevState) => ({
+          ...prevState,
+          current_price: updatedCoinPrice,
+          market_cap: updatedMarketCap,
+          all_time_high: updatedAth,
+          price_change_1d: updatedPriceChange1d,
+        }));
+
+        dispatch(
+          coinsActions.updateCoinDetailsForCurrency({
+            currency: currentCurrency.toUpperCase(),
+            coinDetail: {
+              ...coin,
+              current_price: updatedCoinPrice,
+              market_cap: updatedMarketCap,
+              all_time_high: updatedAth,
+              price_change_1d: updatedPriceChange1d,
+            },
+          }),
+        );
+      }
 
       // Update market chart and values
       setMarketChart(() => ({
@@ -361,7 +444,7 @@ const Coin = ({
     <div className={styles.container}>
       <div className={styles.row}>
         <div className={styles.coin_info}>
-          <Link href="/" className={styles.back_link}>
+          <Link href="/" className={styles.back_link} passHref>
             <FontAwesomeIcon icon={faArrowLeft} className={styles.back_link} />
           </Link>
           <header className={styles.header}>

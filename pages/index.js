@@ -36,6 +36,10 @@ export default function Home({
   );
 
   useEffect(() => {
+    if (!isHydrated.current) {
+      return;
+    }
+
     if (
       Object.values(coinListCoinsByCurrency).some(
         (dataArr) => dataArr.length === 0,
@@ -51,6 +55,7 @@ export default function Home({
             coinData: e.data.transformedData,
           }),
         );
+        console.log("home worker ran");
       });
 
       if (isHydrated.current) {
@@ -65,7 +70,7 @@ export default function Home({
 
       // Clean up the worker when the component is unmounted
       return () => {
-        console.log("unmount");
+        console.log("unmount home worker");
         worker.terminate();
       };
     }
@@ -102,6 +107,7 @@ export default function Home({
           coinListCoinsByCurrency[currentCurrency] &&
           coinListCoinsByCurrency[currentCurrency].length > 0
         ) {
+          console.log("currency cache used");
           updatedCurrencyCoins = coinListCoinsByCurrency[currentCurrency];
         } else {
           // On-the-fly transformation

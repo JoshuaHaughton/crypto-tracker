@@ -47,7 +47,6 @@ const CoinList = ({
   );
 
   const currentPageCoins = useMemo(() => {
-    console.log("currentPageCoins");
     const firstPageIndex = (coinListPageNumber - 1) * PageSize;
     const lastPageIndex = firstPageIndex + PageSize;
 
