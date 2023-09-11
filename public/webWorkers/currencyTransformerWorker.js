@@ -30,13 +30,19 @@ const transformCurrencyDataInBackground = (coins, rates, currency) => {
 self.addEventListener(
   "message",
   function (e) {
-    const { coins, rates, currency } = e.data;
-    const transformedData = transformCurrencyDataInBackground(
-      coins,
-      rates,
-      currency,
-    );
-    self.postMessage({ transformedData, currency });
+    const { coins, rates } = e.data;
+    const currencies = ["CAD", "USD", "AUD", "GBP"];
+    const transformedCoins = {};
+
+    currencies.forEach((currency) => {
+      transformedCoins[currency] = transformCurrencyDataInBackground(
+        coins,
+        rates,
+        currency,
+      );
+    });
+
+    self.postMessage({ transformedCoins });
   },
   false,
 );

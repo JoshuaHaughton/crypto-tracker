@@ -40,40 +40,35 @@ export default function Home({
       return;
     }
 
-    if (
-      Object.values(coinListCoinsByCurrency).some(
-        (dataArr) => dataArr.length === 0,
-      )
-    ) {
-      const worker = new Worker("/webWorkers/currencyTransformerWorker.js");
+    const worker = new Worker("/webWorkers/currencyTransformerWorker.js");
 
-      worker.addEventListener("message", function (e) {
-        // Dispatch action to update Redux state
+    worker.addEventListener("message", function (e) {
+      const { transformedCoins } = e.data;
+
+      Object.keys(transformedCoins).forEach((currency) => {
         dispatch(
           coinsActions.setCoinsForCurrency({
-            currency: e.data.currency,
-            coinData: e.data.transformedData,
+            currency,
+            coinData: transformedCoins[currency],
           }),
         );
-        console.log("home worker ran");
       });
 
-      if (isHydrated.current) {
-        ["CAD", "USD", "AUD", "GBP"].forEach((currency) => {
-          worker.postMessage({
-            coins: coins.initialHundredCoins,
-            rates: initialRates,
-            currency,
-          });
-        });
-      }
+      console.log("home worker ran");
+    });
 
-      // Clean up the worker when the component is unmounted
-      return () => {
-        console.log("unmount home worker");
-        worker.terminate();
-      };
+    if (isHydrated.current) {
+      worker.postMessage({
+        coins: coins.initialHundredCoins,
+        rates: initialRates,
+      });
     }
+
+    // Clean up the worker when the component is unmounted
+    return () => {
+      console.log("unmount home worker");
+      worker.terminate();
+    };
   }, [isHydrated]);
 
   useEffect(() => {
