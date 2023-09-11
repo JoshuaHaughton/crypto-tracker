@@ -159,12 +159,13 @@ const Coin = ({
     }
 
     // Initialize the worker
-    const coinDetailCurrencyTransformerWorker = new Worker(
-      "/webWorkers/coinDetailCurrencyTransformerWorker.js",
+    const currencyTransformerWorker = new Worker(
+      "/webWorkers/currencyTransformerWorker.js",
     );
 
     // Define the message handler for the worker
     const handleWorkerMessage = (e) => {
+      console.log(e.data);
       const { transformedCoins } = e.data;
 
       // Iterate over the transformed coins and dispatch the action for each currency
@@ -181,29 +182,29 @@ const Coin = ({
     };
 
     // Attach the event listener to the worker
-    coinDetailCurrencyTransformerWorker.addEventListener(
-      "message",
-      handleWorkerMessage,
-    );
+    currencyTransformerWorker.addEventListener("message", handleWorkerMessage);
 
     // If initialCoin and initialRates are available, post data to the worker
     if (initialCoin && initialRates) {
-      coinDetailCurrencyTransformerWorker.postMessage({
-        coin: initialCoin,
-        rates: initialRates,
+      currencyTransformerWorker.postMessage({
+        type: "transformCoin",
+        data: {
+          coin: initialCoin,
+          rates: initialRates,
+        },
       });
     }
 
     // Cleanup: remove the event listener and terminate the worker when the component is unmounted
     return () => {
       console.log("unmount coin worker");
-      coinDetailCurrencyTransformerWorker.removeEventListener(
+      currencyTransformerWorker.removeEventListener(
         "message",
         handleWorkerMessage,
       );
-      coinDetailCurrencyTransformerWorker.terminate();
+      currencyTransformerWorker.terminate();
     };
-  }, [initialCoin, initialRates, isHydrated]);
+  }, [isHydrated]);
 
   useEffect(() => {
     if (!isHydrated.current) {

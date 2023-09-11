@@ -47,7 +47,7 @@ export default function Home({
 
       Object.keys(transformedCoins).forEach((currency) => {
         dispatch(
-          coinsActions.setCoinsForCurrency({
+          coinsActions.setCoinListForCurrency({
             currency,
             coinData: transformedCoins[currency],
           }),
@@ -57,12 +57,13 @@ export default function Home({
       console.log("home worker ran");
     });
 
-    if (isHydrated.current) {
-      worker.postMessage({
+    worker.postMessage({
+      type: "transformCoinList",
+      data: {
         coins: coins.initialHundredCoins,
         rates: initialRates,
-      });
-    }
+      },
+    });
 
     // Clean up the worker when the component is unmounted
     return () => {
@@ -153,7 +154,7 @@ export default function Home({
 
           // Save the newly computed data to the cache
           dispatch(
-            coinsActions.setCoinsForCurrency({
+            coinsActions.setCoinListForCurrency({
               currency: currentCurrency,
               coinData: updatedCurrencyCoins,
             }),

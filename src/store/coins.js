@@ -37,8 +37,8 @@ const coinsSlice = createSlice({
         state.symbol = action.payload.symbol;
       }
     },
-    setCoinsForCurrency(state, action) {
-      console.log("setCoinsForCurrency", action);
+    setCoinListForCurrency(state, action) {
+      console.log("setCoinListForCurrency", action);
       const { currency, coinData } = action.payload;
       state.coinListCoinsByCurrency[currency] = coinData;
     },
