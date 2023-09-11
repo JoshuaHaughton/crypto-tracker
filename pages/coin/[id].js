@@ -33,7 +33,6 @@ const Coin = ({
     state.currency.initialCurrency.toUpperCase(),
   );
 
-  const coinDetailCurrencyTransformerWorker = useRef(null);
   const dispatch = useDispatch();
   const [coin, setCoin] = useState(initialCoin);
   const [currentChartPeriod, setCurrentChartPeriod] = useState("day");
@@ -154,61 +153,57 @@ const Coin = ({
   const removeHTML = (str) => str.replace(/<\/?[^>]+(>|$)/g, "");
 
   useEffect(() => {
+    // Check for hydration completion
     if (!isHydrated.current) {
       return;
     }
 
-    if (!coinDetailCurrencyTransformerWorker.current) {
-      coinDetailCurrencyTransformerWorker.current = new Worker(
-        "/webWorkers/coinDetailCurrencyTransformerWorker.js",
-      );
+    // Initialize the worker
+    const coinDetailCurrencyTransformerWorker = new Worker(
+      "/webWorkers/coinDetailCurrencyTransformerWorker.js",
+    );
 
-      // Define the message handler for the worker
-      const handleWorkerMessage = (e) => {
-        const { transformedCoins } = e.data;
-        // Iterate over the transformed coins and dispatch the action for each currency
+    // Define the message handler for the worker
+    const handleWorkerMessage = (e) => {
+      const { transformedCoins } = e.data;
 
-        Object.keys(transformedCoins).forEach((currency) => {
-          dispatch(
-            coinsActions.updateCoinDetailsForCurrency({
-              currency,
-              coinDetail: transformedCoins[currency],
-            }),
-          );
-        });
-        console.log("coin worker ran");
-      };
-
-      // Add the event listener to the worker
-      coinDetailCurrencyTransformerWorker.current.addEventListener(
-        "message",
-        handleWorkerMessage,
-      );
-
-      // Cleanup: remove the event listener and terminate the worker when the component is unmounted
-      return () => {
-        console.log("unmount coin worker");
-        coinDetailCurrencyTransformerWorker.current.removeEventListener(
-          "message",
-          handleWorkerMessage,
+      // Iterate over the transformed coins and dispatch the action for each currency
+      Object.keys(transformedCoins).forEach((currency) => {
+        dispatch(
+          coinsActions.updateCoinDetailsForCurrency({
+            currency,
+            coinDetail: transformedCoins[currency],
+          }),
         );
-        coinDetailCurrencyTransformerWorker.current.terminate();
-      };
-    }
-  }, []);
+      });
 
-  useEffect(() => {
-    if (
-      initialCoin &&
-      initialRates &&
-      coinDetailCurrencyTransformerWorker.current
-    ) {
-      coinDetailCurrencyTransformerWorker.current.postMessage({
+      console.log("coin worker ran");
+    };
+
+    // Attach the event listener to the worker
+    coinDetailCurrencyTransformerWorker.addEventListener(
+      "message",
+      handleWorkerMessage,
+    );
+
+    // If initialCoin and initialRates are available, post data to the worker
+    if (initialCoin && initialRates) {
+      coinDetailCurrencyTransformerWorker.postMessage({
         coin: initialCoin,
         rates: initialRates,
       });
     }
-  }, [initialCoin, initialRates]);
+
+    // Cleanup: remove the event listener and terminate the worker when the component is unmounted
+    return () => {
+      console.log("unmount coin worker");
+      coinDetailCurrencyTransformerWorker.removeEventListener(
+        "message",
+        handleWorkerMessage,
+      );
+      coinDetailCurrencyTransformerWorker.terminate();
+    };
+  }, [initialCoin, initialRates, isHydrated]);
 
   useEffect(() => {
     if (!isHydrated.current) {
