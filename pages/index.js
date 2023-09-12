@@ -20,8 +20,7 @@ export default function Home({
   isBreakpoint680,
   isBreakpoint1250,
 }) {
-  const firstRender = useRef(true);
-  const isHydrated = useRef(false);
+  const renderStateRef = useRef("initial");
   const dispatch = useDispatch();
   const coinListCoinsByCurrency = useSelector(
     (state) => state.coins.coinListCoinsByCurrency,
@@ -37,7 +36,7 @@ export default function Home({
 
   useEffect(() => {
     // Check for hydration completion
-    if (!isHydrated.current) return;
+    if (renderStateRef.current === "initial") return;
 
     // Dispatch initial data for the current currency
     dispatch(
@@ -171,7 +170,7 @@ export default function Home({
   }, []);
 
   useEffect(() => {
-    if (!isHydrated.current) {
+    if (renderStateRef.current !== "subsequent") {
       return;
     }
 
@@ -263,17 +262,18 @@ export default function Home({
   }, [currentCurrency]);
 
   useEffect(() => {
-    isHydrated.current = true;
-  }, []);
-  useEffect(() => {
-    firstRender.current = false;
-  }, [isHydrated.current]);
-
-  useEffect(() => {
     if (coinListPageNumber !== 1) {
       window.scrollTo(0, 448);
     }
   }, []);
+
+  useEffect(() => {
+    if (renderStateRef.current === "initial") {
+      renderStateRef.current = "hydrated";
+    } else if (renderStateRef.current === "hydrated") {
+      renderStateRef.current = "subsequent";
+    }
+  }, [renderStateRef]);
 
   return (
     <div className={styles.container}>
