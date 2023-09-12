@@ -20,7 +20,7 @@ export default function Home({
   isBreakpoint680,
   isBreakpoint1250,
 }) {
-  const renderStateRef = useRef("initial");
+  const isFirstRender = useRef(true);
   const dispatch = useDispatch();
   const coinListCoinsByCurrency = useSelector(
     (state) => state.coins.coinListCoinsByCurrency,
@@ -35,9 +35,6 @@ export default function Home({
   );
 
   useEffect(() => {
-    // Check for hydration completion
-    if (renderStateRef.current === "initial") return;
-
     // Dispatch initial data for the current currency
     dispatch(
       coinsActions.updateCoins({
@@ -73,6 +70,7 @@ export default function Home({
     const fetchedTime = new Date(lastFetchedTime);
     const diffInMinutes = (now - fetchedTime) / (1000 * 60);
 
+    console.log("time since last api req", diffInMinutes);
     if (diffInMinutes < 5) {
       // If cached data is available, use it.
       fetchDataFromCache();
@@ -170,9 +168,7 @@ export default function Home({
   }, []);
 
   useEffect(() => {
-    if (renderStateRef.current !== "subsequent") {
-      return;
-    }
+    if (isFirstRender.current) return;
 
     const setNewCurrency = () => {
       console.log("setNewCurrency", currentCurrency);
@@ -268,12 +264,8 @@ export default function Home({
   }, []);
 
   useEffect(() => {
-    if (renderStateRef.current === "initial") {
-      renderStateRef.current = "hydrated";
-    } else if (renderStateRef.current === "hydrated") {
-      renderStateRef.current = "subsequent";
-    }
-  }, [renderStateRef]);
+    isFirstRender.current = false;
+  }, []);
 
   return (
     <div className={styles.container}>
