@@ -11,8 +11,6 @@ import styled from "@mui/system/styled";
 import { outlinedInputClasses } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { currencyActions } from "../../store/currency";
-import { useMediaQuery } from "../../hooks/useMediaQuery";
-import { useEffect } from "react";
 import { useState } from "react";
 
 const vertical = "bottom";
@@ -39,7 +37,9 @@ const Navbar = () => {
   const [openNotificationBar, setOpenNotificationBar] = useState(false);
   const currentCurrency = useSelector((state) => state.currency.currency);
   const currentSymbol = useSelector((state) => state.currency.symbol);
-  const isBreakpoint555 = useMediaQuery(555);
+  const isBreakpoint555 = useSelector(
+    (state) => state.mediaQuery.isBreakpoint555,
+  );
   const dispatch = useDispatch();
 
   const handleCurrencyChange = (e) => {

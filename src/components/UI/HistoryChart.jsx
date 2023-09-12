@@ -2,11 +2,12 @@ import React from "react";
 import { Line } from "react-chartjs-2";
 import { Chart as ChartJs } from "chart.js";
 import Chart from "chart.js/auto";
-import { useMediaQuery } from "../../hooks/useMediaQuery";
 
 const HistoryChart = ({ chartData, currentChartPeriod }) => {
   let maxTicks = 20;
-  const isBreakpoint520 = useMediaQuery(520);
+  const isBreakpoint520 = useSelector(
+    (state) => state.mediaQuery.isBreakpoint520,
+  );
 
   if (!isBreakpoint520) {
     switch (currentChartPeriod) {

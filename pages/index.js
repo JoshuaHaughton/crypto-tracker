@@ -12,19 +12,13 @@ import db from "../src/utils/database";
 import { FIVE_MINUTES_IN_DAYS } from "../src/global/constants";
 import Cookies from "js-cookie";
 
-export default function Home({
-  coins,
-  initialRates,
-  lastFetchedTime,
-  isBreakpoint380,
-  isBreakpoint680,
-  isBreakpoint1250,
-}) {
+export default function Home({ coins, initialRates, lastFetchedTime }) {
   const isFirstRender = useRef(true);
   const dispatch = useDispatch();
   const coinListCoinsByCurrency = useSelector(
     (state) => state.coins.coinListCoinsByCurrency,
   );
+
   const initialCurrency = useSelector(
     (state) => state.currency.initialCurrency,
   );
@@ -271,12 +265,7 @@ export default function Home({
     <div className={styles.container}>
       <Banner />
       <h2>Crypto Prices</h2>
-      <CoinList
-        initialHundredCoins={coins.initialHundredCoins}
-        isBreakpoint380={isBreakpoint380}
-        isBreakpoint680={isBreakpoint680}
-        isBreakpoint1250={isBreakpoint1250}
-      />
+      <CoinList initialHundredCoins={coins.initialHundredCoins} />
       <Pagination />
     </div>
   );

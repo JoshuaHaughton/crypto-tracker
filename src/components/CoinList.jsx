@@ -20,12 +20,16 @@ const bigNumberFormatter = (num) => {
 
 const PageSize = 10;
 
-const CoinList = ({
-  initialHundredCoins,
-  isBreakpoint680,
-  isBreakpoint380,
-  isBreakpoint1250,
-}) => {
+const CoinList = ({ initialHundredCoins }) => {
+  const isBreakpoint380 = useSelector(
+    (state) => state.mediaQuery.isBreakpoint380,
+  );
+  const isBreakpoint680 = useSelector(
+    (state) => state.mediaQuery.isBreakpoint680,
+  );
+  const isBreakpoint1250 = useSelector(
+    (state) => state.mediaQuery.isBreakpoint1250,
+  );
   const displayedCoinListCoins = useSelector(
     (state) => state.coins.displayedCoinListCoins,
   );
