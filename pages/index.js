@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import CoinList from "../src/components/CoinList";
 import Banner from "../src/components/UI/Banner/Banner";
 import Pagination from "../src/components/UI/Pagination.jsx";
@@ -26,13 +26,9 @@ export default function Home({
   const coinListCoinsByCurrency = useSelector(
     (state) => state.coins.coinListCoinsByCurrency,
   );
-  const displayedCoinListCoins = useSelector(
-    (state) => state.coins.displayedCoinListCoins,
-  );
   const initialCurrency = useSelector(
     (state) => state.currency.initialCurrency,
   );
-  const currencyRates = useSelector((state) => state.currency.currencyRates);
   const currentCurrency = useSelector((state) => state.currency.currency);
   const currentSymbol = useSelector((state) => state.currency.symbol);
   const coinListPageNumber = useSelector(
@@ -43,6 +39,25 @@ export default function Home({
     // Check for hydration completion
     if (!isHydrated.current) {
       isHydrated.current = true;
+      return;
+    }
+
+    // If using cached data, get it from IndexedDB and set.
+    if (useCachedData) {
+      db.coinLists
+        .each((data) => {
+          if (data && data.coins) {
+            dispatch(
+              coinsActions.setCoinListForCurrency({
+                currency: data.currency,
+                coinData: data.coins,
+              }),
+            );
+          }
+        })
+        .catch((err) => {
+          console.error("Error fetching data from IndexedDB:", err);
+        });
       return;
     }
 
@@ -136,6 +151,7 @@ export default function Home({
         coins: coins.initialHundredCoins,
       });
 
+      // Update redux with currency rates for each currency
       dispatch(currencyActions.updateRates({ currencyRates: initialRates }));
 
       firstRender.current = false;
@@ -153,7 +169,7 @@ export default function Home({
   }, [isHydrated.current]);
 
   useEffect(() => {
-    if (!isHydrated.current) {
+    if (!isHydrated.current || firstRender.current) {
       return;
     }
 
@@ -282,14 +298,14 @@ export async function getServerSideProps(context) {
     };
   }
 
-  const apiKey = process.env.NEXT_PUBLIC_CRYPTOCOMPARE_API_KEY;
-  const fetchOptions = {
-    headers: {
-      Authorization: `Apikey ${apiKey}`,
-    },
-  };
-
   try {
+    const apiKey = process.env.NEXT_PUBLIC_CRYPTOCOMPARE_API_KEY;
+    const fetchOptions = {
+      headers: {
+        Authorization: `Apikey ${apiKey}`,
+      },
+    };
+
     // Fetching all available initialRates from CryptoCompare's price multi-full endpoint for CAD
     const exchangeRateResponse = await fetch(
       `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=CAD&tsyms=USD,AUD,GBP`,
@@ -371,5 +387,17 @@ export async function getServerSideProps(context) {
     };
   } catch (err) {
     console.log(err);
+
+    // Return default or placeholder data to prevent breaking the site
+    return {
+      props: {
+        coins: {
+          initialHundredCoins: [],
+          trendingCoins: [],
+        },
+        initialRates: {},
+        useCachedData: true,
+      },
+    };
   }
 }
