@@ -15,7 +15,7 @@ import Cookies from "js-cookie";
 export default function Home({
   coins,
   initialRates,
-  useCachedData,
+  lastFetchedTime,
   isBreakpoint380,
   isBreakpoint680,
   isBreakpoint1250,
@@ -37,13 +37,21 @@ export default function Home({
 
   useEffect(() => {
     // Check for hydration completion
-    if (!isHydrated.current) {
-      isHydrated.current = true;
-      return;
-    }
+    if (!isHydrated.current) return;
 
-    // If using cached data, get it from IndexedDB and set.
-    if (useCachedData) {
+    // Dispatch initial data for the current currency
+    dispatch(
+      coinsActions.updateCoins({
+        displayedCoinListCoins: coins.initialHundredCoins,
+        trendingCarouselCoins: coins.trendingCoins,
+        symbol: currentSymbol,
+      }),
+    );
+
+    let cacheUsedSuccessfully = false;
+
+    const fetchDataFromCache = () => {
+      cacheUsedSuccessfully = true;
       db.coinLists
         .each((data) => {
           if (data && data.coins) {
@@ -56,24 +64,30 @@ export default function Home({
           }
         })
         .catch((err) => {
+          cacheUsedSuccessfully = false;
           console.error("Error fetching data from IndexedDB:", err);
         });
-      return;
-    }
+    };
 
-    // Dispatch initial data for the current currency
+    // Calculate difference in minutes between now and when data was last fetched
+    const now = new Date();
+    const fetchedTime = new Date(lastFetchedTime);
+    const diffInMinutes = (now - fetchedTime) / (1000 * 60);
+
+    if (diffInMinutes < 5) {
+      // If cached data is available, use it.
+      fetchDataFromCache();
+      if (cacheUsedSuccessfully) {
+        console.log("fetchDataFromCache, cacheUsedSuccessfully");
+        return;
+      }
+    }
+    console.log("No cache");
+
     dispatch(
       coinsActions.setCoinListForCurrency({
         currency: currentCurrency.toUpperCase(),
         coinData: coins.initialHundredCoins,
-      }),
-    );
-
-    dispatch(
-      coinsActions.updateCoins({
-        displayedCoinListCoins: coins.initialHundredCoins,
-        trendingCarouselCoins: coins.trendingCoins,
-        symbol: currentSymbol,
       }),
     );
 
@@ -134,42 +148,30 @@ export default function Home({
       },
     });
 
-    // Initial load logic
-    if (firstRender.current) {
-      console.log("empty dispatch");
-      dispatch(
-        coinsActions.updateCoins({
-          displayedCoinListCoins: coins.initialHundredCoins,
-          trendingCarouselCoins: coins.trendingCoins,
-          symbol: currentSymbol,
-        }),
-      );
+    // Update IndexedDB with the fresh data for initial currency
+    db.coinLists.put({
+      currency: initialCurrency.toUpperCase(),
+      coins: coins.initialHundredCoins,
+    });
 
-      // Update IndexedDB with the fresh data for initial currency
-      db.coinLists.put({
-        currency: initialCurrency.toUpperCase(),
-        coins: coins.initialHundredCoins,
-      });
-
-      // Update redux with currency rates for each currency
-      dispatch(currencyActions.updateRates({ currencyRates: initialRates }));
-
-      firstRender.current = false;
-    }
+    // Update redux with currency rates for each currency
+    dispatch(currencyActions.updateRates({ currencyRates: initialRates }));
 
     // Clean up the worker when the component is unmounted
     return () => {
-      console.log("unmount home worker");
-      currencyTransformerWorker.removeEventListener(
-        "message",
-        handleWorkerMessage,
-      );
-      currencyTransformerWorker.terminate();
+      if (currencyTransformerWorker) {
+        console.log("unmount home worker");
+        currencyTransformerWorker.removeEventListener(
+          "message",
+          handleWorkerMessage,
+        );
+        currencyTransformerWorker.terminate();
+      }
     };
-  }, [isHydrated.current]);
+  }, []);
 
   useEffect(() => {
-    if (!isHydrated.current || firstRender.current) {
+    if (!isHydrated.current) {
       return;
     }
 
@@ -230,25 +232,25 @@ export default function Home({
             };
           })
           .filter(Boolean);
-
-        const trendingCoins = updatedCurrencyCoins.slice(0, 10);
-
-        dispatch(
-          coinsActions.updateCoins({
-            displayedCoinListCoins: updatedCurrencyCoins,
-            trendingCarouselCoins: trendingCoins,
-            symbol: currentSymbol,
-          }),
-        );
-
-        // Save the newly computed data to the cache
-        dispatch(
-          coinsActions.setCoinListForCurrency({
-            currency: currentCurrency,
-            coinData: updatedCurrencyCoins,
-          }),
-        );
       }
+
+      const trendingCoins = updatedCurrencyCoins.slice(0, 10);
+
+      dispatch(
+        coinsActions.updateCoins({
+          displayedCoinListCoins: updatedCurrencyCoins,
+          trendingCarouselCoins: trendingCoins,
+          symbol: currentSymbol,
+        }),
+      );
+
+      // Save the newly computed data to the cache
+      dispatch(
+        coinsActions.setCoinListForCurrency({
+          currency: currentCurrency,
+          coinData: updatedCurrencyCoins,
+        }),
+      );
 
       // Update IndexedDB with the transformed data for current currency
       db.coinLists.put({
@@ -259,6 +261,13 @@ export default function Home({
 
     setNewCurrency();
   }, [currentCurrency]);
+
+  useEffect(() => {
+    isHydrated.current = true;
+  }, []);
+  useEffect(() => {
+    firstRender.current = false;
+  }, [isHydrated.current]);
 
   useEffect(() => {
     if (coinListPageNumber !== 1) {
@@ -281,23 +290,7 @@ export default function Home({
   );
 }
 
-export async function getServerSideProps(context) {
-  const { cookie } = context.req.headers;
-  console.log("COOKIE CHECK!!!", cookie);
-  const isDataFresh = cookie.coinListDataUpdated;
-
-  // If data is fresh, skip fetching new data & use cached data via indexedDB.
-  if (isDataFresh != null) {
-    return {
-      props: {
-        useCachedData: true,
-        // Just placeholders, actual data will be fetched from IndexedDB
-        coins: null,
-        initialRates: null,
-      },
-    };
-  }
-
+export async function getStaticProps() {
   try {
     const apiKey = process.env.NEXT_PUBLIC_CRYPTOCOMPARE_API_KEY;
     const fetchOptions = {
@@ -373,7 +366,6 @@ export async function getServerSideProps(context) {
     }).filter(Boolean);
 
     const trendingCoins = initialHundredCoins.slice(0, 10);
-    console.log(initialHundredCoins[0]);
 
     return {
       props: {
@@ -382,8 +374,9 @@ export async function getServerSideProps(context) {
           trendingCoins,
         },
         initialRates,
-        useCachedData: false,
+        lastFetchedTime: new Date().toISOString(),
       },
+      revalidate: 300, // regenerate the page every 5 minutes
     };
   } catch (err) {
     console.log(err);
@@ -396,8 +389,9 @@ export async function getServerSideProps(context) {
           trendingCoins: [],
         },
         initialRates: {},
-        useCachedData: true,
+        lastFetchedTime: new Date().toISOString(),
       },
+      revalidate: 300, // regenerate the page every 5 minutes
     };
   }
 }
