@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { coinsActions } from "../src/store/coins";
 import { convertCurrency } from "./coin/[id]";
 import { currencyActions } from "../src/store/currency";
+import db from "../src/utils/database";
 
 export default function Home({
   coins,
@@ -56,6 +57,12 @@ export default function Home({
         }),
       );
 
+      // Update IndexedDB with the fresh data
+      db.coinLists.put({
+        currency: currentCurrency.toUpperCase(),
+        coins: coins.initialHundredCoins,
+      });
+
       // Dispatch transformed data for other currencies
       Object.keys(transformedCoins).forEach((currency) => {
         dispatch(
@@ -64,6 +71,12 @@ export default function Home({
             coinData: transformedCoins[currency],
           }),
         );
+
+        // Update IndexedDB
+        db.coinLists.put({
+          currency: currency,
+          coins: transformedCoins[currency],
+        });
       });
 
       console.log("home worker ran");
@@ -107,6 +120,12 @@ export default function Home({
             symbol: currentSymbol,
           }),
         );
+
+        // Update IndexedDB with the fresh data for initial currency
+        db.coinLists.put({
+          currency: initialCurrency.toUpperCase(),
+          coins: coins.initialHundredCoins,
+        });
       }
       if (Object.values(currencyRates).length === 0) {
         dispatch(currencyActions.updateRates({ currencyRates: initialRates }));
@@ -171,6 +190,16 @@ export default function Home({
             })
             .filter(Boolean);
 
+          const trendingCoins = updatedCurrencyCoins.slice(0, 10);
+
+          dispatch(
+            coinsActions.updateCoins({
+              displayedCoinListCoins: updatedCurrencyCoins,
+              trendingCarouselCoins: trendingCoins,
+              symbol: currentSymbol,
+            }),
+          );
+
           // Save the newly computed data to the cache
           dispatch(
             coinsActions.setCoinListForCurrency({
@@ -180,15 +209,11 @@ export default function Home({
           );
         }
 
-        const trendingCoins = updatedCurrencyCoins.slice(0, 10);
-
-        dispatch(
-          coinsActions.updateCoins({
-            displayedCoinListCoins: updatedCurrencyCoins,
-            trendingCarouselCoins: trendingCoins,
-            symbol: currentSymbol,
-          }),
-        );
+        // Update IndexedDB with the transformed data for current currency
+        db.coinLists.put({
+          currency: currentCurrency.toUpperCase(),
+          coins: updatedCurrencyCoins,
+        });
       };
 
       setNewCurrency();

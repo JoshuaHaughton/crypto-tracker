@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { coinsActions } from "../../src/store/coins";
 import Link from "next/link";
 import { currencyActions } from "../../src/store/currency";
+import db from "../../src/utils/database";
 
 export const convertCurrency = (value, fromCurrency, toCurrency, allRates) => {
   return value * allRates[fromCurrency][toCurrency];
@@ -176,6 +177,12 @@ const Coin = ({
         }),
       );
 
+      // Update IndexedDB with the fresh coin details
+      db.coinDetails.put({
+        currency: currentCurrency.toUpperCase(),
+        details: initialCoin,
+      });
+
       // Dispatch transformed data for other currencies
       Object.keys(transformedCoins).forEach((currency) => {
         dispatch(
@@ -184,6 +191,12 @@ const Coin = ({
             coinDetail: transformedCoins[currency],
           }),
         );
+
+        // Update IndexedDB
+        db.coinDetails.put({
+          currency,
+          details: transformedCoins[currency],
+        });
       });
 
       console.log("coin worker ran");
@@ -279,6 +292,12 @@ const Coin = ({
               symbol: currentSymbol,
             }),
           );
+
+          // Update CoinLists IndexedDB with the fresh data
+          db.coinLists.put({
+            currency: currentCurrency.toUpperCase(),
+            coins: allFormattedCoins,
+          });
         };
 
         prefetchHomePage();
@@ -346,6 +365,18 @@ const Coin = ({
             },
           }),
         );
+
+        // Update IndexedDB with the transformed coin details
+        db.coinDetails.put({
+          currency: currentCurrency.toUpperCase(),
+          details: {
+            ...coin,
+            current_price: updatedCoinPrice,
+            market_cap: updatedMarketCap,
+            all_time_high: updatedAth,
+            price_change_1d: updatedPriceChange1d,
+          },
+        });
       }
 
       // Update market chart and values
