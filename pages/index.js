@@ -5,19 +5,12 @@ import Pagination from "../src/components/UI/Pagination.jsx";
 import styles from "./Home.module.css";
 import "react-alice-carousel/lib/alice-carousel.css";
 import { useDispatch, useSelector } from "react-redux";
-import { coinsActions } from "../src/store/coins";
-import { convertCurrency } from "./coin/[id]";
-import { currencyActions } from "../src/store/currency";
-import db from "../src/utils/database";
-import {
-  clearCacheForCurrency,
-  fetchDataFromCache,
-  isCacheValid,
-  setToLocalStorageWithExpiry,
-} from "../src/utils/cache.utils";
+import { CoinListCacheManager } from "../src/utils/CoinListCacheManager";
 
 export default function Home({ coins, initialRates }) {
   const isFirstRender = useRef(true);
+  const coinListCacheManager = useRef(null);
+
   const dispatch = useDispatch();
 
   const coinListCoinsByCurrency = useSelector(
@@ -33,247 +26,40 @@ export default function Home({ coins, initialRates }) {
   );
 
   useEffect(() => {
-    // If cache is not valid, clear the data for each currency in IndexedDB
-    if (!isCacheValid()) {
-      ["USD", "CAD", "AUD", "GBP"].forEach(clearCacheForCurrency);
+    let current = coinListCacheManager.current;
+    if (typeof window !== "undefined") {
+      // Ensure this runs only in the browser
+      coinListCacheManager.current = new CoinListCacheManager(
+        dispatch,
+        initialCurrency,
+        initialRates,
+        coins,
+        currentSymbol,
+        currentCurrency,
+        coinListCoinsByCurrency,
+      );
+      current = coinListCacheManager.current;
+      current.init();
     }
 
-    const currencyTransformerWorker = new Worker(
-      "/webWorkers/currencyTransformerWorker.js",
-    );
-
-    const handleWorkerMessage = (e) => {
-      const { transformedCoins } = e.data;
-      console.log("message returned from WebWorker", transformedCoins);
-
-      // Dispatch transformed data for transformed currencies
-      Object.keys(transformedCoins).forEach((currency) => {
-        dispatch(
-          coinsActions.setCoinListForCurrency({
-            currency,
-            coinData: transformedCoins[currency],
-          }),
-        );
-
-        // Update IndexedDB
-        db.coinLists
-          .put({
-            currency,
-            coins: transformedCoins[currency],
-          })
-          .then(() => {
-            // Mark this currency as valid in localStorage with expiration
-            setToLocalStorageWithExpiry(`coinList_${currency}`, "valid");
-          })
-          .catch((err) => {
-            console.log("Error setting CoinListData to IndexedDB", err);
-          });
-      });
-
-      // Update IndexedDB with the initial data
-      db.coinLists
-        .put({
-          currency: initialCurrency.toUpperCase(),
-          coins: coins.initialHundredCoins,
-        })
-        .then(() => {
-          // Mark this currency as valid in localStorage with expiration
-          setToLocalStorageWithExpiry(
-            `coinList_${initialCurrency.toUpperCase()}`,
-            "valid",
-          );
-        })
-        .catch((err) =>
-          console.log("Error setting CoinListData to IndexedDB", err),
-        );
-
-      console.log("home worker ran");
-    };
-
-    const loadInitialCoinsAndCurrencyAlternatives = async () => {
-      // Dispatch initial data for the current currency
-      dispatch(
-        coinsActions.updateCoins({
-          displayedCoinListCoins: coins.initialHundredCoins,
-          trendingCarouselCoins: coins.trendingCoins,
-          symbol: currentSymbol,
-        }),
-      );
-
-      dispatch(
-        coinsActions.setCoinListForCurrency({
-          currency: initialCurrency.toUpperCase(),
-          coinData: coins.initialHundredCoins,
-        }),
-      );
-
-      // If cached data is available and valid, use it.
-      if (isCacheValid()) {
-        const cacheUsedSuccessfully = await fetchDataFromCache(dispatch);
-        if (cacheUsedSuccessfully) {
-          return;
-        }
-      }
-      console.log("No cache");
-
-      currencyTransformerWorker.addEventListener(
-        "message",
-        handleWorkerMessage,
-      );
-
-      console.log("message posted to WebWorker");
-      currencyTransformerWorker.postMessage({
-        type: "transformCoinList",
-        data: {
-          coins: coins.initialHundredCoins,
-          rates: initialRates,
-          currentCurrency: initialCurrency.toUpperCase(),
-        },
-      });
-
-      // Update IndexedDB with the fresh data for initial currency
-      db.coinLists
-        .put({
-          currency: initialCurrency.toUpperCase(),
-          coins: coins.initialHundredCoins,
-        })
-        .then(() => {
-          // Mark this currency as valid in localStorage with expiration
-          setToLocalStorageWithExpiry(
-            `coinList_${initialCurrency.toUpperCase()}`,
-            "valid",
-          );
-        })
-        .catch((err) =>
-          console.log("Error setting CoinListData to IndexedDB", err),
-        );
-
-      // Update redux with currency rates for each currency
-      dispatch(currencyActions.updateRates({ currencyRates: initialRates }));
-    };
-
-    loadInitialCoinsAndCurrencyAlternatives();
-
-    // Clean up the worker when the component is unmounted
     return () => {
-      if (currencyTransformerWorker) {
-        console.log("unmount home worker");
-        currencyTransformerWorker.removeEventListener(
-          "message",
-          handleWorkerMessage,
-        );
-        currencyTransformerWorker.terminate();
+      if (current) {
+        current.cleanup();
       }
     };
   }, []);
 
   useEffect(() => {
-    if (isFirstRender.current) return;
-
-    const setNewCurrency = () => {
-      console.log("setNewCurrency", currentCurrency);
-
-      let updatedCurrencyCoins;
-
-      if (
-        coinListCoinsByCurrency[currentCurrency.toUpperCase()] &&
-        coinListCoinsByCurrency[currentCurrency.toUpperCase()].length > 0
-      ) {
-        console.log("CACHE USED for setNewCurrency");
-        updatedCurrencyCoins =
-          coinListCoinsByCurrency[currentCurrency.toUpperCase()];
-      } else if (coins.initialHundredCoins?.length > 0) {
-        // On-the-fly transformation
-        updatedCurrencyCoins = coins.initialHundredCoins
-          .map((coin, i) => {
-            return {
-              ...coin,
-              current_price: convertCurrency(
-                coin.current_price,
-                initialCurrency.toUpperCase(),
-                currentCurrency.toUpperCase(),
-                initialRates,
-              ),
-              market_cap: convertCurrency(
-                coin.market_cap,
-                initialCurrency.toUpperCase(),
-                currentCurrency.toUpperCase(),
-                initialRates,
-              ),
-              market_cap_rank: i + 1,
-              total_volume: convertCurrency(
-                coin.total_volume,
-                initialCurrency.toUpperCase(),
-                currentCurrency.toUpperCase(),
-                initialRates,
-              ),
-              high_24h: convertCurrency(
-                coin.high_24h,
-                initialCurrency.toUpperCase(),
-                currentCurrency.toUpperCase(),
-                initialRates,
-              ),
-              low_24h: convertCurrency(
-                coin.low_24h,
-                initialCurrency.toUpperCase(),
-                currentCurrency.toUpperCase(),
-                initialRates,
-              ),
-              price_change_24h: convertCurrency(
-                coin.price_change_24h,
-                initialCurrency.toUpperCase(),
-                currentCurrency.toUpperCase(),
-                initialRates,
-              ),
-            };
-          })
-          .filter(Boolean);
-      }
-
-      const trendingCoins = updatedCurrencyCoins.slice(0, 10);
-
-      dispatch(
-        coinsActions.updateCoins({
-          displayedCoinListCoins: updatedCurrencyCoins,
-          trendingCarouselCoins: trendingCoins,
-          symbol: currentSymbol,
-        }),
-      );
-
-      // Save the newly computed data to the cache
-      dispatch(
-        coinsActions.setCoinListForCurrency({
-          currency: currentCurrency,
-          coinData: updatedCurrencyCoins,
-        }),
-      );
-
-      // Update IndexedDB with the transformed data for current currency
-      db.coinLists
-        .put({
-          currency: currentCurrency.toUpperCase(),
-          coins: updatedCurrencyCoins,
-        })
-        .then(() => {
-          // Mark this currency as updated in localStorage with expiration
-          setToLocalStorageWithExpiry(
-            `coinList_${currentCurrency.toUpperCase()}`,
-            "valid",
-          );
-        })
-        .catch((err) =>
-          console.log("Error setting CoinListData to IndexedDB", err),
-        );
-    };
-
-    setNewCurrency();
+    if (!isFirstRender.current && coinListCacheManager.current) {
+      coinListCacheManager.current.setNewCurrency();
+    }
   }, [currentCurrency]);
 
   useEffect(() => {
     if (coinListPageNumber !== 1) {
       window.scrollTo(0, 448);
     }
-  }, []);
+  }, [coinListPageNumber]);
 
   useEffect(() => {
     isFirstRender.current = false;

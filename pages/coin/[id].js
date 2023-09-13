@@ -8,11 +8,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { coinsActions } from "../../src/store/coins";
 import Link from "next/link";
 import { currencyActions } from "../../src/store/currency";
+import { convertCurrency } from "../../src/utils/currency.utils";
 import db from "../../src/utils/database";
-
-export const convertCurrency = (value, fromCurrency, toCurrency, allRates) => {
-  return value * allRates[fromCurrency][toCurrency];
-};
 
 const Coin = ({
   initialCoin,
