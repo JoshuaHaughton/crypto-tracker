@@ -9,62 +9,20 @@ import { coinsActions } from "../src/store/coins";
 import { convertCurrency } from "./coin/[id]";
 import { currencyActions } from "../src/store/currency";
 import db from "../src/utils/database";
-
-const EXPIRY_TIME_IN_MINUTES = 5;
-
-const setWithExpiry = (key, value) => {
-  const now = new Date().getTime();
-  const expiry = now + EXPIRY_TIME_IN_MINUTES * 60 * 1000;
-  localStorage.setItem(key, JSON.stringify({ value, expiry }));
-};
-
-const getWithExpiry = (key) => {
-  const itemStr = localStorage.getItem(key);
-  if (!itemStr) return null;
-
-  const item = JSON.parse(itemStr);
-  const now = new Date().getTime();
-
-  if (now > item.expiry) {
-    localStorage.removeItem(key);
-    return null;
-  }
-  return item.value;
-};
-
-const isCacheValid = () => {
-  const currencies = ["USD", "CAD", "AUD", "GBP"];
-  return currencies.every(
-    (currency) => getWithExpiry(`coinList_${currency}`) === "valid",
-  );
-};
-
-const clearCacheForCurrency = (currency) => {
-  // Clear from IndexedDB
-  db.coinLists
-    .delete(currency)
-    .then(() => {
-      console.log(`Cache cleared from IndexedDB for ${currency}`);
-    })
-    .catch((err) => {
-      console.error(
-        `Error clearing cache from IndexedDB for ${currency}:`,
-        err,
-      );
-    });
-
-  // Clear from localStorage
-  localStorage.removeItem(`coinList_${currency}`);
-  console.log(`Cache cleared from localStorage for ${currency}`);
-};
+import {
+  clearCacheForCurrency,
+  fetchDataFromCache,
+  isCacheValid,
+  setToLocalStorageWithExpiry,
+} from "../src/utils/cache.utils";
 
 export default function Home({ coins, initialRates }) {
   const isFirstRender = useRef(true);
   const dispatch = useDispatch();
+
   const coinListCoinsByCurrency = useSelector(
     (state) => state.coins.coinListCoinsByCurrency,
   );
-
   const initialCurrency = useSelector(
     (state) => state.currency.initialCurrency,
   );
@@ -73,25 +31,6 @@ export default function Home({ coins, initialRates }) {
   const coinListPageNumber = useSelector(
     (state) => state.appInfo.coinListPageNumber,
   );
-
-  const fetchDataFromCache = () => {
-    return db.coinLists
-      .each((data) => {
-        if (data != null && data.coins) {
-          dispatch(
-            coinsActions.setCoinListForCurrency({
-              currency: data.currency,
-              coinData: data.coins,
-            }),
-          );
-        }
-      })
-      .then(() => true)
-      .catch((err) => {
-        cacheUsedSuccessfully = false;
-        console.error("Error fetching data from IndexedDB:", err);
-      });
-  };
 
   useEffect(() => {
     // If cache is not valid, clear the data for each currency in IndexedDB
@@ -124,7 +63,7 @@ export default function Home({ coins, initialRates }) {
           })
           .then(() => {
             // Mark this currency as valid in localStorage with expiration
-            setWithExpiry(`coinList_${currency}`, "valid");
+            setToLocalStorageWithExpiry(`coinList_${currency}`, "valid");
           })
           .catch((err) => {
             console.log("Error setting CoinListData to IndexedDB", err);
@@ -139,7 +78,10 @@ export default function Home({ coins, initialRates }) {
         })
         .then(() => {
           // Mark this currency as valid in localStorage with expiration
-          setWithExpiry(`coinList_${initialCurrency.toUpperCase()}`, "valid");
+          setToLocalStorageWithExpiry(
+            `coinList_${initialCurrency.toUpperCase()}`,
+            "valid",
+          );
         })
         .catch((err) =>
           console.log("Error setting CoinListData to IndexedDB", err),
@@ -167,7 +109,7 @@ export default function Home({ coins, initialRates }) {
 
       // If cached data is available and valid, use it.
       if (isCacheValid()) {
-        const cacheUsedSuccessfully = await fetchDataFromCache();
+        const cacheUsedSuccessfully = await fetchDataFromCache(dispatch);
         if (cacheUsedSuccessfully) {
           return;
         }
@@ -197,7 +139,10 @@ export default function Home({ coins, initialRates }) {
         })
         .then(() => {
           // Mark this currency as valid in localStorage with expiration
-          setWithExpiry(`coinList_${initialCurrency.toUpperCase()}`, "valid");
+          setToLocalStorageWithExpiry(
+            `coinList_${initialCurrency.toUpperCase()}`,
+            "valid",
+          );
         })
         .catch((err) =>
           console.log("Error setting CoinListData to IndexedDB", err),
@@ -311,7 +256,10 @@ export default function Home({ coins, initialRates }) {
         })
         .then(() => {
           // Mark this currency as updated in localStorage with expiration
-          setWithExpiry(`coinList_${currentCurrency.toUpperCase()}`, "valid");
+          setToLocalStorageWithExpiry(
+            `coinList_${currentCurrency.toUpperCase()}`,
+            "valid",
+          );
         })
         .catch((err) =>
           console.log("Error setting CoinListData to IndexedDB", err),

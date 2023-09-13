@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { mediaQueryActions } from "../../store/mediaQuery";
-import { debounce } from "../../utils/globalUtils";
+import { debounce } from "../../utils/global.utils";
 
 export const MediaQueryHandler = ({ children }) => {
   const dispatch = useDispatch();
