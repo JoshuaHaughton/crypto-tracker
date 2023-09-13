@@ -12,7 +12,7 @@ import db from "../src/utils/database";
 import { FIVE_MINUTES_IN_DAYS } from "../src/global/constants";
 import Cookies from "js-cookie";
 
-export default function Home({ coins, initialRates, lastFetchedTime }) {
+export default function Home({ coins, initialRates }) {
   const isFirstRender = useRef(true);
   const dispatch = useDispatch();
   const coinListCoinsByCurrency = useSelector(
@@ -38,6 +38,13 @@ export default function Home({ coins, initialRates, lastFetchedTime }) {
       }),
     );
 
+    dispatch(
+      coinsActions.setCoinListForCurrency({
+        currency: initialCurrency.toUpperCase(),
+        coinData: coins.initialHundredCoins,
+      }),
+    );
+
     let cacheUsedSuccessfully = false;
 
     const fetchDataFromCache = () => {
@@ -59,29 +66,14 @@ export default function Home({ coins, initialRates, lastFetchedTime }) {
         });
     };
 
-    // Calculate difference in minutes between now and when data was last fetched
-    const now = new Date();
-    const fetchedTime = new Date(lastFetchedTime);
-    const diffInMinutes = (now - fetchedTime) / (1000 * 60);
-
-    console.log("time since last api req", diffInMinutes);
-    if (diffInMinutes < 5) {
-      // If cached data is available, use it.
-      console.log("called fetchDataFromCache");
-      fetchDataFromCache();
-      if (cacheUsedSuccessfully) {
-        console.log("fetchDataFromCache, cacheUsedSuccessfully");
-        return;
-      }
+    // If cached data is available, use it.
+    fetchDataFromCache();
+    if (cacheUsedSuccessfully) {
+      console.log("fetchDataFromCache, cacheUsedSuccessfully");
+      return;
     }
-    console.log("No cache");
 
-    dispatch(
-      coinsActions.setCoinListForCurrency({
-        currency: initialCurrency.toUpperCase(),
-        coinData: coins.initialHundredCoins,
-      }),
-    );
+    console.log("No cache");
 
     const currencyTransformerWorker = new Worker(
       "/webWorkers/currencyTransformerWorker.js",
@@ -359,7 +351,6 @@ export async function getStaticProps() {
           trendingCoins,
         },
         initialRates,
-        lastFetchedTime: new Date().toISOString(),
       },
       revalidate: 300, // regenerate the page every 5 minutes
     };
@@ -374,7 +365,6 @@ export async function getStaticProps() {
           trendingCoins: [],
         },
         initialRates: {},
-        lastFetchedTime: new Date().toISOString(),
       },
       revalidate: 300, // regenerate the page every 5 minutes
     };
