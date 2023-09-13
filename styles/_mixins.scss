@@ -1,0 +1,26 @@
+@import "./variables.scss";
+
+// Breakpoints Mixins
+@mixin mobile {
+  @media (max-width: var(--mobile)) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (max-width: var(--tablet)) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (max-width: var(--desktop)) {
+    @content;
+  }
+}
+
+@mixin largeDesktop {
+  @media (max-width: var(--largeDesktop)) {
+    @content;
+  }
+}

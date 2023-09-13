@@ -1,0 +1,60 @@
+// CSS variables + Root styles
+
+:root {
+  // Fonts
+  --primaryFont: "Helvetica Neue", sans-serif;
+  --secondaryFont: "Verdana", sans-serif;
+
+  // Font Sizes
+  --xsmall: 0.75rem; // 12px
+  --small: 1rem; // 16px
+  --medium: 1.5rem; // 24px
+  --large: 2rem; // 32px
+  --extraLarge: 5rem; // 80px
+
+  // Breakpoints
+  --mobile: 480px;
+  --tablet: 768px;
+  --desktop: 1024px;
+  --largeDesktop: 1280px;
+  // Conditional Breakpoints
+  --isBreakpoint380: 0; /* 0 = false, 1 = true */
+  --isBreakpoint520: 0;
+  --isBreakpoint555: 0;
+  --isBreakpoint680: 0;
+  --isBreakpoint1040: 0;
+  --isBreakpoint1250: 0;
+
+  // Colors
+  --primary: #007bff;
+  --secondary: #6c757d;
+  --tertiary: #28a745;
+  --accent: #17a2b8;
+  --textPrimary: #333;
+  --textSecondary: #555;
+  --bodyBackground: #f8f9fa;
+  --linkColor: #646cff;
+  --linkHoverColor: #535bf2;
+  --linkActiveColor: #4b4fe2;
+
+  // Default Button styling
+  --buttonPadding: 0.6em 1.2em;
+  --buttonBorderRadius: 8px;
+  --buttonFontWeight: 500;
+  --buttonActiveBorderColor: #4b4fe2;
+
+  // Other styles
+  box-sizing: border-box;
+  font-family: var(--primaryFont), system-ui, Avenir, Helvetica, Arial,
+    sans-serif;
+  font-weight: 400;
+  line-height: 1.5;
+  color-scheme: light dark;
+  color: var(--textPrimary);
+  background-color: var(--bodyBackground);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}

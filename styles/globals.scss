@@ -1,11 +1,17 @@
-@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700&family=Rubik:wght@400;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700&family=Rubik:wght@400;600;700&display=swap");
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Rubik', sans-serif;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Rubik", sans-serif;
 }
 
-p, span {
-  font-family: 'Heebo', sans-serif;
+p,
+span {
+  font-family: "Heebo", sans-serif;
 }
 
 html,
@@ -29,9 +35,6 @@ a {
 * {
   box-sizing: border-box;
 }
-
-
-
 
 /* Carousel couldnt be edited in it's css file  */
 .alice-carousel__stage-item,
@@ -64,20 +67,24 @@ a {
   /* width: fit-content !important; */
 }
 
-.alice-carousel__stage-item > div > span, .alice-carousel__stage-item > div {
+.alice-carousel__stage-item > div > span,
+.alice-carousel__stage-item > div {
   overflow: visible !important;
 }
 
-.alice-carousel__stage-item > div > span > img, .alice-carousel__stage-item > div > img {
+.alice-carousel__stage-item > div > span > img,
+.alice-carousel__stage-item > div > img {
   cursor: pointer;
   transition: all 200ms ease;
 }
 
-.alice-carousel__stage-item > div > span > img:hover, .alice-carousel__stage-item > div > img:hover {
+.alice-carousel__stage-item > div > span > img:hover,
+.alice-carousel__stage-item > div > img:hover {
   transform: scale(1.1);
 }
 
-.alice-carousel__stage-item > div > span > img:active, .alice-carousel__stage-item > div > img:active {
+.alice-carousel__stage-item > div > span > img:active,
+.alice-carousel__stage-item > div > img:active {
   transform: scale(0.97);
 }
 
@@ -90,9 +97,6 @@ a {
 .alice-carousel__stage-item > div > p {
   margin: 18px 0 0 0;
 }
-
-
-
 
 /* Currency Select Dropdown */
 
@@ -116,21 +120,19 @@ a {
   background-color: #ff9500;
 }
 
-.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected, .css-1km1ehz.Mui-selected {
+.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected,
+.css-1km1ehz.Mui-selected {
   background-color: #ff950094 !important;
 }
 
-.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected:hover, .css-1km1ehz.Mui-selected:hover {
+.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected:hover,
+.css-1km1ehz.Mui-selected:hover {
   background-color: #ff9500d8;
 }
 
 .css-1636szt {
   color: white !important;
 }
-
-
-
-
 
 /* Nprogress bar css */
 #nprogress {
@@ -215,7 +217,9 @@ a {
   }
 }
 
-.errorClass, .MuiSnackbar-anchorOriginBottomCenter, .MuiSnackbar-root {
+.errorClass,
+.MuiSnackbar-anchorOriginBottomCenter,
+.MuiSnackbar-root {
   background-color: green;
   text-align: center;
   display: flex;
@@ -223,8 +227,7 @@ a {
   align-items: center;
 }
 
-
-@media(max-width: 320px) {
+@media (max-width: 320px) {
   .css-hfutr2-MuiSvgIcon-root-MuiSelect-icon {
     display: none !important;
   }
