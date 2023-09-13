@@ -44,7 +44,7 @@ export default function Home({ coins, initialRates, lastFetchedTime }) {
       cacheUsedSuccessfully = true;
       db.coinLists
         .each((data) => {
-          if (data && data.coins) {
+          if (data != null && data.coins) {
             dispatch(
               coinsActions.setCoinListForCurrency({
                 currency: data.currency,
@@ -67,6 +67,7 @@ export default function Home({ coins, initialRates, lastFetchedTime }) {
     console.log("time since last api req", diffInMinutes);
     if (diffInMinutes < 5) {
       // If cached data is available, use it.
+      console.log("called fetchDataFromCache");
       fetchDataFromCache();
       if (cacheUsedSuccessfully) {
         console.log("fetchDataFromCache, cacheUsedSuccessfully");
@@ -77,7 +78,7 @@ export default function Home({ coins, initialRates, lastFetchedTime }) {
 
     dispatch(
       coinsActions.setCoinListForCurrency({
-        currency: currentCurrency.toUpperCase(),
+        currency: initialCurrency.toUpperCase(),
         coinData: coins.initialHundredCoins,
       }),
     );
@@ -88,6 +89,7 @@ export default function Home({ coins, initialRates, lastFetchedTime }) {
 
     const handleWorkerMessage = (e) => {
       const { transformedCoins } = e.data;
+      console.log("message returned from WebWorker", transformedCoins);
 
       // Dispatch transformed data for transformed currencies
       Object.keys(transformedCoins).forEach((currency) => {
@@ -130,6 +132,7 @@ export default function Home({ coins, initialRates, lastFetchedTime }) {
 
     currencyTransformerWorker.addEventListener("message", handleWorkerMessage);
 
+    console.log("message posted to WebWorker");
     currencyTransformerWorker.postMessage({
       type: "transformCoinList",
       data: {
@@ -170,11 +173,12 @@ export default function Home({ coins, initialRates, lastFetchedTime }) {
       let updatedCurrencyCoins;
 
       if (
-        coinListCoinsByCurrency[currentCurrency] &&
-        coinListCoinsByCurrency[currentCurrency].length > 0
+        coinListCoinsByCurrency[currentCurrency.toUpperCase()] &&
+        coinListCoinsByCurrency[currentCurrency.toUpperCase()].length > 0
       ) {
-        console.log("CURRENCY CACHE USED");
-        updatedCurrencyCoins = coinListCoinsByCurrency[currentCurrency];
+        console.log("CACHE USED for setNewCurrency");
+        updatedCurrencyCoins =
+          coinListCoinsByCurrency[currentCurrency.toUpperCase()];
       } else if (coins.initialHundredCoins?.length > 0) {
         // On-the-fly transformation
         updatedCurrencyCoins = coins.initialHundredCoins
