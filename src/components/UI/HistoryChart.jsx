@@ -2,6 +2,7 @@ import React from "react";
 import { Line } from "react-chartjs-2";
 import { Chart as ChartJs } from "chart.js";
 import Chart from "chart.js/auto";
+import { useSelector } from "react-redux";
 
 const HistoryChart = ({ chartData, currentChartPeriod }) => {
   let maxTicks = 20;

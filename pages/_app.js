@@ -1,7 +1,8 @@
-import { Provider, useDispatch } from "react-redux";
+import { Provider } from "react-redux";
 import { Layout } from "../src/components/Layout/Layout";
+import { MediaQueryHandler } from "../src/components/MediaQueryHandler/MediaQueryHandler";
 import store from "../src/store";
-import "../styles/globals.css";
+import "../styles/globals.scss";
 import nProgress from "nprogress";
 import { Router } from "next/router";
 
@@ -25,36 +26,13 @@ Router.events.on("routeChangeComplete", () => {
 });
 
 function MyApp({ Component, pageProps }) {
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(mediaQueryActions.setBreakpoint380(window.innerWidth <= 380));
-    dispatch(mediaQueryActions.setBreakpoint520(window.innerWidth <= 520));
-    dispatch(mediaQueryActions.setBreakpoint555(window.innerWidth <= 555));
-    dispatch(mediaQueryActions.setBreakpoint680(window.innerWidth <= 680));
-    dispatch(mediaQueryActions.setBreakpoint1040(window.innerWidth <= 1040));
-    dispatch(mediaQueryActions.setBreakpoint1250(window.innerWidth <= 1250));
-
-    const handleResize = () => {
-      dispatch(mediaQueryActions.setBreakpoint380(window.innerWidth <= 380));
-      dispatch(mediaQueryActions.setBreakpoint520(window.innerWidth <= 520));
-      dispatch(mediaQueryActions.setBreakpoint555(window.innerWidth <= 555));
-      dispatch(mediaQueryActions.setBreakpoint680(window.innerWidth <= 680));
-      dispatch(mediaQueryActions.setBreakpoint1040(window.innerWidth <= 1040));
-      dispatch(mediaQueryActions.setBreakpoint1250(window.innerWidth <= 1250));
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [dispatch]);
-
   return (
     <Provider store={store}>
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
+      <MediaQueryHandler>
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </MediaQueryHandler>
     </Provider>
   );
 }
