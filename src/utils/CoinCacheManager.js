@@ -1,85 +1,100 @@
-import { clearCacheForCurrency, isCacheValid } from "./cache.utils";
+import { clearCache, isCacheValid } from "./cache.utils";
 
 /**
- * Manages the caching of coin data and handles worker responses for currency transformation.
+ * @class CoinCacheManager
+ * Base manager for caching operations related to coins and handling worker responses for currency transformation.
  */
 export class CoinCacheManager {
   /**
-   * Creates an instance of the CoinCacheManager.
+   * @constructor
    * @param {Function} dispatch - The Redux dispatch function.
    * @param {string} initialCurrency - The initial currency for the app.
    * @param {Array} initialRates - The initial exchange rates.
+   * @param {string} tableName - The name of the table to be used.
    */
-  constructor(dispatch, initialCurrency, initialRates) {
+  constructor(dispatch, initialCurrency, initialRates, tableName) {
     this.dispatch = dispatch;
     this.initialCurrency = initialCurrency;
     this.initialRates = initialRates;
-    this.currencyTransformerWorker = null; // Set to null initially. We set this when we're sure we're in the Browser
+    this.tableName = tableName;
+    this.currencyTransformerWorker = null;
   }
 
   /**
-   * Initializes the cache manager. It clears invalid cache and initializes the currency transformer worker.
+   * Initializes the cache manager. Clears invalid cache, initializes the currency transformer worker,
+   * and loads initial coins and currency alternatives.
    */
   init() {
     this._clearInvalidCache();
+    this._initializeCurrencyTransformerWorker();
+    this._loadInitialCoinsAndCurrencyAlternatives();
+  }
+
+  /**
+   * @private
+   * Clears cache for any invalid currency values.
+   */
+  _clearInvalidCache() {
+    const currencies = ["USD", "CAD", "AUD", "GBP"];
+    currencies.forEach((currency) => {
+      if (!isCacheValid(this.tableName, currency)) {
+        clearCache(this.tableName, currency);
+      }
+    });
+  }
+
+  /**
+   * @private
+   * Initializes the currency transformer web worker and sets up an event listener for it.
+   */
+  _initializeCurrencyTransformerWorker() {
+    // Check that we're in the browser for Nextjs
     if (typeof window !== "undefined") {
-      // Ensure this runs only in the browser
       this.currencyTransformerWorker = new Worker(
         "/webWorkers/currencyTransformerWorker.js",
       );
-      this._initializeWorker();
+      this.currencyTransformerWorker.addEventListener(
+        "message",
+        this._handleWorkerMessage,
+      );
     }
   }
 
   /**
-   * Clears the cache for invalid currency values.
-   * @private
+   * Placeholder logic for loading initial coins and currency alternatives. Should be overridden by subclasses.
    */
-  _clearInvalidCache() {
-    if (!isCacheValid()) {
-      ["USD", "CAD", "AUD", "GBP"].forEach(clearCacheForCurrency);
-    }
+  _loadInitialCoinsAndCurrencyAlternatives() {
+    // This should be overridden by subclasses.
   }
 
   /**
-   * Initializes the currency transformer worker and sets up an event listener for it.
    * @private
-   */
-  _initializeWorker() {
-    this.currencyTransformerWorker.addEventListener(
-      "message",
-      this._handleWorkerMessage,
-    );
-  }
-
-  /**
    * Handles the message event from the currency transformer worker.
    * @param {Event} e - The message event.
-   * @private
    */
   _handleWorkerMessage = (e) => {
     const { transformedCoins } = e.data;
-    // This base manager only knows how to handle the cache.
-    // The specifics of each page on how to utilize the transformedCoins will be handled by the extended managers.
     this.handleTransformedCoins(transformedCoins);
   };
 
   /**
-   * Handles the transformed coins data. This is a placeholder and should be overridden by extended managers.
+   * Placeholder to handle transformed coins data. Should be overridden by extended managers.
    * @param {Array} transformedCoins - The transformed coin data.
    */
   handleTransformedCoins(transformedCoins) {
-    // Placeholder. This method should be overridden by the extended managers.
+    // This should be overridden by subclasses.
   }
 
   /**
    * Cleans up any resources (e.g. event listeners) used by this manager.
    */
   cleanup() {
-    this.currencyTransformerWorker.removeEventListener(
-      "message",
-      this._handleWorkerMessage,
-    );
-    this.currencyTransformerWorker.terminate();
+    if (this.currencyTransformerWorker) {
+      this.currencyTransformerWorker.removeEventListener(
+        "message",
+        this._handleWorkerMessage,
+      );
+      this.currencyTransformerWorker.terminate();
+    }
   }
 }

@@ -2,87 +2,100 @@ import db from "./database";
 import { CACHE_EXPIRY_TIME_IN_MINUTES } from "../global/constants";
 
 /**
- * Stores a value in the localStorage with an expiration timestamp.
- *
+ * Marks a property in the localStorage as valid with an expiration timestamp.
+ * @param {string} tableName - The name of the table in the IndexedDB.
  * @param {string} key - The key under which the value should be stored.
- * @param {any} value - The value to be stored.
  */
-export const setToLocalStorageWithExpiry = (key, value) => {
+export const setToLocalStorageWithExpiry = (tableName, key) => {
   const now = Date.now();
   const expiry = now + CACHE_EXPIRY_TIME_IN_MINUTES * 60 * 1000;
-  localStorage.setItem(key, JSON.stringify({ value, expiry }));
+  localStorage.setItem(
+    `${tableName}_${key}`,
+    JSON.stringify({ value: "valid", expiry }),
+  );
 };
 
 /**
  * Retrieves a value from the localStorage. If the value has expired, it will be removed.
- *
+ * @param {string} tableName - The name of the table in the IndexedDB.
  * @param {string} key - The key under which the value is stored.
  * @returns {any|null} - The stored value or null if not found or expired.
  */
-const getFromLocalStorageWithExpiryCheck = (key) => {
-  const itemStr = localStorage.getItem(key);
+export const getFromLocalStorageWithExpiryCheck = (tableName, key) => {
+  const itemStr = localStorage.getItem(`${tableName}_${key}`);
   if (!itemStr) return null;
 
   const { value, expiry } = JSON.parse(itemStr);
   if (Date.now() > expiry) {
-    localStorage.removeItem(key);
+    localStorage.removeItem(`${tableName}_${key}`);
     return null;
   }
   return value;
 };
 
 /**
- * Checks if the cache is valid for all the specified currencies.
- *
- * @returns {boolean} - Returns true if the cache is valid for all currencies, false otherwise.
+ * Checks if the cache for a specific table and key is valid.
+ * @param {string} tableName - The name of the table in the IndexedDB.
+ * @returns {boolean} - Indicates whether the cache is valid or not.
  */
-export const isCacheValid = () => {
+export const isCacheValid = (tableName) => {
   const currencies = ["USD", "CAD", "AUD", "GBP"];
   return currencies.every(
     (currency) =>
-      getFromLocalStorageWithExpiryCheck(`coinList_${currency}`) === "valid",
+      getFromLocalStorageWithExpiryCheck(tableName, currency) === "valid",
   );
 };
 
 /**
- * Clears the cache for a specific currency from both IndexedDB and localStorage.
- *
- * @param {string} currency - The currency for which the cache should be cleared.
+ * Clears cache for a specific table and key.
+ * @param {string} tableName - The name of the table in the IndexedDB.
+ * @param {string} key - The key for which to clear the cache.
  */
-export const clearCacheForCurrency = async (currency) => {
+export const clearCache = async (tableName, key) => {
   try {
-    await db.coinLists.delete(currency);
-    console.log(`Cache cleared from IndexedDB for ${currency}`);
+    await db[tableName].delete(key);
+    console.log(`Cache cleared from IndexedDB for ${key} in ${tableName}`);
   } catch (err) {
-    console.error(`Error clearing cache from IndexedDB for ${currency}:`, err);
+    console.error(
+      `Error clearing cache from IndexedDB for ${key} in ${tableName}:`,
+      err,
+    );
   }
 
-  localStorage.removeItem(`coinList_${currency}`);
-  console.log(`Cache cleared from localStorage for ${currency}`);
+  localStorage.removeItem(`${tableName}_${key}`);
+  console.log(`Cache cleared from localStorage for ${key} in ${tableName}`);
 };
 
 /**
- * Fetches the cached coin data from IndexedDB and dispatches it to the Redux store.
- *
- * @param {Function} dispatch - The Redux dispatch function.
- * @returns {Promise<boolean>} - Returns a promise that resolves to `true` if data is fetched successfully; otherwise, it throws an error.
- *
+ * Fetches data from indexedDB cache.
+ * @param {string} tableName - The name of the table in the IndexedDB.
+ * @param {string} key - The key for the data to be fetched.
+ * @returns {Promise<any>} - Returns a promise that resolves to the fetched data or `null` if not found.
  */
-export const fetchDataFromCache = async (dispatch) => {
-  return db.coinLists
-    .each((data) => {
-      if (data != null && data.coins) {
-        // Dispatching the fetched coin data to Redux store
-        dispatch(
-          coinsActions.setCoinListForCurrency({
-            currency: data.currency,
-            coinData: data.coins,
-          }),
-        );
-      }
-    })
-    .then(() => true) // Successful fetching of data
-    .catch((err) => {
-      console.error("Error fetching data from IndexedDB:", err);
-    });
+export const fetchDataFromIndexedDB = async (tableName, key) => {
+  try {
+    const data = await db[tableName].get(key);
+    return data || null;
+  } catch (err) {
+    console.error(
+      `Error fetching data from IndexedDB from ${tableName} for ${key}:`,
+      err,
+    );
+    return null;
+  }
+};
+
+/**
+ * Saves data to IndexedDB.
+ * @param {string} tableName - The name of the table in the IndexedDB.
+ * @param {string} key - The key under which the value should be stored.
+ * @param {*} value - The value to be stored.
+ */
+export const saveDataToIndexedDB = (tableName, key, value) => {
+  db[tableName].put({ key, value }).catch((err) => {
+    console.error(
+      `Error saving data to IndexedDB for ${key} in ${tableName}`,
+      err,
+    );
+  });
 };

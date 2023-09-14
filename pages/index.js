@@ -51,7 +51,7 @@ export default function Home({ coins, initialRates }) {
 
   useEffect(() => {
     if (!isFirstRender.current && coinListCacheManager.current) {
-      coinListCacheManager.current.setNewCurrency();
+      coinListCacheManager.current.setNewCurrency(currentCurrency);
     }
   }, [currentCurrency]);
 
