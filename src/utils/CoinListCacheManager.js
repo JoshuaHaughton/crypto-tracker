@@ -1,4 +1,4 @@
-import { CoinCacheManager } from "./CoinCacheManager";
+import { CurrencyCacheCoordinator } from "./CurrencyCacheCoordinator";
 import { setToLocalStorageWithExpiry, isCacheValid } from "./cache.utils";
 import { convertCurrency } from "./currency.utils";
 import { coinsActions } from "../store/coins";
@@ -10,7 +10,7 @@ const COINLISTS_TABLENAME = "coinLists";
 /**
  * Manages the caching of coin list data and handles worker responses for currency transformation specific to coin list.
  */
-export class CoinListCacheManager extends CoinCacheManager {
+export class CoinListCacheManager extends CurrencyCacheCoordinator {
   /**
    * Creates an instance of the CoinListCacheManager.
    * @param {Function} dispatch - The Redux dispatch function.
