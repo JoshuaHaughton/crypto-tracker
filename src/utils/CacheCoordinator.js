@@ -2,14 +2,14 @@ import { ALL_CURRENCIES } from "../global/constants";
 import { clearCache, isCacheValid } from "./cache.utils";
 
 /**
- * @class CurrencyCacheCoordinator
+ * @class CacheCoordinator
  * @description Orchestrates the caching, transformation, and dispatching of data fetched from the API.
  * This class coordinates interactions between caching mechanisms, data transformation workers,
  * and state management dispatch functions.
  */
-export class CurrencyCacheCoordinator {
+export class CacheCoordinator {
   /**
-   * Creates an instance of the CurrencyCacheCoordinator.
+   * Creates an instance of the CacheCoordinator.
    * @constructor
    * @param {Function} dispatch - The Redux dispatch function.
    * @param {string} initialCurrency - The initial currency for the app.

@@ -5,11 +5,11 @@ import Pagination from "../src/components/UI/Pagination.jsx";
 import styles from "./Home.module.css";
 import "react-alice-carousel/lib/alice-carousel.css";
 import { useDispatch, useSelector } from "react-redux";
-import { CoinListCacheManager } from "../src/utils/CoinListCacheManager";
+import { CoinListCoordinator } from "../src/utils/CoinListCoordinator";
 
 export default function Home({ coins, initialRates }) {
   const isFirstRender = useRef(true);
-  const coinListCacheManager = useRef(null);
+  const coinListCoordinator = useRef(null);
 
   const dispatch = useDispatch();
 
@@ -26,10 +26,10 @@ export default function Home({ coins, initialRates }) {
   );
 
   useEffect(() => {
-    let current = coinListCacheManager.current;
+    let current = coinListCoordinator.current;
     if (typeof window !== "undefined") {
       // Ensure this runs only in the browser
-      coinListCacheManager.current = new CoinListCacheManager(
+      coinListCoordinator.current = new CoinListCoordinator(
         dispatch,
         initialCurrency,
         initialRates,
@@ -38,7 +38,7 @@ export default function Home({ coins, initialRates }) {
         currentCurrency,
         coinListCoinsByCurrency,
       );
-      current = coinListCacheManager.current;
+      current = coinListCoordinator.current;
       current.init();
     }
 
@@ -50,8 +50,8 @@ export default function Home({ coins, initialRates }) {
   }, []);
 
   useEffect(() => {
-    if (!isFirstRender.current && coinListCacheManager.current) {
-      coinListCacheManager.current.setNewCurrency(currentCurrency);
+    if (!isFirstRender.current && coinListCoordinator.current) {
+      coinListCoordinator.current.setNewCurrency(currentCurrency);
     }
   }, [currentCurrency]);
 
