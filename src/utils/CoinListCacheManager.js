@@ -41,7 +41,7 @@ export class CoinListCacheManager extends CoinCacheManager {
    * Overrides the base method to handle transformed coins specific to the coin list.
    * @param {Object} transformedCoins - The transformed coin data.
    */
-  handleTransformedCoins(transformedCoins) {
+  handleTransformedData(transformedCoins) {
     // Set transformed coins from WebWorker to Redux Store for use throughout app
     Object.keys(transformedCoins).forEach((currency) => {
       this.dispatch(
@@ -89,7 +89,7 @@ export class CoinListCacheManager extends CoinCacheManager {
   /**
    * Loads initial coins and currency alternatives, handling cache and dispatching necessary actions.
    */
-  async _loadInitialCoinsAndCurrencyAlternatives() {
+  _dispatchInitialData() {
     // Dispatch Initial coins from API to Redux
     this.dispatch(
       coinsActions.updateCoins({
@@ -107,37 +107,32 @@ export class CoinListCacheManager extends CoinCacheManager {
       }),
     );
 
-    // If we have the values cached, use them. else, transform the currencies using initialRates via the initial values on a separate thread
-    if (isCacheValid(COINLISTS_TABLENAME)) {
-      const cacheUsedSuccessfully = await this.fetchAndDispatchDataFromCache(
-        this.dispatch,
-      );
-      if (cacheUsedSuccessfully) return;
-    }
-
-    // Transform the initial coins on a separate thread via the WebWorker if we don't have them cached.
-    // this.handleTransformedCoins will then pick up on the webworker resonse, update cache, and dispatch to redux
-    this.currencyTransformerWorker.postMessage({
-      type: "transformCoinList",
-      data: {
-        coins: this.coins.initialHundredCoins,
-        rates: this.initialRates,
-        currentCurrency: this.initialCurrency.toUpperCase(),
-      },
-    });
-
     // Dispatch rates for each currency mapped to eachother based off of initially fetched rates
     this.dispatch(
       currencyActions.updateRates({ currencyRates: this.initialRates }),
     );
   }
 
-  fetchAndDispatchDataFromCache(dispatch) {
+  async _getAndDispatchDesiredData() {
+    // If we have the values cached, use them. If not, transform the currencies on a separate thread
+    if (isCacheValid(COINLISTS_TABLENAME)) {
+      const cacheUsedSuccessfully = await this._dispatchDataFromCache(
+        this.dispatch,
+      );
+      if (cacheUsedSuccessfully) return;
+    }
+
+    // If not, transform the currencies on a separate thread.
+    // this.handleTransformedData will then pick up on the webworker resonse, dispatch to redux, & update the cache
+    this._sendToTransformWorker();
+  }
+
+  _dispatchDataFromCache() {
     return db.coinLists
       .each((data) => {
         if (data != null && data.coins) {
           // Dispatching the fetched coin data to Redux store
-          dispatch(
+          this.dispatch(
             coinsActions.setCoinListForCurrency({
               currency: data.currency,
               coinData: data.coins,
@@ -149,6 +144,29 @@ export class CoinListCacheManager extends CoinCacheManager {
       .catch((err) => {
         console.error("Error fetching data from IndexedDB:", err);
       });
+  }
+
+  _sendToTransformWorker() {
+    // Check that we're in the browser for Nextjs
+    if (typeof window !== "undefined") {
+      this.currencyTransformerWorker = new Worker(
+        "/webWorkers/currencyTransformerWorker.js",
+      );
+      this.currencyTransformerWorker.addEventListener(
+        "message",
+        this._handleWorkerMessage,
+      );
+
+      // this.handleTransformedData will then pick up on the webworker resonse, dispatch to redux, & update the cache
+      this.currencyTransformerWorker.postMessage({
+        type: "transformCoinList",
+        data: {
+          coins: this.coins.initialHundredCoins,
+          rates: this.initialRates,
+          currentCurrency: this.initialCurrency.toUpperCase(),
+        },
+      });
+    }
   }
 
   /**

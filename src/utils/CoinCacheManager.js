@@ -17,6 +17,8 @@ export class CoinCacheManager {
     this.initialCurrency = initialCurrency;
     this.initialRates = initialRates;
     this.tableName = tableName;
+
+    // Will be cleaned up by this class if used
     this.currencyTransformerWorker = null;
   }
 
@@ -25,9 +27,9 @@ export class CoinCacheManager {
    * and loads initial coins and currency alternatives.
    */
   init() {
+    this._dispatchInitialData();
     this._clearInvalidCache();
-    this._initializeCurrencyTransformerWorker();
-    this._loadInitialCoinsAndCurrencyAlternatives();
+    this._getAndDispatchDesiredData();
   }
 
   /**
@@ -44,26 +46,25 @@ export class CoinCacheManager {
   }
 
   /**
-   * @private
-   * Initializes the currency transformer web worker and sets up an event listener for it.
+   * Placeholder logic for loading initial data returned by API. Should be overridden by subclasses.
    */
-  _initializeCurrencyTransformerWorker() {
-    // Check that we're in the browser for Nextjs
-    if (typeof window !== "undefined") {
-      this.currencyTransformerWorker = new Worker(
-        "/webWorkers/currencyTransformerWorker.js",
-      );
-      this.currencyTransformerWorker.addEventListener(
-        "message",
-        this._handleWorkerMessage,
-      );
-    }
+  _dispatchInitialData() {
+    // This should be overridden by subclasses.
   }
 
   /**
    * Placeholder logic for loading initial coins and currency alternatives. Should be overridden by subclasses.
    */
-  _loadInitialCoinsAndCurrencyAlternatives() {
+  _getAndDispatchDesiredData() {
+    // This should be overridden by subclasses. Should ideally call this._dispatchDataFromCache
+    // if the cache is available, and _sendToTransformWorker if not.
+  }
+
+  _dispatchDataFromCache() {
+    // This should be overridden by subclasses.
+  }
+
+  _sendToTransformWorker() {
     // This should be overridden by subclasses.
   }
 
@@ -74,14 +75,14 @@ export class CoinCacheManager {
    */
   _handleWorkerMessage = (e) => {
     const { transformedCoins } = e.data;
-    this.handleTransformedCoins(transformedCoins);
+    this.handleTransformedData(transformedCoins);
   };
 
   /**
    * Placeholder to handle transformed coins data. Should be overridden by extended managers.
    * @param {Array} transformedCoins - The transformed coin data.
    */
-  handleTransformedCoins(transformedCoins) {
+  handleTransformedData(transformedCoins) {
     // This should be overridden by subclasses.
   }
 
