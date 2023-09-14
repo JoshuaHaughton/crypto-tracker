@@ -2,7 +2,6 @@ import { CoinCacheManager } from "./CoinCacheManager";
 import {
   setToLocalStorageWithExpiry,
   isCacheValid,
-  clearCacheForCurrency,
   fetchDataFromCache,
 } from "./cache.utils";
 import { convertCurrency } from "./currency.utils";
@@ -59,10 +58,6 @@ export class CoinListCacheManager extends CoinCacheManager {
    * Loads initial coins and currency alternatives, handling cache and dispatching necessary actions.
    */
   _loadInitialCoinsAndCurrencyAlternatives() {
-    if (!isCacheValid()) {
-      ["USD", "CAD", "AUD", "GBP"].forEach(clearCacheForCurrency);
-    }
-
     // Use the stored bound function for event listener
     this.currencyTransformerWorker.addEventListener(
       "message",
