@@ -9,7 +9,7 @@ import { clearCache, isCacheValid } from "./cache.utils";
  */
 export class CurrencyCacheCoordinator {
   /**
-   * Creates an instance of the CoinCacheManager.
+   * Creates an instance of the CurrencyCacheCoordinator.
    * @param {Function} dispatch - The Redux dispatch function.
    * @param {string} initialCurrency - The initial currency for the app.
    * @param {Array} initialRates - The initial exchange rates.
@@ -20,108 +20,22 @@ export class CurrencyCacheCoordinator {
     this.initialCurrency = initialCurrency;
     this.initialRates = initialRates;
     this.tableName = tableName;
-
-    this.currencyTransformerWorker = null; // Initialized later if needed and will be cleaned up by this class
+    this.currencyTransformerWorker = null;
   }
 
+  // Lifecycle methods
+
   /**
-   * @description Initializes the cache manager. Starts with the initial data dispatch, then manages the cache, and finally retrieves and dispatches the desired data.
+   * @description Initializes the cache coordinator. Starts with the initial data dispatch, then manages the cache, and finally retrieves and dispatches the desired data.
    */
   init() {
     try {
       this._dispatchInitialData();
-      this._clearInvalidCache();
+      this.#clearInvalidCache();
       this._getAndDispatchDesiredData();
     } catch (error) {
       console.error("Error during initialization:", error);
     }
-  }
-
-  /**
-   * @private
-   * @description Clears cache for any invalid currency values.
-   */
-  async _clearInvalidCache() {
-    const clearCachePromises = ALL_CURRENCIES.map(async (currency) => {
-      if (!isCacheValid(this.tableName, currency)) {
-        try {
-          await clearCache(this.tableName, currency);
-        } catch (cacheError) {
-          this.logError(
-            `Error clearing cache for currency ${currency}:`,
-            cacheError,
-          );
-        }
-      }
-    });
-
-    // Await all cache clear operations to complete
-    await Promise.all(clearCachePromises);
-  }
-
-  /**
-   * @private
-   * @description Placeholder for dispatching initial data fetched from API. Should be overridden by subclasses.
-   */
-  _dispatchInitialData() {
-    // To be implemented by subclasses.
-  }
-
-  /**
-   * @private
-   * @description Placeholder for retrieving and dispatching the desired data. Subclasses should ideally implement this to dispatch data from cache if available, or send data to the transformer worker if not.
-   */
-  _getAndDispatchDesiredData() {
-    // To be implemented by subclasses.
-  }
-
-  /**
-   * @private
-   * @description Placeholder for dispatching data directly from the cache. Should be overridden by subclasses.
-   */
-  _dispatchDataFromCache() {
-    // To be implemented by subclasses.
-  }
-
-  /**
-   * @description Returns the worker, initializing it if it hasn't been already.
-   */
-  _initializeTransformerWorker() {
-    if (!this.currencyTransformerWorker) {
-      // Initialize the worker here when it's first needed
-      // this.currencyTransformerWorker = new Worker(...);
-    }
-    return this.currencyTransformerWorker;
-  }
-
-  /**
-   * @private
-   * @description Placeholder for sending data to the transformer worker for processing. Should be overridden by subclasses.
-   */
-  _sendToTransformWorker() {
-    // To be implemented by subclasses.
-  }
-
-  /**
-   * @private
-   * @description Handles the message event from the currency transformer worker and processes the transformed coins data.
-   * @param {Event} e - The message event from the worker.
-   */
-  _handleWorkerMessage = (e) => {
-    try {
-      const { transformedCoins } = e.data;
-      this.handleTransformedData(transformedCoins);
-    } catch (workerError) {
-      console.error("Error handling worker message:", workerError);
-    }
-  };
-
-  /**
-   * @description Placeholder for handling transformed data after processing by the worker. Should be overridden by subclasses.
-   * @param {Array} transformedCoins - The transformed coin data.
-   */
-  handleTransformedData(transformedCoins) {
-    // To be implemented by subclasses.
   }
 
   /**
@@ -139,5 +53,81 @@ export class CurrencyCacheCoordinator {
         console.error("Error during cleanup:", cleanupError);
       }
     }
+  }
+
+  // Public methods
+
+  /**
+   * @async
+   * @param {Array} transformedData - The transformed data.
+   * @description Asynchronous method for dispatching/caching transformed data after processing by the worker. Should be overridden by subclasses to handle the results.
+   * @returns {Promise<void>} Resolves when the handling is complete.
+   */
+  async handleTransformedData(transformedData) {
+    // To be implemented by subclasses.
+  }
+
+  // Protected Methods
+
+  /**
+   * @protected
+   * @description Placeholder method for dispatching initial data fetched from API. Should be overridden by subclasses.
+   */
+  _dispatchInitialData() {
+    // To be implemented by subclasses.
+  }
+
+  /**
+   * @protected
+   * @description Placeholder method for retrieving and dispatching the desired data. Subclasses should ideally implement this to dispatch data from cache if available, or send data to the transformer worker if not.
+   */
+  _getAndDispatchDesiredData() {
+    // To be implemented by subclasses.
+  }
+
+  /**
+   * @protected
+   * @description Placeholder method for sending data to the transformer worker for processing. Should be overridden by subclasses.
+   */
+  _sendToTransformWorker() {
+    // To be implemented by subclasses.
+  }
+
+  /**
+   * @protected
+   * @description Handles the message event from the currency transformer worker and processes the transformed coins data.
+   * @param {Event} e - The message event from the worker.
+   */
+  _handleWorkerMessage = async (e) => {
+    try {
+      const { transformedCoins } = e.data;
+      this.handleTransformedData(transformedCoins);
+    } catch (workerError) {
+      console.error("Error handling worker message:", workerError);
+    }
+  };
+
+  // Private Methods
+
+  /**
+   * @private
+   * @description Clears cache for any invalid currency values.
+   */
+  async #clearInvalidCache() {
+    const clearCachePromises = ALL_CURRENCIES.map(async (currency) => {
+      if (!isCacheValid(this.tableName, currency)) {
+        try {
+          await clearCache(this.tableName, currency);
+        } catch (cacheError) {
+          this.logError(
+            `Error clearing cache for currency ${currency}:`,
+            cacheError,
+          );
+        }
+      }
+    });
+
+    // Await all cache clear operations to complete
+    await Promise.all(clearCachePromises);
   }
 }
