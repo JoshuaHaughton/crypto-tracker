@@ -3,13 +3,14 @@ import { clearCache, isCacheValid } from "./cache.utils";
 
 /**
  * @class CurrencyCacheCoordinator
- * @description Orchestrates the caching, transformation, and dispatching of coin-related data.
+ * @description Orchestrates the caching, transformation, and dispatching of data fetched from the API.
  * This class coordinates interactions between caching mechanisms, data transformation workers,
  * and state management dispatch functions.
  */
 export class CurrencyCacheCoordinator {
   /**
    * Creates an instance of the CurrencyCacheCoordinator.
+   * @constructor
    * @param {Function} dispatch - The Redux dispatch function.
    * @param {string} initialCurrency - The initial currency for the app.
    * @param {Array} initialRates - The initial exchange rates.
@@ -20,6 +21,7 @@ export class CurrencyCacheCoordinator {
     this.initialCurrency = initialCurrency;
     this.initialRates = initialRates;
     this.tableName = tableName;
+
     this.currencyTransformerWorker = null;
   }
 
@@ -55,19 +57,18 @@ export class CurrencyCacheCoordinator {
     }
   }
 
-  // Public methods
+  // Protected Methods
 
   /**
+   * @protected
    * @async
    * @param {Array} transformedData - The transformed data.
    * @description Asynchronous method for dispatching/caching transformed data after processing by the worker. Should be overridden by subclasses to handle the results.
    * @returns {Promise<void>} Resolves when the handling is complete.
    */
-  async handleTransformedData(transformedData) {
+  async _handleTransformedData(transformedData) {
     // To be implemented by subclasses.
   }
-
-  // Protected Methods
 
   /**
    * @protected
@@ -95,13 +96,13 @@ export class CurrencyCacheCoordinator {
 
   /**
    * @protected
-   * @description Handles the message event from the currency transformer worker and processes the transformed coins data.
+   * @description Handles the message event from the currency transformer worker and processes the transformed data.
    * @param {Event} e - The message event from the worker.
    */
-  _handleWorkerMessage = async (e) => {
+  _handleWorkerMessage = (e) => {
     try {
-      const { transformedCoins } = e.data;
-      this.handleTransformedData(transformedCoins);
+      const { transformedData } = e.data;
+      this._handleTransformedData(transformedData);
     } catch (workerError) {
       console.error("Error handling worker message:", workerError);
     }
@@ -110,6 +111,7 @@ export class CurrencyCacheCoordinator {
   // Private Methods
 
   /**
+   * @async
    * @private
    * @description Clears cache for any invalid currency values.
    */
@@ -117,7 +119,7 @@ export class CurrencyCacheCoordinator {
     const clearCachePromises = ALL_CURRENCIES.map(async (currency) => {
       if (!isCacheValid(this.tableName, currency)) {
         try {
-          await clearCache(this.tableName, currency);
+          clearCache(this.tableName, currency);
         } catch (cacheError) {
           this.logError(
             `Error clearing cache for currency ${currency}:`,

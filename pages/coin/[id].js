@@ -164,7 +164,7 @@ const Coin = ({
     // Define the message handler for the worker
     const handleWorkerMessage = (e) => {
       console.log(e.data);
-      const { transformedCoins } = e.data;
+      const { transformedData } = e.data;
 
       // Dispatch initial data for the current currency
       dispatch(
@@ -181,18 +181,18 @@ const Coin = ({
       });
 
       // Dispatch transformed data for other currencies
-      Object.keys(transformedCoins).forEach((currency) => {
+      Object.keys(transformedData).forEach((currency) => {
         dispatch(
           coinsActions.updateCoinDetailsForCurrency({
             currency,
-            coinDetail: transformedCoins[currency],
+            coinDetail: transformedData[currency],
           }),
         );
 
         // Update IndexedDB
         db.coinDetails.put({
           currency,
-          details: transformedCoins[currency],
+          details: transformedData[currency],
         });
       });
 

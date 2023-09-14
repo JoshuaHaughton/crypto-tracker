@@ -70,33 +70,33 @@ self.addEventListener(
       const currencies = ["CAD", "USD", "AUD", "GBP"].filter(
         (cur) => cur !== currentCurrency,
       );
-      const transformedCoins = {};
+      const transformedData = {};
 
       currencies.forEach((currency) => {
-        transformedCoins[currency] = transformCurrencyDataForCoinList(
+        transformedData[currency] = transformCurrencyDataForCoinList(
           coins,
           rates,
           currency,
         );
       });
 
-      self.postMessage({ transformedCoins });
+      self.postMessage({ transformedData });
     } else if (type === "transformCoin") {
       const { coin, rates, currentCurrency } = data;
       const currencies = ["CAD", "USD", "AUD", "GBP"].filter(
         (cur) => cur !== currentCurrency,
       );
-      const transformedCoins = {};
+      const transformedData = {};
 
       currencies.forEach((currency) => {
-        transformedCoins[currency] = transformCurrencyDataForCoinDetails(
+        transformedData[currency] = transformCurrencyDataForCoinDetails(
           coin,
           rates,
           currency,
         );
       });
 
-      self.postMessage({ transformedCoins });
+      self.postMessage({ transformedData });
     }
   },
   false,
