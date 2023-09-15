@@ -116,7 +116,7 @@ export class CoinListCoordinator extends CacheCoordinator {
   /**
    * @protected
    * @async
-   * @param {Object} transformedCoins - Transformed coin data.
+   * @param {Object} transformedCoins - The transformed coin data.
    * @description Processes and stores transformed coins in Redux and IndexedDB.
    */
   async _handleTransformedData(transformedCoins) {
@@ -249,7 +249,7 @@ export class CoinListCoordinator extends CacheCoordinator {
    * @protected
    * @description
    * Initializes and sends data to a Web Worker for the purpose of currency transformation.
-   * Note: The Web Worker is used to offload data transformation tasks from the main thread, ensuring a smooth user experience.
+   * Transformed data is then picked up by this._handleTransformedData, disaptced to the Redux store, and cached in IndexedDB.
    */
   _sendToTransformWorker() {
     if (typeof window !== "undefined" && !this.currencyTransformerWorker) {

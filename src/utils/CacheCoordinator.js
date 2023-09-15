@@ -28,12 +28,13 @@ export class CacheCoordinator {
   // Lifecycle methods
 
   /**
+   * @async
    * @description Initializes the cache coordinator. Starts with the initial data dispatch, then manages the cache, and finally retrieves and dispatches the desired data.
    */
-  init() {
+  async init() {
     try {
       this._dispatchInitialData();
-      this.#clearInvalidCache();
+      await this.#clearInvalidCache();
       this._getAndDispatchDesiredData();
     } catch (error) {
       console.error("Error during initialization:", error);
