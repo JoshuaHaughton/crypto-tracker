@@ -58,7 +58,7 @@ export class CacheCoordinator {
     }
   }
 
-  // Protected Methods
+  // Protected Methods (overrideable)
 
   /**
    * @protected
@@ -73,6 +73,7 @@ export class CacheCoordinator {
 
   /**
    * @protected
+   * @async
    * @description Placeholder method for dispatching initial data fetched from API. Should be overridden by subclasses.
    */
   _dispatchInitialData() {
@@ -81,9 +82,10 @@ export class CacheCoordinator {
 
   /**
    * @protected
+   * @async
    * @description Placeholder method for retrieving and dispatching the desired data. Subclasses should ideally implement this to dispatch data from cache if available, or send data to the transformer worker if not.
    */
-  _getAndDispatchDesiredData() {
+  async _getAndDispatchDesiredData() {
     // To be implemented by subclasses.
   }
 
@@ -94,6 +96,8 @@ export class CacheCoordinator {
   _sendToTransformWorker() {
     // To be implemented by subclasses.
   }
+
+  // Protected Methods (don't override, to be used in the overrided this._sendToTransformWorker if webworker is used)
 
   /**
    * @protected
