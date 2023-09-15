@@ -33,10 +33,8 @@ export default function Home({ coins, initialRates }) {
         dispatch,
         initialCurrency,
         initialRates,
-        coins,
-        currentSymbol,
-        currentCurrency,
-        coinListCoinsByCurrency,
+        coins.initialHundredCoins,
+        coins.trendingCoins,
       );
       current = coinListCoordinator.current;
       current.init();
@@ -50,10 +48,14 @@ export default function Home({ coins, initialRates }) {
   }, []);
 
   useEffect(() => {
-    if (!isFirstRender.current && coinListCoordinator.current) {
-      coinListCoordinator.current.setNewCurrency(currentCurrency);
+    if (coinListCoordinator.current) {
+      coinListCoordinator.current.setNewCurrency(
+        coinListCoinsByCurrency,
+        currentCurrency,
+        currentSymbol,
+      );
     }
-  }, [currentCurrency]);
+  }, [currentCurrency, currentSymbol, coinListCoinsByCurrency]);
 
   useEffect(() => {
     if (coinListPageNumber !== 1) {

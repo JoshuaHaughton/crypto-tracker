@@ -3,7 +3,10 @@ import { setToLocalStorageWithExpiry, isCacheValid } from "./cache.utils";
 import { convertCurrency } from "./currency.utils";
 import { coinsActions } from "../store/coins";
 import { currencyActions } from "../store/currency";
-import { COINLISTS_TABLENAME } from "../global/constants";
+import {
+  COINLISTS_TABLENAME,
+  SYMBOLS_BY_CURRENCIES,
+} from "../global/constants";
 import db from "./database";
 
 /**
@@ -17,25 +20,19 @@ export class CoinListCoordinator extends CacheCoordinator {
    * @param {Function} dispatch - The Redux dispatch function.
    * @param {string} initialCurrency - The initial currency for the app.
    * @param {Array} initialRates - The initial exchange rates.
-   * @param {Object} coins - Initial coins data.
-   * @param {string} currentSymbol - Current currency symbol.
-   * @param {string} currentCurrency - Current currency.
-   * @param {Object} coinListCoinsByCurrency - An object holding coin data for each currency.
+   * @param {Object} initialHundredCoins - Initial coins data.
+   * @param {Object} initialTrendingCoins - Initial trending coins data.
    */
   constructor(
     dispatch,
     initialCurrency,
     initialRates,
-    coins,
-    currentSymbol,
-    currentCurrency,
-    coinListCoinsByCurrency,
+    initialHundredCoins,
+    initialTrendingCoins,
   ) {
     super(dispatch, initialCurrency, initialRates, COINLISTS_TABLENAME);
-    this.coins = coins;
-    this.currentSymbol = currentSymbol;
-    this.currentCurrency = currentCurrency;
-    this.coinListCoinsByCurrency = coinListCoinsByCurrency;
+    this.initialHundredCoins = initialHundredCoins;
+    this.initialTrendingCoins = initialTrendingCoins;
   }
 
   // Public Methods
@@ -43,21 +40,32 @@ export class CoinListCoordinator extends CacheCoordinator {
   /**
    * @public
    * @async
+   * @param {Object} coinListCoinsByCurrency - The object holding coin data for each currency.
    * @param {string} updatedCurrency - The new currency.
-   * @description Sets a new currency and transforms the coin data accordingly.
+   * @param {string} currentSymbol - The current currency symbol.
+   * @description Sets a new currency and transforms the coin data accordingly. Dispatches the updated coin data and saves to IndexedDB cache if necessary.
+   * @returns {Promise<void>} Resolves once the new currency has been set and any necessary transformations have been performed.
    */
-  async setNewCurrency(updatedCurrency) {
+  async setNewCurrency(
+    coinListCoinsByCurrency,
+    updatedCurrency,
+    currentSymbol,
+  ) {
     let updatedCurrencyCoins;
 
     if (
-      this.coinListCoinsByCurrency[updatedCurrency.toUpperCase()] &&
-      this.coinListCoinsByCurrency[updatedCurrency.toUpperCase()].length > 0
+      coinListCoinsByCurrency[updatedCurrency.toUpperCase()] &&
+      coinListCoinsByCurrency[updatedCurrency.toUpperCase()].length > 0
     ) {
       console.log("CACHE USED for setNewCurrency");
       updatedCurrencyCoins =
-        this.coinListCoinsByCurrency[updatedCurrency.toUpperCase()];
-    } else if (this.coins.initialHundredCoins?.length > 0) {
-      updatedCurrencyCoins = this.coins.initialHundredCoins
+        coinListCoinsByCurrency[updatedCurrency.toUpperCase()];
+    } else if (this.initialHundredCoins?.length > 0) {
+      console.log(
+        "CACHE, NOT used. existing cache:",
+        this.coinListCoinsByCurrency,
+      );
+      updatedCurrencyCoins = this.initialHundredCoins
         .map((coin, i) =>
           this.#transformCurrency(coin, updatedCurrency.toUpperCase(), i),
         )
@@ -71,7 +79,7 @@ export class CoinListCoordinator extends CacheCoordinator {
       coinsActions.updateCoins({
         displayedCoinListCoins: updatedCurrencyCoins,
         trendingCarouselCoins: trendingCoins,
-        symbol: this.currentSymbol,
+        symbol: currentSymbol,
       }),
     );
 
@@ -133,7 +141,7 @@ export class CoinListCoordinator extends CacheCoordinator {
     this.dispatch(
       coinsActions.setCoinListForCurrency({
         currency: this.initialCurrency.toUpperCase(),
-        coinData: this.coins.initialHundredCoins,
+        coinData: this.initialHundredCoins,
       }),
     );
 
@@ -141,7 +149,7 @@ export class CoinListCoordinator extends CacheCoordinator {
     storagePromises.push(
       this._storeCoinDataInIndexedDB(
         this.initialCurrency.toUpperCase(),
-        this.coins.initialHundredCoins,
+        this.initialHundredCoins,
       ),
     );
 
@@ -163,9 +171,9 @@ export class CoinListCoordinator extends CacheCoordinator {
     // Dispatch initial coin data to Redux
     this.dispatch(
       coinsActions.updateCoins({
-        displayedCoinListCoins: this.coins.initialHundredCoins,
-        trendingCarouselCoins: this.coins.trendingCoins,
-        symbol: this.currentSymbol,
+        displayedCoinListCoins: this.initialHundredCoins,
+        trendingCarouselCoins: this.trendingCoins,
+        symbol: SYMBOLS_BY_CURRENCIES[this.initialCurrency],
       }),
     );
 
@@ -173,7 +181,7 @@ export class CoinListCoordinator extends CacheCoordinator {
     this.dispatch(
       coinsActions.setCoinListForCurrency({
         currency: this.initialCurrency.toUpperCase(),
-        coinData: this.coins.initialHundredCoins,
+        coinData: this.initialHundredCoins,
       }),
     );
 
@@ -257,7 +265,7 @@ export class CoinListCoordinator extends CacheCoordinator {
       this.currencyTransformerWorker.postMessage({
         type: "transformCoinList",
         data: {
-          coins: this.coins.initialHundredCoins,
+          coins: this.initialHundredCoins,
           rates: this.initialRates,
           currentCurrency: this.initialCurrency.toUpperCase(),
         },
