@@ -222,7 +222,8 @@ export class CoinListCoordinator extends CacheCoordinator {
     const dispatchPromises = [];
 
     await db.coinLists.each((data) => {
-      if (data && data.coins) {
+      // We don't dispatch the initialCurrency here because it was already disaptched in this._dispatchInitialData
+      if (data?.coins && data.currency !== this.initialCurrency) {
         // Store each dispatch action in the dispatchPromises array
         dispatchPromises.push(
           this.dispatch(

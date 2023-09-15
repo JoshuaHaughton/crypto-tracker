@@ -48,14 +48,14 @@ export default function Home({ coins, initialRates }) {
   }, []);
 
   useEffect(() => {
-    if (coinListCoordinator.current) {
+    if (!isFirstRender.current && coinListCoordinator.current) {
       coinListCoordinator.current.setNewCurrency(
         coinListCoinsByCurrency,
         currentCurrency,
         currentSymbol,
       );
     }
-  }, [currentCurrency, currentSymbol, coinListCoinsByCurrency]);
+  }, [currentCurrency]);
 
   useEffect(() => {
     if (coinListPageNumber !== 1) {
