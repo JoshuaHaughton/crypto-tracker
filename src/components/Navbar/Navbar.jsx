@@ -10,8 +10,8 @@ import Snackbar from "@mui/material/Snackbar";
 import styled from "@mui/system/styled";
 import { outlinedInputClasses } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { currencyActions } from "../../store/currency";
 import { useState } from "react";
+import { updateCurrency } from "../../thunks/updateCurrencyThunk";
 
 const vertical = "bottom";
 const horizontal = "center";
@@ -46,7 +46,7 @@ const Navbar = () => {
     const currency = e.target.value.split(",")[0].toUpperCase();
     const symbol = e.target.value.split(",")[1];
 
-    dispatch(currencyActions.changeCurrency({ currency, symbol }));
+    dispatch(updateCurrency({ currency, symbol }));
   };
 
   return (

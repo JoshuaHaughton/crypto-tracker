@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const initialCoinsState = {
+export const initialCoinsState = {
   displayedCoinListCoins: [],
   trendingCarouselCoins: [],
   coinListCoinsByCurrency: {

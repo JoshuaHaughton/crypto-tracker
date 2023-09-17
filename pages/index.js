@@ -1,61 +1,17 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import CoinList from "../src/components/CoinList";
 import Banner from "../src/components/UI/Banner/Banner";
 import Pagination from "../src/components/UI/Pagination.jsx";
 import styles from "./Home.module.css";
 import "react-alice-carousel/lib/alice-carousel.css";
-import { useDispatch, useSelector } from "react-redux";
-import { CoinListCoordinator } from "../src/utils/CoinListCoordinator";
+import { useSelector } from "react-redux";
+import { initialCoinsState } from "../src/store/coins";
+import { initialCurrencyState } from "../src/store/currency";
 
-export default function Home({ coins, initialRates }) {
-  const isFirstRender = useRef(true);
-  const coinListCoordinator = useRef(null);
-
-  const dispatch = useDispatch();
-
-  const coinListCoinsByCurrency = useSelector(
-    (state) => state.coins.coinListCoinsByCurrency,
-  );
-  const initialCurrency = useSelector(
-    (state) => state.currency.initialCurrency,
-  );
-  const currentCurrency = useSelector((state) => state.currency.currency);
-  const currentSymbol = useSelector((state) => state.currency.symbol);
+export default function Home() {
   const coinListPageNumber = useSelector(
     (state) => state.appInfo.coinListPageNumber,
   );
-
-  useEffect(() => {
-    let current = coinListCoordinator.current;
-    if (typeof window !== "undefined") {
-      // Ensure this runs only in the browser
-      coinListCoordinator.current = new CoinListCoordinator(
-        dispatch,
-        initialCurrency,
-        initialRates,
-        coins.initialHundredCoins,
-        coins.trendingCoins,
-      );
-      current = coinListCoordinator.current;
-      current.init();
-    }
-
-    return () => {
-      if (current) {
-        current.cleanup();
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!isFirstRender.current && coinListCoordinator.current) {
-      coinListCoordinator.current.setNewCurrency(
-        coinListCoinsByCurrency,
-        currentCurrency,
-        currentSymbol,
-      );
-    }
-  }, [currentCurrency]);
 
   useEffect(() => {
     if (coinListPageNumber !== 1) {
@@ -63,15 +19,11 @@ export default function Home({ coins, initialRates }) {
     }
   }, [coinListPageNumber]);
 
-  useEffect(() => {
-    isFirstRender.current = false;
-  }, []);
-
   return (
     <div className={styles.container}>
       <Banner />
       <h2>Crypto Prices</h2>
-      <CoinList initialHundredCoins={coins.initialHundredCoins} />
+      <CoinList />
       <Pagination />
     </div>
   );
@@ -152,15 +104,25 @@ export async function getStaticProps() {
       };
     }).filter(Boolean);
 
-    const trendingCoins = initialHundredCoins.slice(0, 10);
+    const trendingCarouselCoins = initialHundredCoins.slice(0, 10);
 
     return {
       props: {
-        coins: {
-          initialHundredCoins,
-          trendingCoins,
+        initialReduxState: {
+          coins: {
+            ...initialCoinsState,
+            displayedCoinListCoins: initialHundredCoins,
+            trendingCarouselCoins: trendingCarouselCoins,
+            coinListCoinsByCurrency: {
+              ...initialCoinsState.coinListCoinsByCurrency,
+              [initialCurrencyState.initialCurrency]: initialHundredCoins,
+            },
+          },
+          currency: {
+            ...initialCurrencyState,
+            currencyRates: initialRates,
+          },
         },
-        initialRates,
       },
       revalidate: 300, // regenerate the page every 5 minutes
     };
@@ -170,11 +132,10 @@ export async function getStaticProps() {
     // Return default or placeholder data to prevent breaking the site
     return {
       props: {
-        coins: {
-          initialHundredCoins: [],
-          trendingCoins: [],
+        initialReduxState: {
+          coins: initialCoinsState,
+          currency: initialCurrencyState,
         },
-        initialRates: {},
       },
       revalidate: 300, // regenerate the page every 5 minutes
     };

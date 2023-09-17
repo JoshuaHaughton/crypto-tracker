@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const initialCurrencyState = {
+export const initialCurrencyState = {
   initialCurrency: "CAD",
   currency: "cad",
   symbol: "$",
