@@ -86,16 +86,29 @@ export const fetchDataFromIndexedDB = async (tableName, key) => {
 };
 
 /**
- * Saves data to IndexedDB.
- * @param {string} tableName - The name of the table in the IndexedDB.
- * @param {string} key - The key under which the value should be stored.
- * @param {*} value - The value to be stored.
+ * Saves coin data to IndexedDB for a specific currency and sets its expiry in localStorage.
+ *
+ * @param {string} tableName - The name of the table in the IndexedDB where the coin data should be stored.
+ * @param {string} currency - The currency identifier under which the coin data should be stored.
+ * @param {Object} coinData - The data related to the specified currency that needs to be stored.
+ *
+ * @returns {Promise<void>} - Resolves when the data is successfully saved and its expiry is set in localStorage.
  */
-export const saveDataToIndexedDB = (tableName, key, value) => {
-  db[tableName].put({ key, value }).catch((err) => {
+export const saveCoinDataForCurrencyInBrowser = async (
+  tableName,
+  currency,
+  coinData,
+) => {
+  try {
+    await db[tableName].put({ currency, coinData });
+    setToLocalStorageWithExpiry(tableName, currency);
+    console.log(
+      `Successfully saved ${currency} data to ${tableName} in IndexedDB and set expiry in localStorage.`,
+    );
+  } catch (err) {
     console.error(
-      `Error saving data to IndexedDB for ${key} in ${tableName}`,
+      `Error saving data to IndexedDB for ${currency} in ${tableName} and setting expiry in localStorage`,
       err,
     );
-  });
+  }
 };

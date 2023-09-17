@@ -1,6 +1,6 @@
 import {
   isCacheValid,
-  setToLocalStorageWithExpiry,
+  saveCoinDataForCurrencyInBrowser,
 } from "../utils/cache.utils";
 import { coinsActions } from "../store/coins";
 import db from "../utils/database";
@@ -8,7 +8,7 @@ import { COINLISTS_TABLENAME } from "../global/constants";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 /**
- * Async thunk to manage caching of coin list data.
+ * Async thunk to manage caching of coin list data for multiple currencies.
  *
  * On app initialization, the thunk checks if coin data exists in the cache (IndexedDB) and is valid.
  * - If the cache is valid, it dispatches the cached data to the Redux store.
@@ -29,15 +29,16 @@ export const initializeCache = createAsyncThunk(
     const initialRates = state.currency.currencyRates;
     const initialCurrency = state.currency.initialCurrency;
 
-    // If data isn't in cache or cache isn't valid, send data to web worker for transformation
+    // If data isn't in the cache, or the cache isn't valid, send the initial data to the web worker
+    // for currency transformation. After that, we save it to the cache
     if (!isCacheValid(COINLISTS_TABLENAME)) {
-      console.log("cache not valid");
+      console.log("INVALID CACHE");
       if (typeof window !== "undefined") {
         const currencyTransformerWorker = new Worker(
           "/webWorkers/currencyTransformerWorker.js",
         );
         currencyTransformerWorker.addEventListener("message", (event) =>
-          handleWorkerMessage(
+          handleTransformedDataFromWorker(
             event,
             dispatch,
             initialCurrency,
@@ -55,16 +56,19 @@ export const initializeCache = createAsyncThunk(
         });
       }
     } else {
-      console.log("cache valid");
-      // Use the cache if it's valid
+      // Use the IndexedDB cache if it's valid
+      console.log("VALID CACHE");
 
       await db.coinLists
         .each((data) => {
-          if (data?.coins && data.currency !== initialCurrency.toUpperCase()) {
+          if (
+            data.currency !== initialCurrency.toUpperCase() &&
+            data?.coinData
+          ) {
             dispatch(
               coinsActions.setCoinListForCurrency({
                 currency: data.currency,
-                coinData: data.coins,
+                coinData: data.coinData,
               }),
             );
           }
@@ -77,23 +81,24 @@ export const initializeCache = createAsyncThunk(
 );
 
 /**
- * Handles the transformed data from the web worker.
+ * Handles the transformed data from the web worker by dispatching it to Redux,
+ * and then saving it to IndexedDB.
  *
  * @param {MessageEvent} event - The web worker message event.
  * @param {Function} dispatch - Redux dispatch function.
  * @param {string} initialCurrency - The initial currency.
  * @param {Object[]} initialHundredCoins - The initial list of coins.
  */
-async function handleWorkerMessage(
+async function handleTransformedDataFromWorker(
   event,
   dispatch,
   initialCurrency,
   initialHundredCoins,
 ) {
   const { transformedData } = event.data;
-  const storagePromises = [];
+  console.log("handleTransformedDataFromWorker", transformedData);
 
-  console.log("handleWorkerMessage", transformedData);
+  const storagePromises = [];
 
   for (const currency in transformedData) {
     // Store transformed coin data in Redux
@@ -106,7 +111,11 @@ async function handleWorkerMessage(
 
     // Cache transformed data
     storagePromises.push(
-      storeCoinDataInIndexedDB(currency, transformedData[currency]),
+      saveCoinDataForCurrencyInBrowser(
+        COINLISTS_TABLENAME,
+        currency,
+        transformedData[currency],
+      ),
     );
   }
 
@@ -120,7 +129,8 @@ async function handleWorkerMessage(
 
   // Cache initial data
   storagePromises.push(
-    storeCoinDataInIndexedDB(
+    saveCoinDataForCurrencyInBrowser(
+      COINLISTS_TABLENAME,
       initialCurrency.toUpperCase(),
       initialHundredCoins,
     ),
@@ -131,21 +141,5 @@ async function handleWorkerMessage(
     await Promise.all(storagePromises);
   } catch (err) {
     console.error("Error during IndexedDB storage:", err);
-  }
-}
-
-/**
- * Helper function to store coin data in IndexedDB.
- *
- * @param {string} currency - The currency type.
- * @param {Object} coins - The coin data.
- */
-async function storeCoinDataInIndexedDB(currency, coins) {
-  try {
-    await db.coinLists.put({ currency, coins });
-    setToLocalStorageWithExpiry(COINLISTS_TABLENAME, currency.toUpperCase());
-    console.log(`Successfully set ${currency} CoinListData to IndexedDB`);
-  } catch (err) {
-    console.error(`Error setting ${currency} CoinListData to IndexedDB`, err);
   }
 }
