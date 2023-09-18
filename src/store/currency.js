@@ -1,8 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { SYMBOLS_BY_CURRENCIES } from "../global/constants";
 
 export const initialCurrencyState = {
   initialCurrency: "CAD",
-  currency: "cad",
+  currentCurrency: "CAD",
   symbol: "$",
   currencyRates: {},
 };
@@ -14,12 +15,10 @@ const currencySlice = createSlice({
   reducers: {
     changeCurrency(state, action) {
       console.log("changeCurrency", action);
+      
       if (action.payload.currency) {
-        state.currency = action.payload.currency;
-      }
-
-      if (action.payload.symbol) {
-        state.symbol = action.payload.symbol;
+        state.currentCurrency = action.payload.currency;
+        state.symbol = SYMBOLS_BY_CURRENCIES[action.payload.currency];
       }
     },
     updateRates(state, action) {

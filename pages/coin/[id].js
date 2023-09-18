@@ -10,6 +10,7 @@ import Link from "next/link";
 import { currencyActions } from "../../src/store/currency";
 import { convertCurrency } from "../../src/utils/currency.utils";
 import db from "../../src/utils/database";
+import { initializeCoinListCache } from "../../src/thunks/coinListCacheThunk";
 
 const Coin = ({
   initialCoin,
@@ -26,7 +27,9 @@ const Coin = ({
   const coinDetailsByCurrency = useSelector(
     (state) => state.coins.coinDetailsByCurrency,
   );
-  const currentCurrency = useSelector((state) => state.currency.currency);
+  const currentCurrency = useSelector(
+    (state) => state.currency.currentCurrency,
+  );
   const initialCurrency = useSelector((state) =>
     state.currency.initialCurrency.toUpperCase(),
   );
@@ -226,82 +229,41 @@ const Coin = ({
   }, [isHydrated]);
 
   useEffect(() => {
+    const prefetchHomePage = async () => {
+      console.log("prefetchHomePage");
+
+      const { initialRates, initialHundredCoins, trendingCarouselCoins } =
+        await fetchBaseDataFromCryptoCompare();
+
+      // Dispatch the action with the new formatted coins
+      dispatch(
+        coinsActions.updateCoins({
+          displayedCoinListCoins: initialHundredCoins,
+          trendingCarouselCoins,
+          symbol: currentSymbol,
+        }),
+      );
+      dispatch(
+        coinsActions.setCoinListForCurrency({
+          currency: currentCurrency,
+          coinData: initialHundredCoins,
+        }),
+      );
+      dispatch(currencyActions.updateRates({ currencyRates: initialRates }));
+
+      dispatch(initializeCoinListCache());
+    };
+
+    prefetchHomePage();
+  }, []);
+
+  useEffect(() => {
     if (!isHydrated.current) {
       isHydrated.current = true;
       return;
     }
 
     if (firstRender.current) {
-      if (displayedCoinListCoins.length === 0) {
-        const prefetchHomePage = async () => {
-          console.log("prefetchHomePage");
-          const cryptoCompareApiKey =
-            process.env.NEXT_PUBLIC_CRYPTOCOMPARE_API_KEY;
-          const fetchOptions = {
-            headers: {
-              Authorization: `Apikey ${cryptoCompareApiKey}`,
-            },
-          };
-
-          const urls = [
-            `https://min-api.cryptocompare.com/data/top/mktcapfull?limit=100&tsym=${currentCurrency.toUpperCase()}`,
-          ];
-
-          const [marketCapCoinsData] = await Promise.all(
-            urls.map((url) =>
-              fetch(url, fetchOptions).then((resp) => resp.json()),
-            ),
-          );
-
-          const allFormattedCoins = marketCapCoinsData.Data.map((entry, i) => {
-            const coin = entry.CoinInfo;
-            const metrics = entry.RAW?.[currentCurrency.toUpperCase()];
-            if (!metrics) {
-              console.warn(`Metrics not found for coin: ${coin.Name}`);
-              return null;
-            }
-
-            return {
-              id: coin.Name,
-              symbol: coin.Name,
-              name: coin.FullName,
-              image: `https://cryptocompare.com${coin.ImageUrl}`,
-              current_price: metrics.PRICE,
-              market_cap: metrics.MKTCAP,
-              market_cap_rank: i + 1,
-              total_volume: metrics.TOTALVOLUME24HTO,
-              high_24h: metrics.HIGH24HOUR,
-              low_24h: metrics.LOW24HOUR,
-              price_change_24h: metrics.CHANGE24HOUR,
-              price_change_percentage_24h: metrics.CHANGEPCT24HOUR,
-              circulating_supply: metrics.SUPPLY,
-            };
-          }).filter(Boolean);
-
-          const formattedTrendingCoins = allFormattedCoins.slice(0, 10);
-          console.log("formattedTrendingCoins", formattedTrendingCoins);
-
-          // Dispatch the action with the new formatted coins
-          dispatch(
-            coinsActions.updateCoins({
-              displayedCoinListCoins: allFormattedCoins,
-              trendingCarouselCoins: formattedTrendingCoins,
-              symbol: currentSymbol,
-            }),
-          );
-
-          // Update CoinLists IndexedDB with the fresh data
-          db.coinLists.put({
-            currency: currentCurrency.toUpperCase(),
-            coins: allFormattedCoins,
-          });
-        };
-
-        prefetchHomePage();
-      }
-      if (Object.values(currencyRates).length === 0) {
-        dispatch(currencyActions.updateRates({ currencyRates: initialRates }));
-      }
       firstRender.current = false;
       return;
     }

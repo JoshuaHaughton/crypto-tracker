@@ -10,7 +10,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 /**
  * Async thunk to manage caching of coin list data for multiple currencies.
  *
- * On app initialization, the thunk checks if coin data exists in the cache (IndexedDB) and is valid.
+ * The thunk checks if coin data exists in the cache (IndexedDB) and is valid.
  * - If the cache is valid, it dispatches the cached data to the Redux store.
  * - If the cache is invalid or the data does not exist, it sends the initial coin data to a web worker for currency transformation.
  *
@@ -20,14 +20,14 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
  *
  * @returns {Function} Thunk action.
  */
-export const initializeCache = createAsyncThunk(
-  "coins/initializeCache",
+export const initializeCoinListCache = createAsyncThunk(
+  "coins/initializeCoinListCache",
   async (_, { dispatch, getState }) => {
     console.log("cacheThunk active");
     const state = getState();
     const initialHundredCoins = state.coins.displayedCoinListCoins;
     const initialRates = state.currency.currencyRates;
-    const initialCurrency = state.currency.initialCurrency;
+    const currentCurrency = state.currency.currentCurrency;
 
     // If data isn't in the cache, or the cache isn't valid, send the initial data to the web worker
     // for currency transformation. After that, we save it to the cache
@@ -41,7 +41,7 @@ export const initializeCache = createAsyncThunk(
           handleTransformedDataFromWorker(
             event,
             dispatch,
-            initialCurrency,
+            currentCurrency,
             initialHundredCoins,
           ),
         );
@@ -51,7 +51,7 @@ export const initializeCache = createAsyncThunk(
           data: {
             coins: initialHundredCoins,
             rates: initialRates,
-            currentCurrency: initialCurrency.toUpperCase(),
+            currentCurrency: currentCurrency.toUpperCase(),
           },
         });
       }
@@ -62,7 +62,7 @@ export const initializeCache = createAsyncThunk(
       await db.coinLists
         .each((data) => {
           if (
-            data.currency !== initialCurrency.toUpperCase() &&
+            data.currency !== currentCurrency.toUpperCase() &&
             data?.coinData
           ) {
             dispatch(
@@ -86,13 +86,13 @@ export const initializeCache = createAsyncThunk(
  *
  * @param {MessageEvent} event - The web worker message event.
  * @param {Function} dispatch - Redux dispatch function.
- * @param {string} initialCurrency - The initial currency.
+ * @param {string} currentCurrency - The initial currency.
  * @param {Object[]} initialHundredCoins - The initial list of coins.
  */
 async function handleTransformedDataFromWorker(
   event,
   dispatch,
-  initialCurrency,
+  currentCurrency,
   initialHundredCoins,
 ) {
   const { transformedData } = event.data;
@@ -122,7 +122,7 @@ async function handleTransformedDataFromWorker(
   // Store initial data in Redux
   dispatch(
     coinsActions.setCoinListForCurrency({
-      currency: initialCurrency.toUpperCase(),
+      currency: currentCurrency.toUpperCase(),
       coinData: initialHundredCoins,
     }),
   );
@@ -131,7 +131,7 @@ async function handleTransformedDataFromWorker(
   storagePromises.push(
     saveCoinDataForCurrencyInBrowser(
       COINLISTS_TABLENAME,
-      initialCurrency.toUpperCase(),
+      currentCurrency.toUpperCase(),
       initialHundredCoins,
     ),
   );

@@ -3,7 +3,7 @@ import { Provider } from "react-redux";
 import { Layout } from "../src/components/Layout/Layout";
 import { MediaQueryHandler } from "../src/components/MediaQueryHandler/MediaQueryHandler";
 import { getOrInitializeStore } from "../src/store";
-import { initializeCache } from "../src/thunks/cacheThunk";
+import { initializeCache } from "../src/thunks/coinListCacheThunk";
 import "../styles/globals.scss";
 import nProgress from "nprogress";
 import { Router } from "next/router";
@@ -29,10 +29,6 @@ Router.events.on("routeChangeComplete", () => {
 
 function MyApp({ Component, pageProps }) {
   const store = getOrInitializeStore(pageProps.initialReduxState);
-
-  useEffect(() => {
-    store.dispatch(initializeCache());
-  }, [store]);
 
   return (
     <Provider store={store}>

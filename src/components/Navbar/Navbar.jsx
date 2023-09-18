@@ -35,7 +35,9 @@ const StyledSelect = styled(Select)(`
 
 const Navbar = () => {
   const [openNotificationBar, setOpenNotificationBar] = useState(false);
-  const currentCurrency = useSelector((state) => state.currency.currency);
+  const currentCurrency = useSelector(
+    (state) => state.currency.currentCurrency,
+  );
   const currentSymbol = useSelector((state) => state.currency.symbol);
   const isBreakpoint555 = useSelector(
     (state) => state.mediaQuery.isBreakpoint555,
@@ -46,7 +48,7 @@ const Navbar = () => {
     const currency = e.target.value.split(",")[0].toUpperCase();
     const symbol = e.target.value.split(",")[1];
 
-    dispatch(updateCurrency({ currency, symbol }));
+    dispatch(updateCurrency({ currency }));
   };
 
   return (

@@ -2,6 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { coinsActions } from "../store/coins";
 import { convertCurrency } from "../utils/currency.utils";
 import { currencyActions } from "../store/currency";
+import { SYMBOLS_BY_CURRENCIES } from "../global/constants";
 
 export const updateCurrency = createAsyncThunk(
   "currency/update",
@@ -12,7 +13,7 @@ export const updateCurrency = createAsyncThunk(
     dispatch(currencyActions.changeCurrency(payload));
 
     const updatedCurrency = payload.currency;
-    const updatedCurrencySymbol = payload.symbol;
+    const updatedCurrencySymbol = SYMBOLS_BY_CURRENCIES[updatedCurrency];
     const state = getState();
     const coinListCoinsByCurrency = state.coins.coinListCoinsByCurrency;
     const initialHundredCoins = state.coins.displayedCoinListCoins;
