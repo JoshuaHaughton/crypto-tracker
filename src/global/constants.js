@@ -6,6 +6,8 @@ export const ALL_CURRENCIES = ["CAD", "USD", "AUD", "GBP"];
 
 export const COINLISTS_TABLENAME = "coinLists";
 
+export const COINDETAILS_TABLENAME = "coinDetails";
+
 export const SYMBOLS_BY_CURRENCIES = {
   CAD: "$",
   USD: "$",

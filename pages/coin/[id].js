@@ -5,9 +5,12 @@ import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "react-redux";
-import { coinsActions } from "../../src/store/coins";
+import { coinsActions, initialCoinsState } from "../../src/store/coins";
 import Link from "next/link";
-import { currencyActions } from "../../src/store/currency";
+import {
+  currencyActions,
+  initialCurrencyState,
+} from "../../src/store/currency";
 import { convertCurrency } from "../../src/utils/currency.utils";
 import db from "../../src/utils/database";
 import { initializeCoinListCache } from "../../src/thunks/coinListCacheThunk";
@@ -24,8 +27,8 @@ const Coin = ({
   );
   const currencyRates = useSelector((state) => state.currency.currencyRates);
   const currentSymbol = useSelector((state) => state.currency.symbol);
-  const coinDetailsByCurrency = useSelector(
-    (state) => state.coins.coinDetailsByCurrency,
+  const selectedCoinDetailsByCurrency = useSelector(
+    (state) => state.coins.selectedCoinDetailsByCurrency,
   );
   const currentCurrency = useSelector(
     (state) => state.currency.currentCurrency,
@@ -171,7 +174,7 @@ const Coin = ({
 
       // Dispatch initial data for the current currency
       dispatch(
-        coinsActions.updateCoinDetailsForCurrency({
+        coinsActions.updateSelectedCoinDetailsForCurrency({
           currency: currentCurrency.toUpperCase(),
           coinDetail: initialCoin,
         }),
@@ -186,7 +189,7 @@ const Coin = ({
       // Dispatch transformed data for other currencies
       Object.keys(transformedData).forEach((currency) => {
         dispatch(
-          coinsActions.updateCoinDetailsForCurrency({
+          coinsActions.updateSelectedCoinDetailsForCurrency({
             currency,
             coinDetail: transformedData[currency],
           }),
@@ -272,9 +275,9 @@ const Coin = ({
       console.log("updateSelectedCoinCurrencyValues");
 
       // Check if coin data for the current currency exists in the Redux store
-      if (coinDetailsByCurrency[currentCurrency.toUpperCase()]) {
+      if (selectedCoinDetailsByCurrency[currentCurrency.toUpperCase()]) {
         console.log("currency cache used");
-        setCoin(coinDetailsByCurrency[currentCurrency.toUpperCase()]);
+        setCoin(selectedCoinDetailsByCurrency[currentCurrency.toUpperCase()]);
         // TODO: Update marketChart, marketValues, and chartData similarly if stored in Redux
       } else {
         // Convert the initial coin values using the initialRates
@@ -313,7 +316,7 @@ const Coin = ({
         }));
 
         dispatch(
-          coinsActions.updateCoinDetailsForCurrency({
+          coinsActions.updateSelectedCoinDetailsForCurrency({
             currency: currentCurrency.toUpperCase(),
             coinDetail: {
               ...coin,
@@ -915,6 +918,20 @@ export async function getServerSideProps(context) {
         ],
       },
       initialRates,
+      initialReduxState: {
+        coins: {
+          ...initialCoinsState,
+          selectedCoinDetails: coinInfo,
+          selectedCoinDetailsByCurrency: {
+            ...initialCoinsState.selectedCoinDetailsByCurrency,
+            [initialCurrencyState.initialCurrency]: coinInfo,
+          },
+        },
+        currency: {
+          ...initialCurrencyState,
+          currencyRates: initialRates,
+        },
+      },
     },
   };
 }

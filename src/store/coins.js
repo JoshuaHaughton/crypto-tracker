@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 export const initialCoinsState = {
+  selectedCoinDetails: {},
   displayedCoinListCoins: [],
   trendingCarouselCoins: [],
   coinListCoinsByCurrency: {
@@ -9,7 +10,7 @@ export const initialCoinsState = {
     AUD: [],
     GBP: [],
   },
-  coinDetailsByCurrency: {
+  selectedCoinDetailsByCurrency: {
     CAD: null,
     USD: null,
     AUD: null,
@@ -37,15 +38,21 @@ const coinsSlice = createSlice({
         state.symbol = action.payload.symbol;
       }
     },
+    updateSelectedCoin(state, action) {
+      console.log("updateSelectedCoin", action);
+      if (action.payload.coinDetails) {
+        state.selectedCoinDetails = action.payload.coinDetails;
+      }
+    },
     setCoinListForCurrency(state, action) {
       console.log("setCoinListForCurrency", action);
       const { currency, coinData } = action.payload;
       state.coinListCoinsByCurrency[currency] = coinData;
     },
-    updateCoinDetailsForCurrency(state, action) {
-      console.log("updateCoinDetailsForCurrency", action);
+    updateSelectedCoinDetailsForCurrency(state, action) {
+      console.log("updateSelectedCoinDetailsForCurrency", action);
       const { currency, coinDetail } = action.payload;
-      state.coinDetailsByCurrency[currency] = coinDetail;
+      state.selectedCoinDetailsByCurrency[currency] = coinDetail;
     },
   },
 });

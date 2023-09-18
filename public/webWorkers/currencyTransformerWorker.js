@@ -1,102 +1,234 @@
-const convertCurrency = (value, fromCurrency, toCurrency, allRates) => {
-  return value * allRates[fromCurrency][toCurrency];
+const ALL_CURRENCIES = ["CAD", "USD", "AUD", "GBP"];
+
+/**
+ * Converts a value from one currency to another using the given currency rates.
+ *
+ * @param {number} value The amount to be converted.
+ * @param {string} fromCurrency The source currency code.
+ * @param {string} toCurrency The target currency code.
+ * @param {Object} currencyRates The conversion rates.
+ * @returns {number} The converted amount.
+ */
+const convertCurrency = (value, fromCurrency, toCurrency, currencyRates) => {
+  return value * currencyRates[fromCurrency][toCurrency];
 };
 
-const transformCurrencyDataForCoinList = (coins, rates, currency) => {
-  return coins.map((coin, i) => {
-    return {
-      ...coin,
-      current_price: convertCurrency(
-        coin.current_price,
-        "CAD",
-        currency,
-        rates,
-      ),
-      market_cap: convertCurrency(coin.market_cap, "CAD", currency, rates),
-      market_cap_rank: i + 1,
-      total_volume: convertCurrency(coin.total_volume, "CAD", currency, rates),
-      high_24h: convertCurrency(coin.high_24h, "CAD", currency, rates),
-      low_24h: convertCurrency(coin.low_24h, "CAD", currency, rates),
-      price_change_24h: convertCurrency(
-        coin.price_change_24h,
-        "CAD",
-        currency,
-        rates,
-      ),
-    };
-  });
-};
-
-const transformCurrencyDataForCoinDetails = (coin, rates, currency) => {
-  return {
+/**
+ * Transforms the currency data for a list of coins.
+ *
+ * @param {Array} coinsToTransform The list of coins to transform.
+ * @param {string} fromCurrency The source currency code.
+ * @param {string} toCurrency The target currency code.
+ * @param {Object} currencyRates The conversion rates.
+ * @returns {Array} The list of coins with transformed currency data.
+ */
+const transformCurrencyForCoinList = (
+  coinsToTransform,
+  fromCurrency,
+  toCurrency,
+  currencyRates,
+) => {
+  return coinsToTransform.map((coin, index) => ({
     ...coin,
-    current_price: convertCurrency(coin.current_price, "CAD", currency, rates),
-    all_time_high: convertCurrency(coin.all_time_high, "CAD", currency, rates),
-    market_cap: convertCurrency(coin.market_cap, "CAD", currency, rates),
-    price_change_1d: convertCurrency(
-      coin.price_change_1d,
-      "CAD",
-      currency,
-      rates,
+    current_price: convertCurrency(
+      coin.current_price,
+      fromCurrency,
+      toCurrency,
+      currencyRates,
     ),
-    price_change_7d: convertCurrency(
-      coin.price_change_7d,
-      "CAD",
-      currency,
-      rates,
+    market_cap: convertCurrency(
+      coin.market_cap,
+      fromCurrency,
+      toCurrency,
+      currencyRates,
     ),
-    price_change_30d: convertCurrency(
-      coin.price_change_30d,
-      "CAD",
-      currency,
-      rates,
+    market_cap_rank: index + 1,
+    total_volume: convertCurrency(
+      coin.total_volume,
+      fromCurrency,
+      toCurrency,
+      currencyRates,
     ),
-    price_change_365d: convertCurrency(
-      coin.price_change_365d,
-      "CAD",
-      currency,
-      rates,
+    high_24h: convertCurrency(
+      coin.high_24h,
+      fromCurrency,
+      toCurrency,
+      currencyRates,
     ),
-  };
+    low_24h: convertCurrency(
+      coin.low_24h,
+      fromCurrency,
+      toCurrency,
+      currencyRates,
+    ),
+    price_change_24h: convertCurrency(
+      coin.price_change_24h,
+      fromCurrency,
+      toCurrency,
+      currencyRates,
+    ),
+  }));
 };
 
+/**
+ * Transforms the currency data for a single coin's detailed data.
+ *
+ * @param {Object} coinToTransform The coin's data to transform.
+ * @param {string} fromCurrency The source currency code.
+ * @param {string} toCurrency The target currency code.
+ * @param {Object} currencyRates The conversion rates.
+ * @returns {Object} The coin's data with transformed currency values.
+ */
+const transformCurrencyForCoinDetails = (
+  coinToTransform,
+  fromCurrency,
+  toCurrency,
+  currencyRates,
+) => ({
+  ...coinToTransform,
+  current_price: convertCurrency(
+    coinToTransform.current_price,
+    fromCurrency,
+    toCurrency,
+    currencyRates,
+  ),
+  all_time_high: convertCurrency(
+    coinToTransform.all_time_high,
+    fromCurrency,
+    toCurrency,
+    currencyRates,
+  ),
+  market_cap: convertCurrency(
+    coinToTransform.market_cap,
+    fromCurrency,
+    toCurrency,
+    currencyRates,
+  ),
+  price_change_1d: convertCurrency(
+    coinToTransform.price_change_1d,
+    fromCurrency,
+    toCurrency,
+    currencyRates,
+  ),
+  price_change_7d: convertCurrency(
+    coinToTransform.price_change_7d,
+    fromCurrency,
+    toCurrency,
+    currencyRates,
+  ),
+  price_change_30d: convertCurrency(
+    coinToTransform.price_change_30d,
+    fromCurrency,
+    toCurrency,
+    currencyRates,
+  ),
+  price_change_365d: convertCurrency(
+    coinToTransform.price_change_365d,
+    fromCurrency,
+    toCurrency,
+    currencyRates,
+  ),
+});
+
+// Web Worker event listener for message events
 self.addEventListener(
   "message",
-  function (e) {
-    const { type, data } = e.data;
+  (event) => {
+    const { type, data } = event.data;
 
-    if (type === "transformCoinList") {
-      const { coins, rates, currentCurrency } = data;
-      const currencies = ["CAD", "USD", "AUD", "GBP"].filter(
-        (cur) => cur !== currentCurrency,
-      );
-      const transformedData = {};
-
-      currencies.forEach((currency) => {
-        transformedData[currency] = transformCurrencyDataForCoinList(
-          coins,
-          rates,
-          currency,
+    switch (type) {
+      case "transformCoinListCurrency":
+        const transformedCoinList = transformCurrencyForCoinList(
+          data.coinsToTransform,
+          data.fromCurrency,
+          data.toCurrency,
+          data.currencyRates,
         );
-      });
+        self.postMessage({ transformedData: transformedCoinList });
+        break;
 
-      self.postMessage({ transformedData });
-    } else if (type === "transformCoin") {
-      const { coin, rates, currentCurrency } = data;
-      const currencies = ["CAD", "USD", "AUD", "GBP"].filter(
-        (cur) => cur !== currentCurrency,
-      );
-      const transformedData = {};
-
-      currencies.forEach((currency) => {
-        transformedData[currency] = transformCurrencyDataForCoinDetails(
-          coin,
-          rates,
-          currency,
+      case "transformCoinDetailsCurrency":
+        const transformedCoinDetails = transformCurrencyForCoinDetails(
+          data.coinToTransform,
+          data.fromCurrency,
+          data.toCurrency,
+          data.currencyRates,
         );
-      });
+        self.postMessage({ transformedData: transformedCoinDetails });
+        break;
 
-      self.postMessage({ transformedData });
+      case "transformAllCoinListCurrencies":
+        // Extract the necessary data for the transformation
+        const {
+          coinsToTransform,
+          fromCurrency,
+          toCurrency,
+          currencyRates,
+          currencyToExclude,
+        } = data;
+
+        let targetCurrencies = ALL_CURRENCIES;
+
+        if (currencyToExclude != null) {
+          // Filter out the excluded currency from the list of all currencies if it exists
+          targetCurrencies = targetCurrencies.filter(
+            (currency) => currency !== currencyToExclude,
+          );
+        }
+
+        // Create an object to store the transformed data for each target currency
+        const coinListTransformedData = {};
+
+        targetCurrencies.forEach((currency) => {
+          coinListTransformedData[currency] = transformCurrencyForCoinList(
+            coinsToTransform,
+            fromCurrency,
+            toCurrency,
+            currencyRates,
+          );
+        });
+
+        self.postMessage({ transformedData: coinListTransformedData });
+        break;
+
+      case "transformAllCoinDetailsCurrencies":
+        // Extract the necessary data for the transformation
+        const {
+          coinToTransform,
+          fromCurrency: coinFromCurrency,
+          toCurrency: coinToCurrency,
+          currencyRates: coinCurrencyRates,
+          currencyToExclude: coincurrencyToExclude,
+        } = data;
+
+        let coinTargetCurrencies = ALL_CURRENCIES;
+
+        if (coincurrencyToExclude != null) {
+          // Filter out the excluded currency from the list of all currencies if it exists
+          coinTargetCurrencies = coinTargetCurrencies.filter(
+            (currency) => currency !== coincurrencyToExclude,
+          );
+        }
+
+        // Create an object to store the transformed data for each target currency
+        const coinDetailsTransformedData = {};
+
+        coinTargetCurrencies.forEach((currency) => {
+          coinDetailsTransformedData[currency] =
+            transformCurrencyForCoinDetails(
+              coinToTransform,
+              coinFromCurrency,
+              coinToCurrency,
+              coinCurrencyRates,
+            );
+        });
+
+        self.postMessage({ transformedData: coinDetailsTransformedData });
+        break;
+
+      default:
+        // Handle any unexpected message types
+        console.warn(`Unexpected message type received: ${type}`);
     }
   },
   false,
