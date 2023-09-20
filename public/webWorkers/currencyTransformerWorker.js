@@ -1,3 +1,10 @@
+const SYMBOLS_BY_CURRENCIES = {
+  CAD: "$",
+  USD: "$",
+  GBP: "£",
+  AUD: "AU$",
+};
+
 const ALL_CURRENCIES = ["CAD", "USD", "AUD", "GBP"];
 
 /**
@@ -135,6 +142,7 @@ self.addEventListener(
   "message",
   (event) => {
     const { type, data } = event.data;
+    console.log("finally", type);
 
     switch (type) {
       case "transformCoinListCurrency":
@@ -144,7 +152,13 @@ self.addEventListener(
           data.toCurrency,
           data.currencyRates,
         );
-        self.postMessage({ transformedData: transformedCoinList });
+
+        self.postMessage({
+          transformedData: transformedCoinList,
+          type,
+          displaySymbol: SYMBOLS_BY_CURRENCIES[data.toCurrency],
+          toCurrency: data.toCurrency,
+        });
         break;
 
       case "transformCoinDetailsCurrency":
@@ -154,76 +168,12 @@ self.addEventListener(
           data.toCurrency,
           data.currencyRates,
         );
-        self.postMessage({ transformedData: transformedCoinDetails });
-        break;
-
-      case "transformAllCoinListCurrencies":
-        // Extract the necessary data for the transformation
-        const {
-          coinsToTransform,
-          fromCurrency,
-          toCurrency,
-          currencyRates,
-          currencyToExclude,
-        } = data;
-
-        let targetCurrencies = ALL_CURRENCIES;
-
-        if (currencyToExclude != null) {
-          // Filter out the excluded currency from the list of all currencies if it exists
-          targetCurrencies = targetCurrencies.filter(
-            (currency) => currency !== currencyToExclude,
-          );
-        }
-
-        // Create an object to store the transformed data for each target currency
-        const coinListTransformedData = {};
-
-        targetCurrencies.forEach((currency) => {
-          coinListTransformedData[currency] = transformCurrencyForCoinList(
-            coinsToTransform,
-            fromCurrency,
-            toCurrency,
-            currencyRates,
-          );
+        self.postMessage({
+          transformedData: transformedCoinDetails,
+          type,
+          displaySymbol: SYMBOLS_BY_CURRENCIES[data.toCurrency],
+          toCurrency: data.toCurrency,
         });
-
-        self.postMessage({ transformedData: coinListTransformedData });
-        break;
-
-      case "transformAllCoinDetailsCurrencies":
-        // Extract the necessary data for the transformation
-        const {
-          coinToTransform,
-          fromCurrency: coinFromCurrency,
-          toCurrency: coinToCurrency,
-          currencyRates: coinCurrencyRates,
-          currencyToExclude: coincurrencyToExclude,
-        } = data;
-
-        let coinTargetCurrencies = ALL_CURRENCIES;
-
-        if (coincurrencyToExclude != null) {
-          // Filter out the excluded currency from the list of all currencies if it exists
-          coinTargetCurrencies = coinTargetCurrencies.filter(
-            (currency) => currency !== coincurrencyToExclude,
-          );
-        }
-
-        // Create an object to store the transformed data for each target currency
-        const coinDetailsTransformedData = {};
-
-        coinTargetCurrencies.forEach((currency) => {
-          coinDetailsTransformedData[currency] =
-            transformCurrencyForCoinDetails(
-              coinToTransform,
-              coinFromCurrency,
-              coinToCurrency,
-              coinCurrencyRates,
-            );
-        });
-
-        self.postMessage({ transformedData: coinDetailsTransformedData });
         break;
 
       default:

@@ -4,21 +4,15 @@ import Banner from "../src/components/UI/Banner/Banner";
 import Pagination from "../src/components/UI/Pagination.jsx";
 import styles from "./Home.module.css";
 import "react-alice-carousel/lib/alice-carousel.css";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { initialCoinsState } from "../src/store/coins";
 import { initialCurrencyState } from "../src/store/currency";
-import { initializeCoinListCache } from "../src/thunks/coinListCacheThunk";
 import { fetchBaseDataFromCryptoCompare } from "../src/utils/api.utils";
 
 export default function Home() {
-  const dispatch = useDispatch();
   const coinListPageNumber = useSelector(
     (state) => state.appInfo.coinListPageNumber,
   );
-
-  useEffect(() => {
-    dispatch(initializeCoinListCache());
-  }, []);
 
   useEffect(() => {
     if (coinListPageNumber !== 1) {
@@ -48,10 +42,6 @@ export async function getStaticProps() {
             ...initialCoinsState,
             displayedCoinListCoins: initialHundredCoins,
             trendingCarouselCoins: trendingCarouselCoins,
-            coinListCoinsByCurrency: {
-              ...initialCoinsState.coinListCoinsByCurrency,
-              [initialCurrencyState.initialCurrency]: initialHundredCoins,
-            },
           },
           currency: {
             ...initialCurrencyState,

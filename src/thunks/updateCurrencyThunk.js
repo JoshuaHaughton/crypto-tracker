@@ -1,7 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { coinsActions } from "../store/coins";
 import { currencyActions } from "../store/currency";
-import { SYMBOLS_BY_CURRENCIES } from "../global/constants";
+import { postMessageToCurrencyTransformerWorker } from "../utils/currencyTransformerService";
 
 /**
  * Thunk to update currency.
@@ -10,49 +9,38 @@ import { SYMBOLS_BY_CURRENCIES } from "../global/constants";
  */
 export const updateCurrency = createAsyncThunk(
   "currency/update",
-  async (payload, { dispatch, getState }) => {
-    console.log("updateCurrencyThunk active", payload);
+  async (payload, { getState }) => {
+    console.log("updateCurrencyThunk called", payload);
 
     const { currency: updatedCurrency } = payload;
     const state = getState();
 
     const {
-      coins: { displayedCoinListCoins: initialHundredCoins },
-      currency: { initialCurrency, currencyRates: initialRates },
+      coins: { displayedCoinListCoins, selectedCoinDetails },
+      currency: { currentCurrency, currencyRates },
     } = state;
 
-    // // Initialize the web worker
-    // const currencyTransformerWorker = new Worker(
-    //   "/webWorkers/currencyTransformerWorker.js",
-    // );
-
-    // // Listen for messages from the web worker
-    // currencyTransformerWorker.onmessage = ({ data, type }) => {
-    //   const { transformedData } = data;
-    //   const trendingCoins = transformedData.slice(0, 10);
-
-    //   // Dispatch the transformed data
-    //   dispatch(
-    //     coinsActions.updateCoins({
-    //       displayedCoinListCoins: transformedData,
-    //       trendingCarouselCoins: trendingCoins,
-    //       symbol: SYMBOLS_BY_CURRENCIES[updatedCurrency],
-    //     }),
-    //   );
-    // };
-
+    if (selectedCoinDetails != null) {
+      postMessageToCurrencyTransformerWorker({
+        type: "transformCoinDetailsCurrency",
+        data: {
+          coinToTransform: selectedCoinDetails,
+          fromCurrency: currentCurrency.toUpperCase(),
+          toCurrency: updatedCurrency.toUpperCase(),
+          currencyRates,
+        },
+      });
+    }
     // Send data to the web worker for transformation
-    currencyTransformerWorker.postMessage({
-      type: "transformCoinList",
+    postMessageToCurrencyTransformerWorker({
+      type: "transformCoinListCurrency",
       data: {
-        coinsToTransform: initialHundredCoins,
-        fromCurrency: initialCurrency.toUpperCase(),
+        coinsToTransform: displayedCoinListCoins,
+        fromCurrency: currentCurrency.toUpperCase(),
         toCurrency: updatedCurrency.toUpperCase(),
-        currencyRates: initialRates,
+        currencyRates,
       },
     });
-
-    // Update the currency state
-    dispatch(currencyActions.changeCurrency(payload));
+    console.log("post to web worker");
   },
 );

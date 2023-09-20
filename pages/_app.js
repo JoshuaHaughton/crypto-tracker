@@ -1,12 +1,15 @@
-import { useEffect } from "react";
 import { Provider } from "react-redux";
 import { Layout } from "../src/components/Layout/Layout";
-import { MediaQueryHandler } from "../src/components/MediaQueryHandler/MediaQueryHandler";
 import { getOrInitializeStore } from "../src/store";
-import { initializeCache } from "../src/thunks/coinListCacheThunk";
 import "../styles/globals.scss";
 import nProgress from "nprogress";
 import { Router } from "next/router";
+import {
+  initializeCurrencyTransformerWorker,
+  terminateCurrencyTransformerWorker,
+} from "../src/utils/currencyTransformerService";
+import { MediaQueryHandler } from "../src/components/MediaQueryHandler/MediaQueryHandler";
+import { useEffect } from "react";
 
 nProgress.configure({
   minimum: 0.3,
@@ -29,6 +32,16 @@ Router.events.on("routeChangeComplete", () => {
 
 function MyApp({ Component, pageProps }) {
   const store = getOrInitializeStore(pageProps.initialReduxState);
+
+  useEffect(() => {
+    console.log("ye");
+    // Initialize the transformer when the app loads
+    initializeCurrencyTransformerWorker(store.dispatch);
+
+    return () => {
+      terminateCurrencyTransformerWorker();
+    };
+  }, []);
 
   return (
     <Provider store={store}>

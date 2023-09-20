@@ -15,7 +15,6 @@ const currencySlice = createSlice({
   reducers: {
     changeCurrency(state, action) {
       console.log("changeCurrency", action);
-      
       if (action.payload.currency) {
         state.currentCurrency = action.payload.currency;
         state.symbol = SYMBOLS_BY_CURRENCIES[action.payload.currency];
