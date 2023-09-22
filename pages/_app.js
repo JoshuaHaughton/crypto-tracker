@@ -3,10 +3,7 @@ import { Provider } from "react-redux";
 import { Layout } from "../src/components/Layout/Layout";
 import { MediaQueryHandler } from "../src/components/MediaQueryHandler/MediaQueryHandler";
 import { getOrInitializeStore } from "../src/store";
-import {
-  initializeCache,
-  initializeCoinListCache,
-} from "../src/thunks/coinListCacheThunk";
+import { initializeCoinListCache } from "../src/thunks/coinListCacheThunk";
 import "../styles/globals.scss";
 import nProgress from "nprogress";
 import { Router } from "next/router";

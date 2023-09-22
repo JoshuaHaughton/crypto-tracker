@@ -27,41 +27,40 @@ export const updateCurrency = createAsyncThunk(
       currency: { initialCurrency, currencyRates: initialRates },
     } = state;
 
-    batch(() => {
-      //handle coin details transformations if needed. We can prioritize these since if they exist,
-      // we aren't on the page with coin list coins anyways
-      if (selectedCoinDetails.length) {
-      }
+    //handle coin details transformations if needed. We can prioritize these since if they exist,
+    // we aren't on the page with coin list coins anyways
+    if (selectedCoinDetails.length) {
+    }
 
-      // Coinlist Cache exists
-      if (coinListCoinsByCurrency[updatedCurrency].length > 0) {
-        console.log("CACHE USED");
-        // Dispatch the cached data
-        dispatch(
-          coinsActions.updateCoins({
-            displayedCoinListCoins: coinListCoinsByCurrency[updatedCurrency],
-            trendingCarouselCoins: coinListCoinsByCurrency[
-              updatedCurrency
-            ].slice(0, 10),
-          }),
-        );
-      } else {
-        // CoinList Cache doesn't exist
-        console.log("CACHE NOT USED");
-        // Re-attempt caching all coins - if one doesn't exist, then there's a good chance that there's more than one
-        postMessageToCurrencyTransformerWorker({
-          type: "transformAllCoinListCurrencies",
-          data: {
-            coinsToTransform: displayedCoinListCoins,
-            fromCurrency: initialCurrency.toUpperCase(),
-            toCurrency: updatedCurrency.toUpperCase(),
-            currencyRates: initialRates,
-          },
-        });
-      }
+    // Coinlist Cache exists
+    if (coinListCoinsByCurrency[updatedCurrency].length > 0) {
+      console.log("CACHE USED");
+      // Dispatch the cached data
+      dispatch(
+        coinsActions.updateCoins({
+          displayedCoinListCoins: coinListCoinsByCurrency[updatedCurrency],
+          trendingCarouselCoins: coinListCoinsByCurrency[updatedCurrency].slice(
+            0,
+            10,
+          ),
+        }),
+      );
+    } else {
+      // CoinList Cache doesn't exist
+      console.log("CACHE NOT USED");
+      // Re-attempt caching all coins - if one doesn't exist, then there's a good chance that there's more than one
+      postMessageToCurrencyTransformerWorker({
+        type: "transformAllCoinListCurrencies",
+        data: {
+          coinsToTransform: displayedCoinListCoins,
+          fromCurrency: initialCurrency.toUpperCase(),
+          toCurrency: updatedCurrency.toUpperCase(),
+          currencyRates: initialRates,
+        },
+      });
+    }
 
-      // Update the currency state
-      dispatch(currencyActions.changeCurrency(payload));
-    });
+    // Update the currency state
+    dispatch(currencyActions.changeCurrency(payload));
   },
 );
