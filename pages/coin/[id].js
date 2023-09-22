@@ -5,15 +5,16 @@ import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "react-redux";
-import { coinsActions, initialCoinsState } from "../../src/store/coins";
+import { coinsActions } from "../../src/store/coins";
 import Link from "next/link";
-import {
-  currencyActions,
-  initialCurrencyState,
-} from "../../src/store/currency";
+import { currencyActions } from "../../src/store/currency";
 import { convertCurrency } from "../../src/utils/currency.utils";
 import db from "../../src/utils/database";
 import { initializeCoinListCache } from "../../src/thunks/coinListCacheThunk";
+import {
+  fetchBaseDataFromCryptoCompare,
+  fetchCoinDetailsFromCryptoCompare,
+} from "../../src/utils/api.utils";
 
 const Coin = ({
   initialCoin,
@@ -232,6 +233,7 @@ const Coin = ({
   }, [isHydrated]);
 
   useEffect(() => {
+    // should do if t either the cache isnt valid or on page revalidates (new data)
     const prefetchHomePage = async () => {
       console.log("prefetchHomePage");
 
@@ -730,208 +732,15 @@ const Coin = ({
 export default Coin;
 
 export async function getServerSideProps(context) {
-  const { id } = context.query;
-  const currency = "CAD";
-  const cryptoCompareApiKey = process.env.NEXT_PUBLIC_CRYPTOCOMPARE_API_KEY;
+  try {
+    const { id } = context.query;
+    const currency = "CAD";
+    const coinDetails = await fetchCoinDetailsFromCryptoCompare(id, currency);
 
-  const cryptoCompareFetchOptions = {
-    headers: {
-      Authorization: `Apikey ${cryptoCompareApiKey}`,
-    },
-  };
-
-  const urls = [
-    `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${id.toUpperCase()},CAD&tsyms=USD,AUD,GBP,CAD`,
-    `https://data-api.cryptocompare.com/asset/v1/data/by/symbol?asset_symbol=${id.toUpperCase()}`,
-    `https://min-api.cryptocompare.com/data/v2/histohour?fsym=${id}&tsym=${currency}&limit=24`,
-    `https://min-api.cryptocompare.com/data/v2/histoday?fsym=${id}&tsym=${currency}&limit=365`,
-    `https://api.coinpaprika.com/v1/search?q=${id}`,
-  ];
-
-  // Execute all requests concurrently
-  const [
-    cryptoCompareData,
-    assetDataR,
-    dayData,
-    yearData,
-    coinPaprikaSearchData,
-  ] = await Promise.all(
-    urls.map((url) =>
-      fetch(url, cryptoCompareFetchOptions).then((res) => res.json()),
-    ),
-  );
-
-  const initialRates = {
-    CAD: {
-      CAD: 1,
-      USD: cryptoCompareData.RAW.CAD.USD.PRICE,
-      AUD: cryptoCompareData.RAW.CAD.AUD.PRICE,
-      GBP: cryptoCompareData.RAW.CAD.GBP.PRICE,
-    },
-    USD: {
-      CAD: 1 / cryptoCompareData.RAW.CAD.USD.PRICE,
-      USD: 1,
-      AUD:
-        cryptoCompareData.RAW.CAD.AUD.PRICE /
-        cryptoCompareData.RAW.CAD.USD.PRICE,
-      GBP:
-        cryptoCompareData.RAW.CAD.GBP.PRICE /
-        cryptoCompareData.RAW.CAD.USD.PRICE,
-    },
-    AUD: {
-      CAD: 1 / cryptoCompareData.RAW.CAD.AUD.PRICE,
-      USD:
-        cryptoCompareData.RAW.CAD.USD.PRICE /
-        cryptoCompareData.RAW.CAD.AUD.PRICE,
-      AUD: 1,
-      GBP:
-        cryptoCompareData.RAW.CAD.GBP.PRICE /
-        cryptoCompareData.RAW.CAD.AUD.PRICE,
-    },
-    GBP: {
-      CAD: 1 / cryptoCompareData.RAW.CAD.GBP.PRICE,
-      USD:
-        cryptoCompareData.RAW.CAD.USD.PRICE /
-        cryptoCompareData.RAW.CAD.GBP.PRICE,
-      AUD:
-        cryptoCompareData.RAW.CAD.AUD.PRICE /
-        cryptoCompareData.RAW.CAD.GBP.PRICE,
-      GBP: 1,
-    },
-  };
-
-  const coinData = cryptoCompareData.RAW[id.toUpperCase()][currency];
-  const assetData = assetDataR.Data;
-
-  // Derive 7-day and 30-day data from the 365-day data
-  const weekData = {
-    Data: {
-      Data: yearData.Data.Data.slice(-7),
-    },
-  };
-  const monthData = {
-    Data: {
-      Data: yearData.Data.Data.slice(-30), // Last 30 days data
-    },
-  };
-
-  // Extracting and formatting chart and market data
-  const marketChartFromServer = {
-    day: dayData.Data.Data.map((data) => [data.time, data.close]),
-    week: weekData.Data.Data.map((data) => [data.time, data.close]),
-    month: monthData.Data.Data.map((data) => [data.time, data.close]),
-    year: yearData.Data.Data.map((data) => [data.time, data.close]),
-  };
-
-  const marketValuesFromServer = {
-    dayMarketValues: dayData.Data.Data.map((data) => data.close),
-    weekMarketValues: weekData.Data.Data.map((data) => data.close),
-    monthMarketValues: monthData.Data.Data.map((data) => data.close),
-    yearMarketValues: yearData.Data.Data.map((data) => data.close),
-  };
-
-  // Extract necessary data points
-  const data365 = yearData.Data.Data;
-  const data30 = data365.slice(-30);
-  const data7 = data365.slice(-7);
-  const data1 = data365.slice(-1);
-
-  // Calculate price changes
-  const priceChange1d = data1[0].close - data365[data365.length - 2].close;
-  const priceChange7d = data7[data7.length - 1].close - data7[0].close;
-  const priceChange30d = data30[data30.length - 1].close - data30[0].close;
-  const priceChange365d = data365[data365.length - 1].close - data365[0].close;
-
-  // Calculate percentage changes
-  const priceChangePercentage1d =
-    (priceChange1d / data365[data365.length - 2].close) * 100;
-  const priceChangePercentage7d = (priceChange7d / data7[0].close) * 100;
-  const priceChangePercentage30d = (priceChange30d / data30[0].close) * 100;
-  const priceChangePercentage365d = (priceChange365d / data365[0].close) * 100;
-
-  // Verify if the coin exists on Coinpaprika
-  if (
-    !coinPaprikaSearchData.currencies ||
-    coinPaprikaSearchData.currencies.length === 0
-  ) {
-    throw new Error("Coin not found on Coinpaprika");
+    return {
+      props: coinDetails,
+    };
+  } catch (err) {
+    console.log(err);
   }
-
-  // Fetch ATH from Coinpaprika
-  const coinPaprikaId = coinPaprikaSearchData.currencies[0].id;
-  const coinPaprikaCoinDetailsResponse = await fetch(
-    `https://api.coinpaprika.com/v1/tickers/${coinPaprikaId}`,
-  );
-  const coinPaprikaCoinDetails = await coinPaprikaCoinDetailsResponse.json();
-
-  // Extract the ATH from Coinpaprika's response
-  const cadAthPrice =
-    coinPaprikaCoinDetails.quotes.USD.ath_price * initialRates.USD.CAD;
-
-  if (
-    !cryptoCompareData ||
-    !cryptoCompareData.RAW ||
-    !cryptoCompareData.RAW[id.toUpperCase()]
-  ) {
-    return { notFound: true };
-  }
-
-  // Construct the coin information
-  const coinInfo = {
-    id,
-    symbol: coinData.FROMSYMBOL,
-    name: assetData.NAME,
-    image: assetData.LOGO_URL,
-    description: assetData.ASSET_DESCRIPTION_SUMMARY,
-    current_price: coinData.PRICE,
-    all_time_high: cadAthPrice,
-    market_cap: coinData.MKTCAP,
-    price_change_1d: priceChange1d,
-    price_change_percentage_24h: priceChangePercentage1d,
-    price_change_7d: priceChange7d,
-    price_change_percentage_7d: priceChangePercentage7d,
-    price_change_30d: priceChange30d,
-    price_change_percentage_30d: priceChangePercentage30d,
-    price_change_365d: priceChange365d,
-    price_change_percentage_1y: priceChangePercentage365d,
-  };
-
-  return {
-    props: {
-      initialCoin: coinInfo,
-      marketChartFromServer,
-      marketValuesFromServer,
-      chartFromServer: {
-        labels: marketChartFromServer?.day.map((data) =>
-          new Date(data[0]).toLocaleTimeString(),
-        ),
-        datasets: [
-          {
-            label: `${
-              coinInfo.name
-            } Price (Past day) in ${currency.toUpperCase()}`,
-            data: marketValuesFromServer.dayMarketValues,
-            type: "line",
-            pointRadius: 1.3,
-            borderColor: "#ff9500",
-          },
-        ],
-      },
-      initialRates,
-      initialReduxState: {
-        coins: {
-          ...initialCoinsState,
-          selectedCoinDetails: coinInfo,
-          selectedCoinDetailsByCurrency: {
-            ...initialCoinsState.selectedCoinDetailsByCurrency,
-            [initialCurrencyState.initialCurrency]: coinInfo,
-          },
-        },
-        currency: {
-          ...initialCurrencyState,
-          currencyRates: initialRates,
-        },
-      },
-    },
-  };
 }
