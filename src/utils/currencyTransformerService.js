@@ -36,8 +36,38 @@ export function initializeCurrencyTransformerWorker(dispatch) {
   currencyTransformerWorker.onmessage = async (event) => {
     console.log("currencyTransformerWorker message received");
 
-    const { transformedData, type } = event.data;
+    const { transformedData, type, toCurrency } = event.data;
     console.log("handleTransformedDataFromWorker", transformedData);
+
+    if (type === "transformCoinListCurrency") {
+      batch(() => {
+        // Store transformed coin data in Redux
+        dispatch(
+          coinsActions.updateCoins({
+            displayedCoinListCoins: transformedData,
+            trendingCarouselCoins: transformedData.slice(0, 10),
+          }),
+        );
+        dispatch(
+          coinsActions.setCoinListForCurrency({
+            toCurrency,
+            coinData: transformedData,
+          }),
+        );
+        dispatch(currencyActions.changeCurrency({ currency: toCurrency }));
+      });
+
+      // Wait for all storage operations to complete
+      try {
+        await saveCoinDataForCurrencyInBrowser(
+          COINLISTS_TABLENAME,
+          toCurrency,
+          transformedData,
+        );
+      } catch (err) {
+        console.error("Error during IndexedDB storage:", err);
+      }
+    }
 
     if (type === "transformAllCoinListCurrencies") {
       const storagePromises = [];

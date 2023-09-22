@@ -43,7 +43,7 @@ export const initializeCoinListCache = createAsyncThunk(
             currencyRates: initialRates,
             // We start off with the initial coins for the current currency, so we can exclude it to avoid
             // an unnecessary computation
-            currencyToExclude: currentCurrency,
+            currenciesToExclude: [currentCurrency],
           },
         });
 

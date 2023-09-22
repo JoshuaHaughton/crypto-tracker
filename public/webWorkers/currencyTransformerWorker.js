@@ -146,8 +146,8 @@ self.addEventListener(
         );
         self.postMessage({
           type,
-          toCurrency,
           transformedData: transformedCoinList,
+          toCurrency: data.toCurrency,
         });
         break;
 
@@ -170,16 +170,16 @@ self.addEventListener(
         const {
           coinsToTransform,
           fromCurrency,
-          currencyToExclude,
+          currenciesToExclude,
           currencyRates,
         } = data;
 
         let targetCurrencies = ALL_CURRENCIES;
 
-        if (currencyToExclude != null) {
-          // Filter out the excluded currency from the list of all currencies if it exists
+        if (currenciesToExclude.length > 0) {
+          // Filter out the excluded currencies from the list of all currencies if it exists
           targetCurrencies = targetCurrencies.filter(
-            (currency) => currency !== currencyToExclude,
+            (currency) => !currenciesToExclude.includes(currency),
           );
         }
 
@@ -209,15 +209,15 @@ self.addEventListener(
           fromCurrency: coinFromCurrency,
           toCurrency: coinToCurrency,
           currencyRates: coinCurrencyRates,
-          currencyToExclude: coincurrencyToExclude,
+          currenciesToExclude: coinCurrenciesToExclude,
         } = data;
 
         let coinTargetCurrencies = ALL_CURRENCIES;
 
-        if (coincurrencyToExclude != null) {
+        if (coinCurrenciesToExclude != null) {
           // Filter out the excluded currency from the list of all currencies if it exists
           coinTargetCurrencies = coinTargetCurrencies.filter(
-            (currency) => currency !== coincurrencyToExclude,
+            (currency) => !coinCurrenciesToExclude.includes(currency),
           );
         }
 

@@ -1,9 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { coinsActions } from "../store/coins";
 import { currencyActions } from "../store/currency";
-import { SYMBOLS_BY_CURRENCIES } from "../global/constants";
 import { postMessageToCurrencyTransformerWorker } from "../utils/currencyTransformerService";
-import { batch } from "react-redux";
 
 /**
  * Thunk to update currency.
@@ -24,7 +22,7 @@ export const updateCurrency = createAsyncThunk(
         coinListCoinsByCurrency,
         selectedCoinDetails,
       },
-      currency: { initialCurrency, currencyRates: initialRates },
+      currency: { currentCurrency, currencyRates: initialRates },
     } = state;
 
     //handle coin details transformations if needed. We can prioritize these since if they exist,
@@ -45,22 +43,36 @@ export const updateCurrency = createAsyncThunk(
           ),
         }),
       );
+
+      // Update the currency state after all coins have been updated
+      dispatch(currencyActions.changeCurrency(payload));
     } else {
       // CoinList Cache doesn't exist
       console.log("CACHE NOT USED");
+      // Only transform the requested currency first to save time. Then, we cache the rest
+      postMessageToCurrencyTransformerWorker({
+        type: "transformCoinListCurrency",
+        data: {
+          coinsToTransform: displayedCoinListCoins,
+          fromCurrency: currentCurrency.toUpperCase(),
+          toCurrency: updatedCurrency.toUpperCase(),
+          currencyRates: initialRates,
+        },
+      });
       // Re-attempt caching all coins - if one doesn't exist, then there's a good chance that there's more than one
       postMessageToCurrencyTransformerWorker({
         type: "transformAllCoinListCurrencies",
         data: {
           coinsToTransform: displayedCoinListCoins,
-          fromCurrency: initialCurrency.toUpperCase(),
-          toCurrency: updatedCurrency.toUpperCase(),
+          fromCurrency: currentCurrency.toUpperCase(),
           currencyRates: initialRates,
+          // Only transform the ones that haven't been transformed yet
+          currenciesToExclude: [
+            updatedCurrency.toUpperCase(),
+            currentCurrency.toUpperCase(),
+          ],
         },
       });
     }
-
-    // Update the currency state
-    dispatch(currencyActions.changeCurrency(payload));
   },
 );
