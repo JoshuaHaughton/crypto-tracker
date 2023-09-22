@@ -144,7 +144,11 @@ self.addEventListener(
           data.toCurrency,
           data.currencyRates,
         );
-        self.postMessage({ transformedData: transformedCoinList });
+        self.postMessage({
+          type,
+          toCurrency,
+          transformedData: transformedCoinList,
+        });
         break;
 
       case "transformCoinDetailsCurrency":
@@ -154,7 +158,11 @@ self.addEventListener(
           data.toCurrency,
           data.currencyRates,
         );
-        self.postMessage({ transformedData: transformedCoinDetails });
+        self.postMessage({
+          type,
+          toCurrency,
+          transformedData: transformedCoinDetails,
+        });
         break;
 
       case "transformAllCoinListCurrencies":
@@ -162,9 +170,8 @@ self.addEventListener(
         const {
           coinsToTransform,
           fromCurrency,
-          toCurrency,
-          currencyRates,
           currencyToExclude,
+          currencyRates,
         } = data;
 
         let targetCurrencies = ALL_CURRENCIES;
@@ -179,16 +186,20 @@ self.addEventListener(
         // Create an object to store the transformed data for each target currency
         const coinListTransformedData = {};
 
-        targetCurrencies.forEach((currency) => {
-          coinListTransformedData[currency] = transformCurrencyForCoinList(
-            coinsToTransform,
-            fromCurrency,
-            toCurrency,
-            currencyRates,
-          );
+        targetCurrencies.forEach((targetCurrency) => {
+          coinListTransformedData[targetCurrency] =
+            transformCurrencyForCoinList(
+              coinsToTransform,
+              fromCurrency,
+              targetCurrency,
+              currencyRates,
+            );
         });
 
-        self.postMessage({ transformedData: coinListTransformedData });
+        self.postMessage({
+          type,
+          transformedData: coinListTransformedData,
+        });
         break;
 
       case "transformAllCoinDetailsCurrencies":
@@ -223,7 +234,11 @@ self.addEventListener(
             );
         });
 
-        self.postMessage({ transformedData: coinDetailsTransformedData });
+        self.postMessage({
+          type,
+          toCurrency,
+          transformedData: coinDetailsTransformedData,
+        });
         break;
 
       default:

@@ -6,6 +6,7 @@ import { coinsActions } from "../store/coins";
 import db from "../utils/database";
 import { COINLISTS_TABLENAME } from "../global/constants";
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import { postMessageToCurrencyTransformerWorker } from "../utils/currencyTransformerService";
 
 /**
  * Async thunk to manage caching of coin list data for multiple currencies.
@@ -34,26 +35,32 @@ export const initializeCoinListCache = createAsyncThunk(
     if (!isCacheValid(COINLISTS_TABLENAME)) {
       console.log("INVALID CACHE");
       if (typeof window !== "undefined") {
-        const currencyTransformerWorker = new Worker(
-          "/webWorkers/currencyTransformerWorker.js",
-        );
-        currencyTransformerWorker.addEventListener("message", (event) =>
-          handleTransformedDataFromWorker(
-            event,
-            dispatch,
-            currentCurrency,
-            initialHundredCoins,
-          ),
-        );
-
-        currencyTransformerWorker.postMessage({
-          type: "transformCoinList",
+        postMessageToCurrencyTransformerWorker({
+          type: "transformAllCoinListCurrencies",
           data: {
-            coins: initialHundredCoins,
-            rates: initialRates,
-            currentCurrency: currentCurrency.toUpperCase(),
+            coinsToTransform: initialHundredCoins,
+            fromCurrency: currentCurrency.toUpperCase(),
+            currencyRates: initialRates,
+            // We start off with the initial coins for the current currency, so we can exclude it to avoid
+            // an unnecessary computation
+            currencyToExclude: currentCurrency,
           },
         });
+
+        // Store initial data in Redux
+        dispatch(
+          coinsActions.setCoinListForCurrency({
+            currency: currentCurrency.toUpperCase(),
+            coinData: initialHundredCoins,
+          }),
+        );
+
+        // Store initial data in cache
+        saveCoinDataForCurrencyInBrowser(
+          COINLISTS_TABLENAME,
+          currentCurrency.toUpperCase(),
+          initialHundredCoins,
+        );
       }
     } else {
       // Use the IndexedDB cache if it's valid
@@ -95,7 +102,7 @@ async function handleTransformedDataFromWorker(
   currentCurrency,
   initialHundredCoins,
 ) {
-  const { transformedData } = event.data;
+  const { transformedData, type, toCurrency } = event.data;
   console.log("handleTransformedDataFromWorker", transformedData);
 
   const storagePromises = [];

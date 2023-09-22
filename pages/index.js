@@ -17,7 +17,7 @@ export default function Home() {
   );
 
   useEffect(() => {
-    dispatch(initializeCoinListCache());
+    // dispatch(initializeCoinListCache());
   }, []);
 
   useEffect(() => {

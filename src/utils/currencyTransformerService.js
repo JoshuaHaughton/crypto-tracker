@@ -1,51 +1,72 @@
+import { batch } from "react-redux";
 import { coinsActions } from "../store/coins";
+import { currencyActions } from "../store/currency";
 import {
   COINDETAILS_TABLENAME,
   COINLISTS_TABLENAME,
-  SYMBOLS_BY_CURRENCIES,
 } from "../global/constants";
 import { saveCoinDataForCurrencyInBrowser } from "./cache.utils";
 
-// Initialize the web worker
-const currencyTransformerWorker = new Worker(
-  "/webWorkers/currencyTransformerWorker.js",
-);
+/**
+ * A reference to the currency transformer worker.
+ * @type {Worker}
+ */
+let currencyTransformerWorker;
 
 /**
- * Initializes and sets up the message listener for the currencyTransformerWorker.
+ * Initializes the currency transformer worker.
+ * If the worker is already initialized, it will be overwritten.
  *
- * @param {Function} dispatch - The Redux dispatch function.
- * @param {string} updatedCurrency - The currency to which coins need to be updated.
+ * @param {Function} dispatch - Redux dispatch function.
  */
-export function initializeCurrencyTransformerWorker(dispatch, updatedCurrency) {
-  // Listen for messages from the web worker
-  currencyTransformerWorker.onmessage = ({ data }) => {
-    const { transformedData } = data;
+export function initializeCurrencyTransformerWorker(dispatch) {
+  // Terminate the existing worker if already initialized
+  if (currencyTransformerWorker != null) {
+    terminateCurrencyTransformerWorker();
+  }
 
-    if (type === "transformCoinListCurrency") {
-      const trendingCoins = transformedData.slice(0, 10);
+  // Ensure the worker can be initialized (i.e., running in a browser environment)
+  if (typeof window === "undefined") return;
 
-      // Dispatch the transformed data to the Redux store
-      dispatch(
-        coinsActions.updateCoins({
-          displayedCoinListCoins: transformedData,
-          trendingCarouselCoins: trendingCoins,
-          symbol: SYMBOLS_BY_CURRENCIES[updatedCurrency],
-        }),
-      );
+  currencyTransformerWorker = new Worker(
+    "/webWorkers/currencyTransformerWorker.js",
+  );
+  console.log("currencyTransformerWorker created");
 
-      saveCoinDataForCurrencyInBrowser(
-        COINLISTS_TABLENAME,
-        updatedCurrency,
-        transformedData,
-      );
-    } else if (type === "transformCoinDetailsCurrency") {
-      
-      saveCoinDataForCurrencyInBrowser(
-        COINDETAILS_TABLENAME,
-        updatedCurrency,
-        transformedData,
-      );
+  currencyTransformerWorker.onmessage = async (event) => {
+    console.log("currencyTransformerWorker message received");
+
+    const { transformedData, type } = event.data;
+    console.log("handleTransformedDataFromWorker", transformedData);
+
+    if (type === "transformAllCoinListCurrencies") {
+      const storagePromises = [];
+
+      for (const currency in transformedData) {
+        // Store transformed coin data in Redux
+        dispatch(
+          coinsActions.setCoinListForCurrency({
+            currency,
+            coinData: transformedData[currency],
+          }),
+        );
+
+        // Prepare transformed data for cache
+        storagePromises.push(
+          saveCoinDataForCurrencyInBrowser(
+            COINLISTS_TABLENAME,
+            currency,
+            transformedData[currency],
+          ),
+        );
+      }
+
+      // Wait for all storage operations to complete
+      try {
+        await Promise.all(storagePromises);
+      } catch (err) {
+        console.error("Error during IndexedDB storage:", err);
+      }
     }
   };
 }
@@ -53,8 +74,21 @@ export function initializeCurrencyTransformerWorker(dispatch, updatedCurrency) {
 /**
  * Posts a message to the currencyTransformerWorker to initiate the currency transformation process.
  *
- * @param {Object} data - The data to send to the web worker for processing.
+ * @param {Object} messageData - Data to post to the worker.
  */
-export function postMessageToCurrencyTransformerWorker(data) {
-  currencyTransformerWorker.postMessage(data);
+export function postMessageToCurrencyTransformerWorker(messageData) {
+  if (currencyTransformerWorker) {
+    currencyTransformerWorker.postMessage(messageData);
+  }
+}
+
+/**
+ * Terminates the currency transformer worker and cleans up associated resources.
+ */
+export function terminateCurrencyTransformerWorker() {
+  if (currencyTransformerWorker) {
+    currencyTransformerWorker.onmessage = null;
+    currencyTransformerWorker.terminate();
+    console.log("currencyTransformerWorker terminated");
+  }
 }

@@ -2,6 +2,8 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { coinsActions } from "../store/coins";
 import { currencyActions } from "../store/currency";
 import { SYMBOLS_BY_CURRENCIES } from "../global/constants";
+import { postMessageToCurrencyTransformerWorker } from "../utils/currencyTransformerService";
+import { batch } from "react-redux";
 
 /**
  * Thunk to update currency.
@@ -17,42 +19,49 @@ export const updateCurrency = createAsyncThunk(
     const state = getState();
 
     const {
-      coins: { displayedCoinListCoins: initialHundredCoins },
+      coins: {
+        displayedCoinListCoins,
+        coinListCoinsByCurrency,
+        selectedCoinDetails,
+      },
       currency: { initialCurrency, currencyRates: initialRates },
     } = state;
 
-    // // Initialize the web worker
-    // const currencyTransformerWorker = new Worker(
-    //   "/webWorkers/currencyTransformerWorker.js",
-    // );
+    batch(() => {
+      //handle coin details transformations if needed. We can prioritize these since if they exist,
+      // we aren't on the page with coin list coins anyways
+      if (selectedCoinDetails.length) {
+      }
 
-    // // Listen for messages from the web worker
-    // currencyTransformerWorker.onmessage = ({ data, type }) => {
-    //   const { transformedData } = data;
-    //   const trendingCoins = transformedData.slice(0, 10);
+      // Coinlist Cache exists
+      if (coinListCoinsByCurrency[updatedCurrency].length > 0) {
+        console.log("CACHE USED");
+        // Dispatch the cached data
+        dispatch(
+          coinsActions.updateCoins({
+            displayedCoinListCoins: coinListCoinsByCurrency[updatedCurrency],
+            trendingCarouselCoins: coinListCoinsByCurrency[
+              updatedCurrency
+            ].slice(0, 10),
+          }),
+        );
+      } else {
+        // CoinList Cache doesn't exist
+        console.log("CACHE NOT USED");
+        // Re-attempt caching all coins - if one doesn't exist, then there's a good chance that there's more than one
+        postMessageToCurrencyTransformerWorker({
+          type: "transformAllCoinListCurrencies",
+          data: {
+            coinsToTransform: displayedCoinListCoins,
+            fromCurrency: initialCurrency.toUpperCase(),
+            toCurrency: updatedCurrency.toUpperCase(),
+            currencyRates: initialRates,
+          },
+        });
+      }
 
-    //   // Dispatch the transformed data
-    //   dispatch(
-    //     coinsActions.updateCoins({
-    //       displayedCoinListCoins: transformedData,
-    //       trendingCarouselCoins: trendingCoins,
-    //       symbol: SYMBOLS_BY_CURRENCIES[updatedCurrency],
-    //     }),
-    //   );
-    // };
-
-    // Send data to the web worker for transformation
-    currencyTransformerWorker.postMessage({
-      type: "transformCoinList",
-      data: {
-        coinsToTransform: initialHundredCoins,
-        fromCurrency: initialCurrency.toUpperCase(),
-        toCurrency: updatedCurrency.toUpperCase(),
-        currencyRates: initialRates,
-      },
+      // Update the currency state
+      dispatch(currencyActions.changeCurrency(payload));
     });
-
-    // Update the currency state
-    dispatch(currencyActions.changeCurrency(payload));
   },
 );
