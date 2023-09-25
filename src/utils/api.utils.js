@@ -259,40 +259,26 @@ export async function fetchCoinDetailsFromCryptoCompare(id, currency = "CAD") {
     price_change_percentage_1y: priceChangePercentage365d,
   };
 
+  const chartFromServer = {
+    labels: marketChartFromServer?.day.map((data) =>
+      new Date(data[0]).toLocaleTimeString(),
+    ),
+    datasets: [
+      {
+        label: `${coinInfo.name} Price (Past day) in ${currency.toUpperCase()}`,
+        data: marketValuesFromServer.dayMarketValues,
+        type: "line",
+        pointRadius: 1.3,
+        borderColor: "#ff9500",
+      },
+    ],
+  };
+
   return {
     initialCoin: coinInfo,
     marketChartFromServer,
     marketValuesFromServer,
-    chartFromServer: {
-      labels: marketChartFromServer?.day.map((data) =>
-        new Date(data[0]).toLocaleTimeString(),
-      ),
-      datasets: [
-        {
-          label: `${
-            coinInfo.name
-          } Price (Past day) in ${currency.toUpperCase()}`,
-          data: marketValuesFromServer.dayMarketValues,
-          type: "line",
-          pointRadius: 1.3,
-          borderColor: "#ff9500",
-        },
-      ],
-      initialRates,
-      initialReduxState: {
-        coins: {
-          ...initialCoinsState,
-          selectedCoinDetails: coinInfo,
-          selectedCoinDetailsByCurrency: {
-            ...initialCoinsState.selectedCoinDetailsByCurrency,
-            [initialCurrencyState.initialCurrency]: coinInfo,
-          },
-        },
-        currency: {
-          ...initialCurrencyState,
-          currencyRates: initialRates,
-        },
-      },
-    },
+    chartFromServer,
+    initialRates,
   };
 }

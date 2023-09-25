@@ -5,9 +5,12 @@ import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "react-redux";
-import { coinsActions } from "../../src/store/coins";
+import { coinsActions, initialCoinsState } from "../../src/store/coins";
 import Link from "next/link";
-import { currencyActions } from "../../src/store/currency";
+import {
+  currencyActions,
+  initialCurrencyState,
+} from "../../src/store/currency";
 import { convertCurrency } from "../../src/utils/currency.utils";
 import db from "../../src/utils/database";
 import { initializeCoinListCache } from "../../src/thunks/coinListCacheThunk";
@@ -23,10 +26,6 @@ const Coin = ({
   chartFromServer,
   initialRates,
 }) => {
-  const displayedCoinListCoins = useSelector(
-    (state) => state.coins.displayedCoinListCoins,
-  );
-  const currencyRates = useSelector((state) => state.currency.currencyRates);
   const currentSymbol = useSelector((state) => state.currency.symbol);
   const selectedCoinDetailsByCurrency = useSelector(
     (state) => state.coins.selectedCoinDetailsByCurrency,
@@ -735,12 +734,46 @@ export async function getServerSideProps(context) {
   try {
     const { id } = context.query;
     const currency = "CAD";
-    const coinDetails = await fetchCoinDetailsFromCryptoCompare(id, currency);
+    const {
+      initialCoin,
+      marketChartFromServer,
+      marketValuesFromServer,
+      chartFromServer,
+      initialRates,
+    } = await fetchCoinDetailsFromCryptoCompare(id, currency);
 
     return {
-      props: coinDetails,
+      props: {
+        initialCoin,
+        marketChartFromServer,
+        marketValuesFromServer,
+        chartFromServer,
+        initialRates,
+        initialReduxState: {
+          coins: {
+            ...initialCoinsState,
+            selectedCoinDetails: initialCoin,
+            selectedCoinDetailsByCurrency: {
+              ...initialCoinsState.selectedCoinDetailsByCurrency,
+              [initialCurrencyState.initialCurrency]: initialCoin,
+            },
+          },
+          currency: {
+            ...initialCurrencyState,
+            currencyRates: initialRates,
+          },
+        },
+      },
     };
   } catch (err) {
     console.log(err);
+    return {
+      props: {
+        initialReduxState: {
+          coins: initialCoinsState,
+          currency: initialCurrencyState,
+        },
+      },
+    };
   }
 }
