@@ -3,6 +3,7 @@ import currencyReducer from "./currency";
 import coinsReducer from "./coins";
 import appInfoReducer from "./appInfo";
 import mediaQueryReducer from "./mediaQuery";
+import rootReducer from "./root";
 
 /**
  * Global reference to the Redux store.
@@ -43,6 +44,7 @@ export function initializeStore(initialState = {}) {
   console.log("store initialized from base");
   reduxStore = configureStore({
     reducer: {
+      root: rootReducer,
       currency: currencyReducer,
       coins: coinsReducer,
       appInfo: appInfoReducer,

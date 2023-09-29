@@ -315,7 +315,7 @@ const Coin = ({
       firstRender.current = false;
       return;
     }
-// handle from thunk instead
+    // handle from thunk instead
     const updateSelectedCoinCurrencyValues = () => {
       console.log("updateSelectedCoinCurrencyValues");
 

@@ -119,7 +119,7 @@ export async function fetchCoinDetailsFromCryptoCompare(
     `https://min-api.cryptocompare.com/data/v2/histoday?fsym=${id}&tsym=${currency}&limit=365`,
     `${coinPaprikaUrl}/v1/search?q=${id}`,
   ];
-  console.log(urls)
+  console.log(urls);
 
   const [
     cryptoCompareData,
@@ -291,3 +291,44 @@ export async function fetchCoinDetailsFromCryptoCompare(
     initialRates,
   };
 }
+
+/**
+ * Asynchronously fetches the necessary data for CoinList cache initialization.
+ *
+ * @async
+ * @function
+ * @returns {Promise<Object>} Returns an object containing the coins and currency data.
+ * @throws Will return default state objects for coins and currency if there's an error in fetching.
+ *
+ * @example
+ * const initialData = await fetchDataForCacheInitialization();
+ */
+export const fetchDataForCoinListCacheInitialization = async () => {
+  console.log("fetchDataForCoinListCacheInitialization");
+  try {
+    const { initialRates, initialHundredCoins, trendingCarouselCoins } =
+      await fetchBaseDataFromCryptoCompare();
+
+    return {
+      coins: {
+        ...initialCoinsState,
+        displayedCoinListCoins: initialHundredCoins,
+        trendingCarouselCoins: trendingCarouselCoins,
+        coinListCoinsByCurrency: {
+          ...initialCoinsState.coinListCoinsByCurrency,
+          [initialCurrencyState.initialCurrency]: initialHundredCoins,
+        },
+      },
+      currency: {
+        ...initialCurrencyState,
+        currencyRates: initialRates,
+      },
+    };
+  } catch (err) {
+    console.log(err);
+    return {
+      coins: initialCoinsState,
+      currency: initialCurrencyState,
+    };
+  }
+};

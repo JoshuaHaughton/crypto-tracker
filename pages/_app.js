@@ -2,8 +2,7 @@ import { useEffect } from "react";
 import { Provider } from "react-redux";
 import { Layout } from "../src/components/Layout/Layout";
 import { MediaQueryHandler } from "../src/components/MediaQueryHandler/MediaQueryHandler";
-import { getOrInitializeStore, initializeStore } from "../src/store";
-import { initializeCoinListCache } from "../src/thunks/coinListCacheThunk";
+import { getOrInitializeStore } from "../src/store";
 import "../styles/globals.scss";
 import nProgress from "nprogress";
 import { Router } from "next/router";
@@ -11,12 +10,7 @@ import {
   initializeCurrencyTransformerWorker,
   terminateCurrencyTransformerWorker,
 } from "../src/utils/currencyTransformerService";
-import Cookie from "js-cookie";
-import { clearCacheForAllKeysInTable } from "../src/utils/cache.utils";
-import {
-  COINDETAILS_TABLENAME,
-  COINLISTS_TABLENAME,
-} from "../src/global/constants";
+import { checkAndResetCache } from "../src/utils/cache.utils";
 
 nProgress.configure({
   minimum: 0.3,
@@ -25,74 +19,34 @@ nProgress.configure({
   showSpinner: true,
 });
 
-Router.events.on("routeChangeStart", nProgress.start);
-Router.events.on("routeChangeError", nProgress.done);
-Router.events.on("routeChangeComplete", nProgress.done);
-
-Router.events.on("routeChangeComplete", () => {
-  window.scroll({
-    top: 0,
-    left: 0,
-    behavior: "smooth",
-  });
-});
-
 function MyApp({ Component, pageProps }) {
   const store = getOrInitializeStore(pageProps.initialReduxState);
 
-  /**
-   * Checks and resets the cache if needed based on server's global cache version.
-   *
-   * @param {string} serverGlobalCacheVersion - The global cache version from the server.
-   */
-  const checkAndResetCache = (serverGlobalCacheVersion) => {
-    const currentTime = Date.now();
-    const fiveMinutesInMilliseconds = 5 * 60 * 1000;
-    const lastCacheReset = localStorage.getItem("lastCacheReset") || 0;
-
-    const currentCookieValue = Cookie.get("globalCacheVersion");
-
-    const shouldResetCache =
-      serverGlobalCacheVersion !== currentCookieValue ||
-      currentTime - lastCacheReset > fiveMinutesInMilliseconds;
-
-    if (shouldResetCache) {
-      console.log("Cache Reset");
-
-      // Clear local storage, indexedDB, & cookie coin caches
-      clearCacheForAllKeysInTable(COINLISTS_TABLENAME);
-      clearCacheForAllKeysInTable(COINDETAILS_TABLENAME);
-      Cookie.remove("preloadedCoins");
-
-      // Reset Redux store
-      initializeStore();
-
-      // Determine the new globalCacheVersion
-      const newGlobalCacheVersion =
-        serverGlobalCacheVersion !== currentCookieValue
-          ? serverGlobalCacheVersion
-          : currentTime.toString();
-
-      // Update the cookie and lastCacheReset timestamp in local storage
-      Cookie.set("globalCacheVersion", newGlobalCacheVersion);
-      localStorage.setItem("lastCacheReset", currentTime);
-    }
-  };
-
   useEffect(() => {
+    // Initialize services
     initializeCurrencyTransformerWorker(store.dispatch);
-    store.dispatch(initializeCoinListCache());
+
+    // Event listener to handle route changes
     const handleRouteChange = () => {
-      checkAndResetCache(pageProps.globalCacheVersion);
+      checkAndResetCache(store, pageProps.globalCacheVersion);
     };
 
-    // Listen to route changes
+    // Set up event listeners
+    Router.events.on("routeChangeStart", nProgress.start);
+    Router.events.on("routeChangeError", nProgress.done);
+    Router.events.on("routeChangeComplete", nProgress.done);
     Router.events.on("routeChangeComplete", handleRouteChange);
 
-    // Also run the logic on the initial app load
-    checkAndResetCache(pageProps.globalCacheVersion);
+    // Run cache check on initial load
+    checkAndResetCache(store, pageProps.globalCacheVersion);
+
+    // Clean up event listeners on unmount
     return () => {
       terminateCurrencyTransformerWorker();
+
+      Router.events.off("routeChangeStart", nProgress.start);
+      Router.events.off("routeChangeError", nProgress.done);
+      Router.events.off("routeChangeComplete", nProgress.done);
       Router.events.off("routeChangeComplete", handleRouteChange);
     };
   }, []);

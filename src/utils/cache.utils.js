@@ -2,7 +2,13 @@ import db from "./database";
 import {
   CACHE_EXPIRY_TIME_IN_MINUTES,
   COINDETAILS_TABLENAME,
+  COINLISTS_TABLENAME,
 } from "../global/constants";
+import Cookie from "js-cookie";
+import { initializeStore } from "../store";
+import { fetchDataForCoinListCacheInitialization } from "./api.utils";
+import { updateStoreData } from "../store/root";
+import { initializeCoinListCache } from "../thunks/coinListCacheThunk";
 
 /**
  * Marks a property in the localStorage as valid with an expiration timestamp.
@@ -151,4 +157,81 @@ export const saveCoinDataForCurrencyInBrowser = async (
       err,
     );
   }
+};
+
+/**
+ * Clears cache from local storage, indexedDB, and cookies.
+ */
+const clearAllCache = () => {
+  clearCacheForAllKeysInTable(COINLISTS_TABLENAME);
+  clearCacheForAllKeysInTable(COINDETAILS_TABLENAME);
+  Cookie.remove("preloadedCoins");
+};
+
+/**
+ * Resets and updates the Redux store.
+ *
+ * @param {Object} store - The Redux store.
+ * @returns {Promise<void>}
+ */
+const resetAndUpdateStore = async (store) => {
+  const coinListCacheData = await fetchDataForCoinListCacheInitialization();
+  store.dispatch(updateStoreData(coinListCacheData));
+  store.dispatch(initializeCoinListCache());
+};
+
+/**
+ * Checks and resets the cache based on the server's global cache version.
+ *
+ * In development mode, the `globalCacheVersion` changes with every refresh due
+ * to frequent revalidations. To avoid unnecessary cache resets due to this, we bypass
+ * the check for `globalCacheVersion` in development mode. However, the cache will still
+ * reset every 5 minutes in both development and production.
+ * In production, the `globalCacheVersion` is expected to change every 5 minutes.
+ *
+ * @param {Object} store - The Redux store.
+ * @param {string} serverGlobalCacheVersion - The global cache version from the server.
+ * @returns {Promise<void>}
+ */
+export const checkAndResetCache = async (store, serverGlobalCacheVersion) => {
+  const currentTime = Date.now();
+  const fiveMinutesInMilliseconds = 5 * 60 * 1000;
+  const clientGlobalCacheVersion = Cookie.get("globalCacheVersion");
+
+  let shouldResetCache =
+    !isCacheValid(COINLISTS_TABLENAME) ||
+    currentTime - clientGlobalCacheVersion > fiveMinutesInMilliseconds;
+
+  if (process.env.NODE_ENV !== "development") {
+    shouldResetCache =
+      shouldResetCache || serverGlobalCacheVersion !== clientGlobalCacheVersion;
+  }
+
+  if (shouldResetCache) {
+    console.log("Cache Reset");
+    console.log("serverGlobalCacheVersion", serverGlobalCacheVersion);
+    console.log("clientGlobalCacheVersion", clientGlobalCacheVersion);
+
+    // Clear all caches
+    clearAllCache();
+
+    // Reset the Redux store completely
+    initializeStore();
+
+    const newGlobalCacheVersion =
+      serverGlobalCacheVersion !== clientGlobalCacheVersion
+        ? serverGlobalCacheVersion
+        : currentTime.toString();
+
+    Cookie.set("globalCacheVersion", newGlobalCacheVersion);
+    localStorage.setItem("lastCacheReset", currentTime);
+
+    // If the server's cache version matches the client's, fetch fresh data and then update the store.
+    if (serverGlobalCacheVersion === clientGlobalCacheVersion) {
+      await resetAndUpdateStore(store);
+    }
+  }
+
+  // Always initialize the coin list cache after a potential reset.
+  store.dispatch(initializeCoinListCache());
 };

@@ -15,16 +15,13 @@ let currencyTransformerWorker;
 
 /**
  * Initializes the currency transformer worker.
- * If the worker is already initialized, it will be overwritten.
+ * If the worker is already initialized, we'll use that one.
  *
  * @param {Function} dispatch - Redux dispatch function.
  */
 export function initializeCurrencyTransformerWorker(dispatch) {
-  console.log("currencyTransformerWorker attempt create");
-  // Terminate the existing worker if already initialized
-  if (currencyTransformerWorker != null) {
-    terminateCurrencyTransformerWorker();
-  }
+  // Return if there is an existing worker.
+  if (currencyTransformerWorker != null) return;
 
   // Ensure the worker can be initialized (i.e., running in a browser environment)
   if (typeof window === "undefined") return;
@@ -179,6 +176,7 @@ export function terminateCurrencyTransformerWorker() {
   if (currencyTransformerWorker) {
     currencyTransformerWorker.onmessage = null;
     currencyTransformerWorker.terminate();
+    currencyTransformerWorker = undefined;
     console.log("currencyTransformerWorker terminated");
   }
 }

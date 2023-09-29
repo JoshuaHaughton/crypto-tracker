@@ -7,7 +7,10 @@ import "react-alice-carousel/lib/alice-carousel.css";
 import { useSelector } from "react-redux";
 import { initialCoinsState } from "../src/store/coins";
 import { initialCurrencyState } from "../src/store/currency";
-import { fetchBaseDataFromCryptoCompare } from "../src/utils/api.utils";
+import {
+  fetchBaseDataFromCryptoCompare,
+  fetchDataForCoinListCacheInitialization,
+} from "../src/utils/api.utils";
 
 export default function Home() {
   const coinListPageNumber = useSelector(
@@ -41,26 +44,11 @@ export async function getStaticProps() {
   const newGlobalCacheVersion = currentTimestamp;
 
   try {
-    const { initialRates, initialHundredCoins, trendingCarouselCoins } =
-      await fetchBaseDataFromCryptoCompare();
+    const initialReduxState = await fetchDataForCoinListCacheInitialization();
 
     return {
       props: {
-        initialReduxState: {
-          coins: {
-            ...initialCoinsState,
-            displayedCoinListCoins: initialHundredCoins,
-            trendingCarouselCoins: trendingCarouselCoins,
-            coinListCoinsByCurrency: {
-              ...initialCoinsState.coinListCoinsByCurrency,
-              [initialCurrencyState.initialCurrency]: initialHundredCoins,
-            },
-          },
-          currency: {
-            ...initialCurrencyState,
-            currencyRates: initialRates,
-          },
-        },
+        initialReduxState,
         globalCacheVersion: newGlobalCacheVersion,
       },
       revalidate: 300,
