@@ -40,16 +40,20 @@ Router.events.on("routeChangeComplete", () => {
 function MyApp({ Component, pageProps }) {
   const store = getOrInitializeStore(pageProps.initialReduxState);
 
+  /**
+   * Checks and resets the cache if needed based on server's global cache version.
+   *
+   * @param {string} serverGlobalCacheVersion - The global cache version from the server.
+   */
   const checkAndResetCache = (serverGlobalCacheVersion) => {
     const currentTime = Date.now();
     const fiveMinutesInMilliseconds = 5 * 60 * 1000;
-    const lastVisit = localStorage.getItem("lastVisit") || currentTime;
     const lastCacheReset = localStorage.getItem("lastCacheReset") || 0;
 
     const currentCookieValue = Cookie.get("globalCacheVersion");
 
     const shouldResetCache =
-      currentTime - lastVisit > fiveMinutesInMilliseconds &&
+      serverGlobalCacheVersion !== currentCookieValue ||
       currentTime - lastCacheReset > fiveMinutesInMilliseconds;
 
     if (shouldResetCache) {
@@ -58,26 +62,20 @@ function MyApp({ Component, pageProps }) {
       // Clear local storage, indexedDB, & cookie coin caches
       clearCacheForAllKeysInTable(COINLISTS_TABLENAME);
       clearCacheForAllKeysInTable(COINDETAILS_TABLENAME);
-      Cookies.remove("preloadedCoins");
+      Cookie.remove("preloadedCoins");
 
       // Reset Redux store
       initializeStore();
 
       // Determine the new globalCacheVersion
-      let newGlobalCacheVersion;
-      if (
-        serverGlobalCacheVersion &&
-        currentCookieValue !== serverGlobalCacheVersion
-      ) {
-        newGlobalCacheVersion = serverGlobalCacheVersion;
-      } else {
-        newGlobalCacheVersion = currentTime.toString();
-      }
+      const newGlobalCacheVersion =
+        serverGlobalCacheVersion !== currentCookieValue
+          ? serverGlobalCacheVersion
+          : currentTime.toString();
 
-      // Update the cookie, last visited timestamp, and lastCacheReset timestamp in local storage
+      // Update the cookie and lastCacheReset timestamp in local storage
       Cookie.set("globalCacheVersion", newGlobalCacheVersion);
-      localStorage.setItem("lastVisit", currentTime);
-      localStorage.setItem("lastCacheReset", currentTime); // Storing the time of the last cache reset
+      localStorage.setItem("lastCacheReset", currentTime);
     }
   };
 

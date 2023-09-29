@@ -9,25 +9,27 @@ import mediaQueryReducer from "./mediaQuery";
  */
 let reduxStore;
 
+/**
+ * Gets the existing Redux store or initializes a new one.
+ *
+ * @param {Object} [initialState] - The initial state for the Redux store.
+ * @returns {Object} The existing or newly initialized Redux store.
+ */
 export const getOrInitializeStore = (initialState) => {
-  // If it's on the server side or force reinitialize is set, always create a new store
-  if (typeof window === "undefined" || initialState?.forceReinitialize) {
-    console.log("initialize Store on server");
+  // If it's on the server side, always create a new store
+  if (typeof window === "undefined") {
     return initializeStore(initialState);
   }
 
   // If the store doesn't exist, create a new one
   if (!reduxStore) {
-    console.log("initialize Store in client");
     reduxStore = initializeStore(initialState);
-  } else if (initialState && initialState !== reduxStore.getState()) {
-    // If there's an initial state and it's different from the current state, merge them
-    console.log("MEERGE Store in client");
-    reduxStore = initializeStore({
-      ...reduxStore.getState(),
-      ...initialState,
-    });
+  } else if (initialState?.initialReduxState) {
+    // If there's a new state from the server, overwrite the existing state
+    reduxStore = initializeStore(initialState);
   }
+  // If no initialReduxState is provided, just continue using the existing store
+  // No need to do anything further
 
   return reduxStore;
 };

@@ -789,7 +789,8 @@ export async function getServerSideProps(context) {
   const cookies = parse(context.req.headers.cookie || "");
   const preloadedCoins = JSON.parse(cookies.preloadedCoins || "[]");
   const globalCacheVersion = cookies.globalCacheVersion || "0";
-  const lastKnownVersionForPage = context.pageProps?.globalCacheVersion || "0";
+  const currentTimestamp = Date.now();
+  const fiveMinutesInMilliseconds = 5 * 60 * 1000;
 
   let initialCoinsState = defaultInitialCoinsState;
   let initialCurrencyState = defaultInitialCurrencyState;
@@ -800,10 +801,10 @@ export async function getServerSideProps(context) {
     chartFromServer,
     initialRates;
 
-  // If the coin is preloaded and the cache version hasn't changed, don't fetch new data
+  // If the coin is preloaded and the globalCacheVersion is recent (within 5 minutes), don't fetch new data
   if (
     preloadedCoins.includes(id) &&
-    globalCacheVersion === lastKnownVersionForPage
+    currentTimestamp - parseInt(globalCacheVersion) < fiveMinutesInMilliseconds
   ) {
     console.log("use cached data for coins page!");
     return { props: { ...context.pageProps } };
