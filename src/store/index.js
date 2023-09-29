@@ -10,14 +10,23 @@ import mediaQueryReducer from "./mediaQuery";
 let reduxStore;
 
 export const getOrInitializeStore = (initialState) => {
-  // Always make a new store if server, otherwise state is shared between requests
-  if (typeof window === "undefined") {
+  // If it's on the server side or force reinitialize is set, always create a new store
+  if (typeof window === "undefined" || initialState?.forceReinitialize) {
+    console.log("initialize Store on server");
     return initializeStore(initialState);
   }
 
-  // Create store if unavailable on the client and set it on the window object
+  // If the store doesn't exist, create a new one
   if (!reduxStore) {
+    console.log("initialize Store in client");
     reduxStore = initializeStore(initialState);
+  } else if (initialState && initialState !== reduxStore.getState()) {
+    // If there's an initial state and it's different from the current state, merge them
+    console.log("MEERGE Store in client");
+    reduxStore = initializeStore({
+      ...reduxStore.getState(),
+      ...initialState,
+    });
   }
 
   return reduxStore;
@@ -28,7 +37,8 @@ export const getOrInitializeStore = (initialState) => {
  * @param {Object} [initialState={}] - The initial state for the Redux store.
  * @returns {Object} The initialized Redux store.
  */
-function initializeStore(initialState = {}) {
+export function initializeStore(initialState = {}) {
+  console.log("store initialized from base");
   reduxStore = configureStore({
     reducer: {
       currency: currencyReducer,

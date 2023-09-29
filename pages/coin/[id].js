@@ -5,11 +5,14 @@ import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "react-redux";
-import { coinsActions, initialCoinsState } from "../../src/store/coins";
+import {
+  coinsActions,
+  initialCoinsState as defaultInitialCoinsState,
+} from "../../src/store/coins";
 import Link from "next/link";
 import {
   currencyActions,
-  initialCurrencyState,
+  initialCurrencyState as defaultInitialCurrencyState,
 } from "../../src/store/currency";
 import { convertCurrency } from "../../src/utils/currency.utils";
 import db from "../../src/utils/database";
@@ -18,6 +21,13 @@ import {
   fetchBaseDataFromCryptoCompare,
   fetchCoinDetailsFromCryptoCompare,
 } from "../../src/utils/api.utils";
+import { parse } from "cookie";
+import {
+  fetchDataFromIndexedDB,
+  isCacheValid,
+} from "../../src/utils/cache.utils";
+import { COINLISTS_TABLENAME } from "../../src/global/constants";
+import Cookie from "js-cookie";
 
 const Coin = ({
   initialCoin,
@@ -27,8 +37,8 @@ const Coin = ({
   initialRates,
 }) => {
   const currentSymbol = useSelector((state) => state.currency.symbol);
-  const selectedCoinDetailsByCurrency = useSelector(
-    (state) => state.coins.selectedCoinDetailsByCurrency,
+  const cachedCoinDetailsByCurrency = useSelector(
+    (state) => state.coins.cachedCoinDetailsByCurrency,
   );
   const currentCurrency = useSelector(
     (state) => state.currency.currentCurrency,
@@ -36,9 +46,14 @@ const Coin = ({
   const initialCurrency = useSelector((state) =>
     state.currency.initialCurrency.toUpperCase(),
   );
+  // Check if data exists in the Redux store
+  const coinListInStore = useSelector(
+    (state) => state.coins.displayedCoinListCoins,
+  );
+  const coinDetails = useSelector((state) => state.coins.selectedCoinDetails);
+  const coin = coinDetails.coinInfo;
 
   const dispatch = useDispatch();
-  const [coin, setCoin] = useState(initialCoin);
   const [currentChartPeriod, setCurrentChartPeriod] = useState("day");
   const isHydrated = useRef(false);
   const firstRender = useRef(true);
@@ -169,7 +184,6 @@ const Coin = ({
 
     // Define the message handler for the worker
     const handleWorkerMessage = (e) => {
-      console.log(e.data);
       const { transformedData } = e.data;
 
       // Dispatch initial data for the current currency
@@ -210,12 +224,14 @@ const Coin = ({
 
     // If initialCoin and initialRates are available, post data to the worker
     if (initialCoin && initialRates) {
+      console.log("post to COIN PAGE worker");
       currencyTransformerWorker.postMessage({
-        type: "transformCoin",
+        type: "transformAllCoinDetailsCurrencies",
         data: {
-          coin: initialCoin,
-          rates: initialRates,
-          currentCurrency: currentCurrency.toUpperCase(),
+          coinToTransform: initialCoin,
+          fromCurrency: currentCurrency.toUpperCase(),
+          currencyRates: initialRates,
+          currenciesToExclude: [currentCurrency.toUpperCase()],
         },
       });
     }
@@ -232,33 +248,61 @@ const Coin = ({
   }, [isHydrated]);
 
   useEffect(() => {
-    // should do if t either the cache isnt valid or on page revalidates (new data)
+    // should do if either the cache isnt valid or on page revalidates (new data)
     const prefetchHomePage = async () => {
       console.log("prefetchHomePage");
 
-      const { initialRates, initialHundredCoins, trendingCarouselCoins } =
-        await fetchBaseDataFromCryptoCompare();
+      let initialRates, initialHundredCoins, trendingCarouselCoins;
 
-      // Dispatch the action with the new formatted coins
-      dispatch(
-        coinsActions.updateCoins({
-          displayedCoinListCoins: initialHundredCoins,
-          trendingCarouselCoins,
-          symbol: currentSymbol,
-        }),
+      // Check the cache first
+      const cacheIsValid = isCacheValid(COINLISTS_TABLENAME);
+      const cachedCoinList = await fetchDataFromIndexedDB(
+        COINLISTS_TABLENAME,
+        currentCurrency.toUpperCase(),
       );
-      dispatch(
-        coinsActions.setCoinListForCurrency({
-          currency: currentCurrency,
-          coinData: initialHundredCoins,
-        }),
-      );
-      dispatch(currencyActions.updateRates({ currencyRates: initialRates }));
 
-      dispatch(initializeCoinListCache());
+      if (cacheIsValid && cachedCoinList) {
+        // Use cached data if available
+        console.log("Use cached data if available");
+        initialHundredCoins = cachedCoinList.initialHundredCoins;
+        trendingCarouselCoins = cachedCoinList.trendingCarouselCoins;
+      } else {
+        // Fetch from API if not in cache
+        console.log("Fetch from API if not in cache");
+        const fetchedData = await fetchBaseDataFromCryptoCompare();
+        initialRates = fetchedData.initialRates;
+        initialHundredCoins = fetchedData.initialHundredCoins;
+        trendingCarouselCoins = fetchedData.trendingCarouselCoins;
+
+        // Update the global coinlist cache
+        dispatch(
+          coinsActions.updateCoins({
+            displayedCoinListCoins: initialHundredCoins,
+            trendingCarouselCoins,
+            symbol: currentSymbol,
+          }),
+        );
+        dispatch(
+          coinsActions.setCoinListForCurrency({
+            currency: currentCurrency,
+            coinData: initialHundredCoins,
+          }),
+        );
+        dispatch(currencyActions.updateRates({ currencyRates: initialRates }));
+        dispatch(initializeCoinListCache());
+
+        // Handle global cache version update
+        const currentTimestamp = Date.now().toString();
+        Cookie.set("globalCacheVersion", currentTimestamp);
+      }
     };
 
-    prefetchHomePage();
+    if (coinListInStore && coinListInStore.length > 0) {
+      return;
+    } else {
+      // If the data doesn't already exist in Redux, then fetch & preload it
+      prefetchHomePage();
+    }
   }, []);
 
   useEffect(() => {
@@ -271,14 +315,22 @@ const Coin = ({
       firstRender.current = false;
       return;
     }
-
+// handle from thunk instead
     const updateSelectedCoinCurrencyValues = () => {
       console.log("updateSelectedCoinCurrencyValues");
 
       // Check if coin data for the current currency exists in the Redux store
-      if (selectedCoinDetailsByCurrency[currentCurrency.toUpperCase()]) {
+      if (
+        cachedCoinDetailsByCurrency[currentCurrency.toUpperCase()][
+          initialCoin.symbol.toUpperCase()
+        ]
+      ) {
         console.log("currency cache used");
-        setCoin(selectedCoinDetailsByCurrency[currentCurrency.toUpperCase()]);
+        setCoin(
+          cachedCoinDetailsByCurrency[currentCurrency.toUpperCase()][
+            initialCoin.symbol.toUpperCase()
+          ],
+        );
         // TODO: Update marketChart, marketValues, and chartData similarly if stored in Redux
       } else {
         // Convert the initial coin values using the initialRates
@@ -731,16 +783,41 @@ const Coin = ({
 export default Coin;
 
 export async function getServerSideProps(context) {
+  const { id } = context.params;
+  const currency = "CAD";
+
+  const cookies = parse(context.req.headers.cookie || "");
+  const preloadedCoins = JSON.parse(cookies.preloadedCoins || "[]");
+  const globalCacheVersion = cookies.globalCacheVersion || "0";
+  const lastKnownVersionForPage = context.pageProps?.globalCacheVersion || "0";
+
+  let initialCoinsState = defaultInitialCoinsState;
+  let initialCurrencyState = defaultInitialCurrencyState;
+
+  let initialCoin,
+    marketChartFromServer,
+    marketValuesFromServer,
+    chartFromServer,
+    initialRates;
+
+  // If the coin is preloaded and the cache version hasn't changed, don't fetch new data
+  if (
+    preloadedCoins.includes(id) &&
+    globalCacheVersion === lastKnownVersionForPage
+  ) {
+    console.log("use cached data for coins page!");
+    return { props: { ...context.pageProps } };
+  }
+  console.log("fetch new data for coins page...");
+
   try {
-    const { id } = context.query;
-    const currency = "CAD";
-    const {
-      initialCoin,
-      marketChartFromServer,
-      marketValuesFromServer,
-      chartFromServer,
-      initialRates,
-    } = await fetchCoinDetailsFromCryptoCompare(id, currency);
+    const coinDetails = await fetchCoinDetailsFromCryptoCompare(id, currency);
+
+    initialCoin = coinDetails.initialCoin;
+    marketChartFromServer = coinDetails.marketChartFromServer;
+    marketValuesFromServer = coinDetails.marketValuesFromServer;
+    chartFromServer = coinDetails.chartFromServer;
+    initialRates = coinDetails.initialRates;
 
     return {
       props: {
@@ -752,10 +829,22 @@ export async function getServerSideProps(context) {
         initialReduxState: {
           coins: {
             ...initialCoinsState,
-            selectedCoinDetails: initialCoin,
-            selectedCoinDetailsByCurrency: {
-              ...initialCoinsState.selectedCoinDetailsByCurrency,
-              [initialCurrencyState.initialCurrency]: initialCoin,
+            selectedCoinDetails: {
+              coinInfo: initialCoin,
+              marketChartValues: marketChartFromServer,
+              marketValues: marketValuesFromServer,
+              chartValues: chartFromServer,
+            },
+            cachedCoinDetailsByCurrency: {
+              ...initialCoinsState.cachedCoinDetailsByCurrency,
+              [initialCurrencyState.initialCurrency]: {
+                [initialCoin.symbol.toUpperCase()]: {
+                  coinInfo: initialCoin,
+                  marketChartValues: marketChartFromServer,
+                  marketValues: marketValuesFromServer,
+                  chartValues: chartFromServer,
+                },
+              },
             },
           },
           currency: {

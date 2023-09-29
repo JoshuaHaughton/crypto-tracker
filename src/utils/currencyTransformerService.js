@@ -20,6 +20,7 @@ let currencyTransformerWorker;
  * @param {Function} dispatch - Redux dispatch function.
  */
 export function initializeCurrencyTransformerWorker(dispatch) {
+  console.log("currencyTransformerWorker attempt create");
   // Terminate the existing worker if already initialized
   if (currencyTransformerWorker != null) {
     terminateCurrencyTransformerWorker();
@@ -38,6 +39,65 @@ export function initializeCurrencyTransformerWorker(dispatch) {
 
     const { transformedData, type, toCurrency } = event.data;
     console.log("handleTransformedDataFromWorker", transformedData);
+
+    if (type === "transformCoinDetailsCurrency") {
+      batch(() => {
+        // Store transformed coin data in Redux
+        dispatch(
+          coinsActions.updateSelectedCoin({
+            coinDetails: transformedData,
+          }),
+        );
+        dispatch(
+          coinsActions.setCachedCoinDetailsByCurrency({
+            currency: toCurrency,
+            coinData: transformedData,
+          }),
+        );
+        dispatch(currencyActions.changeCurrency({ currency: toCurrency }));
+      });
+
+      // Wait for all storage operations to complete
+      try {
+        await saveCoinDataForCurrencyInBrowser(
+          COINDETAILS_TABLENAME,
+          toCurrency,
+          transformedData,
+        );
+      } catch (err) {
+        console.error("Error during IndexedDB storage:", err);
+      }
+    }
+
+    if (type === "transformAllCoinDetailsCurrencies") {
+      const storagePromises = [];
+
+      for (const currency in transformedData) {
+        // Store transformed coin data in Redux
+        dispatch(
+          coinsActions.setCachedCoinDetailsByCurrency({
+            currency,
+            coinData: transformedData,
+          }),
+        );
+
+        // Prepare transformed data for cache
+        storagePromises.push(
+          saveCoinDataForCurrencyInBrowser(
+            COINDETAILS_TABLENAME,
+            currency,
+            transformedData[currency],
+          ),
+        );
+      }
+
+      // Wait for all storage operations to complete
+      try {
+        await Promise.all(storagePromises);
+      } catch (err) {
+        console.error("Error during IndexedDB storage:", err);
+      }
+    }
 
     if (type === "transformCoinListCurrency") {
       batch(() => {

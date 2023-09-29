@@ -71,6 +71,95 @@ const transformCurrencyForCoinList = (
 };
 
 /**
+ * Converts the currency for chart data.
+ *
+ * @param {Object} chartData - The original chart data.
+ * @param {string} fromCurrency - The source currency code.
+ * @param {string} toCurrency - The target currency code.
+ * @param {Object} currencyRates - The conversion rates.
+ * @returns {Object} The chart data with transformed currency values.
+ */
+const convertChartData = (
+  chartData,
+  fromCurrency,
+  toCurrency,
+  currencyRates,
+) => ({
+  ...chartData,
+  datasets: chartData.datasets.map((dataset) => ({
+    ...dataset,
+    label: `${dataset.label.split(" ").slice(0, -1).join(" ")} ${toCurrency}`,
+    data: dataset.data.map((value) =>
+      convertCurrency(value, fromCurrency, toCurrency, currencyRates),
+    ),
+  })),
+});
+
+/**
+ * Converts the currency for market chart data.
+ *
+ * @param {Object} marketChart - The original market chart data.
+ * @param {string} fromCurrency - The source currency code.
+ * @param {string} toCurrency - The target currency code.
+ * @param {Object} currencyRates - The conversion rates.
+ * @returns {Object} The market chart data with transformed currency values.
+ */
+const convertMarketChart = (
+  marketChart,
+  fromCurrency,
+  toCurrency,
+  currencyRates,
+) => ({
+  ...marketChart,
+  day: marketChart.day.map((dataPoint) => [
+    dataPoint[0],
+    convertCurrency(dataPoint[1], fromCurrency, toCurrency, currencyRates),
+  ]),
+  week: marketChart.week.map((dataPoint) => [
+    dataPoint[0],
+    convertCurrency(dataPoint[1], fromCurrency, toCurrency, currencyRates),
+  ]),
+  month: marketChart.month.map((dataPoint) => [
+    dataPoint[0],
+    convertCurrency(dataPoint[1], fromCurrency, toCurrency, currencyRates),
+  ]),
+  year: marketChart.year.map((dataPoint) => [
+    dataPoint[0],
+    convertCurrency(dataPoint[1], fromCurrency, toCurrency, currencyRates),
+  ]),
+});
+
+/**
+ * Converts the currency for market values.
+ *
+ * @param {Object} marketValues - The original market values.
+ * @param {string} fromCurrency - The source currency code.
+ * @param {string} toCurrency - The target currency code.
+ * @param {Object} currencyRates - The conversion rates.
+ * @returns {Object} The market values with transformed currency values.
+ */
+const convertMarketValues = (
+  marketValues,
+  fromCurrency,
+  toCurrency,
+  currencyRates,
+) => ({
+  ...marketValues,
+  dayMarketValues: marketValues.dayMarketValues.map((value) =>
+    convertCurrency(value, fromCurrency, toCurrency, currencyRates),
+  ),
+  weekMarketValues: marketValues.weekMarketValues.map((value) =>
+    convertCurrency(value, fromCurrency, toCurrency, currencyRates),
+  ),
+  monthMarketValues: marketValues.monthMarketValues.map((value) =>
+    convertCurrency(value, fromCurrency, toCurrency, currencyRates),
+  ),
+  yearMarketValues: marketValues.yearMarketValues.map((value) =>
+    convertCurrency(value, fromCurrency, toCurrency, currencyRates),
+  ),
+});
+
+/**
  * Transforms the currency data for a single coin's detailed data.
  *
  * @param {Object} coinToTransform The coin's data to transform.
@@ -86,44 +175,65 @@ const transformCurrencyForCoinDetails = (
   currencyRates,
 ) => ({
   ...coinToTransform,
-  current_price: convertCurrency(
-    coinToTransform.current_price,
+  coinInfo: {
+    ...coinToTransform.coinInfo,
+    current_price: convertCurrency(
+      coinToTransform.current_price,
+      fromCurrency,
+      toCurrency,
+      currencyRates,
+    ),
+    all_time_high: convertCurrency(
+      coinToTransform.all_time_high,
+      fromCurrency,
+      toCurrency,
+      currencyRates,
+    ),
+    market_cap: convertCurrency(
+      coinToTransform.market_cap,
+      fromCurrency,
+      toCurrency,
+      currencyRates,
+    ),
+    price_change_1d: convertCurrency(
+      coinToTransform.price_change_1d,
+      fromCurrency,
+      toCurrency,
+      currencyRates,
+    ),
+    price_change_7d: convertCurrency(
+      coinToTransform.price_change_7d,
+      fromCurrency,
+      toCurrency,
+      currencyRates,
+    ),
+    price_change_30d: convertCurrency(
+      coinToTransform.price_change_30d,
+      fromCurrency,
+      toCurrency,
+      currencyRates,
+    ),
+    price_change_365d: convertCurrency(
+      coinToTransform.price_change_365d,
+      fromCurrency,
+      toCurrency,
+      currencyRates,
+    ),
+  },
+  marketChart: convertMarketChart(
+    coinToTransform.marketChart,
     fromCurrency,
     toCurrency,
     currencyRates,
   ),
-  all_time_high: convertCurrency(
-    coinToTransform.all_time_high,
+  marketValues: convertMarketValues(
+    coinToTransform.marketValues,
     fromCurrency,
     toCurrency,
     currencyRates,
   ),
-  market_cap: convertCurrency(
-    coinToTransform.market_cap,
-    fromCurrency,
-    toCurrency,
-    currencyRates,
-  ),
-  price_change_1d: convertCurrency(
-    coinToTransform.price_change_1d,
-    fromCurrency,
-    toCurrency,
-    currencyRates,
-  ),
-  price_change_7d: convertCurrency(
-    coinToTransform.price_change_7d,
-    fromCurrency,
-    toCurrency,
-    currencyRates,
-  ),
-  price_change_30d: convertCurrency(
-    coinToTransform.price_change_30d,
-    fromCurrency,
-    toCurrency,
-    currencyRates,
-  ),
-  price_change_365d: convertCurrency(
-    coinToTransform.price_change_365d,
+  chartData: convertChartData(
+    coinToTransform.chartData,
     fromCurrency,
     toCurrency,
     currencyRates,
@@ -160,8 +270,8 @@ self.addEventListener(
         );
         self.postMessage({
           type,
-          toCurrency,
           transformedData: transformedCoinDetails,
+          toCurrency: data.toCurrency,
         });
         break;
 
@@ -173,10 +283,11 @@ self.addEventListener(
           currenciesToExclude,
           currencyRates,
         } = data;
+        console.log('HERE FFS')
 
         let targetCurrencies = ALL_CURRENCIES;
 
-        if (currenciesToExclude.length > 0) {
+        if (currenciesToExclude?.length > 0) {
           // Filter out the excluded currencies from the list of all currencies if it exists
           targetCurrencies = targetCurrencies.filter(
             (currency) => !currenciesToExclude.includes(currency),
@@ -207,14 +318,13 @@ self.addEventListener(
         const {
           coinToTransform,
           fromCurrency: coinFromCurrency,
-          toCurrency: coinToCurrency,
           currencyRates: coinCurrencyRates,
           currenciesToExclude: coinCurrenciesToExclude,
         } = data;
 
         let coinTargetCurrencies = ALL_CURRENCIES;
 
-        if (coinCurrenciesToExclude != null) {
+        if (coinCurrenciesToExclude?.length > 0) {
           // Filter out the excluded currency from the list of all currencies if it exists
           coinTargetCurrencies = coinTargetCurrencies.filter(
             (currency) => !coinCurrenciesToExclude.includes(currency),
@@ -224,19 +334,18 @@ self.addEventListener(
         // Create an object to store the transformed data for each target currency
         const coinDetailsTransformedData = {};
 
-        coinTargetCurrencies.forEach((currency) => {
-          coinDetailsTransformedData[currency] =
+        coinTargetCurrencies.forEach((targetCurrency) => {
+          coinDetailsTransformedData[targetCurrency] =
             transformCurrencyForCoinDetails(
               coinToTransform,
               coinFromCurrency,
-              coinToCurrency,
+              targetCurrency,
               coinCurrencyRates,
             );
         });
 
         self.postMessage({
           type,
-          toCurrency,
           transformedData: coinDetailsTransformedData,
         });
         break;

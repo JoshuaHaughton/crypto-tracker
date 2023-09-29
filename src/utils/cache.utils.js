@@ -1,5 +1,8 @@
 import db from "./database";
-import { CACHE_EXPIRY_TIME_IN_MINUTES } from "../global/constants";
+import {
+  CACHE_EXPIRY_TIME_IN_MINUTES,
+  COINDETAILS_TABLENAME,
+} from "../global/constants";
 
 /**
  * Marks a property in the localStorage as valid with an expiration timestamp.
@@ -67,6 +70,30 @@ export const clearCache = async (tableName, key) => {
 };
 
 /**
+ * Clears cache for all keys in a specific table.
+ * @param {string} tableName - The name of the table in the IndexedDB.
+ */
+export const clearCacheForAllKeysInTable = async (tableName) => {
+  try {
+    await db[tableName].clear(); // Clear all keys in the table
+    console.log(`Cache cleared from IndexedDB for all keys in ${tableName}`);
+  } catch (err) {
+    console.error(
+      `Error clearing cache from IndexedDB for all keys in ${tableName}:`,
+      err,
+    );
+  }
+
+  // Clear from localStorage
+  for (const key in localStorage) {
+    if (key.startsWith(`${tableName}_`)) {
+      localStorage.removeItem(key);
+    }
+  }
+  console.log(`Cache cleared from localStorage for all keys in ${tableName}`);
+};
+
+/**
  * Fetches data from indexedDB cache.
  * @param {string} tableName - The name of the table in the IndexedDB.
  * @param {string} key - The key for the data to be fetched.
@@ -100,7 +127,20 @@ export const saveCoinDataForCurrencyInBrowser = async (
   coinData,
 ) => {
   try {
-    await db[tableName].put({ currency, coinData });
+    if (tableName === COINDETAILS_TABLENAME) {
+      // Get the existing coin data for the specified currency
+      const existingCoinData = await db[tableName].get(currency);
+
+      // Merge existing data with the new coin data
+      const mergedCoinData = {
+        ...existingCoinData,
+        [coinData.symbol]: coinData,
+      };
+
+      await db[tableName].put({ currency, details: mergedCoinData });
+    } else {
+      await db[tableName].put({ currency, coinData });
+    }
     setToLocalStorageWithExpiry(tableName, currency);
     console.log(
       `Successfully saved ${currency} data to ${tableName} in IndexedDB and set expiry in localStorage.`,

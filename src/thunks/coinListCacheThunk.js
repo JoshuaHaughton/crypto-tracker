@@ -33,7 +33,7 @@ export const initializeCoinListCache = createAsyncThunk(
     // If data isn't in the cache, or the cache isn't valid, send the initial data to the web worker
     // for currency transformation. After that, we save it to the cache
     if (!isCacheValid(COINLISTS_TABLENAME)) {
-      console.log("INVALID CACHE");
+      console.log("INVALID CACHE - COIN LISTS");
       if (typeof window !== "undefined") {
         postMessageToCurrencyTransformerWorker({
           type: "transformAllCoinListCurrencies",
@@ -64,7 +64,7 @@ export const initializeCoinListCache = createAsyncThunk(
       }
     } else {
       // Use the IndexedDB cache if it's valid
-      console.log("VALID CACHE");
+      console.log("VALID CACHE - COIN LISTS");
 
       await db.coinLists
         .each((data) => {

@@ -2,20 +2,26 @@ import { createSlice } from "@reduxjs/toolkit";
 
 export const initialCoinsState = {
   selectedCoinDetails: {},
+  selectedCoinDetailsByCurrency: {
+    CAD: {},
+    USD: {},
+    AUD: {},
+    GBP: {},
+  },
+  cachedCoinDetailsByCurrency: {
+    CAD: {},
+    USD: {},
+    AUD: {},
+    GBP: {},
+  },
   displayedCoinListCoins: [],
-  trendingCarouselCoins: [],
   coinListCoinsByCurrency: {
     CAD: [],
     USD: [],
     AUD: [],
     GBP: [],
   },
-  selectedCoinDetailsByCurrency: {
-    CAD: null,
-    USD: null,
-    AUD: null,
-    GBP: null,
-  },
+  trendingCarouselCoins: [],
   symbol: "$",
 };
 
@@ -53,6 +59,12 @@ const coinsSlice = createSlice({
       console.log("updateSelectedCoinDetailsForCurrency", action);
       const { currency, coinDetail } = action.payload;
       state.selectedCoinDetailsByCurrency[currency] = coinDetail;
+    },
+    setCachedCoinDetailsByCurrency(state, action) {
+      console.log("setCachedCoinDetailsByCurrency", action);
+      const { currency, coinData } = action.payload;
+      state.cachedCoinDetailsByCurrency[currency][coinData.initialCoin.id] =
+        coinData;
     },
   },
 });

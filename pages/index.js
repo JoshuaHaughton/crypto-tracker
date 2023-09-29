@@ -4,15 +4,22 @@ import Banner from "../src/components/UI/Banner/Banner";
 import Pagination from "../src/components/UI/Pagination.jsx";
 import styles from "./Home.module.css";
 import "react-alice-carousel/lib/alice-carousel.css";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { initialCoinsState } from "../src/store/coins";
 import { initialCurrencyState } from "../src/store/currency";
 import { fetchBaseDataFromCryptoCompare } from "../src/utils/api.utils";
+import { initializeCoinListCache } from "../src/thunks/coinListCacheThunk";
 
 export default function Home() {
   const coinListPageNumber = useSelector(
     (state) => state.appInfo.coinListPageNumber,
   );
+  // const dispatch = useDispatch();
+
+  useEffect(() => {
+    // Using here messes up rendering order because this will go before the app is fully mounted
+    // dispatch(initializeCoinListCache());
+  }, []);
 
   useEffect(() => {
     if (coinListPageNumber !== 1) {
@@ -35,6 +42,9 @@ export async function getStaticProps() {
     const { initialRates, initialHundredCoins, trendingCarouselCoins } =
       await fetchBaseDataFromCryptoCompare();
 
+    // Update the global cache version cookie
+    const currentTimestamp = Date.now().toString();
+
     return {
       props: {
         initialReduxState: {
@@ -52,6 +62,7 @@ export async function getStaticProps() {
             currencyRates: initialRates,
           },
         },
+        globalCacheVersion: currentTimestamp, // Add the globalCacheVersion to props
       },
       revalidate: 300, // regenerate the page every 5 minutes
     };
@@ -65,6 +76,7 @@ export async function getStaticProps() {
           coins: initialCoinsState,
           currency: initialCurrencyState,
         },
+        globalCacheVersion: currentTimestamp, // Add the globalCacheVersion to props
       },
       revalidate: 300, // regenerate the page every 5 minutes
     };

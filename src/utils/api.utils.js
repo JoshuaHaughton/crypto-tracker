@@ -59,7 +59,7 @@ export async function fetchBaseDataFromCryptoCompare() {
     const coin = entry.CoinInfo;
     const metrics = entry.RAW?.CAD;
     if (!metrics) {
-      console.warn(`Metrics not found for coin: ${coin.Name}`);
+      // console.warn(`Metrics not found for coin: ${coin.Name}`);
       return null;
     }
 
@@ -94,23 +94,32 @@ export async function fetchBaseDataFromCryptoCompare() {
  *
  * @param {string} id - The coin identifier.
  * @param {string} currency - The target currency for conversions.
+ * @param {boolean} clientFetch - Whether or not this fetch is from the client. If it is, we should use the proxy for necessary api calls.
  * @returns {Object} An object containing details of the coin and other related data.
  */
-export async function fetchCoinDetailsFromCryptoCompare(id, currency = "CAD") {
+export async function fetchCoinDetailsFromCryptoCompare(
+  id,
+  currency = "CAD",
+  clientFetch = false,
+) {
   const cryptoCompareApiKey = process.env.NEXT_PUBLIC_CRYPTOCOMPARE_API_KEY;
   const cryptoCompareFetchOptions = {
     headers: {
       Authorization: `Apikey ${cryptoCompareApiKey}`,
     },
   };
+  const coinPaprikaUrl = clientFetch
+    ? "/api/coinpaprika"
+    : "https://api.coinpaprika.com";
 
   const urls = [
     `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${id.toUpperCase()},CAD&tsyms=USD,AUD,GBP,CAD`,
     `https://data-api.cryptocompare.com/asset/v1/data/by/symbol?asset_symbol=${id.toUpperCase()}`,
     `https://min-api.cryptocompare.com/data/v2/histohour?fsym=${id}&tsym=${currency}&limit=24`,
     `https://min-api.cryptocompare.com/data/v2/histoday?fsym=${id}&tsym=${currency}&limit=365`,
-    `https://api.coinpaprika.com/v1/search?q=${id}`,
+    `${coinPaprikaUrl}/v1/search?q=${id}`,
   ];
+  console.log(urls)
 
   const [
     cryptoCompareData,
@@ -223,7 +232,7 @@ export async function fetchCoinDetailsFromCryptoCompare(id, currency = "CAD") {
   // Fetch ATH from Coinpaprika
   const coinPaprikaId = coinPaprikaSearchData.currencies[0].id;
   const coinPaprikaCoinDetailsResponse = await fetch(
-    `https://api.coinpaprika.com/v1/tickers/${coinPaprikaId}`,
+    `${coinPaprikaUrl}/v1/tickers/${coinPaprikaId}`,
   );
   const coinPaprikaCoinDetails = await coinPaprikaCoinDetailsResponse.json();
 

@@ -2,7 +2,10 @@ import React, { useState, useEffect, useMemo } from "react";
 import Coin from "./Coin/Coin";
 import styles from "./CoinList.module.css";
 import { TextField } from "@mui/material";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchDetailedDataForCoins } from "../utils/api.utils";
+import { coinsActions } from "../store/coins";
+import Cookie from "js-cookie";
 
 const bigNumberFormatter = (num) => {
   if (num > 999 && num < 1000000) {
@@ -21,6 +24,7 @@ const bigNumberFormatter = (num) => {
 const PageSize = 10;
 
 const CoinList = ({ initialHundredCoins }) => {
+  const dispatch = useDispatch();
   const isBreakpoint380 = useSelector(
     (state) => state.mediaQuery.isBreakpoint380,
   );
@@ -37,6 +41,9 @@ const CoinList = ({ initialHundredCoins }) => {
     (state) => state.appInfo.coinListPageNumber,
   );
   const currentSymbol = useSelector((state) => state.currency.symbol);
+  const currentCurrency = useSelector(
+    (state) => state.currency.currentCurrency,
+  );
   const [search, setSearch] = useState("");
   const [shownCoins, setShownCoins] = useState(
     displayedCoinListCoins.length < 1
@@ -64,6 +71,45 @@ const CoinList = ({ initialHundredCoins }) => {
       return displayedCoinListCoins.slice(firstPageIndex, lastPageIndex);
     }
   }, [coinListPageNumber, displayedCoinListCoins, initialHundredCoins]);
+
+  // useEffect(() => {
+  //   const coinIds = shownCoins.map((coin) => coin.id);
+
+  //   // Check if the details for these coin IDs are already in Redux or cookies
+  //   const preloadedCoinIds = JSON.parse(Cookie.get("preloadedCoins") || "[]");
+
+  //   const idsToFetch = coinIds.filter((id) => !preloadedCoinIds.includes(id));
+
+  //   if (idsToFetch.length === 0) return; // No new coins to fetch
+
+  //   fetchDetailedDataForCoins(idsToFetch)
+  //     .then((detailedData) => {
+  //       console.log("preloaded coin details for current page");
+
+  //       // Update the Redux state with the fetched data
+  //       dispatch(
+  //         coinsActions.setCachedCoinDetailsByCurrency({
+  //           currency: currentCurrency,
+  //           coinData: detailedData,
+  //         }),
+  //       );
+
+  //       // Update the cookie with new preloaded coin IDs
+  //       const updatedPreloadedCoins = [
+  //         ...new Set([...preloadedCoinIds, ...idsToFetch]),
+  //       ];
+  //       Cookie.set("preloadedCoins", JSON.stringify(updatedPreloadedCoins));
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error preloading coin data:", error);
+  //     });
+
+  //   return () => {
+  //     // handle cache cleanup if necessary
+  //   };
+  // }, [shownCoins, dispatch]);
+
+  // }, [shownCoins]);
 
   const handleChange = (e) => {
     e.preventDefault();
