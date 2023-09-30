@@ -231,7 +231,4 @@ export const checkAndResetCache = async (store, serverGlobalCacheVersion) => {
       await resetAndUpdateStore(store);
     }
   }
-
-  // Always initialize the coin list cache after a potential reset.
-  store.dispatch(initializeCoinListCache());
 };

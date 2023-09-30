@@ -11,6 +11,7 @@ import {
   terminateCurrencyTransformerWorker,
 } from "../src/utils/currencyTransformerService";
 import { checkAndResetCache } from "../src/utils/cache.utils";
+import { initializeCoinListCache } from "../src/thunks/coinListCacheThunk";
 
 nProgress.configure({
   minimum: 0.3,
@@ -37,8 +38,8 @@ function MyApp({ Component, pageProps }) {
     Router.events.on("routeChangeComplete", nProgress.done);
     Router.events.on("routeChangeComplete", handleRouteChange);
 
-    // Run cache check on initial load
-    checkAndResetCache(store, pageProps.globalCacheVersion);
+    // Initialize the cache on initial load
+    store.dispatch(initializeCoinListCache());
 
     // Clean up event listeners on unmount
     return () => {
