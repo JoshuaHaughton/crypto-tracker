@@ -3,7 +3,7 @@ import currencyReducer from "./currency";
 import coinsReducer from "./coins";
 import appInfoReducer from "./appInfo";
 import mediaQueryReducer from "./mediaQuery";
-import rootReducer from "./root";
+import rootReducer, { updateStoreData } from "./root";
 
 /**
  * Global reference to the Redux store.
@@ -26,11 +26,9 @@ export const getOrInitializeStore = (initialState) => {
   if (!reduxStore) {
     reduxStore = initializeStore(initialState);
   } else if (initialState?.initialReduxState) {
-    // If there's a new state from the server, overwrite the existing state
-    reduxStore = initializeStore(initialState);
+    // If there's a new state from the server, merge it into the existing state
+    reduxStore.dispatch(updateStoreData(initialState.initialReduxState));
   }
-  // If no initialReduxState is provided, just continue using the existing store
-  // No need to do anything further
 
   return reduxStore;
 };
