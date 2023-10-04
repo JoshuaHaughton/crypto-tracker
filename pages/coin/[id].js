@@ -45,7 +45,6 @@ const Coin = () => {
   const [currentChartPeriod, setCurrentChartPeriod] = useState("day");
   const isHydrated = useRef(false);
   const firstRender = useRef(true);
-  console.log("coinDetails", coinDetails);
 
   const marketChart = coinDetails.marketChartValues;
   const marketValues = coinDetails.marketValues;

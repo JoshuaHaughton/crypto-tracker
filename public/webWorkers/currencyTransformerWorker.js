@@ -283,7 +283,6 @@ self.addEventListener(
           currenciesToExclude,
           currencyRates,
         } = data;
-        console.log("HERE FFS");
 
         let targetCurrencies = ALL_CURRENCIES;
 

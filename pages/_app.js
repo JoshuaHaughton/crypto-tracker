@@ -13,8 +13,10 @@ import {
 import {
   checkAndResetCache,
   fetchUpdateAndReinitalizeCoinListCache,
+  isCacheValid,
 } from "../src/utils/cache.utils";
 import { initializeCoinListCache } from "../src/thunks/coinListCacheThunk";
+import { COINLISTS_TABLENAME } from "../src/global/constants";
 
 nProgress.configure({
   minimum: 0.3,
@@ -24,10 +26,11 @@ nProgress.configure({
 });
 
 function MyApp({ Component, pageProps }) {
-  console.log("pageProps", pageProps);
+  console.log("App.js rendered. pageProps", pageProps);
   const store = getOrInitializeStore(pageProps.initialReduxState);
 
   useEffect(() => {
+    console.log("App.js useEffect ran");
     // Initialize services
     initializeCurrencyTransformerWorker(store.dispatch);
 
@@ -44,13 +47,24 @@ function MyApp({ Component, pageProps }) {
 
     const initialHundredCoins = store.getState().coins.displayedCoinListCoins;
 
-    // Initialize the cache on initial load
+    // If we don't start off with the CoinLists (any page other than the CoinLists page) Preload the CoinLists data
     if (
       !Array.isArray(initialHundredCoins) ||
       initialHundredCoins.length === 0
     ) {
-      fetchUpdateAndReinitalizeCoinListCache(store);
+      console.log(
+        "We didnt start with CoinLists data so we need to preload it.",
+      );
+      const cacheIsValid = isCacheValid(COINLISTS_TABLENAME);
+      console.log("Is cache valid for preloading?", cacheIsValid);
+
+      fetchUpdateAndReinitalizeCoinListCache(store, cacheIsValid);
     } else {
+      console.log(
+        "We start with CoinLists data. Don't preload it, just initalize the cache with this.",
+        initialHundredCoins,
+      );
+
       store.dispatch(initializeCoinListCache());
     }
 

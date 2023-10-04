@@ -26,6 +26,7 @@ export const getOrInitializeStore = (initialState) => {
   if (!reduxStore) {
     reduxStore = initializeStore(initialState);
   } else if (initialState?.initialReduxState) {
+    console.log("updateStoreData INSTEAD OF initializeStore");
     // If there's a new state from the server, merge it into the existing state
     updateStoreData(reduxStore, initialState.initialReduxState);
   }
@@ -39,7 +40,7 @@ export const getOrInitializeStore = (initialState) => {
  * @returns {Object} The initialized Redux store.
  */
 export function initializeStore(initialState = {}) {
-  console.log("store initialized from base");
+  console.log("initializeStore");
   reduxStore = configureStore({
     reducer: {
       currency: currencyReducer,

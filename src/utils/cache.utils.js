@@ -171,11 +171,58 @@ const clearAllCache = () => {
 /**
  * Fetches new CoinList Data, updates the Redux store, and then reinitializes the CoinList Cache.
  *
- * @param {Object} store - The Redux store.
- * @returns {Promise<void>}
+ * If `attemptToUseCache` is set to true, the function attempts to fetch the coin list data from the cache.
+ * If the cache fetch fails or returns invalid data, it logs an error and proceeds to fetch from the API.
+ *
+ * If `attemptToUseCache` is set to false, the function directly fetches the coin list data from the API.
+ *
+ * @param {Object} store - The Redux store to update with the fetched data.
+ * @param {boolean} attemptToUseCache - A flag indicating whether to attempt fetching data from the indexedDB cache. Defaults to false.
+ * @returns {Promise<void>} - A promise that resolves when the store is updated and the cache is reinitialized.
  */
-export const fetchUpdateAndReinitalizeCoinListCache = async (store) => {
-  const coinListCacheData = await fetchDataForCoinListCacheInitialization();
+export const fetchUpdateAndReinitalizeCoinListCache = async (
+  store,
+  attemptToUseCache = false,
+) => {
+  console.log("fetchUpdateAndReinitalizeCoinListCache");
+
+  const fetchDataFromAPI = async () => {
+    return await fetchDataForCoinListCacheInitialization();
+  };
+
+  let coinListCacheData;
+  const state = store.getState();
+  const currentCurrency = state.currency.currentCurrency;
+
+  if (attemptToUseCache) {
+    try {
+      const cacheData = await fetchDataFromIndexedDB(
+        COINLISTS_TABLENAME,
+        currentCurrency,
+      );
+
+      if (cacheData?.coinData) {
+        coinListCacheData = {
+          coins: {
+            ...state.coins,
+            displayedCoinListCoins: cacheData.coinData,
+            coinListCoinsByCurrency: {
+              ...state.coins.coinListCoinsByCurrency,
+              [currentCurrency]: cacheData.coinData,
+            },
+            trendingCarouselCoins: cacheData.coinData,
+          },
+        };
+      } else {
+        throw new Error("No valid data in cache");
+      }
+    } catch (error) {
+      console.error("Error fetching from cache:", error);
+      coinListCacheData = await fetchDataFromAPI();
+    }
+  } else {
+    coinListCacheData = await fetchDataFromAPI();
+  }
 
   updateStoreData(store, coinListCacheData);
   store.dispatch(initializeCoinListCache());
