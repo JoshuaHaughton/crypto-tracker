@@ -7,8 +7,8 @@ import {
 import Cookie from "js-cookie";
 import { initializeStore } from "../store";
 import { fetchDataForCoinListCacheInitialization } from "./api.utils";
-import { updateStoreData } from "../store/root";
 import { initializeCoinListCache } from "../thunks/coinListCacheThunk";
+import { updateStoreData } from "./store.utils";
 
 /**
  * Marks a property in the localStorage as valid with an expiration timestamp.
@@ -169,14 +169,15 @@ const clearAllCache = () => {
 };
 
 /**
- * Resets and updates the Redux store.
+ * Fetches new CoinList Data, updates the Redux store, and then reinitializes the CoinList Cache.
  *
  * @param {Object} store - The Redux store.
  * @returns {Promise<void>}
  */
-const resetAndUpdateStore = async (store) => {
+export const fetchUpdateAndReinitalizeCoinListCache = async (store) => {
   const coinListCacheData = await fetchDataForCoinListCacheInitialization();
-  store.dispatch(updateStoreData(coinListCacheData));
+
+  updateStoreData(store, coinListCacheData);
   store.dispatch(initializeCoinListCache());
 };
 
@@ -228,7 +229,7 @@ export const checkAndResetCache = async (store, serverGlobalCacheVersion) => {
 
     // If the server's cache version matches the client's, fetch fresh data and then update the store.
     if (serverGlobalCacheVersion === clientGlobalCacheVersion) {
-      await resetAndUpdateStore(store);
+      await fetchUpdateAndReinitalizeCoinListCache(store);
     }
   }
 };

@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { withCommonActions } from "./commonActions";
 
 export const initialCoinsState = {
   selectedCoinDetails: {},
@@ -26,7 +27,7 @@ export const initialCoinsState = {
 };
 
 // Coins Reducers
-const coinsSlice = createSlice({
+const coinsSliceDefinition = {
   name: "coins",
   initialState: initialCoinsState,
   reducers: {
@@ -67,7 +68,13 @@ const coinsSlice = createSlice({
         coinData;
     },
   },
-});
+};
+
+// Enhance the slice definition with common actions
+const enhancedCoinsSliceDefinition = withCommonActions(coinsSliceDefinition);
+
+// Create the slice using the enhanced definition
+const coinsSlice = createSlice(enhancedCoinsSliceDefinition);
 
 export const coinsActions = coinsSlice.actions;
 export default coinsSlice.reducer;

@@ -29,22 +29,10 @@ import {
 import { COINLISTS_TABLENAME } from "../../src/global/constants";
 import Cookie from "js-cookie";
 
-const Coin = ({
-  initialCoin,
-  marketChartFromServer,
-  marketValuesFromServer,
-  chartFromServer,
-  initialRates,
-}) => {
+const Coin = () => {
   const currentSymbol = useSelector((state) => state.currency.symbol);
-  const cachedCoinDetailsByCurrency = useSelector(
-    (state) => state.coins.cachedCoinDetailsByCurrency,
-  );
   const currentCurrency = useSelector(
     (state) => state.currency.currentCurrency,
-  );
-  const initialCurrency = useSelector((state) =>
-    state.currency.initialCurrency.toUpperCase(),
   );
   // Check if data exists in the Redux store
   const coinListInStore = useSelector(
@@ -57,11 +45,11 @@ const Coin = ({
   const [currentChartPeriod, setCurrentChartPeriod] = useState("day");
   const isHydrated = useRef(false);
   const firstRender = useRef(true);
-  const [marketChart, setMarketChart] = useState(marketChartFromServer || []);
-  const [marketValues, setMarketValues] = useState(
-    marketValuesFromServer || [],
-  );
-  const [chartData, setChartData] = useState(chartFromServer);
+  console.log("coinDetails", coinDetails);
+
+  const marketChart = coinDetails.marketChartValues;
+  const marketValues = coinDetails.marketValues;
+  const [chartData, setChartData] = useState(coinDetails.chartValues);
 
   const dayClickHandler = () => {
     setChartData((prev) => {
@@ -178,9 +166,9 @@ const Coin = ({
     }
 
     // Initialize the worker
-    const currencyTransformerWorker = new Worker(
-      "/webWorkers/currencyTransformerWorker.js",
-    );
+    // const currencyTransformerWorker = new Worker(
+    //   "/webWorkers/currencyTransformerWorker.js",
+    // );
 
     // Define the message handler for the worker
     const handleWorkerMessage = (e) => {
@@ -190,14 +178,14 @@ const Coin = ({
       dispatch(
         coinsActions.updateSelectedCoinDetailsForCurrency({
           currency: currentCurrency.toUpperCase(),
-          coinDetail: initialCoin,
+          coinDetail: coinDetails,
         }),
       );
 
       // Update IndexedDB with the fresh coin details
       db.coinDetails.put({
         currency: currentCurrency.toUpperCase(),
-        details: initialCoin,
+        details: coinDetails,
       });
 
       // Dispatch transformed data for other currencies
@@ -220,30 +208,30 @@ const Coin = ({
     };
 
     // Attach the event listener to the worker
-    currencyTransformerWorker.addEventListener("message", handleWorkerMessage);
+    // currencyTransformerWorker.addEventListener("message", handleWorkerMessage);
 
-    // If initialCoin and initialRates are available, post data to the worker
-    if (initialCoin && initialRates) {
-      console.log("post to COIN PAGE worker");
-      currencyTransformerWorker.postMessage({
-        type: "transformAllCoinDetailsCurrencies",
-        data: {
-          coinToTransform: initialCoin,
-          fromCurrency: currentCurrency.toUpperCase(),
-          currencyRates: initialRates,
-          currenciesToExclude: [currentCurrency.toUpperCase()],
-        },
-      });
-    }
+    // If coin and initialRates are available, post data to the worker
+    // if (coin && initialRates) {
+    //   console.log("post to COIN PAGE worker");
+    //   currencyTransformerWorker.postMessage({
+    //     type: "transformAllCoinDetailsCurrencies",
+    //     data: {
+    //       coinToTransform: coin,
+    //       fromCurrency: currentCurrency.toUpperCase(),
+    //       currencyRates: initialRates,
+    //       currenciesToExclude: [currentCurrency.toUpperCase()],
+    //     },
+    //   });
+    // }
 
     // Cleanup: remove the event listener and terminate the worker when the component is unmounted
     return () => {
       console.log("unmount coin worker");
-      currencyTransformerWorker.removeEventListener(
-        "message",
-        handleWorkerMessage,
-      );
-      currencyTransformerWorker.terminate();
+      // currencyTransformerWorker.removeEventListener(
+      //   "message",
+      //   handleWorkerMessage,
+      // );
+      // currencyTransformerWorker.terminate();
     };
   }, [isHydrated]);
 
@@ -301,7 +289,7 @@ const Coin = ({
       return;
     } else {
       // If the data doesn't already exist in Redux, then fetch & preload it
-      prefetchHomePage();
+      // prefetchHomePage();
     }
   }, []);
 
@@ -316,179 +304,8 @@ const Coin = ({
       return;
     }
     // handle from thunk instead
-    const updateSelectedCoinCurrencyValues = () => {
-      console.log("updateSelectedCoinCurrencyValues");
 
-      // Check if coin data for the current currency exists in the Redux store
-      if (
-        cachedCoinDetailsByCurrency[currentCurrency.toUpperCase()][
-          initialCoin.symbol.toUpperCase()
-        ]
-      ) {
-        console.log("currency cache used");
-        setCoin(
-          cachedCoinDetailsByCurrency[currentCurrency.toUpperCase()][
-            initialCoin.symbol.toUpperCase()
-          ],
-        );
-        // TODO: Update marketChart, marketValues, and chartData similarly if stored in Redux
-      } else {
-        // Convert the initial coin values using the initialRates
-        const updatedCoinPrice = convertCurrency(
-          initialCoin.current_price,
-          initialCurrency.toUpperCase(),
-          currentCurrency.toUpperCase(),
-          initialRates,
-        );
-        const updatedMarketCap = convertCurrency(
-          initialCoin.market_cap,
-          initialCurrency.toUpperCase(),
-          currentCurrency.toUpperCase(),
-          initialRates,
-        );
-        const updatedAth = convertCurrency(
-          initialCoin.all_time_high,
-          initialCurrency.toUpperCase(),
-          currentCurrency.toUpperCase(),
-          initialRates,
-        );
-        const updatedPriceChange1d = convertCurrency(
-          initialCoin.price_change_1d,
-          initialCurrency.toUpperCase(),
-          currentCurrency.toUpperCase(),
-          initialRates,
-        );
-
-        // Update the coin values
-        setCoin((prevState) => ({
-          ...prevState,
-          current_price: updatedCoinPrice,
-          market_cap: updatedMarketCap,
-          all_time_high: updatedAth,
-          price_change_1d: updatedPriceChange1d,
-        }));
-
-        dispatch(
-          coinsActions.updateSelectedCoinDetailsForCurrency({
-            currency: currentCurrency.toUpperCase(),
-            coinDetail: {
-              ...coin,
-              current_price: updatedCoinPrice,
-              market_cap: updatedMarketCap,
-              all_time_high: updatedAth,
-              price_change_1d: updatedPriceChange1d,
-            },
-          }),
-        );
-
-        // Update IndexedDB with the transformed coin details
-        db.coinDetails.put({
-          currency: currentCurrency.toUpperCase(),
-          details: {
-            ...coin,
-            current_price: updatedCoinPrice,
-            market_cap: updatedMarketCap,
-            all_time_high: updatedAth,
-            price_change_1d: updatedPriceChange1d,
-          },
-        });
-      }
-
-      // Update market chart and values
-      setMarketChart(() => ({
-        ...marketChartFromServer,
-        day: marketChartFromServer.day.map((dataPoint) => [
-          dataPoint[0],
-          convertCurrency(
-            dataPoint[1],
-            initialCurrency.toUpperCase(),
-            currentCurrency,
-            initialRates,
-          ),
-        ]),
-        week: marketChartFromServer.week.map((dataPoint) => [
-          dataPoint[0],
-          convertCurrency(
-            dataPoint[1],
-            initialCurrency.toUpperCase(),
-            currentCurrency,
-            initialRates,
-          ),
-        ]),
-        month: marketChartFromServer.month.map((dataPoint) => [
-          dataPoint[0],
-          convertCurrency(
-            dataPoint[1],
-            initialCurrency.toUpperCase(),
-            currentCurrency,
-            initialRates,
-          ),
-        ]),
-        year: marketChartFromServer.year.map((dataPoint) => [
-          dataPoint[0],
-          convertCurrency(
-            dataPoint[1],
-            initialCurrency.toUpperCase(),
-            currentCurrency,
-            initialRates,
-          ),
-        ]),
-      }));
-
-      setMarketValues(() => ({
-        dayMarketValues: marketValuesFromServer.dayMarketValues.map(
-          (value) =>
-            value *
-            initialRates[initialCurrency.toUpperCase()][
-              currentCurrency.toUpperCase()
-            ],
-        ),
-        weekMarketValues: marketValuesFromServer.weekMarketValues.map(
-          (value) =>
-            value *
-            initialRates[initialCurrency.toUpperCase()][
-              currentCurrency.toUpperCase()
-            ],
-        ),
-        monthMarketValues: marketValuesFromServer.monthMarketValues.map(
-          (value) =>
-            value *
-            initialRates[initialCurrency.toUpperCase()][
-              currentCurrency.toUpperCase()
-            ],
-        ),
-        yearMarketValues: marketValuesFromServer.yearMarketValues.map(
-          (value) =>
-            value *
-            initialRates[initialCurrency.toUpperCase()][
-              currentCurrency.toUpperCase()
-            ],
-        ),
-      }));
-
-      // Update chart data
-      setChartData(() => ({
-        ...chartFromServer,
-        datasets: chartFromServer.datasets.map((dataset) => ({
-          ...dataset,
-          label: `${
-            dataset.label.split(" ").slice(0, -1).join(" ") +
-            " " +
-            currentCurrency.toUpperCase()
-          }`,
-          data: dataset.data.map((value) =>
-            convertCurrency(
-              value,
-              initialCurrency.toUpperCase(),
-              currentCurrency.toUpperCase(),
-              initialRates,
-            ),
-          ),
-        })),
-      }));
-    };
-
-    updateSelectedCoinCurrencyValues();
+    // updateSelectedCoinCurrencyValues();
   }, [currentCurrency]);
 
   return (
@@ -822,11 +639,6 @@ export async function getServerSideProps(context) {
 
     return {
       props: {
-        initialCoin,
-        marketChartFromServer,
-        marketValuesFromServer,
-        chartFromServer,
-        initialRates,
         initialReduxState: {
           coins: {
             ...initialCoinsState,
@@ -835,6 +647,15 @@ export async function getServerSideProps(context) {
               marketChartValues: marketChartFromServer,
               marketValues: marketValuesFromServer,
               chartValues: chartFromServer,
+            },
+            selectedCoinDetailsByCurrency: {
+              ...initialCoinsState.selectedCoinDetailsByCurrency,
+              [initialCurrencyState.initialCurrency]: {
+                coinInfo: initialCoin,
+                marketChartValues: marketChartFromServer,
+                marketValues: marketValuesFromServer,
+                chartValues: chartFromServer,
+              },
             },
             cachedCoinDetailsByCurrency: {
               ...initialCoinsState.cachedCoinDetailsByCurrency,

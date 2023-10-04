@@ -24,11 +24,11 @@ import { postMessageToCurrencyTransformerWorker } from "../utils/currencyTransfo
 export const initializeCoinListCache = createAsyncThunk(
   "coins/initializeCoinListCache",
   async (_, { dispatch, getState }) => {
-    console.log("cacheThunk active");
     const state = getState();
     const initialHundredCoins = state.coins.displayedCoinListCoins;
     const initialRates = state.currency.currencyRates;
     const currentCurrency = state.currency.currentCurrency;
+    console.log("cacheThunk active", state);
 
     // If data isn't in the cache, or the cache isn't valid, send the initial data to the web worker
     // for currency transformation. After that, we save it to the cache

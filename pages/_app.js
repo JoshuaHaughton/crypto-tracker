@@ -10,7 +10,10 @@ import {
   initializeCurrencyTransformerWorker,
   terminateCurrencyTransformerWorker,
 } from "../src/utils/currencyTransformerService";
-import { checkAndResetCache } from "../src/utils/cache.utils";
+import {
+  checkAndResetCache,
+  fetchUpdateAndReinitalizeCoinListCache,
+} from "../src/utils/cache.utils";
 import { initializeCoinListCache } from "../src/thunks/coinListCacheThunk";
 
 nProgress.configure({
@@ -21,6 +24,7 @@ nProgress.configure({
 });
 
 function MyApp({ Component, pageProps }) {
+  console.log("pageProps", pageProps);
   const store = getOrInitializeStore(pageProps.initialReduxState);
 
   useEffect(() => {
@@ -38,8 +42,17 @@ function MyApp({ Component, pageProps }) {
     Router.events.on("routeChangeComplete", nProgress.done);
     Router.events.on("routeChangeComplete", handleRouteChange);
 
+    const initialHundredCoins = store.getState().coins.displayedCoinListCoins;
+
     // Initialize the cache on initial load
-    store.dispatch(initializeCoinListCache());
+    if (
+      !Array.isArray(initialHundredCoins) ||
+      initialHundredCoins.length === 0
+    ) {
+      fetchUpdateAndReinitalizeCoinListCache(store);
+    } else {
+      store.dispatch(initializeCoinListCache());
+    }
 
     // Clean up event listeners on unmount
     return () => {
@@ -50,7 +63,7 @@ function MyApp({ Component, pageProps }) {
       Router.events.off("routeChangeComplete", nProgress.done);
       Router.events.off("routeChangeComplete", handleRouteChange);
     };
-  }, []);
+  }, [store, pageProps.globalCacheVersion]);
 
   return (
     <Provider store={store}>

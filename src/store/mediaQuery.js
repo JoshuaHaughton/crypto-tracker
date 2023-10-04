@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { withCommonActions } from "./commonActions";
 
 const initialMediaQueryState = {
   isBreakpoint380: false,
@@ -9,7 +10,7 @@ const initialMediaQueryState = {
   isBreakpoint1250: false,
 };
 
-const mediaQuerySlice = createSlice({
+const mediaQuerySliceDefinition = {
   name: "mediaQuery",
   initialState: initialMediaQueryState,
   reducers: {
@@ -32,7 +33,15 @@ const mediaQuerySlice = createSlice({
       state.isBreakpoint1250 = action.payload;
     },
   },
-});
+};
+
+// Enhance the slice definition with common actions
+const enhancedMediaQuerySliceDefinition = withCommonActions(
+  mediaQuerySliceDefinition,
+);
+
+// Create the slice using the enhanced definition
+const mediaQuerySlice = createSlice(enhancedMediaQuerySliceDefinition);
 
 export const mediaQueryActions = mediaQuerySlice.actions;
 export default mediaQuerySlice.reducer;

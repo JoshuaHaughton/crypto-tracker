@@ -16,12 +16,6 @@ export default function Home() {
   const coinListPageNumber = useSelector(
     (state) => state.appInfo.coinListPageNumber,
   );
-  // const dispatch = useDispatch();
-
-  useEffect(() => {
-    // Using here messes up rendering order because this will go before the app is fully mounted
-    // dispatch(initializeCoinListCache());
-  }, []);
 
   useEffect(() => {
     if (coinListPageNumber !== 1) {

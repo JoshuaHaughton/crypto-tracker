@@ -3,7 +3,7 @@ import currencyReducer from "./currency";
 import coinsReducer from "./coins";
 import appInfoReducer from "./appInfo";
 import mediaQueryReducer from "./mediaQuery";
-import rootReducer, { updateStoreData } from "./root";
+import { updateStoreData } from "../utils/store.utils";
 
 /**
  * Global reference to the Redux store.
@@ -27,7 +27,7 @@ export const getOrInitializeStore = (initialState) => {
     reduxStore = initializeStore(initialState);
   } else if (initialState?.initialReduxState) {
     // If there's a new state from the server, merge it into the existing state
-    reduxStore.dispatch(updateStoreData(initialState.initialReduxState));
+    updateStoreData(reduxStore, initialState.initialReduxState);
   }
 
   return reduxStore;
@@ -42,7 +42,6 @@ export function initializeStore(initialState = {}) {
   console.log("store initialized from base");
   reduxStore = configureStore({
     reducer: {
-      root: rootReducer,
       currency: currencyReducer,
       coins: coinsReducer,
       appInfo: appInfoReducer,

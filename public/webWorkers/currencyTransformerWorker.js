@@ -220,8 +220,8 @@ const transformCurrencyForCoinDetails = (
       currencyRates,
     ),
   },
-  marketChart: convertMarketChart(
-    coinToTransform.marketChart,
+  marketChartValues: convertMarketChart(
+    coinToTransform.marketChartValues,
     fromCurrency,
     toCurrency,
     currencyRates,
@@ -232,8 +232,8 @@ const transformCurrencyForCoinDetails = (
     toCurrency,
     currencyRates,
   ),
-  chartData: convertChartData(
-    coinToTransform.chartData,
+  chartValues: convertChartData(
+    coinToTransform.chartValues,
     fromCurrency,
     toCurrency,
     currencyRates,
@@ -283,7 +283,7 @@ self.addEventListener(
           currenciesToExclude,
           currencyRates,
         } = data;
-        console.log('HERE FFS')
+        console.log("HERE FFS");
 
         let targetCurrencies = ALL_CURRENCIES;
 
