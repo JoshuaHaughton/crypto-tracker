@@ -61,8 +61,7 @@ function MyApp({ Component, pageProps }) {
       fetchUpdateAndReinitalizeCoinListCache(store, cacheIsValid);
     } else {
       console.log(
-        "We start with CoinLists data. Don't preload it, just initalize the cache with this.",
-        initialHundredCoins,
+        "We start with CoinLists data. DON'T PRELOAD IT, just initalize the cache with this.",
       );
 
       store.dispatch(initializeCoinListCache());

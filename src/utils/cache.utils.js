@@ -186,10 +186,6 @@ export const fetchUpdateAndReinitalizeCoinListCache = async (
 ) => {
   console.log("fetchUpdateAndReinitalizeCoinListCache");
 
-  const fetchDataFromAPI = async () => {
-    return await fetchDataForCoinListCacheInitialization();
-  };
-
   let coinListCacheData;
   const state = store.getState();
   const currentCurrency = state.currency.currentCurrency;
@@ -218,10 +214,10 @@ export const fetchUpdateAndReinitalizeCoinListCache = async (
       }
     } catch (error) {
       console.error("Error fetching from cache:", error);
-      coinListCacheData = await fetchDataFromAPI();
+      coinListCacheData = await fetchDataForCoinListCacheInitialization();
     }
   } else {
-    coinListCacheData = await fetchDataFromAPI();
+    coinListCacheData = await fetchDataForCoinListCacheInitialization();
   }
 
   updateStoreData(store, coinListCacheData);
