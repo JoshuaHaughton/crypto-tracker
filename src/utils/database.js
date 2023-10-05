@@ -6,6 +6,7 @@ const db = new Dexie("CryptoTrackerDB");
 db.version(1).stores({
   coinLists: "currency",
   coinDetails: "currency",
+  currencyRates: "currency",
 });
 
 export default db;

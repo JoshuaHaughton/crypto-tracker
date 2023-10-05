@@ -1,8 +1,10 @@
 import db from "./database";
 import {
+  ALL_CURRENCIES,
   CACHE_EXPIRY_TIME_IN_MINUTES,
   COINDETAILS_TABLENAME,
   COINLISTS_TABLENAME,
+  CURRENCYRATES_TABLENAME,
 } from "../global/constants";
 import Cookie from "js-cookie";
 import { initializeStore } from "../store";
@@ -144,8 +146,10 @@ export const saveCoinDataForCurrencyInBrowser = async (
       };
 
       await db[tableName].put({ currency, details: mergedCoinData });
-    } else {
+    } else if (tableName === COINLISTS_TABLENAME) {
       await db[tableName].put({ currency, coinData });
+    } else if (tableName === CURRENCYRATES_TABLENAME) {
+      await db[tableName].put({ currency, rates: coinData });
     }
     setToLocalStorageWithExpiry(tableName, currency);
     console.log(
@@ -165,24 +169,81 @@ export const saveCoinDataForCurrencyInBrowser = async (
 const clearAllCache = () => {
   clearCacheForAllKeysInTable(COINLISTS_TABLENAME);
   clearCacheForAllKeysInTable(COINDETAILS_TABLENAME);
+  clearCacheForAllKeysInTable(CURRENCYRATES_TABLENAME);
   Cookie.remove("preloadedCoins");
+};
+
+/**
+ * Stores currency rates in IndexedDB cache.
+ *
+ * @param {Object} currencyRates - The currency rates data to be stored.
+ * @returns {Promise<void>} - Returns a promise that resolves when all storage operations are complete.
+ */
+export const storeCurrencyRatesInIndexedDB = (currencyRates) => {
+  const storagePromises = [];
+
+  for (const key of Object.keys(currencyRates)) {
+    const promise = saveCoinDataForCurrencyInBrowser(
+      CURRENCYRATES_TABLENAME,
+      key,
+      currencyRates[key],
+    );
+    storagePromises.push(promise);
+  }
+
+  try {
+    Promise.all(storagePromises);
+  } catch (error) {
+    console.error("Error storing currency rates in IndexedDB:", error);
+    throw error;
+  }
+};
+
+/**
+ * Fetches data for multiple currencies from IndexedDB cache.
+ *
+ * @param {string} tableName - The name of the table in IndexedDB.
+ * @param {string[]} currencyKeys - An array of currency keys to fetch data for.
+ * @returns {Promise<{ [key: string]: any }>} - Returns a promise that resolves to an object
+ *   where each key is a currency key and the corresponding value is the fetched data, or `null` if not found.
+ */
+export const fetchCurrencyDataFromIndexedDB = async (
+  tableName,
+  currencyKeys = ALL_CURRENCIES,
+) => {
+  const fetchedData = {};
+
+  for (const key of currencyKeys) {
+    try {
+      const data = await db[tableName].get(key);
+      fetchedData[key] = data || null;
+    } catch (err) {
+      console.error(
+        `Error fetching data from IndexedDB from ${tableName} for ${key}:`,
+        err,
+      );
+      fetchedData[key] = null;
+    }
+  }
+
+  return fetchedData;
 };
 
 /**
  * Fetches new CoinList Data, updates the Redux store, and then reinitializes the CoinList Cache.
  *
- * If `attemptToUseCache` is set to true, the function attempts to fetch the coin list data from the cache.
+ * If `isCacheValid` is set to true, the function attempts to fetch the coin list data from the cache.
  * If the cache fetch fails or returns invalid data, it logs an error and proceeds to fetch from the API.
  *
- * If `attemptToUseCache` is set to false, the function directly fetches the coin list data from the API.
+ * If `isCacheValid` is set to false, the function directly fetches the coin list data from the API.
  *
  * @param {Object} store - The Redux store to update with the fetched data.
- * @param {boolean} attemptToUseCache - A flag indicating whether to attempt fetching data from the indexedDB cache. Defaults to false.
+ * @param {boolean} isCacheValid - A flag indicating whether to attempt fetching data from the indexedDB cache. Defaults to false.
  * @returns {Promise<void>} - A promise that resolves when the store is updated and the cache is reinitialized.
  */
 export const fetchUpdateAndReinitalizeCoinListCache = async (
   store,
-  attemptToUseCache = false,
+  isCacheValid = false,
 ) => {
   console.log("fetchUpdateAndReinitalizeCoinListCache");
 
@@ -190,11 +251,14 @@ export const fetchUpdateAndReinitalizeCoinListCache = async (
   const state = store.getState();
   const currentCurrency = state.currency.currentCurrency;
 
-  if (attemptToUseCache) {
+  if (isCacheValid) {
     try {
       const cacheData = await fetchDataFromIndexedDB(
         COINLISTS_TABLENAME,
         currentCurrency,
+      );
+      const currencyRatesCacheData = await fetchCurrencyDataFromIndexedDB(
+        CURRENCYRATES_TABLENAME,
       );
 
       if (cacheData?.coinData) {
@@ -208,6 +272,10 @@ export const fetchUpdateAndReinitalizeCoinListCache = async (
             },
             trendingCarouselCoins: cacheData.coinData,
           },
+          currency: {
+            ...state.currency,
+            currencyRates: currencyRatesCacheData,
+          },
         };
       } else {
         throw new Error("No valid data in cache");
@@ -215,9 +283,12 @@ export const fetchUpdateAndReinitalizeCoinListCache = async (
     } catch (error) {
       console.error("Error fetching from cache:", error);
       coinListCacheData = await fetchDataForCoinListCacheInitialization();
+      storeCurrencyRatesInIndexedDB(coinListCacheData.currency.currencyRates);
     }
   } else {
+    console.log('uh')
     coinListCacheData = await fetchDataForCoinListCacheInitialization();
+    storeCurrencyRatesInIndexedDB(coinListCacheData.currency.currencyRates);
   }
 
   updateStoreData(store, coinListCacheData);
@@ -268,7 +339,6 @@ export const checkAndResetCache = async (store, serverGlobalCacheVersion) => {
         : currentTime.toString();
 
     Cookie.set("globalCacheVersion", newGlobalCacheVersion);
-    localStorage.setItem("lastCacheReset", currentTime);
 
     // If the server's cache version matches the client's, fetch fresh data and then update the store.
     if (serverGlobalCacheVersion === clientGlobalCacheVersion) {

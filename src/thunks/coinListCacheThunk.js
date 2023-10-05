@@ -1,6 +1,7 @@
 import {
   isCacheValid,
   saveCoinDataForCurrencyInBrowser,
+  storeCurrencyRatesInIndexedDB,
 } from "../utils/cache.utils";
 import { coinsActions } from "../store/coins";
 import db from "../utils/database";

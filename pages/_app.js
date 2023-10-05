@@ -14,9 +14,14 @@ import {
   checkAndResetCache,
   fetchUpdateAndReinitalizeCoinListCache,
   isCacheValid,
+  storeCurrencyRatesInIndexedDB,
 } from "../src/utils/cache.utils";
 import { initializeCoinListCache } from "../src/thunks/coinListCacheThunk";
-import { COINLISTS_TABLENAME } from "../src/global/constants";
+import {
+  COINLISTS_TABLENAME,
+  CURRENCYRATES_TABLENAME,
+} from "../src/global/constants";
+import Cookie from "js-cookie";
 
 nProgress.configure({
   minimum: 0.3,
@@ -55,7 +60,9 @@ function MyApp({ Component, pageProps }) {
       console.log(
         "We didnt start with CoinLists data so we need to preload it.",
       );
-      const cacheIsValid = isCacheValid(COINLISTS_TABLENAME);
+      const cacheIsValid =
+        isCacheValid(COINLISTS_TABLENAME) &&
+        isCacheValid(CURRENCYRATES_TABLENAME);
       console.log("Is cache valid for preloading?", cacheIsValid);
 
       fetchUpdateAndReinitalizeCoinListCache(store, cacheIsValid);
@@ -65,6 +72,15 @@ function MyApp({ Component, pageProps }) {
       );
 
       store.dispatch(initializeCoinListCache());
+
+      const clientGlobalCacheVersion = Cookie.get("globalCacheVersion");
+      if (
+        pageProps.globalCacheVersion != null &&
+        pageProps.globalCacheVersion !== clientGlobalCacheVersion
+      ) {
+        Cookie.set("globalCacheVersion", pageProps.globalCacheVersion);
+        storeCurrencyRatesInIndexedDB(store.getState().currency.currencyRates);
+      }
     }
 
     // Clean up event listeners on unmount

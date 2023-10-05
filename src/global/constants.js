@@ -8,6 +8,8 @@ export const COINLISTS_TABLENAME = "coinLists";
 
 export const COINDETAILS_TABLENAME = "coinDetails";
 
+export const CURRENCYRATES_TABLENAME = "currencyRates";
+
 export const SYMBOLS_BY_CURRENCIES = {
   CAD: "$",
   USD: "$",
