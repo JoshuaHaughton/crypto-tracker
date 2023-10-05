@@ -236,53 +236,53 @@ const Coin = () => {
 
   useEffect(() => {
     // should do if either the cache isnt valid or on page revalidates (new data)
-    const prefetchHomePage = async () => {
-      console.log("prefetchHomePage");
+    // const prefetchHomePage = async () => {
+    //   console.log("prefetchHomePage");
 
-      let initialRates, initialHundredCoins, trendingCarouselCoins;
+    //   let initialRates, initialHundredCoins, trendingCarouselCoins;
 
-      // Check the cache first
-      const cacheIsValid = isCacheValid(COINLISTS_TABLENAME);
-      const cachedCoinList = await fetchDataFromIndexedDB(
-        COINLISTS_TABLENAME,
-        currentCurrency.toUpperCase(),
-      );
+    //   // Check the cache first
+    //   const cacheIsValid = isCacheValid(COINLISTS_TABLENAME);
+    //   const cachedCoinList = await fetchDataFromIndexedDB(
+    //     COINLISTS_TABLENAME,
+    //     currentCurrency.toUpperCase(),
+    //   );
 
-      if (cacheIsValid && cachedCoinList) {
-        // Use cached data if available
-        console.log("Use cached data if available");
-        initialHundredCoins = cachedCoinList.initialHundredCoins;
-        trendingCarouselCoins = cachedCoinList.trendingCarouselCoins;
-      } else {
-        // Fetch from API if not in cache
-        console.log("Fetch from API if not in cache");
-        const fetchedData = await fetchBaseDataFromCryptoCompare();
-        initialRates = fetchedData.initialRates;
-        initialHundredCoins = fetchedData.initialHundredCoins;
-        trendingCarouselCoins = fetchedData.trendingCarouselCoins;
+    //   if (cacheIsValid && cachedCoinList) {
+    //     // Use cached data if available
+    //     console.log("Use cached data if available");
+    //     initialHundredCoins = cachedCoinList.initialHundredCoins;
+    //     trendingCarouselCoins = cachedCoinList.trendingCarouselCoins;
+    //   } else {
+    //     // Fetch from API if not in cache
+    //     console.log("Fetch from API if not in cache");
+    //     const fetchedData = await fetchBaseDataFromCryptoCompare();
+    //     initialRates = fetchedData.initialRates;
+    //     initialHundredCoins = fetchedData.initialHundredCoins;
+    //     trendingCarouselCoins = fetchedData.trendingCarouselCoins;
 
-        // Update the global coinlist cache
-        dispatch(
-          coinsActions.updateCoins({
-            displayedCoinListCoins: initialHundredCoins,
-            trendingCarouselCoins,
-            symbol: currentSymbol,
-          }),
-        );
-        dispatch(
-          coinsActions.setCoinListForCurrency({
-            currency: currentCurrency,
-            coinData: initialHundredCoins,
-          }),
-        );
-        dispatch(currencyActions.updateRates({ currencyRates: initialRates }));
-        dispatch(initializeCoinListCache());
+    //     // Update the global coinlist cache
+    //     dispatch(
+    //       coinsActions.updateCoins({
+    //         displayedCoinListCoins: initialHundredCoins,
+    //         trendingCarouselCoins,
+    //         symbol: currentSymbol,
+    //       }),
+    //     );
+    //     dispatch(
+    //       coinsActions.setCoinListForCurrency({
+    //         currency: currentCurrency,
+    //         coinData: initialHundredCoins,
+    //       }),
+    //     );
+    //     dispatch(currencyActions.updateRates({ currencyRates: initialRates }));
+    //     dispatch(initializeCoinListCache());
 
-        // Handle global cache version update
-        const currentTimestamp = Date.now().toString();
-        Cookie.set("globalCacheVersion", currentTimestamp);
-      }
-    };
+    //     // Handle global cache version update
+    //     const currentTimestamp = Date.now().toString();
+    //     Cookie.set("globalCacheVersion", currentTimestamp);
+    //   }
+    // };
 
     if (coinListInStore && coinListInStore.length > 0) {
       return;
@@ -600,9 +600,10 @@ export default Coin;
 
 export async function getServerSideProps(context) {
   const { id } = context.params;
-  const currency = "CAD";
 
   const cookies = parse(context.req.headers.cookie || "");
+  const currentCurrency =
+    cookies.currentCurrency || initialCurrencyState.currentCurrency;
   const preloadedCoins = JSON.parse(cookies.preloadedCoins || "[]");
   const globalCacheVersion = cookies.globalCacheVersion || "0";
   const currentTimestamp = Date.now();
@@ -628,7 +629,10 @@ export async function getServerSideProps(context) {
   console.log("fetch new data for coins page...");
 
   try {
-    const coinDetails = await fetchCoinDetailsFromCryptoCompare(id, currency);
+    const coinDetails = await fetchCoinDetailsFromCryptoCompare(
+      id,
+      currentCurrency,
+    );
 
     initialCoin = coinDetails.initialCoin;
     marketChartFromServer = coinDetails.marketChartFromServer;

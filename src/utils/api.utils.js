@@ -2,11 +2,14 @@ import { initialCoinsState } from "../store/coins";
 import { initialCurrencyState } from "../store/currency";
 
 /**
- * Fetches Top 100 assets, Trending Coins, & Exchange Rate data from CryptoCompare.
+ * Fetches Top 100 assets, Trending Coins, & Exchange Rate data from CryptoCompare for the specified currency.
  *
+ * @param {string} targetCurrency - The target currency for which data should be fetched.
  * @returns {Object} An object containing the initial rates, initial hundred coins, and trending carousel coins.
  */
-export async function fetchBaseDataFromCryptoCompare() {
+export async function fetchBaseDataFromCryptoCompare(
+  targetCurrency = initialCurrencyState.initialCurrency,
+) {
   const apiKey = process.env.NEXT_PUBLIC_CRYPTOCOMPARE_API_KEY;
   const fetchOptions = {
     headers: {
@@ -14,7 +17,7 @@ export async function fetchBaseDataFromCryptoCompare() {
     },
   };
 
-  // Fetching all available initialRates from CryptoCompare's price multi-full endpoint for CAD
+  // Fetching currencyRates for all currencies using CAD as the base
   const exchangeRateResponse = await fetch(
     `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=CAD&tsyms=USD,AUD,GBP`,
     fetchOptions,
@@ -48,16 +51,16 @@ export async function fetchBaseDataFromCryptoCompare() {
     },
   };
 
-  // Fetching the top 100 assets by market cap from CryptoCompare in CAD
+  // Fetching the top 100 assets by market cap from CryptoCompare in requested currency
   const assetsResponse = await fetch(
-    "https://min-api.cryptocompare.com/data/top/mktcapfull?limit=100&tsym=CAD",
+    `https://min-api.cryptocompare.com/data/top/mktcapfull?limit=100&tsym=${targetCurrency}`,
     fetchOptions,
   );
   const assetsData = await assetsResponse.json();
 
   const initialHundredCoins = assetsData.Data.map((entry, i) => {
     const coin = entry.CoinInfo;
-    const metrics = entry.RAW?.CAD;
+    const metrics = entry.RAW?.[targetCurrency];
     if (!metrics) {
       // console.warn(`Metrics not found for coin: ${coin.Name}`);
       return null;
@@ -90,16 +93,16 @@ export async function fetchBaseDataFromCryptoCompare() {
 }
 
 /**
- * Fetches details for a specific coin including its historical data from CryptoCompare.
+ * Fetches details for a specific coin, including its historical data from CryptoCompare, for the specified currency.
  *
  * @param {string} id - The coin identifier.
- * @param {string} currency - The target currency for conversions.
- * @param {boolean} clientFetch - Whether or not this fetch is from the client. If it is, we should use the proxy for necessary api calls.
+ * @param {string} targetCurrency - The target currency for conversions.
+ * @param {boolean} [clientFetch=false] - Whether or not this fetch is from the client. If it is, we should use the proxy for necessary api calls.
  * @returns {Object} An object containing details of the coin and other related data.
  */
 export async function fetchCoinDetailsFromCryptoCompare(
   id,
-  currency = "CAD",
+  targetCurrency = initialCurrencyState.initialCurrency,
   clientFetch = false,
 ) {
   const cryptoCompareApiKey = process.env.NEXT_PUBLIC_CRYPTOCOMPARE_API_KEY;
@@ -115,8 +118,8 @@ export async function fetchCoinDetailsFromCryptoCompare(
   const urls = [
     `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${id.toUpperCase()},CAD&tsyms=USD,AUD,GBP,CAD`,
     `https://data-api.cryptocompare.com/asset/v1/data/by/symbol?asset_symbol=${id.toUpperCase()}`,
-    `https://min-api.cryptocompare.com/data/v2/histohour?fsym=${id}&tsym=${currency}&limit=24`,
-    `https://min-api.cryptocompare.com/data/v2/histoday?fsym=${id}&tsym=${currency}&limit=365`,
+    `https://min-api.cryptocompare.com/data/v2/histohour?fsym=${id}&tsym=${targetCurrency}&limit=24`,
+    `https://min-api.cryptocompare.com/data/v2/histoday?fsym=${id}&tsym=${targetCurrency}&limit=365`,
     `${coinPaprikaUrl}/v1/search?q=${id}`,
   ];
   console.log(urls);
@@ -172,7 +175,7 @@ export async function fetchCoinDetailsFromCryptoCompare(
     },
   };
 
-  const coinData = cryptoCompareData.RAW[id.toUpperCase()][currency];
+  const coinData = cryptoCompareData.RAW[id.toUpperCase()][targetCurrency];
   const assetData = assetDataR.Data;
 
   // Derive 7-day and 30-day data from the 365-day data
@@ -237,8 +240,9 @@ export async function fetchCoinDetailsFromCryptoCompare(
   const coinPaprikaCoinDetails = await coinPaprikaCoinDetailsResponse.json();
 
   // Extract the ATH from Coinpaprika's response
-  const cadAthPrice =
-    coinPaprikaCoinDetails.quotes.USD.ath_price * initialRates.USD.CAD;
+  const athPrice =
+    coinPaprikaCoinDetails.quotes.USD.ath_price *
+    initialRates[USD][targetCurrency];
 
   if (
     !cryptoCompareData ||
@@ -256,7 +260,7 @@ export async function fetchCoinDetailsFromCryptoCompare(
     image: assetData.LOGO_URL,
     description: assetData.ASSET_DESCRIPTION_SUMMARY,
     current_price: coinData.PRICE,
-    all_time_high: cadAthPrice,
+    all_time_high: athPrice,
     market_cap: coinData.MKTCAP,
     price_change_1d: priceChange1d,
     price_change_percentage_24h: priceChangePercentage1d,
@@ -274,7 +278,9 @@ export async function fetchCoinDetailsFromCryptoCompare(
     ),
     datasets: [
       {
-        label: `${coinInfo.name} Price (Past day) in ${currency.toUpperCase()}`,
+        label: `${
+          coinInfo.name
+        } Price (Past day) in ${targetCurrency.toUpperCase()}`,
         data: marketValuesFromServer.dayMarketValues,
         type: "line",
         pointRadius: 1.3,
@@ -293,21 +299,21 @@ export async function fetchCoinDetailsFromCryptoCompare(
 }
 
 /**
- * Asynchronously fetches the necessary data for CoinList cache initialization.
+ * Asynchronously fetches the necessary data for CoinList cache initialization based on the specified currency.
  *
  * @async
  * @function
+ * @param {string} targetCurrency - The target currency for which data should be fetched.
  * @returns {Promise<Object>} Returns an object containing the coins and currency data.
  * @throws Will return default state objects for coins and currency if there's an error in fetching.
- *
- * @example
- * const initialData = await fetchDataForCacheInitialization();
  */
-export const fetchDataForCoinListCacheInitialization = async () => {
+export const fetchDataForCoinListCacheInitialization = async (
+  targetCurrency,
+) => {
   console.log("fetchDataForCoinListCacheInitialization");
   try {
     const { initialRates, initialHundredCoins, trendingCarouselCoins } =
-      await fetchBaseDataFromCryptoCompare();
+      await fetchBaseDataFromCryptoCompare(targetCurrency);
 
     return {
       coins: {

@@ -2,6 +2,8 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { coinsActions } from "../store/coins";
 import { currencyActions } from "../store/currency";
 import { postMessageToCurrencyTransformerWorker } from "../utils/currencyTransformerService";
+import Cookies from "js-cookie";
+import { CURRENT_CURRENCY_COOKIE_EXPIRY_TIME } from "../global/constants";
 
 /**
  * Thunk to update currency.
@@ -26,6 +28,11 @@ export const updateCurrency = createAsyncThunk(
       currency: { currentCurrency, currencyRates: initialRates },
     } = state;
 
+    // Update cookie immediately
+    Cookies.set("currentCurrency", updatedCurrency, {
+      expires: CURRENT_CURRENCY_COOKIE_EXPIRY_TIME,
+    });
+
     // handle selected coin details transformations if needed. We can prioritize these since if they exist,
     // we aren't on the page with coin list coins anyways
     if (Object.keys(selectedCoinDetails).length > 0) {
@@ -49,10 +56,6 @@ export const updateCurrency = createAsyncThunk(
         dispatch(currencyActions.changeCurrency(payload));
       } else {
         // need to make sure we actually update the currency after ( dispatch(currencyActions.changeCurrency({ currency: toCurrency }));)
-
-
-
-        
 
         // CoinDetails Cache doesn't exist
         console.log("CACHE NOT USED - COIN DETAILS");

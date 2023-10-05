@@ -20,6 +20,8 @@ import { initializeCoinListCache } from "../src/thunks/coinListCacheThunk";
 import {
   COINLISTS_TABLENAME,
   CURRENCYRATES_TABLENAME,
+  CURRENT_CURRENCY_COOKIE_EXPIRY_TIME,
+  GLOBALCACHEVERSION_COOKIE_EXPIRY_TIME,
 } from "../src/global/constants";
 import Cookie from "js-cookie";
 
@@ -32,7 +34,10 @@ nProgress.configure({
 
 function MyApp({ Component, pageProps }) {
   console.log("App.js rendered. pageProps", pageProps);
-  const store = getOrInitializeStore(pageProps.initialReduxState);
+  const store = getOrInitializeStore(
+    pageProps.initialReduxState,
+    pageProps.globalCacheVersion,
+  );
 
   useEffect(() => {
     console.log("App.js useEffect ran");
@@ -78,10 +83,18 @@ function MyApp({ Component, pageProps }) {
         pageProps.globalCacheVersion != null &&
         pageProps.globalCacheVersion !== clientGlobalCacheVersion
       ) {
-        Cookie.set("globalCacheVersion", pageProps.globalCacheVersion);
+        Cookie.set("globalCacheVersion", pageProps.globalCacheVersion, {
+          expires: GLOBALCACHEVERSION_COOKIE_EXPIRY_TIME,
+        });
+
         storeCurrencyRatesInIndexedDB(store.getState().currency.currencyRates);
       }
     }
+
+    // Update Cookie for current currency
+    Cookie.set("currentCurrency", store.getState().currency.currentCurrency, {
+      expires: CURRENT_CURRENCY_COOKIE_EXPIRY_TIME,
+    });
 
     // Clean up event listeners on unmount
     return () => {

@@ -5,6 +5,7 @@ import {
   COINDETAILS_TABLENAME,
   COINLISTS_TABLENAME,
   CURRENCYRATES_TABLENAME,
+  GLOBALCACHEVERSION_COOKIE_EXPIRY_TIME,
 } from "../global/constants";
 import Cookie from "js-cookie";
 import { initializeStore } from "../store";
@@ -282,12 +283,16 @@ export const fetchUpdateAndReinitalizeCoinListCache = async (
       }
     } catch (error) {
       console.error("Error fetching from cache:", error);
-      coinListCacheData = await fetchDataForCoinListCacheInitialization();
+      coinListCacheData = await fetchDataForCoinListCacheInitialization(
+        currentCurrency,
+      );
       storeCurrencyRatesInIndexedDB(coinListCacheData.currency.currencyRates);
     }
   } else {
-    console.log('uh')
-    coinListCacheData = await fetchDataForCoinListCacheInitialization();
+    console.log("uh");
+    coinListCacheData = await fetchDataForCoinListCacheInitialization(
+      currentCurrency,
+    );
     storeCurrencyRatesInIndexedDB(coinListCacheData.currency.currencyRates);
   }
 
@@ -338,7 +343,9 @@ export const checkAndResetCache = async (store, serverGlobalCacheVersion) => {
         ? serverGlobalCacheVersion
         : currentTime.toString();
 
-    Cookie.set("globalCacheVersion", newGlobalCacheVersion);
+    Cookie.set("globalCacheVersion", newGlobalCacheVersion, {
+      expires: GLOBALCACHEVERSION_COOKIE_EXPIRY_TIME,
+    });
 
     // If the server's cache version matches the client's, fetch fresh data and then update the store.
     if (serverGlobalCacheVersion === clientGlobalCacheVersion) {

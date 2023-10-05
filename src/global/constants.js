@@ -16,3 +16,15 @@ export const SYMBOLS_BY_CURRENCIES = {
   GBP: "£",
   AUD: "AU$",
 };
+
+export const tenYearsInFuture = new Date(
+  new Date().getTime() + 10 * 365 * 24 * 60 * 60 * 1000,
+);
+
+export const fiveMinutesInFuture = new Date(
+  new Date().getTime() + 5 * 60 * 1000,
+);
+
+export const CURRENT_CURRENCY_COOKIE_EXPIRY_TIME = tenYearsInFuture;
+
+export const GLOBALCACHEVERSION_COOKIE_EXPIRY_TIME = fiveMinutesInFuture;

@@ -1,9 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
-import currencyReducer from "./currency";
+import currencyReducer, { initialCurrencyState } from "./currency";
 import coinsReducer from "./coins";
 import appInfoReducer from "./appInfo";
 import mediaQueryReducer from "./mediaQuery";
 import { updateStoreData } from "../utils/store.utils";
+import Cookie from "js-cookie";
 
 /**
  * Global reference to the Redux store.
@@ -14,9 +15,13 @@ let reduxStore;
  * Gets the existing Redux store or initializes a new one.
  *
  * @param {Object} [initialState] - The initial state for the Redux store.
+ * @param {string} [serverGlobalCacheVersion] - The global cache version from the server.
  * @returns {Object} The existing or newly initialized Redux store.
  */
-export const getOrInitializeStore = (initialState) => {
+export const getOrInitializeStore = (
+  initialState,
+  serverGlobalCacheVersion,
+) => {
   // If it's on the server side, always create a new store
   if (typeof window === "undefined") {
     return initializeStore(initialState);
@@ -25,10 +30,30 @@ export const getOrInitializeStore = (initialState) => {
   // If the store doesn't exist, create a new one
   if (!reduxStore) {
     reduxStore = initializeStore(initialState);
-  } else if (initialState?.initialReduxState) {
-    console.log("updateStoreData INSTEAD OF initializeStore");
-    // If there's a new state from the server, merge it into the existing state
-    updateStoreData(reduxStore, initialState.initialReduxState);
+  } else {
+    const clientGlobalCacheVersion = Cookie.get("globalCacheVersion");
+
+    if (clientGlobalCacheVersion === serverGlobalCacheVersion) {
+      // If the global cache version has not changed, update the store but preserve the current currency
+      const currentClientCurrency =
+        Cookie.get("currentCurrency") || initialCurrencyState.currentCurrency;
+      updateStoreData(reduxStore, {
+        currency: {
+          ...initialState.currency,
+          currentCurrency: currentClientCurrency,
+        },
+      });
+      reduxStore = initializeStore({
+        ...initialState,
+        currency: {
+          ...initialState.currency,
+          currentCurrency: currentClientCurrency,
+        },
+      });
+    } else {
+      // If we get a new globalCacheVersion but a redux store exists, update it with the new data.
+      updateStoreData(reduxStore, initialState);
+    }
   }
 
   return reduxStore;
