@@ -17,6 +17,8 @@ export const SYMBOLS_BY_CURRENCIES = {
   AUD: "AU$",
 };
 
+export const FIVE_MINUTES_IN_MS = 300000;
+
 export const tenYearsInFuture = new Date(
   new Date().getTime() + 10 * 365 * 24 * 60 * 60 * 1000,
 );

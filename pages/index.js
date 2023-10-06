@@ -11,6 +11,7 @@ import {
   fetchBaseDataFromCryptoCompare,
   fetchDataForCoinListCacheInitialization,
 } from "../src/utils/api.utils";
+import { FIVE_MINUTES_IN_MS } from "../src/global/constants";
 
 export default function Home() {
   const coinListPageNumber = useSelector(
@@ -33,33 +34,58 @@ export default function Home() {
   );
 }
 
-export async function getStaticProps() {
-  const currentTimestamp = Date.now().toString();
-  const newGlobalCacheVersion = currentTimestamp;
+export async function getServerSideProps(context) {
+  const currentTimestamp = Date.now();
+  const newGlobalCacheVersion = currentTimestamp.toString();
 
-  try {
-    const initialReduxState = await fetchDataForCoinListCacheInitialization();
+  // Retrieve the currency from the request cookies
+  const currentCurrency =
+    context.req.cookies.currentCurrency || initialCurrencyState.currentCurrency;
 
-    return {
-      props: {
-        initialReduxState,
-        globalCacheVersion: newGlobalCacheVersion,
-      },
-      revalidate: 300,
-    };
-  } catch (err) {
-    console.log(err);
+  // Retrieve the global cache version from cookies or set it to a very old timestamp
+  const lastFetchedTimestamp = parseInt(
+    context.req.cookies.globalCacheVersion || "0",
+  );
 
-    // Return default or placeholder data to prevent breaking the site
-    return {
-      props: {
-        initialReduxState: {
-          coins: initialCoinsState,
-          currency: initialCurrencyState,
+  // Determine if we should fetch the data again
+  const shouldFetchData =
+    context.req.headers["x-fetched-currency"] !== currentCurrency ||
+    currentTimestamp - lastFetchedTimestamp >= FIVE_MINUTES_IN_MS;
+
+  let initialReduxState;
+
+  if (shouldFetchData) {
+    // Set the currency in the cache header, so we can check it in future requests
+    context.res.setHeader("x-fetched-currency", currentCurrency);
+
+    try {
+      initialReduxState = await fetchDataForCoinListCacheInitialization(
+        currentCurrency,
+      );
+    } catch (err) {
+      console.log(err);
+      // Return default or placeholder data to prevent breaking the site
+      initialReduxState = {
+        coins: initialCoinsState,
+        currency: {
+          ...initialCurrencyState,
+          currentCurrency,
+          symbol: SYMBOLS_BY_CURRENCIES[currentCurrency],
         },
-        globalCacheVersion: currentTimestamp,
-      },
-      revalidate: 300,
-    };
+      };
+    }
   }
+
+  // Set Cache-Control header for 5 minutes
+  context.res.setHeader(
+    "Cache-Control",
+    "s-maxage=300, stale-while-revalidate",
+  );
+
+  return {
+    props: {
+      initialReduxState,
+      globalCacheVersion: newGlobalCacheVersion,
+    },
+  };
 }

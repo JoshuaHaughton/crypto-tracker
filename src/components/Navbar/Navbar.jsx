@@ -38,7 +38,9 @@ const Navbar = () => {
   const currentCurrency = useSelector(
     (state) => state.currency.currentCurrency,
   );
+  console.log("currentCurrency", currentCurrency);
   const currentSymbol = useSelector((state) => state.currency.symbol);
+  console.log("currentSymbol", currentSymbol);
   const isBreakpoint555 = useSelector(
     (state) => state.mediaQuery.isBreakpoint555,
   );

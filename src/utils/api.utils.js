@@ -1,3 +1,4 @@
+import { SYMBOLS_BY_CURRENCIES } from "../global/constants";
 import { initialCoinsState } from "../store/coins";
 import { initialCurrencyState } from "../store/currency";
 
@@ -310,7 +311,7 @@ export async function fetchCoinDetailsFromCryptoCompare(
 export const fetchDataForCoinListCacheInitialization = async (
   targetCurrency,
 ) => {
-  console.log("fetchDataForCoinListCacheInitialization");
+  console.log("fetchDataForCoinListCacheInitialization", targetCurrency);
   try {
     const { initialRates, initialHundredCoins, trendingCarouselCoins } =
       await fetchBaseDataFromCryptoCompare(targetCurrency);
@@ -328,13 +329,19 @@ export const fetchDataForCoinListCacheInitialization = async (
       currency: {
         ...initialCurrencyState,
         currencyRates: initialRates,
+        currentCurrency: targetCurrency,
+        symbol: SYMBOLS_BY_CURRENCIES[targetCurrency],
       },
     };
   } catch (err) {
     console.log(err);
     return {
       coins: initialCoinsState,
-      currency: initialCurrencyState,
+      currency: {
+        ...initialCurrencyState,
+        currentCurrency: targetCurrency,
+        symbol: SYMBOLS_BY_CURRENCIES[targetCurrency],
+      },
     };
   }
 };
