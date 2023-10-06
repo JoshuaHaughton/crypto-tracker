@@ -233,18 +233,18 @@ export const fetchCurrencyDataFromIndexedDB = async (
 /**
  * Fetches new CoinList Data, updates the Redux store, and then reinitializes the CoinList Cache.
  *
- * If `isCacheValid` is set to true, the function attempts to fetch the coin list data from the cache.
+ * If `shouldIgnoreCache` is set to false, the function checks the cache and attempts to fetch the coin list data from it.
  * If the cache fetch fails or returns invalid data, it logs an error and proceeds to fetch from the API.
  *
- * If `isCacheValid` is set to false, the function directly fetches the coin list data from the API.
+ * If `shouldIgnoreCache` is set to true, the function directly fetches the coin list data from the API.
  *
  * @param {Object} store - The Redux store to update with the fetched data.
- * @param {boolean} isCacheValid - A flag indicating whether to attempt fetching data from the indexedDB cache. Defaults to false.
+ * @param {boolean} shouldIgnoreCache - A flag indicating whether to ignore the cache and attempt fetching data from the API. Defaults to false.
  * @returns {Promise<void>} - A promise that resolves when the store is updated and the cache is reinitialized.
  */
 export const fetchUpdateAndReinitalizeCoinListCache = async (
   store,
-  isCacheValid = false,
+  shouldIgnoreCache = false,
 ) => {
   console.log("fetchUpdateAndReinitalizeCoinListCache");
 
@@ -252,7 +252,10 @@ export const fetchUpdateAndReinitalizeCoinListCache = async (
   const state = store.getState();
   const currentCurrency = state.currency.currentCurrency;
 
-  if (isCacheValid) {
+  const cacheIsValid =
+    isCacheValid(COINLISTS_TABLENAME) && isCacheValid(CURRENCYRATES_TABLENAME);
+
+  if (cacheIsValid && !shouldIgnoreCache) {
     try {
       const cacheData = await fetchDataFromIndexedDB(
         COINLISTS_TABLENAME,
@@ -278,6 +281,7 @@ export const fetchUpdateAndReinitalizeCoinListCache = async (
             currencyRates: currencyRatesCacheData,
           },
         };
+        console.log("cache USED for fetchDataForCoinListCacheInitialization");
       } else {
         throw new Error("No valid data in cache");
       }
@@ -289,7 +293,7 @@ export const fetchUpdateAndReinitalizeCoinListCache = async (
       storeCurrencyRatesInIndexedDB(coinListCacheData.currency.currencyRates);
     }
   } else {
-    console.log("uh");
+    console.log("cache NOT used for fetchDataForCoinListCacheInitialization");
     coinListCacheData = await fetchDataForCoinListCacheInitialization(
       currentCurrency,
     );
@@ -349,7 +353,7 @@ export const checkAndResetCache = async (store, serverGlobalCacheVersion) => {
 
     // If the server's cache version matches the client's, fetch fresh data and then update the store.
     if (serverGlobalCacheVersion === clientGlobalCacheVersion) {
-      await fetchUpdateAndReinitalizeCoinListCache(store);
+      await fetchUpdateAndReinitalizeCoinListCache(store, true);
     }
   }
 };

@@ -7,10 +7,7 @@ import "react-alice-carousel/lib/alice-carousel.css";
 import { useSelector } from "react-redux";
 import { initialCoinsState } from "../src/store/coins";
 import { initialCurrencyState } from "../src/store/currency";
-import {
-  fetchBaseDataFromCryptoCompare,
-  fetchDataForCoinListCacheInitialization,
-} from "../src/utils/api.utils";
+import { fetchDataForCoinListCacheInitialization } from "../src/utils/api.utils";
 import { FIVE_MINUTES_IN_MS } from "../src/global/constants";
 
 export default function Home() {
@@ -80,6 +77,12 @@ export async function getServerSideProps(context) {
   context.res.setHeader(
     "Cache-Control",
     "s-maxage=300, stale-while-revalidate",
+  );
+
+  // Set the globalCacheVersion cookie
+  context.res.setHeader(
+    "Set-Cookie",
+    `globalCacheVersion=${newGlobalCacheVersion}; Path=/`,
   );
 
   return {
