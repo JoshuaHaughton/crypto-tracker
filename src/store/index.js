@@ -35,6 +35,7 @@ export const getOrInitializeStore = (
   } else if (clientGlobalCacheVersion !== serverGlobalCacheVersion) {
     // If the store does exist, and the data from the server is fresh,
     // update it with the new data from the server
+    console.log("me calling");
     updateStoreData(reduxStore, initialState);
   }
 

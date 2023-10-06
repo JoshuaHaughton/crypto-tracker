@@ -21,11 +21,28 @@ export const sliceActionMap = {
  * @param {Object} storeUpdates - The updated state to merge into the existing state.
  */
 export function updateStoreData(reduxStore, storeUpdates) {
+  console.log("reduxStore", reduxStore);
+  console.log("storeUpdates", storeUpdates);
+
+  if (
+    typeof storeUpdates !== "object" ||
+    storeUpdates === null ||
+    Object.keys(storeUpdates).length === 0
+  ) {
+    console.warn(
+      "storeUpdates is either not an object, null, or empty. Skipping updates.",
+    );
+    return;
+  }
+
   batch(() => {
     Object.keys(storeUpdates).forEach((sliceName) => {
-      const updateSliceAction = sliceActionMap[sliceName];
-      if (updateSliceAction) {
-        reduxStore.dispatch(updateSliceAction(storeUpdates[sliceName]));
+      const updateData = storeUpdates[sliceName];
+      if (updateData !== undefined && updateData !== null) {
+        const updateSliceAction = sliceActionMap[sliceName];
+        if (updateSliceAction) {
+          reduxStore.dispatch(updateSliceAction(updateData));
+        }
       }
     });
   });

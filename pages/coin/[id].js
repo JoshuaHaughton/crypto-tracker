@@ -618,14 +618,22 @@ export async function getServerSideProps(context) {
     chartFromServer,
     initialRates;
 
-  // If the coin is preloaded and the globalCacheVersion is recent (within 5 minutes), don't fetch new data
+  const refererHeader = context.req.headers.referer;
+  const currentURL = `http://${context.req.headers.host}${context.req.url}`;
+
+  // If the coin is preloaded, the globalCacheVersion is recent, and the referer is different from the current URL
   if (
     preloadedCoins.includes(id) &&
-    currentTimestamp - parseInt(globalCacheVersion) < fiveMinutesInMilliseconds
+    currentTimestamp - parseInt(globalCacheVersion) <
+      fiveMinutesInMilliseconds &&
+    refererHeader !== currentURL
   ) {
-    console.log("use cached data for coins page!");
-    return { props: { ...context.pageProps } };
+    console.log(
+      "use cached data for coins page! Not returning initialReduxState from server",
+    );
+    return { props: {} };
   }
+
   console.log("fetch new data for coins page...");
 
   try {
@@ -634,7 +642,7 @@ export async function getServerSideProps(context) {
       currentCurrency,
     );
 
-    initialCoin = coinDetails.initialCoin;
+    initialCoin = coinDetails.coinInfo;
     marketChartFromServer = coinDetails.marketChartFromServer;
     marketValuesFromServer = coinDetails.marketValuesFromServer;
     chartFromServer = coinDetails.chartFromServer;

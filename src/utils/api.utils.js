@@ -243,7 +243,7 @@ export async function fetchCoinDetailsFromCryptoCompare(
   // Extract the ATH from Coinpaprika's response
   const athPrice =
     coinPaprikaCoinDetails.quotes.USD.ath_price *
-    initialRates[USD][targetCurrency];
+    initialRates.USD[targetCurrency];
 
   if (
     !cryptoCompareData ||
@@ -291,7 +291,7 @@ export async function fetchCoinDetailsFromCryptoCompare(
   };
 
   return {
-    initialCoin: coinInfo,
+    coinInfo,
     marketChartFromServer,
     marketValuesFromServer,
     chartFromServer,
