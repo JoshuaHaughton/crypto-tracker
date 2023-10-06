@@ -85,6 +85,11 @@ const Coin = ({
         currentPreloadedCoinIds.push(id);
       }
 
+      // Ensure the list does not exceed 30 coins by removing the oldest one if necessary
+      while (currentPreloadedCoinIds.length > 30) {
+        currentPreloadedCoinIds.shift();
+      }
+
       // Update the cookie with the extended list of coin IDs
       Cookie.set("preloadedCoins", JSON.stringify(currentPreloadedCoinIds));
       console.log(
