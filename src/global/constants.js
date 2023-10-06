@@ -31,4 +31,4 @@ export const CURRENT_CURRENCY_COOKIE_EXPIRY_TIME = tenYearsInFuture;
 
 export const GLOBALCACHEVERSION_COOKIE_EXPIRY_TIME = fiveMinutesInFuture;
 
-export const MAXIMUM_PRELOADED_COINS = 30;
+export const MAXIMUM_PRELOADED_COIN_COUNT = 30;

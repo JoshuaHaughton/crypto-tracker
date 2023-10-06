@@ -7,7 +7,11 @@ import { coinsActions } from "../../store/coins";
 import { useState } from "react";
 import { fetchCoinDetailsFromCryptoCompare } from "../../utils/api.utils";
 import { saveCoinDataForCurrencyInBrowser } from "../../utils/cache.utils";
-import { COINDETAILS_TABLENAME } from "../../global/constants";
+import {
+  COINDETAILS_TABLENAME,
+  MAXIMUM_PRELOADED_COIN_COUNT,
+} from "../../global/constants";
+import { postMessageToCurrencyTransformerWorker } from "../../utils/currencyTransformerService";
 
 const Coin = ({
   name,
@@ -25,6 +29,7 @@ const Coin = ({
   const currentCurrency = useSelector(
     (state) => state.currency.currentCurrency,
   );
+  const currencyRates = useSelector((state) => state.currency.currencyRates);
   const cachedDetails = useSelector(
     (state) => state.coins.cachedCoinDetailsByCurrency[currentCurrency],
   );
@@ -60,6 +65,18 @@ const Coin = ({
 
       const { initialRates, ...dataWithoutInitialRates } = detailedData;
 
+      // Transform this data for the other remaining currencies and store it in state
+      postMessageToCurrencyTransformerWorker({
+        type: "transformAllCoinDetailsCurrencies",
+        data: {
+          coinToTransform: dataWithoutInitialRates,
+          fromCurrency: currentCurrency.toUpperCase(),
+          currencyRates,
+          // Only transform the ones that haven't been transformed yet
+          currenciesToExclude: [currentCurrency.toUpperCase()],
+        },
+      });
+
       // Update the Redux state with the fetched data
       dispatch(
         coinsActions.setCachedCoinDetailsByCurrency({
@@ -85,8 +102,8 @@ const Coin = ({
         currentPreloadedCoinIds.push(id);
       }
 
-      // Ensure the list does not exceed 30 coins by removing the oldest one if necessary
-      while (currentPreloadedCoinIds.length > 30) {
+      // Ensure the list does not exceed the maximum preloadedCoin count by removing the oldest ones if necessary
+      while (currentPreloadedCoinIds.length > MAXIMUM_PRELOADED_COIN_COUNT) {
         currentPreloadedCoinIds.shift();
       }
 

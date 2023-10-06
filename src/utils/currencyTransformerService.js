@@ -74,7 +74,7 @@ export function initializeCurrencyTransformerWorker(dispatch) {
         dispatch(
           coinsActions.setCachedCoinDetailsByCurrency({
             currency,
-            coinData: transformedData,
+            coinData: transformedData[currency],
           }),
         );
 

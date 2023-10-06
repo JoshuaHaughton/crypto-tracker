@@ -73,7 +73,7 @@ export const updateCurrency = createAsyncThunk(
         postMessageToCurrencyTransformerWorker({
           type: "transformAllCoinDetailsCurrencies",
           data: {
-            coinToTransform: displayedCoinListCoins,
+            coinToTransform: selectedCoinDetails,
             fromCurrency: currentCurrency.toUpperCase(),
             currencyRates: initialRates,
             // Only transform the ones that haven't been transformed yet

@@ -138,15 +138,25 @@ export const saveCoinDataForCurrencyInBrowser = async (
   try {
     if (tableName === COINDETAILS_TABLENAME) {
       // Get the existing coin data for the specified currency
-      const existingCoinData = await db[tableName].get(currency);
+      const existingCoinData = (await db[tableName].get(currency)) || {};
 
-      // Merge existing data with the new coin data
+      // Get the coin's symbol from the data
+      const coinSymbol = coinData.coinInfo.symbol;
+
+      // Merge the new coin data into the existing data for the currency
       const mergedCoinData = {
         ...existingCoinData,
-        [coinData.symbol]: coinData,
+        [coinSymbol]: coinData,
       };
 
-      await db[tableName].put({ currency, details: mergedCoinData });
+      // Add the currency property to the mergedCoinData object for indexedDB queries
+      mergedCoinData.currency = currency;
+
+      // Store the merged data back into the database
+      await db[tableName].put(mergedCoinData);
+
+      // Store the merged data back into the database
+      await db[tableName].put(mergedCoinData, currency);
     } else if (tableName === COINLISTS_TABLENAME) {
       await db[tableName].put({ currency, coinData });
     } else if (tableName === CURRENCYRATES_TABLENAME) {

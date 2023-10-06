@@ -192,14 +192,14 @@ export async function fetchCoinDetailsFromCryptoCompare(
   };
 
   // Extracting and formatting chart and market data
-  const marketChartFromServer = {
+  const marketChartValues = {
     day: dayData.Data.Data.map((data) => [data.time, data.close]),
     week: weekData.Data.Data.map((data) => [data.time, data.close]),
     month: monthData.Data.Data.map((data) => [data.time, data.close]),
     year: yearData.Data.Data.map((data) => [data.time, data.close]),
   };
 
-  const marketValuesFromServer = {
+  const marketValues = {
     dayMarketValues: dayData.Data.Data.map((data) => data.close),
     weekMarketValues: weekData.Data.Data.map((data) => data.close),
     monthMarketValues: monthData.Data.Data.map((data) => data.close),
@@ -273,8 +273,8 @@ export async function fetchCoinDetailsFromCryptoCompare(
     price_change_percentage_1y: priceChangePercentage365d,
   };
 
-  const chartFromServer = {
-    labels: marketChartFromServer?.day.map((data) =>
+  const chartValues = {
+    labels: marketChartValues?.day.map((data) =>
       new Date(data[0]).toLocaleTimeString(),
     ),
     datasets: [
@@ -282,7 +282,7 @@ export async function fetchCoinDetailsFromCryptoCompare(
         label: `${
           coinInfo.name
         } Price (Past day) in ${targetCurrency.toUpperCase()}`,
-        data: marketValuesFromServer.dayMarketValues,
+        data: marketValues.dayMarketValues,
         type: "line",
         pointRadius: 1.3,
         borderColor: "#ff9500",
@@ -292,9 +292,9 @@ export async function fetchCoinDetailsFromCryptoCompare(
 
   return {
     coinInfo,
-    marketChartFromServer,
-    marketValuesFromServer,
-    chartFromServer,
+    marketChartValues,
+    marketValues,
+    chartValues,
     initialRates,
   };
 }
