@@ -27,33 +27,15 @@ export const getOrInitializeStore = (
     return initializeStore(initialState);
   }
 
+  const clientGlobalCacheVersion = Cookie.get("globalCacheVersion");
+
   // If the store doesn't exist, create a new one
   if (!reduxStore) {
     reduxStore = initializeStore(initialState);
-  } else {
-    const clientGlobalCacheVersion = Cookie.get("globalCacheVersion");
-
-    if (clientGlobalCacheVersion === serverGlobalCacheVersion) {
-      // If the global cache version has not changed, update the store but preserve the current currency
-      const currentClientCurrency =
-        Cookie.get("currentCurrency") || initialCurrencyState.currentCurrency;
-      updateStoreData(reduxStore, {
-        currency: {
-          ...initialState.currency,
-          currentCurrency: currentClientCurrency,
-        },
-      });
-      reduxStore = initializeStore({
-        ...initialState,
-        currency: {
-          ...initialState.currency,
-          currentCurrency: currentClientCurrency,
-        },
-      });
-    } else {
-      // If we get a new globalCacheVersion but a redux store exists, update it with the new data.
-      updateStoreData(reduxStore, initialState);
-    }
+  } else if (clientGlobalCacheVersion !== serverGlobalCacheVersion) {
+    // If the store does exist, and the data from the server is fresh,
+    // update it with the new data from the server
+    updateStoreData(reduxStore, initialState);
   }
 
   return reduxStore;
