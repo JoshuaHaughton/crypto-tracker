@@ -1,5 +1,5 @@
 import {
-  isCacheValid,
+  areNecessaryCachesValid,
   saveCoinDataForCurrencyInBrowser,
   storeCurrencyRatesInIndexedDB,
 } from "../utils/cache.utils";
@@ -33,7 +33,8 @@ export const initializeCoinListCache = createAsyncThunk(
 
     // If data isn't in the cache, or the cache isn't valid, send the initial data to the web worker
     // for currency transformation. After that, we save it to the cache
-    if (!isCacheValid(COINLISTS_TABLENAME)) {
+    const isCacheValid = await areNecessaryCachesValid();
+    if (!isCacheValid) {
       console.log("INVALID CACHE - COIN LISTS");
       if (typeof window !== "undefined") {
         postMessageToCurrencyTransformerWorker({
@@ -62,6 +63,8 @@ export const initializeCoinListCache = createAsyncThunk(
           currentCurrency.toUpperCase(),
           initialHundredCoins,
         );
+
+        storeCurrencyRatesInIndexedDB(initialRates);
       }
     } else {
       // Use the IndexedDB cache if it's valid
