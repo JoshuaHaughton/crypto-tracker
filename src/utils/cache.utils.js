@@ -175,6 +175,68 @@ export const saveCoinDataForCurrencyInBrowser = async (
 };
 
 /**
+ * Validates cache data for a given table name.
+ *
+ * @param {string} tableName - The name of the table in the IndexedDB.
+ * @returns {Promise<boolean>} Returns a promise that resolves to true if data is valid, else false.
+ */
+export const validateCacheDataForTable = async (tableName) => {
+  console.log("validateCacheDataForTable", tableName);
+
+  try {
+    for (const currency of ALL_CURRENCIES) {
+      const dataForCurrency = await fetchDataFromIndexedDB(tableName, currency);
+
+      switch (tableName) {
+        case COINLISTS_TABLENAME:
+          // Validate CoinList data
+          if (
+            !dataForCurrency ||
+            !Array.isArray(dataForCurrency.coinData) ||
+            dataForCurrency.coinData.length === 0
+          ) {
+            console.warn(`Invalid coinList data for currency: ${currency}`);
+            return false;
+          }
+          break;
+
+        case CURRENCYRATES_TABLENAME:
+          // Validate CurrencyRates data
+          if (!dataForCurrency || !dataForCurrency.rates) {
+            console.warn(
+              `Invalid currencyRates data for currency: ${currency}`,
+            );
+            return false;
+          }
+
+          for (const rateCurrency in dataForCurrency.rates) {
+            const rateValue = dataForCurrency.rates[rateCurrency];
+            if (typeof rateValue !== "number" || isNaN(rateValue)) {
+              console.warn(
+                `Invalid currency rate value for ${rateCurrency} in ${currency}`,
+              );
+              return false;
+            }
+          }
+          break;
+
+        default:
+          console.warn(`Unsupported table name: ${tableName}`);
+          return false;
+      }
+    }
+
+    return true;
+  } catch (err) {
+    console.error(
+      `Error validating data for ${tableName} for all currencies:`,
+      err,
+    );
+    return false;
+  }
+};
+
+/**
  * Validates if the necessary caches in IndexedDB are valid.
  *
  * @param {number} [serverGlobalCacheVersion] - The global cache version from the server (optional, and should not be provided by the client cookie).
@@ -182,6 +244,7 @@ export const saveCoinDataForCurrencyInBrowser = async (
  */
 export const areNecessaryCachesValid = async (serverGlobalCacheVersion) => {
   console.log("areNecessaryCachesValid");
+
   // GlobalCacheVersion checks
   const currentTime = Date.now();
   const fiveMinutesInMilliseconds = 5 * 60 * 1000;
@@ -202,59 +265,24 @@ export const areNecessaryCachesValid = async (serverGlobalCacheVersion) => {
   console.log("Valid GlobalCacheVersion!");
 
   // Check if all IndexedDB CoinList caches are valid
-  try {
-    for (const currency of ALL_CURRENCIES) {
-      const coinDataForCurrency = await fetchDataFromIndexedDB(
-        COINLISTS_TABLENAME,
-        currency,
-      );
+  const isCoinListValid = await validateCacheDataForTable(COINLISTS_TABLENAME);
+  if (!isCoinListValid) {
+    console.warn("Invalid CoinList Cache");
+    return false;
+  }
+  console.log("Valid CoinList Cache!");
 
-      // Check that the coinData key is not null and is a non-empty array
-      if (
-        !coinDataForCurrency ||
-        !Array.isArray(coinDataForCurrency.coinData) ||
-        coinDataForCurrency.coinData.length === 0
-      ) {
-        console.warn(`Invalid coin data for currency: ${currency}`);
-        return false;
-      }
-    }
-    console.log("Valid CoinList Cache!");
-    // return true;
-  } catch (err) {
-    console.error(`Error validating coin data for all currencies:`, err);
+  // Check if all IndexedDB CurrencyRates caches are valid
+  const isCurrencyRatesValid = await validateCacheDataForTable(
+    CURRENCYRATES_TABLENAME,
+  );
+  if (!isCurrencyRatesValid) {
+    console.warn("Invalid CurrencyRates Cache");
     return false;
   }
 
-  // Check if all IndexedDB CurrenyRates caches are valid
-  try {
-    for (const currency of ALL_CURRENCIES) {
-      const currencyRatesForCurrency = await fetchDataFromIndexedDB(
-        CURRENCYRATES_TABLENAME,
-        currency,
-      );
-
-      // Check that the rates key is not null and has valid numbers for each currency
-      if (!currencyRatesForCurrency || !currencyRatesForCurrency.rates) {
-        console.warn(`Invalid rates data for currency: ${currency}`);
-        return false;
-      }
-
-      // Validate each rate is a valid number
-      for (const rateCurrency in currencyRatesForCurrency.rates) {
-        const rateValue = currencyRatesForCurrency.rates[rateCurrency];
-        if (typeof rateValue !== "number" || isNaN(rateValue)) {
-          console.warn(`Invalid rate for ${rateCurrency} in ${currency}`);
-          return false;
-        }
-      }
-    }
-    console.log("Valid CurrencyRates Cache!");
-    return true;
-  } catch (err) {
-    console.error(`Error validating rates for all currencies:`, err);
-    return false;
-  }
+  console.log("Valid CurrencyRates Cache!");
+  return true;
 };
 
 /**
@@ -269,17 +297,23 @@ export const clearAllCaches = async () => {
 };
 
 /**
- * Validates and clears cache if necessary.
+ * Validates the cache based on server's global cache version and clears it if it's invalid.
  *
  * @param {string} serverGlobalCacheVersion - The global cache version from the server (optional, and should not be provided by the client cookie).
- * @returns {Promise<void>}
+ * @returns {Promise<boolean>} - Returns `true` if the cache is valid, otherwise `false` and the cache is cleared.
  */
 export const validateAndClearCache = async (serverGlobalCacheVersion) => {
-  const validCache = await areNecessaryCachesValid(serverGlobalCacheVersion);
-  console.log("validCache", validCache);
-  if (!validCache) {
+  const isCacheValid = await areNecessaryCachesValid(serverGlobalCacheVersion);
+  console.log("areNecessaryCachesValid - validateAndClearCache", isCacheValid);
+
+  if (!isCacheValid) {
+    console.log("Cache is invalid. Clearing...");
     await clearAllCaches();
+  } else {
+    console.log("Cache is valid.");
   }
+
+  return isCacheValid;
 };
 
 /**
@@ -347,12 +381,12 @@ export const fetchCurrencyDataFromIndexedDB = async (
  * If `shouldIgnoreCache` is set to true, the function directly fetches the coin list data from the API.
  *
  * @param {Object} store - The Redux store to update with the fetched data.
- * @param {boolean} shouldIgnoreCache - A flag indicating whether to ignore the cache and attempt fetching data from the API. Defaults to false.
+ * @param {boolean} indexedDBCacheIsValid - A flag indicating whether the cache is valid or not. If passed, will not do another indexedDB request.
  * @returns {Promise<void>} - A promise that resolves when the store is updated and the cache is reinitialized.
  */
 export const fetchUpdateAndReinitalizeCoinListCache = async (
   store,
-  shouldIgnoreCache = false,
+  indexedDBCacheIsValid,
 ) => {
   console.log("fetchUpdateAndReinitalizeCoinListCache");
 
@@ -360,9 +394,12 @@ export const fetchUpdateAndReinitalizeCoinListCache = async (
   const state = store.getState();
   const currentCurrency = state.currency.currentCurrency;
 
-  const cacheIsValid = await areNecessaryCachesValid();
+  const isCacheValid =
+    indexedDBCacheIsValid != null
+      ? indexedDBCacheIsValid
+      : await areNecessaryCachesValid();
 
-  if (cacheIsValid && !shouldIgnoreCache) {
+  if (isCacheValid) {
     try {
       const cacheData = await fetchDataFromIndexedDB(
         COINLISTS_TABLENAME,
@@ -408,7 +445,9 @@ export const fetchUpdateAndReinitalizeCoinListCache = async (
   }
 
   updateStoreData(store, coinListCacheData);
-  store.dispatch(initializeCoinListCache());
+  store.dispatch(
+    initializeCoinListCache({ indexedDBCacheIsValid: isCacheValid }),
+  );
 };
 
 /**
@@ -425,34 +464,35 @@ export const fetchUpdateAndReinitalizeCoinListCache = async (
  * @returns {Promise<void>}
  */
 export const checkAndResetCache = async (store, serverGlobalCacheVersion) => {
-  let shouldResetCache = await areNecessaryCachesValid(
-    serverGlobalCacheVersion,
-  );
+  if (await areNecessaryCachesValid(serverGlobalCacheVersion)) return;
 
-  if (shouldResetCache) {
-    const clientGlobalCacheVersion = Cookie.get("globalCacheVersion");
-    console.log("Cache Reset");
-    console.log("serverGlobalCacheVersion", serverGlobalCacheVersion);
-    console.log("clientGlobalCacheVersion", clientGlobalCacheVersion);
+  console.warn("Caches are not valid. Cache Reset - checkAndResetCache");
 
-    // Clear all caches
-    await clearAllCaches();
+  // Clear all caches
+  await clearAllCaches();
 
-    // Reset the Redux store completely
-    initializeStore();
+  const clientGlobalCacheVersion = Cookie.get("globalCacheVersion");
 
-    const newGlobalCacheVersion =
-      serverGlobalCacheVersion !== clientGlobalCacheVersion
-        ? serverGlobalCacheVersion
-        : currentTime.toString();
+  // If the server's cache version matches the client's, fetch fresh data and then update the store because the cache is invalid for some other reason than expiry - like being malformed for some reason.
+  if (serverGlobalCacheVersion === clientGlobalCacheVersion) {
+    await fetchUpdateAndReinitalizeCoinListCache(store, false);
 
-    Cookie.set("globalCacheVersion", newGlobalCacheVersion, {
+    const currentTime = Date.now().toString();
+    Cookie.set("globalCacheVersion", currentTime, {
       expires: GLOBALCACHEVERSION_COOKIE_EXPIRY_TIME,
     });
+  } else {
+    // If the server's globalCacheVersion is different from the client, then it's because new data was fetched there. In that case, we should use the data to dispatch
+    await store.dispatch(initializeCoinListCache());
 
-    // If the server's cache version matches the client's, fetch fresh data and then update the store.
-    if (serverGlobalCacheVersion === clientGlobalCacheVersion) {
-      await fetchUpdateAndReinitalizeCoinListCache(store, true);
-    }
+    // Calculate expiry time for the cookie
+    const MILLISECONDS_IN_DAY = 1000 * 60 * 60 * 24;
+    const timeLeftInDays =
+      (serverGlobalCacheVersion + 5 * 60 * 1000 - Date.now()) /
+      MILLISECONDS_IN_DAY;
+
+    Cookie.set("globalCacheVersion", serverGlobalCacheVersion, {
+      expires: timeLeftInDays,
+    });
   }
 };

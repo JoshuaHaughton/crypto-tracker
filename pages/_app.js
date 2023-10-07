@@ -25,7 +25,9 @@ function MyApp({ Component, pageProps }) {
 
   useWebWorker(store.dispatch);
   useDataInitialization(store, pageProps.globalCacheVersion);
-  useRouteEvents(() => checkAndResetCache(store, pageProps.globalCacheVersion));
+  useRouteEvents(() =>
+    checkAndResetCache(store, pageProps.globalCacheVersion),
+  );
 
   return (
     <Provider store={store}>
