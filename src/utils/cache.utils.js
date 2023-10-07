@@ -237,6 +237,35 @@ export const validateCacheDataForTable = async (tableName) => {
 };
 
 /**
+ * Removes data for a given coin from THE COINDETAILS table in the IndexedDB for all currencies.
+ *
+ * @param {string} coinId - The ID of the coin to remove.
+ * @returns {Promise<void>} Returns a promise indicating success or failure of the removal operation.
+ */
+export const removeCoinDetailsFromIndexedDBForAllCurrencies = async (
+  coinId,
+) => {
+  try {
+    const removalPromises = ALL_CURRENCIES.map(async (currency) => {
+      await fetchDataFromIndexedDB(COINDETAILS_TABLENAME, [
+        coinId,
+        currency,
+      ]).delete();
+      console.log(
+        `Data for coin ${coinId} and currency ${currency} removed from table ${COINDETAILS_TABLENAME}`,
+      );
+    });
+
+    await Promise.all(removalPromises);
+  } catch (err) {
+    console.error(
+      `Error removing data for coin ${coinId} from ${COINDETAILS_TABLENAME} for all currencies:`,
+      err,
+    );
+  }
+};
+
+/**
  * Validates if the necessary caches in IndexedDB are valid.
  *
  * @param {number} [serverGlobalCacheVersion] - The global cache version from the server (optional, and should not be provided by the client cookie).
@@ -293,6 +322,7 @@ export const clearAllCaches = async () => {
   await clearCacheForAllKeysInTable(COINLISTS_TABLENAME);
   await clearCacheForAllKeysInTable(COINDETAILS_TABLENAME);
   await clearCacheForAllKeysInTable(CURRENCYRATES_TABLENAME);
+  console.log("Cache cleared for preloadedCoins");
   Cookie.remove("preloadedCoins");
 };
 

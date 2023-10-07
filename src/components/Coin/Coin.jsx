@@ -23,6 +23,7 @@ const Coin = ({
   priceChange,
   id,
   coinSymbol,
+  coinsBeingFetched,
 }) => {
   const dispatch = useDispatch();
   const [isPreloaded, setIsPreloaded] = useState(false);
@@ -43,15 +44,34 @@ const Coin = ({
     console.log("hover", id);
     console.log("isPreloaded?", isPreloaded);
 
-    if (isPreloaded) return;
-
-    // Ensure cachedDetails is defined
-    const details = cachedDetails || {};
-
-    // If details already exist in Redux state for this coin, then return early
-    if (details[id]) {
+    // Check if the coin is already preloaded
+    if (isPreloaded) {
+      console.log(`Coin ${id} is already preloaded.`);
       return;
     }
+
+    // Check if the coin is currently being fetched
+    if (coinsBeingFetched.current.has(id)) {
+      console.error(`Coin ${id} is currently being fetched.`);
+      return;
+    }
+
+    // Read the current state of the cookie
+    const currentPreloadedCoinIds = JSON.parse(
+      Cookie.get("preloadedCoins") || "[]",
+    );
+
+    // Check if fetching this coin would push us over the maximum count limit
+    if (
+      currentPreloadedCoinIds.length + coinsBeingFetched.current.size >=
+      MAXIMUM_PRELOADED_COIN_COUNT
+    ) {
+      console.warn(`Fetching coin ${id} would exceed preloaded coin limit.`);
+      return;
+    }
+
+    // Add the coin ID to the set to indicate it's being fetched
+    coinsBeingFetched.current.add(id);
 
     console.log("start fetch");
 
@@ -65,7 +85,7 @@ const Coin = ({
 
       const { initialRates, ...dataWithoutInitialRates } = detailedData;
 
-      // Transform this data for the other remaining currencies and store it in state
+      // Transform this data for the other remaining currencies and store it in state, indexedDB & cookie (handled by worker)
       postMessageToCurrencyTransformerWorker({
         type: "transformAllCoinDetailsCurrencies",
         data: {
@@ -77,7 +97,7 @@ const Coin = ({
         },
       });
 
-      // Update the Redux state with the fetched data
+      // Update the Redux state with the fetched data for the current currency
       dispatch(
         coinsActions.setCachedCoinDetailsByCurrency({
           currency: currentCurrency,
@@ -85,26 +105,16 @@ const Coin = ({
         }),
       );
 
-      // Save the data to IndexedDB
+      // Save the data for the current currency to IndexedDB
       await saveCoinDataForCurrencyInBrowser(
         COINDETAILS_TABLENAME,
         currentCurrency,
         dataWithoutInitialRates,
       );
 
-      // Read the current state of the cookie
-      const currentPreloadedCoinIds = JSON.parse(
-        Cookie.get("preloadedCoins") || "[]",
-      );
-
       // Add the new coin ID if it's not already there
       if (!currentPreloadedCoinIds.includes(id)) {
         currentPreloadedCoinIds.push(id);
-      }
-
-      // Ensure the list does not exceed the maximum preloadedCoin count by removing the oldest ones if necessary
-      while (currentPreloadedCoinIds.length > MAXIMUM_PRELOADED_COIN_COUNT) {
-        currentPreloadedCoinIds.shift();
       }
 
       // Update the cookie with the extended list of coin IDs
@@ -117,6 +127,8 @@ const Coin = ({
       setIsPreloaded(true); // Mark this coin as preloaded
     } catch (error) {
       console.error("Error preloading coin data:", error);
+    } finally {
+      coinsBeingFetched.current.delete(id); // Remove from fetching set since fetch is complete
     }
   };
 
