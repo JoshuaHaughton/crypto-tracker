@@ -324,6 +324,7 @@ export const clearAllCaches = async () => {
   await clearCacheForAllKeysInTable(CURRENCYRATES_TABLENAME);
   Cookie.remove("preloadedCoins");
   console.log("Cache cleared for preloadedCoins");
+  console.warn("ALL CACHES CLEARED");
 };
 
 /**
