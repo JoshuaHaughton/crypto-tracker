@@ -39,7 +39,7 @@ const Coin = () => {
     (state) => state.coins.displayedCoinListCoins,
   );
   const coinDetails = useSelector((state) => state.coins.selectedCoinDetails);
-  const coin = coinDetails.coinInfo;
+  const coin = useSelector((state) => state.coins.selectedCoinDetails.coinInfo);
 
   const dispatch = useDispatch();
   const [currentChartPeriod, setCurrentChartPeriod] = useState("day");
@@ -612,12 +612,6 @@ export async function getServerSideProps(context) {
   let initialCoinsState = defaultInitialCoinsState;
   let initialCurrencyState = defaultInitialCurrencyState;
 
-  let initialCoin,
-    marketChartFromServer,
-    marketValuesFromServer,
-    chartFromServer,
-    initialRates;
-
   const refererHeader = context.req.headers.referer;
   const currentURL = `http://${context.req.headers.host}${context.req.url}`;
 
@@ -626,6 +620,7 @@ export async function getServerSideProps(context) {
     preloadedCoins.includes(id) &&
     currentTimestamp - parseInt(globalCacheVersion) <
       fiveMinutesInMilliseconds &&
+    refererHeader &&
     refererHeader !== currentURL
   ) {
     console.log(
@@ -642,11 +637,13 @@ export async function getServerSideProps(context) {
       currentCurrency,
     );
 
-    initialCoin = coinDetails.coinInfo;
-    marketChartFromServer = coinDetails.marketChartFromServer;
-    marketValuesFromServer = coinDetails.marketValuesFromServer;
-    chartFromServer = coinDetails.chartFromServer;
-    initialRates = coinDetails.initialRates;
+    const {
+      coinInfo,
+      marketChartValues,
+      marketValues,
+      chartValues,
+      initialRates,
+    } = coinDetails;
 
     return {
       props: {
@@ -654,28 +651,28 @@ export async function getServerSideProps(context) {
           coins: {
             ...initialCoinsState,
             selectedCoinDetails: {
-              coinInfo: initialCoin,
-              marketChartValues: marketChartFromServer,
-              marketValues: marketValuesFromServer,
-              chartValues: chartFromServer,
+              coinInfo,
+              marketChartValues,
+              marketValues,
+              chartValues,
             },
             selectedCoinDetailsByCurrency: {
               ...initialCoinsState.selectedCoinDetailsByCurrency,
               [initialCurrencyState.initialCurrency]: {
-                coinInfo: initialCoin,
-                marketChartValues: marketChartFromServer,
-                marketValues: marketValuesFromServer,
-                chartValues: chartFromServer,
+                coinInfo,
+                marketChartValues,
+                marketValues,
+                chartValues,
               },
             },
             cachedCoinDetailsByCurrency: {
               ...initialCoinsState.cachedCoinDetailsByCurrency,
               [initialCurrencyState.initialCurrency]: {
-                [initialCoin.symbol.toUpperCase()]: {
-                  coinInfo: initialCoin,
-                  marketChartValues: marketChartFromServer,
-                  marketValues: marketValuesFromServer,
-                  chartValues: chartFromServer,
+                [coinInfo.symbol.toUpperCase()]: {
+                  coinInfo,
+                  marketChartValues,
+                  marketValues,
+                  chartValues,
                 },
               },
             },
