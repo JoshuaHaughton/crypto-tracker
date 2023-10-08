@@ -178,37 +178,37 @@ const transformCurrencyForCoinDetails = (
   coinInfo: {
     ...coinToTransform.coinInfo,
     current_price: convertCurrency(
-      coinToTransform.current_price,
+      coinToTransform.coinInfo.current_price,
       fromCurrency,
       toCurrency,
       currencyRates,
     ),
     market_cap: convertCurrency(
-      coinToTransform.market_cap,
+      coinToTransform.coinInfo.market_cap,
       fromCurrency,
       toCurrency,
       currencyRates,
     ),
     price_change_1d: convertCurrency(
-      coinToTransform.price_change_1d,
+      coinToTransform.coinInfo.price_change_1d,
       fromCurrency,
       toCurrency,
       currencyRates,
     ),
     price_change_7d: convertCurrency(
-      coinToTransform.price_change_7d,
+      coinToTransform.coinInfo.price_change_7d,
       fromCurrency,
       toCurrency,
       currencyRates,
     ),
     price_change_30d: convertCurrency(
-      coinToTransform.price_change_30d,
+      coinToTransform.coinInfo.price_change_30d,
       fromCurrency,
       toCurrency,
       currencyRates,
     ),
     price_change_365d: convertCurrency(
-      coinToTransform.price_change_365d,
+      coinToTransform.coinInfo.price_change_365d,
       fromCurrency,
       toCurrency,
       currencyRates,
