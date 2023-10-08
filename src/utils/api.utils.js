@@ -104,7 +104,6 @@ export async function fetchBaseDataFromCryptoCompare(
 export async function fetchCoinDetailsFromCryptoCompare(
   id,
   targetCurrency = initialCurrencyState.initialCurrency,
-  clientFetch = false,
 ) {
   const cryptoCompareApiKey = process.env.NEXT_PUBLIC_CRYPTOCOMPARE_API_KEY;
   const cryptoCompareFetchOptions = {
@@ -112,26 +111,16 @@ export async function fetchCoinDetailsFromCryptoCompare(
       Authorization: `Apikey ${cryptoCompareApiKey}`,
     },
   };
-  const coinPaprikaUrl = clientFetch
-    ? "/api/coinpaprika"
-    : "https://api.coinpaprika.com";
 
   const urls = [
     `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${id.toUpperCase()},CAD&tsyms=USD,AUD,GBP,CAD`,
     `https://data-api.cryptocompare.com/asset/v1/data/by/symbol?asset_symbol=${id.toUpperCase()}`,
     `https://min-api.cryptocompare.com/data/v2/histohour?fsym=${id}&tsym=${targetCurrency}&limit=24`,
     `https://min-api.cryptocompare.com/data/v2/histoday?fsym=${id}&tsym=${targetCurrency}&limit=365`,
-    `${coinPaprikaUrl}/v1/search?q=${id}`,
   ];
   console.log(urls);
 
-  const [
-    cryptoCompareData,
-    assetDataR,
-    dayData,
-    yearData,
-    coinPaprikaSearchData,
-  ] = await Promise.all(
+  const [cryptoCompareData, assetDataR, dayData, yearData] = await Promise.all(
     urls.map((url) =>
       fetch(url, cryptoCompareFetchOptions).then((res) => res.json()),
     ),
@@ -225,26 +214,6 @@ export async function fetchCoinDetailsFromCryptoCompare(
   const priceChangePercentage30d = (priceChange30d / data30[0].close) * 100;
   const priceChangePercentage365d = (priceChange365d / data365[0].close) * 100;
 
-  // Verify if the coin exists on Coinpaprika
-  if (
-    !coinPaprikaSearchData.currencies ||
-    coinPaprikaSearchData.currencies.length === 0
-  ) {
-    throw new Error("Coin not found on Coinpaprika");
-  }
-
-  // Fetch ATH from Coinpaprika
-  const coinPaprikaId = coinPaprikaSearchData.currencies[0].id;
-  const coinPaprikaCoinDetailsResponse = await fetch(
-    `${coinPaprikaUrl}/v1/tickers/${coinPaprikaId}`,
-  );
-  const coinPaprikaCoinDetails = await coinPaprikaCoinDetailsResponse.json();
-
-  // Extract the ATH from Coinpaprika's response
-  const athPrice =
-    coinPaprikaCoinDetails.quotes.USD.ath_price *
-    initialRates.USD[targetCurrency];
-
   if (
     !cryptoCompareData ||
     !cryptoCompareData.RAW ||
@@ -261,7 +230,6 @@ export async function fetchCoinDetailsFromCryptoCompare(
     image: assetData.LOGO_URL,
     description: assetData.ASSET_DESCRIPTION_SUMMARY,
     current_price: coinData.PRICE,
-    all_time_high: athPrice,
     market_cap: coinData.MKTCAP,
     price_change_1d: priceChange1d,
     price_change_percentage_24h: priceChangePercentage1d,

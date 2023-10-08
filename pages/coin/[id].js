@@ -353,7 +353,7 @@ const Coin = () => {
               </p>
             </div>
 
-            <div className={styles.info_row}>
+            {/* <div className={styles.info_row}>
               <h3>All Time High:</h3>
               <p className={styles.current}>
                 {currentSymbol}
@@ -362,7 +362,7 @@ const Coin = () => {
                   minimumFractionDigits: 2,
                 })}
               </p>
-            </div>
+            </div> */}
             <div className={styles.info_row}>
               <h3>Market Cap:</h3>
               <p className={styles.current}>

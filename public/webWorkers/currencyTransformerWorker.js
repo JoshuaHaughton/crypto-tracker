@@ -183,12 +183,6 @@ const transformCurrencyForCoinDetails = (
       toCurrency,
       currencyRates,
     ),
-    all_time_high: convertCurrency(
-      coinToTransform.all_time_high,
-      fromCurrency,
-      toCurrency,
-      currencyRates,
-    ),
     market_cap: convertCurrency(
       coinToTransform.market_cap,
       fromCurrency,
