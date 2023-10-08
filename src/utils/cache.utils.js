@@ -97,9 +97,6 @@ export const saveCoinDataForCurrencyInBrowser = async (
       mergedCoinData.currency = currency;
 
       // Store the merged data back into the database
-      await db[tableName].put(mergedCoinData);
-
-      // Store the merged data back into the database
       await db[tableName].put(mergedCoinData, currency);
     } else if (tableName === COINLISTS_TABLENAME) {
       await db[tableName].put({ currency, coinData });

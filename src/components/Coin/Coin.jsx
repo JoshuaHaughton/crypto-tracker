@@ -51,19 +51,20 @@ const Coin = ({
     }
 
     // Check if the coin is currently being fetched
-    if (coinsBeingFetched.current.has(id)) {
+    if (coinsBeingFetched.has(id)) {
       console.error(`Coin ${id} is currently being fetched.`);
       return;
     }
 
     // Read the current state of the cookie
-    const currentPreloadedCoinIds = JSON.parse(
+    let currentPreloadedCoinIds = JSON.parse(
       Cookie.get("preloadedCoins") || "[]",
     );
+    console.log("currentPreloadedCoinIds2", currentPreloadedCoinIds);
 
     // Check if fetching this coin would push us over the maximum count limit
     if (
-      currentPreloadedCoinIds.length + coinsBeingFetched.current.size >=
+      currentPreloadedCoinIds.length + coinsBeingFetched.size >=
       MAXIMUM_PRELOADED_COIN_COUNT
     ) {
       console.warn(`Fetching coin ${id} would exceed preloaded coin limit.`);
@@ -71,7 +72,7 @@ const Coin = ({
     }
 
     // Add the coin ID to the set to indicate it's being fetched
-    coinsBeingFetched.current.add(id);
+    coinsBeingFetched.add(id);
 
     console.log("start fetch");
 
@@ -79,7 +80,6 @@ const Coin = ({
       const detailedData = await fetchCoinDetailsFromCryptoCompare(
         id,
         currentCurrency,
-        true,
       );
       console.log(`Preloaded details for coin ${id}`, detailedData);
 
@@ -112,6 +112,12 @@ const Coin = ({
         dataWithoutInitialRates,
       );
 
+      // Get the updated state of the cookie in case other coins were preloaded
+      currentPreloadedCoinIds = JSON.parse(
+        Cookie.get("preloadedCoins") || "[]",
+      );
+      console.log("currentPreloadedCoinIds2", currentPreloadedCoinIds);
+
       // Add the new coin ID if it's not already there
       if (!currentPreloadedCoinIds.includes(id)) {
         currentPreloadedCoinIds.push(id);
@@ -128,7 +134,7 @@ const Coin = ({
     } catch (error) {
       console.error("Error preloading coin data:", error);
     } finally {
-      coinsBeingFetched.current.delete(id); // Remove from fetching set since fetch is complete
+      coinsBeingFetched.delete(id); // Remove from fetching set since fetch is complete
     }
   };
 

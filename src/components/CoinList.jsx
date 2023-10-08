@@ -172,7 +172,7 @@ const CoinList = ({ initialHundredCoins }) => {
             image={coin.image}
             priceChange={coin.price_change_percentage_24h}
             coinSymbol={currentSymbol}
-            coinsBeingFetched={coinsBeingFetched}
+            coinsBeingFetched={coinsBeingFetched.current}
           />
         );
       })}
