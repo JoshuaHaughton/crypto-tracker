@@ -13,6 +13,7 @@ import {
 } from "../../global/constants";
 import { postMessageToCurrencyTransformerWorker } from "../../utils/currencyTransformerService";
 import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 const Coin = ({
   name,
@@ -28,11 +29,13 @@ const Coin = ({
 }) => {
   const dispatch = useDispatch();
   const router = useRouter();
-  const [isPreloaded, setIsPreloaded] = useState(false);
   const currentCurrency = useSelector(
     (state) => state.currency.currentCurrency,
   );
   const currencyRates = useSelector((state) => state.currency.currencyRates);
+  const selectedCoinDetails = useSelector(
+    (state) => state.coins.selectedCoinDetails,
+  );
   const cachedDetails = useSelector(
     (state) => state.coins.cachedCoinDetailsByCurrency[currentCurrency],
   );
@@ -42,6 +45,12 @@ const Coin = ({
   const currentstateofcache = useSelector(
     (state) => state.coins.cachedCoinDetailsByCurrency,
   );
+  const isCoinDetailsPreloadedFromDB = useSelector(
+    (state) => state.appInfo.isCoinDetailsPreloadedFromDB,
+  );
+  const [waitingForSpecificPreload, setWaitingForSpecificPreload] =
+    useState(false);
+  const [isPreloaded, setIsPreloaded] = useState(coinCachedDetails);
 
   const handleMouseEnter = async () => {
     console.log("currentstateofcache", currentstateofcache);
@@ -144,17 +153,47 @@ const Coin = ({
   };
 
   const handleCoinClick = () => {
+    const isPartOfPreloadedCoins = JSON.parse(
+      Cookie.get("preloadedCoins") || "[]",
+    ).includes(id);
+
     if (isPreloaded) {
+      console.log("PRELOADED DATA BEING USED", coinCachedDetails);
       dispatch(
         coinsActions.updateSelectedCoin({
           coinDetails: coinCachedDetails,
         }),
       );
-      console.log("PRELOADED DATA BEING USED", coinCachedDetails);
+      console.log("ROUTER PUSH", selectedCoinDetails);
+      router.push(`/coin/${id}`);
+    } else if (isPartOfPreloadedCoins && !isCoinDetailsPreloadedFromDB) {
+      console.log("Waiting for specific preload to complete...");
+      setWaitingForSpecificPreload(true);
+    } else {
+      console.log("ROUTER PUSH without waiting", selectedCoinDetails);
+      router.push(`/coin/${id}`);
     }
-    console.log("ROUTER PUSH");
-    router.push(`/coin/${id}`);
   };
+
+  useEffect(() => {
+    if (isCoinDetailsPreloadedFromDB && coinCachedDetails) {
+      setIsPreloaded(true);
+    }
+  }, [isCoinDetailsPreloadedFromDB, coinCachedDetails]);
+
+  // Use an effect to handle navigation once specific preloading completes
+  useEffect(() => {
+    if (waitingForSpecificPreload && isPreloaded && coinCachedDetails != null) {
+      dispatch(
+        coinsActions.updateSelectedCoin({
+          coinDetails: coinCachedDetails,
+        }),
+      );
+      setWaitingForSpecificPreload(false);
+      console.log("ROUTER PUSH after waiting", selectedCoinDetails);
+      router.push(`/coin/${id}`);
+    }
+  }, [waitingForSpecificPreload, isPreloaded]);
 
   return (
     // <Link href="/coin/[id]" as={`coin/${id}`} passHref>

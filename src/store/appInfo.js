@@ -3,6 +3,7 @@ import { withCommonActions } from "./commonActions";
 
 const initialAppInfoState = {
   coinListPageNumber: 1,
+  isCoinDetailsPreloadedFromDB: false,
 };
 
 // AppInfo Reducers
@@ -15,6 +16,12 @@ const appInfoSliceDefinition = {
       if (action.payload.coinListPageNumber) {
         state.coinListPageNumber = action.payload.coinListPageNumber;
       }
+    },
+    startCoinDetailsPreloading: (state) => {
+      state.isCoinDetailsPreloadedFromDB = false;
+    },
+    finishCoinDetailsPreloading: (state) => {
+      state.isCoinDetailsPreloadedFromDB = true;
     },
   },
 };

@@ -13,6 +13,7 @@ import { fetchDataForCoinListCacheInitialization } from "./api.utils";
 import { initializeCoinListCache } from "../thunks/coinListCacheThunk";
 import { updateStoreData } from "./store.utils";
 import { coinsActions } from "../store/coins";
+import { appInfoActions } from "../store/appInfo";
 
 /**
  * Clears cache for a specific table and key.
@@ -500,13 +501,18 @@ export const loadCachedCoinDetailsToRedux = async (currency, dispatch) => {
 /**
  * Loads cached coin details for all supported currencies into Redux.
  *
- * Iterates through each supported currency and attempts to load the
- * cached coin details from IndexedDB into the Redux store.
+ * Initiates the coin details preloading process and updates the app's state
+ * to indicate the start of the preloading process. It then iterates through each
+ * supported currency and attempts to load the cached coin details from IndexedDB
+ * into the Redux store. Once the process completes for all currencies, the app's
+ * state is updated again to indicate the end of the preloading process.
  *
  * @param {Object} dispatch - The dispatch method from the Redux store.
- * @returns {Promise<void>} Returns a promise indicating success or failure of the loading operation.
+ * @returns {Promise<void>} Returns a promise indicating the success or failure of the loading operation.
  */
 export const loadAllCachedCoinDetailsToRedux = async (dispatch) => {
+  dispatch(appInfoActions.startCoinDetailsPreloading());
+
   // Iterate through each supported currency
   for (const currency of ALL_CURRENCIES) {
     try {
@@ -516,6 +522,8 @@ export const loadAllCachedCoinDetailsToRedux = async (dispatch) => {
         `Error attempting to load CoinDetails preloaded cache for currency ${currency} into Redux:`,
         error,
       );
+    } finally {
+      dispatch(appInfoActions.finishCoinDetailsPreloading());
     }
   }
 };
