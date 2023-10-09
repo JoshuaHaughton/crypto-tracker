@@ -542,6 +542,7 @@ export const loadAllCachedCoinDetailsToRedux = async (dispatch) => {
  * @returns {Promise<void>}
  */
 export const checkAndResetCache = async (store, serverGlobalCacheVersion) => {
+  console.log("checkAndResetCache");
   if (await areNecessaryCachesValid(serverGlobalCacheVersion)) return;
 
   console.warn("Caches are not valid. Cache Reset - checkAndResetCache");
@@ -551,7 +552,7 @@ export const checkAndResetCache = async (store, serverGlobalCacheVersion) => {
 
   const clientGlobalCacheVersion = Cookie.get("globalCacheVersion");
 
-  // If the server's cache version matches the client's, fetch fresh data and then update the store because the cache is invalid for some other reason than expiry - like being malformed for some reason.
+  // If the server's cache version matches the client's, fetch fresh data and then update the store because the cache is invalid for some other reason than server expiry - like the version expiring on the client (coin page since we don't return a new GCV), or being malformed for some reason.
   if (serverGlobalCacheVersion === clientGlobalCacheVersion) {
     await fetchUpdateAndReinitalizeCoinListCache(store, false);
 

@@ -46,6 +46,7 @@ const handleCoinListInitialization = async (store, isCacheValid) => {
  */
 export const useDataInitialization = (store, serverGlobalCacheVersion) => {
   useEffect(() => {
+    console.log("useDataInitialization");
     const initializeData = async () => {
       const areNecessaryCachesValid = await validateAndClearCache(
         serverGlobalCacheVersion,

@@ -56,9 +56,20 @@ export async function getServerSideProps(context) {
     context.res.setHeader("x-fetched-currency", currentCurrency);
 
     try {
-      initialReduxState = await fetchDataForCoinListCacheInitialization(
+      const coinListData = await fetchDataForCoinListCacheInitialization(
         currentCurrency,
       );
+
+      initialReduxState = {
+        coins: {
+          ...initialCoinsState,
+          ...coinListData.coins,
+        },
+        currency: {
+          ...initialCurrencyState,
+          ...coinListData.currency,
+        },
+      };
     } catch (err) {
       console.log(err);
       // Return default or placeholder data to prevent breaking the site

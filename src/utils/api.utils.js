@@ -286,7 +286,6 @@ export const fetchDataForCoinListCacheInitialization = async (
 
     return {
       coins: {
-        ...initialCoinsState,
         displayedCoinListCoins: initialHundredCoins,
         trendingCarouselCoins: trendingCarouselCoins,
         coinListCoinsByCurrency: {
@@ -295,7 +294,6 @@ export const fetchDataForCoinListCacheInitialization = async (
         },
       },
       currency: {
-        ...initialCurrencyState,
         currencyRates: initialRates,
         currentCurrency: targetCurrency,
         symbol: SYMBOLS_BY_CURRENCIES[targetCurrency],
