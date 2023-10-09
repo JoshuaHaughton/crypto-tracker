@@ -14,6 +14,7 @@ import {
 import { postMessageToCurrencyTransformerWorker } from "../../utils/currencyTransformerService";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
+import { appInfoActions } from "../../store/appInfo";
 
 const Coin = ({
   name,
@@ -25,7 +26,6 @@ const Coin = ({
   priceChange,
   id,
   coinSymbol,
-  coinsBeingFetched,
 }) => {
   const dispatch = useDispatch();
   const router = useRouter();
@@ -48,9 +48,12 @@ const Coin = ({
   const isCoinDetailsPreloadedFromDB = useSelector(
     (state) => state.appInfo.isCoinDetailsPreloadedFromDB,
   );
+  const coinsBeingFetched = useSelector(
+    (state) => state.appInfo.coinsBeingFetched,
+  );
   const [waitingForSpecificPreload, setWaitingForSpecificPreload] =
     useState(false);
-  const [isPreloaded, setIsPreloaded] = useState(coinCachedDetails);
+  const [isPreloaded, setIsPreloaded] = useState(coinCachedDetails != null);
 
   const handleMouseEnter = async () => {
     console.log("currentstateofcache", currentstateofcache);
@@ -65,7 +68,7 @@ const Coin = ({
     }
 
     // Check if the coin is currently being fetched
-    if (coinsBeingFetched.has(id)) {
+    if (coinsBeingFetched.includes(id)) {
       console.error(`Coin ${id} is currently being fetched.`);
       return;
     }
@@ -78,16 +81,17 @@ const Coin = ({
 
     // Check if fetching this coin would push us over the maximum count limit
     if (
-      currentPreloadedCoinIds.length + coinsBeingFetched.size >=
+      currentPreloadedCoinIds.length + coinsBeingFetched.length >=
       MAXIMUM_PRELOADED_COIN_COUNT
     ) {
       console.warn(`Fetching coin ${id} would exceed preloaded coin limit.`);
       return;
     }
 
-    // Add the coin ID to the set to indicate it's being fetched
-    coinsBeingFetched.add(id);
+    // Add the coin ID to the list of coins being fetched in Redux
+    dispatch(appInfoActions.addCoinBeingFetched({ coinId: id }));
 
+    console.log("coins being fetched"), coinsBeingFetched;
     console.log("start fetch");
 
     try {
@@ -148,7 +152,8 @@ const Coin = ({
     } catch (error) {
       console.error("Error preloading coin data:", error);
     } finally {
-      coinsBeingFetched.delete(id); // Remove from fetching set since fetch is complete
+      // Remove the coin ID from the list of coins being fetched in Redux
+      dispatch(appInfoActions.removeCoinBeingFetched({ coinId: id }));
     }
   };
 

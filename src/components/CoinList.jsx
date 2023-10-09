@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Coin from "./Coin/Coin";
 import styles from "./CoinList.module.css";
 import { TextField } from "@mui/material";
@@ -53,8 +53,6 @@ const CoinList = ({ initialHundredCoins }) => {
           (coinListPageNumber - 1) * PageSize + PageSize,
         ),
   );
-
-  const coinsBeingFetched = useRef(new Set());
 
   const currentPageCoins = useMemo(() => {
     const firstPageIndex = (coinListPageNumber - 1) * PageSize;
@@ -172,7 +170,6 @@ const CoinList = ({ initialHundredCoins }) => {
             image={coin.image}
             priceChange={coin.price_change_percentage_24h}
             coinSymbol={currentSymbol}
-            coinsBeingFetched={coinsBeingFetched.current}
           />
         );
       })}

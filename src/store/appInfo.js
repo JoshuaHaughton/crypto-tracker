@@ -4,6 +4,7 @@ import { withCommonActions } from "./commonActions";
 const initialAppInfoState = {
   coinListPageNumber: 1,
   isCoinDetailsPreloadedFromDB: false,
+  coinsBeingFetched: [],
 };
 
 // AppInfo Reducers
@@ -22,6 +23,25 @@ const appInfoSliceDefinition = {
     },
     finishCoinDetailsPreloading: (state) => {
       state.isCoinDetailsPreloadedFromDB = true;
+    },
+    // Add a coin to the list of coins being fetched
+    addCoinBeingFetched: (state, action) => {
+      console.log("addCoinBeingFetched", action);
+      if (!state.coinsBeingFetched.includes(action.payload.coinId)) {
+        state.coinsBeingFetched.push(action.payload.coinId);
+      }
+    },
+    // Remove a coin from the list of coins being fetched
+    removeCoinBeingFetched: (state, action) => {
+      console.log("removeCoinBeingFetched", action);
+      state.coinsBeingFetched = state.coinsBeingFetched.filter(
+        (coinId) => coinId !== action.payload.coinId,
+      );
+    },
+    // Reset the list of coins being fetched
+    resetCoinsBeingFetched: (state) => {
+      console.log("resetCoinsBeingFetched");
+      state.coinsBeingFetched = [];
     },
   },
 };
