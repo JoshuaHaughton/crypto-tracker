@@ -56,5 +56,5 @@ export const useDataInitialization = (store, serverGlobalCacheVersion) => {
     };
 
     initializeData();
-  }, [store, serverGlobalCacheVersion]);
+  }, []);
 };

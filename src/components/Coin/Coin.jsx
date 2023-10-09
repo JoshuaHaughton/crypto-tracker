@@ -164,13 +164,13 @@ const Coin = ({
           coinDetails: coinCachedDetails,
         }),
       );
-      console.log("ROUTER PUSH", selectedCoinDetails);
+      console.log("ROUTER PUSH WITH PRELOADED DATA", selectedCoinDetails);
       router.push(`/coin/${id}`);
     } else if (isPartOfPreloadedCoins && !isCoinDetailsPreloadedFromDB) {
       console.log("Waiting for specific preload to complete...");
       setWaitingForSpecificPreload(true);
     } else {
-      console.log("ROUTER PUSH without waiting", selectedCoinDetails);
+      console.log("ROUTER PUSH WITHOUT PRELOADED DATA", selectedCoinDetails);
       router.push(`/coin/${id}`);
     }
   };
@@ -190,7 +190,10 @@ const Coin = ({
         }),
       );
       setWaitingForSpecificPreload(false);
-      console.log("ROUTER PUSH after waiting", selectedCoinDetails);
+      console.log(
+        "ROUTER PUSH AFTER waiting for preloaded data",
+        selectedCoinDetails,
+      );
       router.push(`/coin/${id}`);
     }
   }, [waitingForSpecificPreload, isPreloaded]);

@@ -562,7 +562,9 @@ export const checkAndResetCache = async (store, serverGlobalCacheVersion) => {
     });
   } else {
     // If the server's globalCacheVersion is different from the client, then it's because new data was fetched there. In that case, we should use the data to dispatch
-    await store.dispatch(initializeCoinListCache());
+    await store.dispatch(
+      initializeCoinListCache({ indexedDBCacheIsValid: false }),
+    );
 
     // Calculate expiry time for the cookie
     const MILLISECONDS_IN_DAY = 1000 * 60 * 60 * 24;
