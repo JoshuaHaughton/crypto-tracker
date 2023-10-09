@@ -14,6 +14,7 @@ import { initializeCoinListCache } from "../thunks/coinListCacheThunk";
 import { updateStoreData } from "./store.utils";
 import { coinsActions } from "../store/coins";
 import { appInfoActions } from "../store/appInfo";
+import { postMessageToCurrencyTransformerWorker } from "./currencyTransformerService";
 
 /**
  * Clears cache for a specific table and key.
@@ -575,5 +576,65 @@ export const checkAndResetCache = async (store, serverGlobalCacheVersion) => {
     Cookie.set("globalCacheVersion", serverGlobalCacheVersion, {
       expires: timeLeftInDays,
     });
+  }
+};
+
+/**
+ * Preloads coin details by:
+ * - Sending a message to the currency transformer worker to transform details for all currencies.
+ * - Updating the Redux state with the fetched data for the current currency.
+ * - Saving the data for the current currency to IndexedDB.
+ * - Updating a cookie that tracks preloaded coins.
+ *
+ * @param {Object} dispatch - The dispatch method from the Redux store.
+ * @param {Object} coinDetails - The details of the coin to preload.
+ * @param {string} currentCurrency - The current currency.
+ * @param {Object} currencyRates - Currency conversion rates.
+ * @returns {Promise<void>}
+ */
+export const preloadCoinDetails = async (
+  dispatch,
+  coinDetails,
+  currentCurrency,
+  currencyRates,
+) => {
+  const coinId = coinDetails.coinInfo.id;
+  console.log(`Preloading details for coin ${coinId}`, coinDetails);
+
+  // Transform data for other currencies and store in state, IndexedDB & cookie
+  postMessageToCurrencyTransformerWorker({
+    type: "transformAllCoinDetailsCurrencies",
+    data: {
+      coinToTransform: coinDetails,
+      fromCurrency: currentCurrency.toUpperCase(),
+      currencyRates,
+      // Exclude current currency from transformation
+      currenciesToExclude: [currentCurrency.toUpperCase()],
+    },
+  });
+
+  // Update Redux state with fetched data
+  dispatch(
+    coinsActions.setCachedCoinDetailsByCurrency({
+      currency: currentCurrency,
+      coinData: coinDetails,
+    }),
+  );
+
+  // Save data for current currency to IndexedDB
+  await saveCoinDataForCurrencyInBrowser(
+    COINDETAILS_TABLENAME,
+    currentCurrency,
+    coinDetails,
+  );
+
+  // Update the cookie with preloaded coin IDs
+  let currentPreloadedCoinIds = JSON.parse(
+    Cookie.get("preloadedCoins") || "[]",
+  );
+  if (!currentPreloadedCoinIds.includes(coinId)) {
+    currentPreloadedCoinIds.push(coinId);
+    Cookie.set("preloadedCoins", JSON.stringify(currentPreloadedCoinIds));
+    console.log("Added coin to preloaded coins", coinId);
   }
 };

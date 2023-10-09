@@ -6,7 +6,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { coinsActions } from "../../store/coins";
 import { useState } from "react";
 import { fetchCoinDetailsFromCryptoCompare } from "../../utils/api.utils";
-import { saveCoinDataForCurrencyInBrowser } from "../../utils/cache.utils";
+import {
+  preloadCoinDetails,
+  saveCoinDataForCurrencyInBrowser,
+} from "../../utils/cache.utils";
 import {
   COINDETAILS_TABLENAME,
   MAXIMUM_PRELOADED_COIN_COUNT,
@@ -103,49 +106,11 @@ const Coin = ({
 
       const { initialRates, ...dataWithoutInitialRates } = detailedData;
 
-      // Transform this data for the other remaining currencies and store it in state, indexedDB & cookie (handled by worker)
-      postMessageToCurrencyTransformerWorker({
-        type: "transformAllCoinDetailsCurrencies",
-        data: {
-          coinToTransform: dataWithoutInitialRates,
-          fromCurrency: currentCurrency.toUpperCase(),
-          currencyRates,
-          // Only transform the ones that haven't been transformed yet
-          currenciesToExclude: [currentCurrency.toUpperCase()],
-        },
-      });
-
-      // Update the Redux state with the fetched data for the current currency
-      dispatch(
-        coinsActions.setCachedCoinDetailsByCurrency({
-          currency: currentCurrency,
-          coinData: dataWithoutInitialRates,
-        }),
-      );
-
-      // Save the data for the current currency to IndexedDB
-      await saveCoinDataForCurrencyInBrowser(
-        COINDETAILS_TABLENAME,
-        currentCurrency,
+      await preloadCoinDetails(
+        dispatch,
         dataWithoutInitialRates,
-      );
-
-      // Get the updated state of the cookie in case other coins were preloaded
-      currentPreloadedCoinIds = JSON.parse(
-        Cookie.get("preloadedCoins") || "[]",
-      );
-      console.log("currentPreloadedCoinIds2", currentPreloadedCoinIds);
-
-      // Add the new coin ID if it's not already there
-      if (!currentPreloadedCoinIds.includes(id)) {
-        currentPreloadedCoinIds.push(id);
-      }
-
-      // Update the cookie with the extended list of coin IDs
-      Cookie.set("preloadedCoins", JSON.stringify(currentPreloadedCoinIds));
-      console.log(
-        "SET PRELOADED COOKIE",
-        JSON.stringify(currentPreloadedCoinIds),
+        currentCurrency,
+        currencyRates,
       );
 
       setIsPreloaded(true); // Mark this coin as preloaded
