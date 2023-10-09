@@ -26,7 +26,10 @@ import {
   fetchDataFromIndexedDB,
   isCacheValid,
 } from "../../src/utils/cache.utils";
-import { COINLISTS_TABLENAME } from "../../src/global/constants";
+import {
+  COINLISTS_TABLENAME,
+  SYMBOLS_BY_CURRENCIES,
+} from "../../src/global/constants";
 import Cookie from "js-cookie";
 
 const Coin = () => {
@@ -649,7 +652,6 @@ export async function getServerSideProps(context) {
       props: {
         initialReduxState: {
           coins: {
-            ...initialCoinsState,
             selectedCoinDetails: {
               coinInfo,
               marketChartValues,
@@ -657,7 +659,6 @@ export async function getServerSideProps(context) {
               chartValues,
             },
             selectedCoinDetailsByCurrency: {
-              ...initialCoinsState.selectedCoinDetailsByCurrency,
               [initialCurrencyState.initialCurrency]: {
                 coinInfo,
                 marketChartValues,
@@ -666,7 +667,6 @@ export async function getServerSideProps(context) {
               },
             },
             cachedCoinDetailsByCurrency: {
-              ...initialCoinsState.cachedCoinDetailsByCurrency,
               [initialCurrencyState.initialCurrency]: {
                 [coinInfo.symbol.toUpperCase()]: {
                   coinInfo,
@@ -678,7 +678,8 @@ export async function getServerSideProps(context) {
             },
           },
           currency: {
-            ...initialCurrencyState,
+            currentCurrency,
+            symbol: SYMBOLS_BY_CURRENCIES[currentCurrency],
             currencyRates: initialRates,
           },
         },
@@ -690,7 +691,11 @@ export async function getServerSideProps(context) {
       props: {
         initialReduxState: {
           coins: initialCoinsState,
-          currency: initialCurrencyState,
+          currency: {
+            ...initialCurrencyState,
+            currentCurrency,
+            symbol: SYMBOLS_BY_CURRENCIES[currentCurrency],
+          },
         },
       },
     };

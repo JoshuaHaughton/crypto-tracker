@@ -55,10 +55,12 @@ export const updateCurrency = createAsyncThunk(
         // Update the currency state after all coins have been updated
         dispatch(currencyActions.changeCurrency(payload));
       } else {
-        // need to make sure we actually update the currency after ( dispatch(currencyActions.changeCurrency({ currency: toCurrency }));)
+        // We update the currency after the transformations when not using the cache iside of the transformerworker so that we call it as soon as it's ready
 
         // CoinDetails Cache doesn't exist
         console.log("CACHE NOT USED - COIN DETAILS");
+        console.log("why cach wasnt used:", cachedCoinDetailsByCurrency);
+        console.log("selectedCoinDetails", selectedCoinDetails);
         // Only transform the requested currency first to save time. Then, we cache the rest
         postMessageToCurrencyTransformerWorker({
           type: "transformCoinDetailsCurrency",
@@ -69,7 +71,7 @@ export const updateCurrency = createAsyncThunk(
             currencyRates: initialRates,
           },
         });
-        // Re-attempt caching all coins - if one doesn't exist, then there's a good chance that there's more than one
+        // Re-attempt caching all coins - if one doesn't exist, then we assume there's none that do
         postMessageToCurrencyTransformerWorker({
           type: "transformAllCoinDetailsCurrencies",
           data: {
@@ -103,6 +105,8 @@ export const updateCurrency = createAsyncThunk(
       // Update the currency state after all coins have been updated
       dispatch(currencyActions.changeCurrency(payload));
     } else {
+      // We update the currency after the transformations when not using the cache iside of the transformerworker so that we call it as soon as it's ready
+
       // CoinList Cache doesn't exist
       console.log("CACHE NOT USED - COIN LIST");
       // Only transform the requested currency first to save time. Then, we cache the rest

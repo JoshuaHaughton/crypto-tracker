@@ -466,6 +466,7 @@ export const fetchUpdateAndReinitalizeCoinListCache = async (
  * @returns {Promise<void>} Returns a promise indicating success or failure.
  */
 export const loadCachedCoinDetailsToRedux = async (currency, dispatch) => {
+  console.log("loadCachedCoinDetailsToRedux");
   try {
     const fetchedData = await fetchDataFromIndexedDB(
       COINDETAILS_TABLENAME,
@@ -474,6 +475,7 @@ export const loadCachedCoinDetailsToRedux = async (currency, dispatch) => {
 
     // Check if data exists and has coinData
     if (fetchedData && fetchedData.coinData) {
+      console.log("data exists and has coinData", fetchedData);
       dispatch(
         coinsActions.setCachedCoinDetailsForCurrency({
           currency,

@@ -62,11 +62,9 @@ export async function getServerSideProps(context) {
 
       initialReduxState = {
         coins: {
-          ...initialCoinsState,
           ...coinListData.coins,
         },
         currency: {
-          ...initialCurrencyState,
           ...coinListData.currency,
         },
       };
@@ -76,7 +74,6 @@ export async function getServerSideProps(context) {
       initialReduxState = {
         coins: initialCoinsState,
         currency: {
-          ...initialCurrencyState,
           currentCurrency,
           symbol: SYMBOLS_BY_CURRENCIES[currentCurrency],
         },

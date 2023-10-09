@@ -31,11 +31,12 @@ export const getOrInitializeStore = (
 
   // If the store doesn't exist, create a new one
   if (!reduxStore) {
+    console.warn("creating new redux store");
     reduxStore = initializeStore(initialState);
   } else if (clientGlobalCacheVersion !== serverGlobalCacheVersion) {
     // If the store does exist, and the data from the server is fresh,
     // update it with the new data from the server
-    console.log("me calling");
+    console.warn("clientGlobalCacheVersion !== serverGlobalCacheVersion");
     updateStoreData(reduxStore, initialState);
   }
 

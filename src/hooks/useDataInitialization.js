@@ -34,7 +34,7 @@ const preloadSelectedCoinDetails = async (store) => {
       currencyRates,
     );
   } else {
-    console.log("We did nto start with CoinDetals data from server.");
+    console.log("We did not start with CoinDetals data from server.");
   }
 };
 
@@ -75,6 +75,7 @@ export const useDataInitialization = (store, serverGlobalCacheVersion) => {
   useEffect(() => {
     console.log("useDataInitialization");
     const initializeData = async () => {
+      //should init gcv
       const areNecessaryCachesValid = await validateAndClearCache(
         serverGlobalCacheVersion,
       );
