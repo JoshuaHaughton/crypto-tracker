@@ -67,6 +67,12 @@ const coinsSliceDefinition = {
       state.cachedCoinDetailsByCurrency[currency][coinData.coinInfo.id] =
         coinData;
     },
+    // todo, combine with above
+    setCachedCoinDetailsForCurrency(state, action) {
+      console.log("setCachedCoinDetailsForCurrency", action);
+      const { currency, coinData } = action.payload;
+      state.cachedCoinDetailsByCurrency[currency] = coinData;
+    },
   },
 };
 

@@ -12,6 +12,7 @@ import { initializeStore } from "../store";
 import { fetchDataForCoinListCacheInitialization } from "./api.utils";
 import { initializeCoinListCache } from "../thunks/coinListCacheThunk";
 import { updateStoreData } from "./store.utils";
+import { coinsActions } from "../store/coins";
 
 /**
  * Clears cache for a specific table and key.
@@ -90,7 +91,10 @@ export const saveCoinDataForCurrencyInBrowser = async (
       // Merge the new coin data into the existing data for the currency
       const mergedCoinData = {
         ...existingCoinData,
-        [coinSymbol]: coinData,
+        coinData: {
+          ...(existingCoinData.coinData || {}), // spread existing coinData if it exists
+          [coinSymbol]: coinData,
+        },
       };
 
       // Add the currency property to the mergedCoinData object for indexedDB queries
@@ -157,6 +161,24 @@ export const validateCacheDataForTable = async (tableName) => {
           }
           break;
 
+        case COINDETAILS_TABLENAME:
+          // Validate CoinDetails data
+          if (!dataForCurrency || Object.keys(dataForCurrency).length < 2) {
+            console.warn(`Invalid coinDetails data for currency: ${currency}`);
+            return false;
+          }
+
+          for (const rateCurrency in dataForCurrency) {
+            const rateValue = dataForCurrency.rates[rateCurrency];
+            if (typeof rateValue !== "number" || isNaN(rateValue)) {
+              console.warn(
+                `Invalid currency rate value for ${rateCurrency} in ${currency}`,
+              );
+              return false;
+            }
+          }
+          break;
+
         default:
           console.warn(`Unsupported table name: ${tableName}`);
           return false;
@@ -174,7 +196,7 @@ export const validateCacheDataForTable = async (tableName) => {
 };
 
 /**
- * Removes data for a given coin from THE COINDETAILS table in the IndexedDB for all currencies.
+ * Removes data for a given coin from the COINDETAILS table in the IndexedDB for all currencies.
  *
  * @param {string} coinId - The ID of the coin to remove.
  * @returns {Promise<void>} Returns a promise indicating success or failure of the removal operation.
@@ -184,13 +206,29 @@ export const removeCoinDetailsFromIndexedDBForAllCurrencies = async (
 ) => {
   try {
     const removalPromises = ALL_CURRENCIES.map(async (currency) => {
-      await fetchDataFromIndexedDB(COINDETAILS_TABLENAME, [
-        coinId,
+      // Fetch the existing data for the currency
+      const existingData = await fetchDataFromIndexedDB(
+        COINDETAILS_TABLENAME,
         currency,
-      ]).delete();
-      console.log(
-        `Data for coin ${coinId} and currency ${currency} removed from table ${COINDETAILS_TABLENAME}`,
       );
+
+      if (
+        existingData &&
+        existingData.coinData &&
+        existingData.coinData[coinId]
+      ) {
+        // Remove the coin data from the existing data
+        delete existingData.coinData[coinId];
+
+        // Store the updated data back into the database
+        await fetchDataFromIndexedDB(COINDETAILS_TABLENAME, currency).put(
+          existingData,
+        );
+
+        console.log(
+          `Data for coin ${coinId} and currency ${currency} removed from table ${COINDETAILS_TABLENAME}`,
+        );
+      }
     });
 
     await Promise.all(removalPromises);
@@ -416,6 +454,70 @@ export const fetchUpdateAndReinitalizeCoinListCache = async (
   store.dispatch(
     initializeCoinListCache({ indexedDBCacheIsValid: isCacheValid }),
   );
+};
+
+/**
+ * Loads cached coin details for a given currency into Redux if available.
+ *
+ * @param {string} currency - The currency for which the cache needs to be loaded.
+ * @param {function} dispatch - The dispatch method from the store.
+ * @returns {Promise<void>} Returns a promise indicating success or failure.
+ */
+export const loadCachedCoinDetailsToRedux = async (currency, dispatch) => {
+  try {
+    const fetchedData = await fetchDataFromIndexedDB(
+      COINDETAILS_TABLENAME,
+      currency,
+    );
+
+    // Check if data exists and has coinData
+    if (fetchedData && fetchedData.coinData) {
+      dispatch(
+        coinsActions.setCachedCoinDetailsForCurrency({
+          currency,
+          coinData: fetchedData.coinData,
+        }),
+      );
+    } else if (fetchedData && !fetchedData.coinData) {
+      // Data exists, but coinData is empty
+      console.warn(
+        `Fetched CoinDetails preloaded data for ${currency} is empty.`,
+      );
+    } else {
+      // No data fetched
+      console.warn(
+        `No data found in CoinDetails preloaded cache for ${currency}.`,
+      );
+    }
+  } catch (error) {
+    console.error(
+      `Error fetching CoinDetails preloaded data for ${currency}:`,
+      error,
+    );
+  }
+};
+
+/**
+ * Loads cached coin details for all supported currencies into Redux.
+ *
+ * Iterates through each supported currency and attempts to load the
+ * cached coin details from IndexedDB into the Redux store.
+ *
+ * @param {Object} dispatch - The dispatch method from the Redux store.
+ * @returns {Promise<void>} Returns a promise indicating success or failure of the loading operation.
+ */
+export const loadAllCachedCoinDetailsToRedux = async (dispatch) => {
+  // Iterate through each supported currency
+  for (const currency of ALL_CURRENCIES) {
+    try {
+      await loadCachedCoinDetailsToRedux(currency, dispatch);
+    } catch (error) {
+      console.error(
+        `Error attempting to load CoinDetails preloaded cache for currency ${currency} into Redux:`,
+        error,
+      );
+    }
+  }
 };
 
 /**

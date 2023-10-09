@@ -36,6 +36,9 @@ const Coin = ({
   const cachedDetails = useSelector(
     (state) => state.coins.cachedCoinDetailsByCurrency[currentCurrency],
   );
+  const coinCachedDetails = useSelector(
+    (state) => state.coins.cachedCoinDetailsByCurrency[currentCurrency][id],
+  );
   const currentstateofcache = useSelector(
     (state) => state.coins.cachedCoinDetailsByCurrency,
   );
@@ -144,10 +147,12 @@ const Coin = ({
     if (isPreloaded) {
       dispatch(
         coinsActions.updateSelectedCoin({
-          coinDetails: cachedDetails[id],
+          coinDetails: coinCachedDetails,
         }),
       );
+      console.log("PRELOADED DATA BEING USED", coinCachedDetails);
     }
+    console.log("ROUTER PUSH");
     router.push(`/coin/${id}`);
   };
 

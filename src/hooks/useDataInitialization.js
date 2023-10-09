@@ -1,9 +1,14 @@
 import { useEffect } from "react";
 import {
+  fetchDataFromIndexedDB,
   fetchUpdateAndReinitalizeCoinListCache,
+  loadAllCachedCoinDetailsToRedux,
   validateAndClearCache,
+  validateCacheDataForTable,
 } from "../utils/cache.utils";
 import { initializeCoinListCache } from "../thunks/coinListCacheThunk";
+import { COINDETAILS_TABLENAME } from "../global/constants";
+import { coinsActions } from "../store/coins";
 
 /**
  * Handles the initialization of CoinLists data based on the cache validity and initial data available.
@@ -42,10 +47,11 @@ const handleCoinListInitialization = async (store, isCacheValid) => {
 export const useDataInitialization = (store, serverGlobalCacheVersion) => {
   useEffect(() => {
     const initializeData = async () => {
-      const isCacheValid = await validateAndClearCache(
+      const areNecessaryCachesValid = await validateAndClearCache(
         serverGlobalCacheVersion,
       );
-      await handleCoinListInitialization(store, isCacheValid);
+      handleCoinListInitialization(store, areNecessaryCachesValid);
+      loadAllCachedCoinDetailsToRedux(store.dispatch);
     };
 
     initializeData();
