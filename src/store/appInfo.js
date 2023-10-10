@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { withCommonActions } from "./commonActions";
 
-const initialAppInfoState = {
+export const initialAppInfoState = {
   coinListPageNumber: 1,
   isCoinDetailsPreloadedFromDB: false,
   coinsBeingFetched: [],

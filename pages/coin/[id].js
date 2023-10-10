@@ -659,7 +659,7 @@ export async function getServerSideProps(context) {
               chartValues,
             },
             selectedCoinDetailsByCurrency: {
-              [initialCurrencyState.initialCurrency]: {
+              [currentCurrency]: {
                 coinInfo,
                 marketChartValues,
                 marketValues,
@@ -667,7 +667,7 @@ export async function getServerSideProps(context) {
               },
             },
             cachedCoinDetailsByCurrency: {
-              [initialCurrencyState.initialCurrency]: {
+              [currentCurrency]: {
                 [coinInfo.symbol.toUpperCase()]: {
                   coinInfo,
                   marketChartValues,
@@ -692,7 +692,6 @@ export async function getServerSideProps(context) {
         initialReduxState: {
           coins: initialCoinsState,
           currency: {
-            ...initialCurrencyState,
             currentCurrency,
             symbol: SYMBOLS_BY_CURRENCIES[currentCurrency],
           },

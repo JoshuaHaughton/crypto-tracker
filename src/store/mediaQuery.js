@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { withCommonActions } from "./commonActions";
 
-const initialMediaQueryState = {
+export const initialMediaQueryState = {
   isBreakpoint380: false,
   isBreakpoint520: false,
   isBreakpoint555: false,

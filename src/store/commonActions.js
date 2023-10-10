@@ -1,4 +1,4 @@
-import { deepMerge, isEmpty } from "../utils/global.utils";
+import { merge, isEmpty } from "lodash";
 
 /**
  * Enhances the given Redux slice with common actions and reducers.
@@ -22,7 +22,7 @@ export function withCommonActions(slice) {
           action.payload[key] !== null
         ) {
           if (!state[key]) state[key] = {};
-          deepMerge(state[key], action.payload[key]);
+          merge(state[key], action.payload[key]); // Using Lodash's merge here
         } else {
           state[key] = action.payload[key];
         }

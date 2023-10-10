@@ -1,15 +1,24 @@
+import { merge } from "lodash";
 import { configureStore } from "@reduxjs/toolkit";
 import currencyReducer, { initialCurrencyState } from "./currency";
-import coinsReducer from "./coins";
-import appInfoReducer from "./appInfo";
-import mediaQueryReducer from "./mediaQuery";
+import coinsReducer, { initialCoinsState } from "./coins";
+import appInfoReducer, { initialAppInfoState } from "./appInfo";
+import mediaQueryReducer, { initialMediaQueryState } from "./mediaQuery";
 import { updateStoreData } from "../utils/store.utils";
 import Cookie from "js-cookie";
+import { deepMerge } from "../utils/global.utils";
 
 /**
  * Global reference to the Redux store.
  */
 let reduxStore;
+
+const initialStates = {
+  currency: initialCurrencyState,
+  coins: initialCoinsState,
+  appInfo: initialAppInfoState,
+  mediaQuery: initialMediaQueryState,
+};
 
 /**
  * Gets the existing Redux store or initializes a new one.
@@ -50,6 +59,13 @@ export const getOrInitializeStore = (
  */
 export function initializeStore(initialState = {}) {
   console.log("initializeStore");
+
+  // Set preloadedState using a loop
+  const preloadedState = merge({}, initialStates, initialState);
+  console.log("initialStates", initialStates);
+  console.log("initialState", initialState);
+  console.log("preloadedState", preloadedState);
+
   reduxStore = configureStore({
     reducer: {
       currency: currencyReducer,
@@ -57,7 +73,7 @@ export function initializeStore(initialState = {}) {
       appInfo: appInfoReducer,
       mediaQuery: mediaQueryReducer,
     },
-    preloadedState: initialState,
+    preloadedState: preloadedState,
   });
 
   return reduxStore;

@@ -21,7 +21,7 @@ export const sliceActionMap = {
  * @param {Object} storeUpdates - The updated state to merge into the existing state.
  */
 export function updateStoreData(reduxStore, storeUpdates) {
-  console.log("reduxStore", reduxStore);
+  console.log("reduxStore", reduxStore.getState());
   console.log("storeUpdates", storeUpdates);
 
   if (
