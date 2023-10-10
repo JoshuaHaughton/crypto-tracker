@@ -243,6 +243,31 @@ export const removeCoinDetailsFromIndexedDBForAllCurrencies = async (
 };
 
 /**
+ * Updates the global cache version cookie with the current timestamp.
+ *
+ * @param {number} [serverTimestamp] - An optional server timestamp to set as the cookie value.
+ */
+export const updateGlobalCacheVersion = (serverTimestamp) => {
+  let valueToSet = Date.now().toString();
+
+  if (serverTimestamp) {
+    valueToSet = serverTimestamp.toString();
+
+    // Calculate expiry time for the cookie
+    const MILLISECONDS_IN_DAY = 1000 * 60 * 60 * 24;
+    const timeLeftInDays =
+      (serverTimestamp + 5 * 60 * 1000 - Date.now()) / MILLISECONDS_IN_DAY;
+
+    Cookie.set("globalCacheVersion", valueToSet, {
+      expires: timeLeftInDays,
+    });
+  } else {
+    Cookie.set("globalCacheVersion", valueToSet);
+  }
+  console.warn("globalCacheVersion updated", valueToSet);
+};
+
+/**
  * Validates if the necessary caches in IndexedDB are valid.
  *
  * @param {number} [serverGlobalCacheVersion] - The global cache version from the server (optional, and should not be provided by the client cookie).
@@ -255,11 +280,17 @@ export const areNecessaryCachesValid = async (serverGlobalCacheVersion) => {
   const currentTime = Date.now();
   const fiveMinutesInMilliseconds = 5 * 60 * 1000;
   const clientGlobalCacheVersion = Cookie.get("globalCacheVersion");
+  console.log("clientGlobalCacheVersion", clientGlobalCacheVersion);
 
   let shouldResetCache =
+    !clientGlobalCacheVersion ||
     currentTime - clientGlobalCacheVersion > fiveMinutesInMilliseconds;
 
-  if (process.env.NODE_ENV !== "development" && serverGlobalCacheVersion) {
+  if (
+    process.env.NODE_ENV !== "development" &&
+    serverGlobalCacheVersion &&
+    clientGlobalCacheVersion
+  ) {
     shouldResetCache =
       shouldResetCache || serverGlobalCacheVersion !== clientGlobalCacheVersion;
   }
@@ -292,7 +323,7 @@ export const areNecessaryCachesValid = async (serverGlobalCacheVersion) => {
 };
 
 /**
- * Clears cache from indexedDB, and cookies.
+ * Clears cache from indexedDB, and cookie.
  */
 export const clearAllCaches = async () => {
   console.warn("CLEARING ALL CACHES");
@@ -388,6 +419,8 @@ export const fetchCurrencyDataFromIndexedDB = async (
  *
  * If `shouldIgnoreCache` is set to true, the function directly fetches the coin list data from the API.
  *
+ * If new data was fetched rom the API, the globalCacheVersion is updaed accordingly.
+ *
  * @param {Object} store - The Redux store to update with the fetched data.
  * @param {boolean} indexedDBCacheIsValid - A flag indicating whether the cache is valid or not. If passed, will not do another indexedDB request.
  * @returns {Promise<void>} - A promise that resolves when the store is updated and the cache is reinitialized.
@@ -449,6 +482,7 @@ export const fetchUpdateAndReinitalizeCoinListCache = async (
     coinListCacheData = await fetchDataForCoinListCacheInitialization(
       currentCurrency,
     );
+    updateGlobalCacheVersion();
     storeCurrencyRatesInIndexedDB(coinListCacheData.currency.currencyRates);
   }
 
@@ -558,26 +592,13 @@ export const checkAndResetCache = async (store, serverGlobalCacheVersion) => {
   // If the server's cache version matches the client's, fetch fresh data and then update the store because the cache is invalid for some other reason than server expiry - like the version expiring on the client (coin page since we don't return a new GCV), or being malformed for some reason.
   if (serverGlobalCacheVersion === clientGlobalCacheVersion) {
     await fetchUpdateAndReinitalizeCoinListCache(store, false);
-
-    const currentTime = Date.now().toString();
-    Cookie.set("globalCacheVersion", currentTime, {
-      expires: GLOBALCACHEVERSION_COOKIE_EXPIRY_TIME,
-    });
+    updateGlobalCacheVersion();
   } else {
     // If the server's globalCacheVersion is different from the client, then it's because new data was fetched there. In that case, we should use the data to dispatch
     await store.dispatch(
       initializeCoinListCache({ indexedDBCacheIsValid: false }),
     );
-
-    // Calculate expiry time for the cookie
-    const MILLISECONDS_IN_DAY = 1000 * 60 * 60 * 24;
-    const timeLeftInDays =
-      (serverGlobalCacheVersion + 5 * 60 * 1000 - Date.now()) /
-      MILLISECONDS_IN_DAY;
-
-    Cookie.set("globalCacheVersion", serverGlobalCacheVersion, {
-      expires: timeLeftInDays,
-    });
+    updateGlobalCacheVersion(serverGlobalCacheVersion);
   }
 };
 

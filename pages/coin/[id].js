@@ -615,21 +615,20 @@ export async function getServerSideProps(context) {
   let initialCoinsState = defaultInitialCoinsState;
   let initialCurrencyState = defaultInitialCurrencyState;
 
-  const refererHeader = context.req.headers.referer;
-  const currentURL = `http://${context.req.headers.host}${context.req.url}`;
+  const usePreloadedData = cookies.usePreloadedData === "true";
+  // Before returning, make sure to delete the "usePreloadedData" cookie to reset it for the next navigation
+  context.res.setHeader("Set-Cookie", "usePreloadedData=; Max-Age=-1; Path=/;");
 
   // If the coin is preloaded, the globalCacheVersion is recent, and the referer is different from the current URL
   if (
+    usePreloadedData &&
     preloadedCoins.includes(id) &&
-    currentTimestamp - parseInt(globalCacheVersion) <
-      fiveMinutesInMilliseconds &&
-    refererHeader &&
-    refererHeader !== currentURL
+    currentTimestamp - parseInt(globalCacheVersion) < fiveMinutesInMilliseconds
   ) {
     console.log(
       "use cached data for coins page! Not returning initialReduxState from server",
     );
-    return { props: {} };
+    return { props: { globalCacheVersion } };
   }
 
   console.log("fetch new data for coins page...");
@@ -683,6 +682,7 @@ export async function getServerSideProps(context) {
             currencyRates: initialRates,
           },
         },
+        globalCacheVersion,
       },
     };
   } catch (err) {
@@ -696,6 +696,7 @@ export async function getServerSideProps(context) {
             symbol: SYMBOLS_BY_CURRENCIES[currentCurrency],
           },
         },
+        globalCacheVersion,
       },
     };
   }

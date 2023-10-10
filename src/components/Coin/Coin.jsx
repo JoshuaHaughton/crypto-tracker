@@ -135,9 +135,13 @@ const Coin = ({
         }),
       );
       console.log("ROUTER PUSH WITH PRELOADED DATA", selectedCoinDetails);
+      // Set the cookie when the coin is clicked
+      Cookie.set("usePreloadedData", "true");
       router.push(`/coin/${id}`);
     } else if (isPartOfPreloadedCoins && !isCoinDetailsPreloadedFromDB) {
       console.log("Waiting for specific preload to complete...");
+      // Set the cookie when the coin is clicked
+      Cookie.set("usePreloadedData", "true");
       setWaitingForSpecificPreload(true);
     } else {
       console.log("ROUTER PUSH WITHOUT PRELOADED DATA", selectedCoinDetails);
