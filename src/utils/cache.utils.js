@@ -15,6 +15,7 @@ import { updateStoreData } from "./store.utils";
 import { coinsActions } from "../store/coins";
 import { appInfoActions } from "../store/appInfo";
 import { postMessageToCurrencyTransformerWorker } from "./currencyTransformerService";
+import { preloadSelectedCoinDetails } from "../hooks/useDataInitialization";
 
 /**
  * Clears cache for a specific table and key.
@@ -593,12 +594,21 @@ export const checkAndResetCache = async (store, serverGlobalCacheVersion) => {
   if (serverGlobalCacheVersion === clientGlobalCacheVersion) {
     await fetchUpdateAndReinitalizeCoinListCache(store, false);
     updateGlobalCacheVersion();
-  } else {
-    // If the server's globalCacheVersion is different from the client, then it's because new data was fetched there. In that case, we should use the data to dispatch
-    await store.dispatch(
-      initializeCoinListCache({ indexedDBCacheIsValid: false }),
-    );
+    return;
+  }
+
+  // If the server's globalCacheVersion is different from the client, then it's because new data was fetched there. In that case, we should use the data to dispatch
+  if (store.getState().coins.displayedCoinListCoins.length > 0) {
+    // New CoinLists Data
+    console.warn("New CoinLists Data");
+    store.dispatch(initializeCoinListCache({ indexedDBCacheIsValid: false }));
     updateGlobalCacheVersion(serverGlobalCacheVersion);
+  } else if (
+    Object.keys(store.getState().coins.selectedCoinDetails).length > 0
+  ) {
+    // New CoinDetail Data
+    console.warn("New CoinDetail Data");
+    await preloadSelectedCoinDetails(store);
   }
 };
 

@@ -87,12 +87,6 @@ export async function getServerSideProps(context) {
     "s-maxage=300, stale-while-revalidate",
   );
 
-  // Set the globalCacheVersion cookie
-  context.res.setHeader(
-    "Set-Cookie",
-    `globalCacheVersion=${newGlobalCacheVersion}; Path=/`,
-  );
-
   return {
     props: {
       initialReduxState,

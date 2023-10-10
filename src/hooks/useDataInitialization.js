@@ -16,7 +16,7 @@ import { initializeCoinListCache } from "../thunks/coinListCacheThunk";
  * @param {Object} store - The Redux store.
  * @returns {Promise<void>}
  */
-const preloadSelectedCoinDetails = async (store) => {
+export const preloadSelectedCoinDetails = async (store) => {
   const selectedCoinDetails = store.getState().coins.selectedCoinDetails;
   const currentCurrency = store.getState().currency.currentCurrency;
   const currencyRates = store.getState().currency.currencyRates;
@@ -75,7 +75,6 @@ export const useDataInitialization = (store, serverGlobalCacheVersion) => {
   useEffect(() => {
     console.log("useDataInitialization");
     const initializeData = async () => {
-      //should init gcv
       const areNecessaryCachesValid = await validateAndClearCache(
         serverGlobalCacheVersion,
       );
