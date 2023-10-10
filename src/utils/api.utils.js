@@ -24,6 +24,7 @@ export async function fetchBaseDataFromCryptoCompare(
     fetchOptions,
   );
   const exchangeData = await exchangeRateResponse.json();
+  console.warn('exchangeData - preload', exchangeData);
 
   const initialRates = {
     CAD: {
