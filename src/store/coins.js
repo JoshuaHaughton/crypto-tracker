@@ -63,10 +63,6 @@ const coinsSliceDefinition = {
     },
     setCachedCoinDetailsByCurrency(state, action) {
       console.log("setCachedCoinDetailsByCurrency", action);
-      console.log(
-        "setCachedCoinDetailsByCurrency",
-        state.cachedCoinDetailsByCurrency,
-      );
       const { currency, coinData } = action.payload;
       state.cachedCoinDetailsByCurrency[currency][coinData.coinInfo.id] =
         coinData;
