@@ -10,6 +10,7 @@ import { initialCurrencyState } from "../src/store/currency";
 import { fetchDataForCoinListCacheInitialization } from "../src/utils/api.utils";
 import {
   FIVE_MINUTES_IN_MS,
+  FIVE_MINUTES_IN_SECONDS,
   TEN_YEARS_IN_SECONDS,
 } from "../src/global/constants";
 
@@ -41,43 +42,33 @@ export async function getServerSideProps(context) {
   const clientGlobalCacheVersion = parseInt(
     context.req.cookies.globalCacheVersion || "0",
   );
-  /**
-   * @type {number}
-   * @description Represents the last time the server made a successful fetch.
-   * This timestamp is used to validate the client's globalCacheVersion cookie.
-   * If the client's version is older than this, it indicates that the client's
-   * data might be outdated, prompting a new fetch.
-   */
-  const lastServerFetchTimestamp = parseInt(
-    context.req.cookies.lastServerFetchTimestamp || "0",
-  );
+  const usePreloadedData = context.req.cookies.usePreloadedData === "true";
+  let currentTimestamp = Date.now();
 
-  console.log("lastServerFetchTimestamp", lastServerFetchTimestamp);
-  console.log("clientGlobalCacheVersion", clientGlobalCacheVersion);
+  // Calculate the time difference between now and the last globalCacheVersion
+  const timeSinceLastFetch = currentTimestamp - clientGlobalCacheVersion;
 
-  let shouldFetchData = false;
-  if (!lastServerFetchTimestamp) {
-    console.log("Data not fetched on server, fetching new data");
-    shouldFetchData = true;
-  } else if (clientGlobalCacheVersion < lastServerFetchTimestamp) {
-    console.log("Client cache version is invalid, fetching new data");
-    shouldFetchData = true;
-  } else if (clientGlobalCacheVersion > lastServerFetchTimestamp) {
-    console.log("Client has newer cache version");
-    // we'd only assume it was preloaded if we were sent the usePreloadedcookie as well
-    shouldFetchData = true;
+  let shouldFetchData = timeSinceLastFetch >= FIVE_MINUTES_IN_MS;
+
+  if (usePreloadedData && !shouldFetchData) {
+    console.log(
+      "Client has a recent globalCacheVersion and data was preloaded. Assuming data is up-to-date.",
+    );
+    shouldFetchData = false;
   } else {
-    console.log("Client and server cache version match, using cached data");
+    console.log("Fetching new CoinLists data on the server");
   }
 
   let initialReduxState;
-  let globalCacheVersion = lastServerFetchTimestamp.toString();
+  let globalCacheVersion = clientGlobalCacheVersion.toString();
 
   if (shouldFetchData) {
     try {
       const coinListData = await fetchDataForCoinListCacheInitialization(
         currentCurrency,
       );
+      // Update the timestamp after the fetch has completed
+      currentTimestamp = Date.now();
 
       initialReduxState = {
         coins: {
@@ -88,13 +79,17 @@ export async function getServerSideProps(context) {
         },
       };
 
-      const currentTimestamp = Date.now();
       globalCacheVersion = currentTimestamp.toString();
 
-      // Update the cookie with the latest fetch time and set it to "never" expire (10 years)
+      // Update the cookie with the latest globalCacheVersion and set it to expire in 5 mins
       context.res.setHeader("Set-Cookie", [
-        `lastServerFetchTimestamp=${currentTimestamp}; Path=/; HttpOnly Max-Age=${TEN_YEARS_IN_SECONDS}`,
+        `globalCacheVersion=${globalCacheVersion}; Path=/; HttpOnly Max-Age=${FIVE_MINUTES_IN_SECONDS}`,
       ]);
+      // Set Cache-Control header for 5 minutes
+      context.res.setHeader(
+        "Cache-Control",
+        `s-maxage=${FIVE_MINUTES_IN_SECONDS}, stale-while-revalidate`,
+      );
     } catch (err) {
       console.log(err);
       // Return default or placeholder data to prevent breaking the site
@@ -105,9 +100,12 @@ export async function getServerSideProps(context) {
           symbol: SYMBOLS_BY_CURRENCIES[currentCurrency],
         },
       };
-      globalCacheVersion = lastServerFetchTimestamp;
+      globalCacheVersion = clientGlobalCacheVersion.toString();
     }
   }
+
+  // Before returning, make sure to delete the "usePreloadedData" cookie to reset it for the next navigation
+  context.res.setHeader("Set-Cookie", "usePreloadedData=; Max-Age=-1; Path=/;");
 
   return {
     props: {
