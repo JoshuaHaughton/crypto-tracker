@@ -24,7 +24,7 @@ export async function fetchBaseDataFromCryptoCompare(
     fetchOptions,
   );
   const exchangeData = await exchangeRateResponse.json();
-  console.warn('exchangeData - preload', exchangeData);
+  console.warn("exchangeData - preload", exchangeData);
 
   const initialRates = {
     CAD: {
@@ -291,7 +291,7 @@ export const fetchDataForCoinListCacheInitialization = async (
         trendingCarouselCoins: trendingCarouselCoins,
         coinListCoinsByCurrency: {
           ...initialCoinsState.coinListCoinsByCurrency,
-          [initialCurrencyState.initialCurrency]: initialHundredCoins,
+          [targetCurrency]: initialHundredCoins,
         },
       },
       currency: {

@@ -36,50 +36,37 @@ export default function Home() {
 }
 
 export async function getServerSideProps(context) {
-  // Retrieve the currency and globalCacheVersion from the request cookies
+  // Retrieve cookies
   const currentCurrency =
     context.req.cookies.currentCurrency || initialCurrencyState.currentCurrency;
   const clientGlobalCacheVersion = parseInt(
     context.req.cookies.globalCacheVersion || "0",
   );
   const usePreloadedData = context.req.cookies.usePreloadedData === "true";
-  let currentTimestamp = Date.now();
 
   // Calculate the time difference between now and the last globalCacheVersion
+  let currentTimestamp = Date.now();
   const timeSinceLastFetch = currentTimestamp - clientGlobalCacheVersion;
 
-  let shouldFetchData = timeSinceLastFetch >= FIVE_MINUTES_IN_MS;
-
-  if (usePreloadedData && !shouldFetchData) {
-    console.log(
-      "Client has a recent globalCacheVersion and data was preloaded. Assuming data is up-to-date.",
-    );
-    shouldFetchData = false;
-  } else {
-    console.log("Fetching new CoinLists data on the server");
-  }
-
+  let shouldFetchData =
+    timeSinceLastFetch >= FIVE_MINUTES_IN_MS || !usePreloadedData;
   let initialReduxState;
   let globalCacheVersion = clientGlobalCacheVersion.toString();
 
   if (shouldFetchData) {
+    console.log("Fetching new CoinLists data on the server");
+
     try {
       const coinListData = await fetchDataForCoinListCacheInitialization(
         currentCurrency,
       );
-      // Update the timestamp after the fetch has completed
-      currentTimestamp = Date.now();
+      // Update the globalCacheVersion after the fetch has completed
+      globalCacheVersion = Date.now().toString();
 
       initialReduxState = {
-        coins: {
-          ...coinListData.coins,
-        },
-        currency: {
-          ...coinListData.currency,
-        },
+        coins: { ...coinListData.coins },
+        currency: { ...coinListData.currency },
       };
-
-      globalCacheVersion = currentTimestamp.toString();
 
       // Update the cookie with the latest globalCacheVersion and set it to expire in 5 mins
       context.res.setHeader("Set-Cookie", [
@@ -91,8 +78,9 @@ export async function getServerSideProps(context) {
         `s-maxage=${FIVE_MINUTES_IN_SECONDS}, stale-while-revalidate`,
       );
     } catch (err) {
-      console.log(err);
-      // Return default or placeholder data to prevent breaking the site
+      console.log("Error fetching data:", err);
+
+      // Return default data to prevent breaking the site
       initialReduxState = {
         coins: initialCoinsState,
         currency: {
@@ -102,9 +90,13 @@ export async function getServerSideProps(context) {
       };
       globalCacheVersion = clientGlobalCacheVersion.toString();
     }
+  } else {
+    console.log(
+      "Client has a recent globalCacheVersion and data was preloaded. Assuming data is up-to-date.",
+    );
   }
 
-  // Before returning, make sure to delete the "usePreloadedData" cookie to reset it for the next navigation
+  // Clear the usePreloadedData cookie for the next navigation
   context.res.setHeader("Set-Cookie", "usePreloadedData=; Max-Age=-1; Path=/;");
 
   return {
