@@ -249,6 +249,7 @@ export const removeCoinDetailsFromIndexedDBForAllCurrencies = async (
  * @param {number} [serverGlobalCacheVersion] - An optional server timestamp to set as the cookie value.
  */
 export const updateGlobalCacheVersion = (serverGlobalCacheVersion) => {
+  console.log("updateGlobalCacheVersion");
   let valueToSet = Date.now().toString();
 
   if (serverGlobalCacheVersion) {
@@ -270,31 +271,43 @@ export const updateGlobalCacheVersion = (serverGlobalCacheVersion) => {
 };
 
 /**
- * Checks if the current global cache version is valid.
+ * Checks if the current global cache version is valid compared to the server's version (if provided).
  *
+ * @param {number} [serverGlobalCacheVersion] - The global cache version timestamp from the server (optional).
  * @returns {boolean} Returns true if the current global cache version is still valid, else false.
  */
-export const isCurrentGlobalCacheVersionValid = () => {
-  const currentVersion = Cookie.get("globalCacheVersion");
+export const isCurrentGlobalCacheVersionValid = (serverGlobalCacheVersion) => {
+  const clientVersion = Cookie.get("globalCacheVersion");
 
-  // If there's no cookie set, it's not valid
-  if (!currentVersion) {
+  // If there's no client cookie set, it's not valid
+  if (!clientVersion) {
     return false;
   }
 
   const FIVE_MINUTES_IN_MS = 5 * 60 * 1000;
 
-  // If the difference between now and the timestamp is more than 5 minutes, it's not valid
-  return Date.now() - Number(currentVersion) < FIVE_MINUTES_IN_MS;
+  // If the server's version is provided and is newer than client's, client's version is not valid
+  if (
+    serverGlobalCacheVersion &&
+    Number(serverGlobalCacheVersion) > Number(clientVersion)
+  ) {
+    return false;
+  }
+
+  // If the difference between now and the client's timestamp is more than 5 minutes, it's not valid
+  return Date.now() - Number(clientVersion) < FIVE_MINUTES_IN_MS;
 };
 
 /**
- * Updates the global cache version cookie with the current timestamp, if the current value is not valid.
+ * Updates the global cache version cookie with the current timestamp or
+ * with the provided server's global cache version, if the current value is not valid.
  *
  * @param {number} [serverGlobalCacheVersion] - An optional server timestamp to set as the cookie value.
  */
 export const optimallyUpdateGlobalCacheVersion = (serverGlobalCacheVersion) => {
-  if (isCurrentGlobalCacheVersionValid()) {
+  console.log("optimallyUpdateGlobalCacheVersion");
+
+  if (isCurrentGlobalCacheVersionValid(serverGlobalCacheVersion)) {
     console.log("Current globalCacheVersion is still valid. Not updating.");
     return;
   }

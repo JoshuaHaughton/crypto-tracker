@@ -19,6 +19,8 @@ export const SYMBOLS_BY_CURRENCIES = {
 
 export const FIVE_MINUTES_IN_MS = 300000;
 
+export const TEN_YEARS_IN_SECONDS = 10 * 365 * 24 * 60 * 60;
+
 export const tenYearsInFuture = new Date(
   new Date().getTime() + 10 * 365 * 24 * 60 * 60 * 1000,
 );

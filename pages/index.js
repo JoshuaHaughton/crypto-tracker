@@ -8,7 +8,10 @@ import { useSelector } from "react-redux";
 import { initialCoinsState } from "../src/store/coins";
 import { initialCurrencyState } from "../src/store/currency";
 import { fetchDataForCoinListCacheInitialization } from "../src/utils/api.utils";
-import { FIVE_MINUTES_IN_MS } from "../src/global/constants";
+import {
+  FIVE_MINUTES_IN_MS,
+  TEN_YEARS_IN_SECONDS,
+} from "../src/global/constants";
 
 export default function Home() {
   const coinListPageNumber = useSelector(
@@ -32,30 +35,45 @@ export default function Home() {
 }
 
 export async function getServerSideProps(context) {
-  const currentTimestamp = Date.now();
-  const newGlobalCacheVersion = currentTimestamp.toString();
-
-  // Retrieve the currency from the request cookies
+  // Retrieve the currency and globalCacheVersion from the request cookies
   const currentCurrency =
     context.req.cookies.currentCurrency || initialCurrencyState.currentCurrency;
-
-  // Retrieve the global cache version from cookies or set it to a very old timestamp
-  const lastFetchedTimestamp = parseInt(
+  const clientGlobalCacheVersion = parseInt(
     context.req.cookies.globalCacheVersion || "0",
   );
+  /**
+   * @type {number}
+   * @description Represents the last time the server made a successful fetch.
+   * This timestamp is used to validate the client's globalCacheVersion cookie.
+   * If the client's version is older than this, it indicates that the client's
+   * data might be outdated, prompting a new fetch.
+   */
+  const lastServerFetchTimestamp = parseInt(
+    context.req.cookies.lastServerFetchTimestamp || "0",
+  );
 
-  // Determine if we should fetch the data again
-  const shouldFetchData =
-    context.req.headers["x-fetched-currency"] !== currentCurrency ||
-    currentTimestamp - lastFetchedTimestamp >= FIVE_MINUTES_IN_MS;
+  console.log("lastServerFetchTimestamp", lastServerFetchTimestamp);
+  console.log("clientGlobalCacheVersion", clientGlobalCacheVersion);
+
+  let shouldFetchData = false;
+  if (!lastServerFetchTimestamp) {
+    console.log("Data not fetched on server, fetching new data");
+    shouldFetchData = true;
+  } else if (clientGlobalCacheVersion < lastServerFetchTimestamp) {
+    console.log("Client cache version is invalid, fetching new data");
+    shouldFetchData = true;
+  } else if (clientGlobalCacheVersion > lastServerFetchTimestamp) {
+    console.log("Client has newer cache version");
+    // we'd only assume it was preloaded if we were sent the usePreloadedcookie as well
+    shouldFetchData = true;
+  } else {
+    console.log("Client and server cache version match, using cached data");
+  }
 
   let initialReduxState;
-  let globalCacheVersion;
+  let globalCacheVersion = lastServerFetchTimestamp.toString();
 
   if (shouldFetchData) {
-    // Set the currency in the cache header, so we can check it in future requests
-    context.res.setHeader("x-fetched-currency", currentCurrency);
-
     try {
       const coinListData = await fetchDataForCoinListCacheInitialization(
         currentCurrency,
@@ -69,7 +87,14 @@ export async function getServerSideProps(context) {
           ...coinListData.currency,
         },
       };
-      globalCacheVersion = newGlobalCacheVersion;
+
+      const currentTimestamp = Date.now();
+      globalCacheVersion = currentTimestamp.toString();
+
+      // Update the cookie with the latest fetch time and set it to "never" expire (10 years)
+      context.res.setHeader("Set-Cookie", [
+        `lastServerFetchTimestamp=${currentTimestamp}; Path=/; HttpOnly Max-Age=${TEN_YEARS_IN_SECONDS}`,
+      ]);
     } catch (err) {
       console.log(err);
       // Return default or placeholder data to prevent breaking the site
@@ -80,15 +105,9 @@ export async function getServerSideProps(context) {
           symbol: SYMBOLS_BY_CURRENCIES[currentCurrency],
         },
       };
-      globalCacheVersion = lastFetchedTimestamp;
+      globalCacheVersion = lastServerFetchTimestamp;
     }
   }
-
-  // Set Cache-Control header for 5 minutes
-  context.res.setHeader(
-    "Cache-Control",
-    "s-maxage=300, stale-while-revalidate",
-  );
 
   return {
     props: {
