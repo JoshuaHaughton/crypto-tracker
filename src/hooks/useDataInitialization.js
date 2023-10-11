@@ -2,7 +2,9 @@ import { useEffect } from "react";
 import {
   fetchUpdateAndReinitalizeCoinListCache,
   loadAllCachedCoinDetailsToRedux,
+  optimallyUpdateGlobalCacheVersion,
   preloadCoinDetails,
+  updateGlobalCacheVersion,
   validateAndClearCache,
 } from "../utils/cache.utils";
 import { initializeCoinListCache } from "../thunks/coinListCacheThunk";
@@ -59,6 +61,8 @@ const handleCoinListInitialization = async (store, isCacheValid) => {
     console.log(
       "We started with CoinLists data from the server. DON'T FETCH IT AGAIN, just initialize the cache with it.",
     );
+    optimallyUpdateGlobalCacheVersion();
+    // If we start with CoinLists data from the server, then the globalCacheVersion was updated from there
     store.dispatch(
       initializeCoinListCache({ indexedDBCacheIsValid: isCacheValid }),
     );

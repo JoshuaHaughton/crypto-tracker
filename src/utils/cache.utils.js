@@ -246,18 +246,19 @@ export const removeCoinDetailsFromIndexedDBForAllCurrencies = async (
 /**
  * Updates the global cache version cookie with the current timestamp.
  *
- * @param {number} [serverTimestamp] - An optional server timestamp to set as the cookie value.
+ * @param {number} [serverGlobalCacheVersion] - An optional server timestamp to set as the cookie value.
  */
-export const updateGlobalCacheVersion = (serverTimestamp) => {
+export const updateGlobalCacheVersion = (serverGlobalCacheVersion) => {
   let valueToSet = Date.now().toString();
 
-  if (serverTimestamp) {
-    valueToSet = serverTimestamp.toString();
+  if (serverGlobalCacheVersion) {
+    valueToSet = serverGlobalCacheVersion.toString();
 
     // Calculate expiry time for the cookie
     const MILLISECONDS_IN_DAY = 1000 * 60 * 60 * 24;
     const timeLeftInDays =
-      (serverTimestamp + 5 * 60 * 1000 - Date.now()) / MILLISECONDS_IN_DAY;
+      (serverGlobalCacheVersion + 5 * 60 * 1000 - Date.now()) /
+      MILLISECONDS_IN_DAY;
 
     Cookie.set("globalCacheVersion", valueToSet, {
       expires: timeLeftInDays,
@@ -266,6 +267,39 @@ export const updateGlobalCacheVersion = (serverTimestamp) => {
     Cookie.set("globalCacheVersion", valueToSet);
   }
   console.warn("globalCacheVersion updated", valueToSet);
+};
+
+/**
+ * Checks if the current global cache version is valid.
+ *
+ * @returns {boolean} Returns true if the current global cache version is still valid, else false.
+ */
+export const isCurrentGlobalCacheVersionValid = () => {
+  const currentVersion = Cookie.get("globalCacheVersion");
+
+  // If there's no cookie set, it's not valid
+  if (!currentVersion) {
+    return false;
+  }
+
+  const FIVE_MINUTES_IN_MS = 5 * 60 * 1000;
+
+  // If the difference between now and the timestamp is more than 5 minutes, it's not valid
+  return Date.now() - Number(currentVersion) < FIVE_MINUTES_IN_MS;
+};
+
+/**
+ * Updates the global cache version cookie with the current timestamp, if the current value is not valid.
+ *
+ * @param {number} [serverGlobalCacheVersion] - An optional server timestamp to set as the cookie value.
+ */
+export const optimallyUpdateGlobalCacheVersion = (serverGlobalCacheVersion) => {
+  if (isCurrentGlobalCacheVersionValid()) {
+    console.log("Current globalCacheVersion is still valid. Not updating.");
+    return;
+  }
+
+  updateGlobalCacheVersion(serverGlobalCacheVersion);
 };
 
 /**
@@ -282,6 +316,12 @@ export const areNecessaryCachesValid = async (serverGlobalCacheVersion) => {
   const fiveMinutesInMilliseconds = 5 * 60 * 1000;
   const clientGlobalCacheVersion = Cookie.get("globalCacheVersion");
   console.log("clientGlobalCacheVersion", clientGlobalCacheVersion);
+  console.log("serverGlobalCacheVersion", serverGlobalCacheVersion);
+  console.log(
+    "currentTime - clientGlobalCacheVersion",
+    currentTime - clientGlobalCacheVersion,
+  );
+  console.log("fiveMinutesInMilliseconds", fiveMinutesInMilliseconds);
 
   let shouldResetCache =
     !clientGlobalCacheVersion ||

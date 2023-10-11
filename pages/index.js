@@ -50,6 +50,7 @@ export async function getServerSideProps(context) {
     currentTimestamp - lastFetchedTimestamp >= FIVE_MINUTES_IN_MS;
 
   let initialReduxState;
+  let globalCacheVersion;
 
   if (shouldFetchData) {
     // Set the currency in the cache header, so we can check it in future requests
@@ -68,6 +69,7 @@ export async function getServerSideProps(context) {
           ...coinListData.currency,
         },
       };
+      globalCacheVersion = newGlobalCacheVersion;
     } catch (err) {
       console.log(err);
       // Return default or placeholder data to prevent breaking the site
@@ -78,6 +80,7 @@ export async function getServerSideProps(context) {
           symbol: SYMBOLS_BY_CURRENCIES[currentCurrency],
         },
       };
+      globalCacheVersion = lastFetchedTimestamp;
     }
   }
 
@@ -90,7 +93,7 @@ export async function getServerSideProps(context) {
   return {
     props: {
       initialReduxState,
-      globalCacheVersion: newGlobalCacheVersion,
+      globalCacheVersion,
     },
   };
 }
