@@ -72,6 +72,7 @@ export async function getServerSideProps(context) {
       context.res.setHeader("Set-Cookie", [
         `globalCacheVersion=${globalCacheVersion}; Path=/; HttpOnly Max-Age=${FIVE_MINUTES_IN_SECONDS}`,
       ]);
+
       // Set Cache-Control header for 5 minutes
       context.res.setHeader(
         "Cache-Control",
@@ -98,6 +99,9 @@ export async function getServerSideProps(context) {
 
   // Clear the usePreloadedData cookie for the next navigation
   context.res.setHeader("Set-Cookie", "usePreloadedData=; Max-Age=-1; Path=/;");
+
+  // Set Vary header to consider the X-Current-Currency header in the caching mechanism
+  context.res.setHeader("Vary", "X-Current-Currency");
 
   return {
     props: {

@@ -321,7 +321,7 @@ export const optimallyUpdateGlobalCacheVersion = (serverGlobalCacheVersion) => {
  * @param {number} [serverGlobalCacheVersion] - The global cache version from the server (optional, and should not be provided by the client cookie).
  * @returns {Promise<boolean>} - Returns `true` if all caches are valid, otherwise `false`.
  */
-export const areNecessaryCachesValid = async (serverGlobalCacheVersion) => {
+export const areNecessaryCachesValid = async (serverGlobalCacheVersion = 0) => {
   console.log("areNecessaryCachesValid");
 
   // GlobalCacheVersion checks

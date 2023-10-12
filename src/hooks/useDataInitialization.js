@@ -48,9 +48,14 @@ export const preloadSelectedCoinDetails = async (store) => {
  *
  * @param {Object} store - The Redux store.
  * @param {boolean} isCacheValid - Indicates whether the cache is valid or not.
+ * @param {string} serverGlobalCacheVersion - The global cache version from the server (optional, and should not be provided by the client cookie).
  * @returns {Promise<void>}
  */
-const handleCoinListInitialization = async (store, isCacheValid) => {
+const handleCoinListInitialization = async (
+  store,
+  isCacheValid,
+  serverGlobalCacheVersion,
+) => {
   const initialHundredCoins = store.getState().coins.displayedCoinListCoins;
 
   // Handle the case where no initial coin list data is available
@@ -61,8 +66,7 @@ const handleCoinListInitialization = async (store, isCacheValid) => {
     console.log(
       "We started with CoinLists data from the server. DON'T FETCH IT AGAIN, just initialize the cache with it.",
     );
-    optimallyUpdateGlobalCacheVersion();
-    // If we start with CoinLists data from the server, then the globalCacheVersion was updated from there
+    optimallyUpdateGlobalCacheVersion(serverGlobalCacheVersion);
     store.dispatch(
       initializeCoinListCache({ indexedDBCacheIsValid: isCacheValid }),
     );
@@ -82,7 +86,11 @@ export const useDataInitialization = (store, serverGlobalCacheVersion) => {
       const areNecessaryCachesValid = await validateAndClearCache(
         serverGlobalCacheVersion,
       );
-      handleCoinListInitialization(store, areNecessaryCachesValid);
+      handleCoinListInitialization(
+        store,
+        areNecessaryCachesValid,
+        serverGlobalCacheVersion,
+      );
       await loadAllCachedCoinDetailsToRedux(store.dispatch);
       preloadSelectedCoinDetails(store);
     };
