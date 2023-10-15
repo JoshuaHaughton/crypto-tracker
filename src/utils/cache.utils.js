@@ -119,6 +119,39 @@ export const saveCoinDataForCurrencyInBrowser = async (
 };
 
 /**
+ * Fetches coin data for a specific currency and coin ID from indexedDB cache.
+ *
+ * @param {string} tableName - The name of the table in the IndexedDB.
+ * @param {string} currency - The currency for which coin data is to be fetched.
+ * @param {string} coinId - The ID of the coin to be fetched.
+ * @returns {Promise<any>} - Returns a promise that resolves to the fetched coin data or `null` if not found.
+ */
+export const getCoinDataForCurrencyByIdFromBrowser = async (
+  tableName,
+  currency,
+  coinId,
+) => {
+  try {
+    const coinDataForCurrency = await db[tableName].get(currency);
+    if (
+      coinDataForCurrency &&
+      coinDataForCurrency.coinData &&
+      coinDataForCurrency.coinData[coinId]
+    ) {
+      return coinDataForCurrency.coinData[coinId];
+    } else {
+      return null;
+    }
+  } catch (err) {
+    console.error(
+      `Error fetching coin data from IndexedDB for currency ${currency} and coin ID ${coinId}:`,
+      err,
+    );
+    return null;
+  }
+};
+
+/**
  * Saves the current currency to IndexedDB.
  *
  * @async
@@ -698,40 +731,49 @@ export const preloadCoinDetails = async (
   const coinId = coinDetails.coinInfo.id;
   console.log(`Preloading details for coin ${coinId}`, coinDetails);
 
-  // Transform data for other currencies and store in state, IndexedDB & cookie
-  postMessageToCurrencyTransformerWorker({
-    type: "transformAllCoinDetailsCurrencies",
-    data: {
-      coinToTransform: coinDetails,
-      fromCurrency: currentCurrency.toUpperCase(),
-      currencyRates,
-      // Exclude current currency from transformation
-      currenciesToExclude: [currentCurrency.toUpperCase()],
-    },
-  });
+  try {
+    postMessageToCurrencyTransformerWorker({
+      type: "transformAllCoinDetailsCurrencies",
+      data: {
+        coinToTransform: coinDetails,
+        fromCurrency: currentCurrency.toUpperCase(),
+        currencyRates,
+        currenciesToExclude: [currentCurrency.toUpperCase()],
+      },
+    });
 
-  // Update Redux state with fetched data
-  dispatch(
-    coinsActions.setCachedCoinDetailsByCurrency({
-      currency: currentCurrency,
-      coinData: coinDetails,
-    }),
-  );
+    dispatch(
+      coinsActions.setCachedCoinDetailsByCurrency({
+        currency: currentCurrency,
+        coinData: coinDetails,
+      }),
+    );
 
-  // Save data for current currency to IndexedDB
-  await saveCoinDataForCurrencyInBrowser(
-    COINDETAILS_TABLENAME,
-    currentCurrency,
-    coinDetails,
-  );
+    await saveCoinDataForCurrencyInBrowser(
+      COINDETAILS_TABLENAME,
+      currentCurrency,
+      coinDetails,
+    );
 
-  // Update the cookie with preloaded coin IDs
-  let currentPreloadedCoinIds = JSON.parse(
-    Cookie.get("preloadedCoins") || "[]",
-  );
-  if (!currentPreloadedCoinIds.includes(coinId)) {
-    currentPreloadedCoinIds.push(coinId);
-    Cookie.set("preloadedCoins", JSON.stringify(currentPreloadedCoinIds));
-    console.log("Added coin to preloaded coins", coinId);
+    // Confirm that the data is saved in IndexedDB
+    const savedData = await getCoinDataForCurrencyByIdFromBrowser(
+      COINDETAILS_TABLENAME,
+      currentCurrency,
+      coinId,
+    );
+    if (!savedData || savedData.coinInfo.id !== coinId) {
+      console.error(`Failed to confirm save in IndexedDB for coin ${coinId}`);
+      return;
+    }
+
+    let currentPreloadedCoinIds = JSON.parse(
+      Cookie.get("preloadedCoins") || "[]",
+    );
+    if (!currentPreloadedCoinIds.includes(coinId)) {
+      currentPreloadedCoinIds.push(coinId);
+      Cookie.set("preloadedCoins", JSON.stringify(currentPreloadedCoinIds));
+    }
+  } catch (error) {
+    console.error(`Error during preload operation for coin ${coinId}:`, error);
   }
 };

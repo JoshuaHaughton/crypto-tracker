@@ -127,6 +127,11 @@ export async function fetchCoinDetailsFromCryptoCompare(
     ),
   );
 
+  if (cryptoCompareData.Response === "Error") {
+    console.error(cryptoCompareData, '. returning');
+    return null;
+  }
+
   const initialRates = {
     CAD: {
       CAD: 1,
@@ -168,6 +173,9 @@ export async function fetchCoinDetailsFromCryptoCompare(
 
   const coinData = cryptoCompareData.RAW[id.toUpperCase()][targetCurrency];
   const assetData = assetDataR.Data;
+
+  console.log("assetDataR", assetDataR);
+  console.log("yearData", cryptoCompareData);
 
   // Derive 7-day and 30-day data from the 365-day data
   const weekData = {

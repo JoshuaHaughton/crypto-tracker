@@ -56,7 +56,10 @@ const Coin = ({
   );
   const [waitingForSpecificPreload, setWaitingForSpecificPreload] =
     useState(false);
-  const [isPreloaded, setIsPreloaded] = useState(coinCachedDetails != null);
+  const isPreloaded =
+    coinCachedDetails != null &&
+    JSON.parse(Cookie.get("preloadedCoins") || "[]").includes(id);
+  console.log(`isPreloaded - ${id}`, isPreloaded);
 
   const handleMouseEnter = async () => {
     console.log("currentstateofcache", currentstateofcache);
@@ -94,7 +97,7 @@ const Coin = ({
     // Add the coin ID to the list of coins being fetched in Redux
     dispatch(appInfoActions.addCoinBeingFetched({ coinId: id }));
 
-    console.log("coins being fetched"), coinsBeingFetched;
+    console.log("coins being fetched", coinsBeingFetched);
     console.log("start fetch");
 
     try {
@@ -102,6 +105,7 @@ const Coin = ({
         id,
         currentCurrency,
       );
+      if (detailedData == null) return;
       console.log(`Preloaded details for coin ${id}`, detailedData);
 
       const { initialRates, ...dataWithoutInitialRates } = detailedData;
@@ -112,8 +116,6 @@ const Coin = ({
         currentCurrency,
         currencyRates,
       );
-
-      setIsPreloaded(true); // Mark this coin as preloaded
     } catch (error) {
       console.error("Error preloading coin data:", error);
     } finally {
@@ -148,12 +150,6 @@ const Coin = ({
       router.push(`/coin/${id}`);
     }
   };
-
-  useEffect(() => {
-    if (isCoinDetailsPreloadedFromDB && coinCachedDetails) {
-      setIsPreloaded(true);
-    }
-  }, [isCoinDetailsPreloadedFromDB, coinCachedDetails]);
 
   // Use an effect to handle navigation once specific preloading completes
   useEffect(() => {
