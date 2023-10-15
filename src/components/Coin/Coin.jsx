@@ -55,7 +55,6 @@ const Coin = ({
   const isPreloaded =
     coinCachedDetails != null &&
     JSON.parse(Cookie.get("preloadedCoins") || "[]").includes(id);
-  console.log(`isPreloaded - ${id}`, isPreloaded);
 
   const handleMouseEnter = async () => {
     console.log("hover", id);

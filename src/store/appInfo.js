@@ -4,6 +4,7 @@ import { withCommonActions } from "./commonActions";
 export const initialAppInfoState = {
   coinListPageNumber: 1,
   isCoinDetailsPreloadedFromDB: false,
+  isCoinListPreloaded: false,
   coinsBeingFetched: [],
 };
 
@@ -23,6 +24,13 @@ const appInfoSliceDefinition = {
     },
     finishCoinDetailsPreloading: (state) => {
       state.isCoinDetailsPreloadedFromDB = true;
+    },
+    startCoinListPreloading: (state) => {
+      state.isCoinListPreloaded = false;
+    },
+    finishCoinListPreloading: (state) => {
+      console.log("finishCoinListPreloading");
+      state.isCoinListPreloaded = true;
     },
     // Add a coin to the list of coins being fetched
     addCoinBeingFetched: (state, action) => {

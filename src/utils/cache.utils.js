@@ -223,16 +223,6 @@ export const validateCacheDataForTable = async (tableName) => {
             console.warn(`Invalid coinDetails data for currency: ${currency}`);
             return false;
           }
-
-          for (const rateCurrency in dataForCurrency) {
-            const rateValue = dataForCurrency.rates[rateCurrency];
-            if (typeof rateValue !== "number" || isNaN(rateValue)) {
-              console.warn(
-                `Invalid currency rate value for ${rateCurrency} in ${currency}`,
-              );
-              return false;
-            }
-          }
           break;
 
         default:
@@ -589,7 +579,7 @@ export const fetchUpdateAndReinitalizeCoinListCache = async (
   }
 
   updateStoreData(store, coinListCacheData);
-  store.dispatch(
+  return store.dispatch(
     initializeCoinListCache({ indexedDBCacheIsValid: isCacheValid }),
   );
 };

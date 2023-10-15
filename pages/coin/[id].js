@@ -32,6 +32,7 @@ import {
 } from "../../src/global/constants";
 import Cookie from "js-cookie";
 import { cloneDeep } from "lodash";
+import { useRouter } from "next/router";
 
 const Coin = () => {
   const currentSymbol = useSelector((state) => state.currency.symbol);
@@ -43,12 +44,19 @@ const Coin = () => {
     (state) => state.coins.displayedCoinListCoins,
   );
   const coinDetails = useSelector((state) => state.coins.selectedCoinDetails);
+  console.log("coinDetails", coinDetails);
   const coin = useSelector((state) => state.coins.selectedCoinDetails.coinInfo);
 
   const dispatch = useDispatch();
   const [currentChartPeriod, setCurrentChartPeriod] = useState("day");
   const isHydrated = useRef(false);
   const firstRender = useRef(true);
+  const [loading, setLoading] = useState(false);
+  const [waitingForPreload, setWaitingForPreload] = useState(false);
+  const router = useRouter();
+  const isCoinListPreloaded = useSelector(
+    (state) => state.appInfo.isCoinListPreloaded,
+  );
 
   const marketChart = coinDetails.marketChartValues;
   const marketValues = coinDetails.marketValues;
@@ -57,8 +65,8 @@ const Coin = () => {
   );
 
   const dayClickHandler = () => {
-      const clonedMarketChart = cloneDeep(marketChart);
-      const clonedMarketValues = cloneDeep(marketValues);
+    const clonedMarketChart = cloneDeep(marketChart);
+    const clonedMarketValues = cloneDeep(marketValues);
     setChartData((prev) => {
       return {
         labels: clonedMarketChart?.day.map((data) =>
@@ -82,8 +90,8 @@ const Coin = () => {
   };
 
   const weekClickHandler = () => {
-          const clonedMarketChart = cloneDeep(marketChart);
-          const clonedMarketValues = cloneDeep(marketValues);
+    const clonedMarketChart = cloneDeep(marketChart);
+    const clonedMarketValues = cloneDeep(marketValues);
     setChartData((prev) => {
       console.log("test", {
         labels: marketChart?.week.map((data) =>
@@ -123,7 +131,7 @@ const Coin = () => {
   };
 
   const monthClickHandler = () => {
-              const clonedMarketValues = cloneDeep(marketValues);
+    const clonedMarketValues = cloneDeep(marketValues);
     setChartData((prev) => {
       return {
         labels: marketChart?.month.map((data) =>
@@ -147,7 +155,7 @@ const Coin = () => {
   };
 
   const yearClickHandler = () => {
-                  const clonedMarketValues = cloneDeep(marketValues);
+    const clonedMarketValues = cloneDeep(marketValues);
     setChartData((prev) => {
       return {
         labels: marketChart?.year.map((data) =>
@@ -360,12 +368,38 @@ const Coin = () => {
     // updateSelectedCoinCurrencyValues();
   }, [currentCurrency]);
 
+  const handleLinkClick = (event) => {
+    event.preventDefault();
+
+    if (isCoinListPreloaded) {
+      Cookie.set("usePreloadedData", "true");
+      router.push("/");
+    } else {
+      if (!loading) {
+        setLoading(true);
+      }
+      setWaitingForPreload(true);
+    }
+  };
+
+  useEffect(() => {
+    if (waitingForPreload && isCoinListPreloaded) {
+      Cookie.set("usePreloadedData", "true");
+      setWaitingForPreload(false);
+      router.push("/");
+    }
+  }, [waitingForPreload, isCoinListPreloaded]);
+
   return (
     <div className={styles.container}>
       <div className={styles.row}>
         <div className={styles.coin_info}>
           <Link href="/" className={styles.back_link} passHref>
-            <FontAwesomeIcon icon={faArrowLeft} className={styles.back_link} />
+            <FontAwesomeIcon
+              icon={faArrowLeft}
+              className={styles.back_link}
+              onClick={handleLinkClick}
+            />
           </Link>
           <header className={styles.header}>
             <div className={styles.title_wrapper}>

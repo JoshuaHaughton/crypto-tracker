@@ -72,7 +72,7 @@ export const initializeCoinListCache = createAsyncThunk(
         );
 
         // Store initial data in cache
-        saveCoinDataForCurrencyInBrowser(
+        await saveCoinDataForCurrencyInBrowser(
           COINLISTS_TABLENAME,
           currentCurrency.toUpperCase(),
           initialHundredCoins,
@@ -82,12 +82,12 @@ export const initializeCoinListCache = createAsyncThunk(
           ),
         );
 
-        storeCurrencyRatesInIndexedDB(initialRates);
+        return storeCurrencyRatesInIndexedDB(initialRates);
       }
     } else {
       console.log("VALID COIN LISTS CACHE - initializeCoinListCache thunk");
 
-      db.coinLists
+      return db.coinLists
         .each((data) => {
           if (
             data.currency !== currentCurrency.toUpperCase() &&

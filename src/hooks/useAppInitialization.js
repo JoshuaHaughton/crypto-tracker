@@ -9,6 +9,7 @@ import {
 import { initializeCoinListCache } from "../thunks/coinListCacheThunk";
 import { useWebWorker } from "./useWebWorker";
 import { useServiceWorker } from "./useServiceWorker";
+import { appInfoActions } from "../store/appInfo";
 
 /**
  * Preloads the selected coin details if they are present.
@@ -62,15 +63,19 @@ const handleCoinListInitialization = async (
   // Handle the case where no initial coin list data is available
   if (!Array.isArray(initialHundredCoins) || initialHundredCoins.length === 0) {
     console.log("We didn't start with CoinLists data so we need to fetch it.");
-    fetchUpdateAndReinitalizeCoinListCache(store, isCacheValid);
+    fetchUpdateAndReinitalizeCoinListCache(store, isCacheValid).then(() =>
+      store.dispatch(appInfoActions.finishCoinListPreloading()),
+    );
   } else {
     console.log(
       "We started with CoinLists data from the server. DON'T FETCH IT AGAIN, just initialize the cache with it.",
     );
+    store
+      .dispatch(
+        initializeCoinListCache({ indexedDBCacheIsValid: isCacheValid }),
+      )
+      .then(() => store.dispatch(appInfoActions.finishCoinListPreloading()));
     optimallyUpdateGlobalCacheVersion(serverGlobalCacheVersion);
-    store.dispatch(
-      initializeCoinListCache({ indexedDBCacheIsValid: isCacheValid }),
-    );
   }
 };
 
