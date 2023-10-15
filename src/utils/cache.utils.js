@@ -165,9 +165,28 @@ export const getCoinDataForCurrencyByIdFromBrowser = async (
  */
 export const saveCurrentCurrencyInBrowser = async (currency) => {
   try {
-    await db.currentCurrency.put({ name: "currentCurrency", value: currency });
+    await db.globalCacheInfo.put({ key: "currentCurrency", value: currency });
   } catch (err) {
     console.error("Error saving current currency to IndexedDB", err);
+  }
+};
+
+/**
+ * Saves the global cache version to IndexedDB.
+ *
+ * @async
+ * @function
+ * @param {string} cacheVersion - The current global cache version value to be saved.
+ * @throws Will throw an error if saving to IndexedDB fails.
+ */
+export const saveGlobalCacheVersionInBrowser = async (cacheVersion) => {
+  try {
+    await db.globalCacheInfo.put({
+      key: "globalCacheVersion",
+      value: cacheVersion,
+    });
+  } catch (err) {
+    console.error("Error saving global cache version to IndexedDB", err);
   }
 };
 
@@ -310,6 +329,9 @@ export const updateGlobalCacheVersion = (serverGlobalCacheVersion) => {
   } else {
     Cookie.set("globalCacheVersion", valueToSet);
   }
+
+  saveGlobalCacheVersionInBrowser(valueToSet);
+
   console.warn("globalCacheVersion updated", valueToSet);
 };
 

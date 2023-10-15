@@ -111,8 +111,8 @@ export async function getServerSideProps(context) {
   // Clear the usePreloadedData cookie for the next navigation
   context.res.setHeader("Set-Cookie", "usePreloadedData=; Max-Age=-1; Path=/;");
 
-  // Set Vary header on X-Current-Currency. This ensures that if a user changes their currency preference, the cache at the CDN will consider the header and serve the appropriate version of the page or fetch a new one if it doesn't exist.
-  context.res.setHeader("Vary", "X-Current-Currency");
+  // Set Vary header on X-Current-Currency & X-Global-Cache-Version. This ensures that if a user changes their currency preference, or fetches new data clientside, the cache at the CDN will consider the header and serve the appropriate version of the page or fetch a new one if it doesn't exist.
+  context.res.setHeader("Vary", "X-Current-Currency, X-Global-Cache-Version");
 
   return {
     props: {
