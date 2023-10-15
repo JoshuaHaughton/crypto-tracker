@@ -31,6 +31,7 @@ import {
   SYMBOLS_BY_CURRENCIES,
 } from "../../src/global/constants";
 import Cookie from "js-cookie";
+import { cloneDeep } from "lodash";
 
 const Coin = () => {
   const currentSymbol = useSelector((state) => state.currency.symbol);
@@ -51,12 +52,16 @@ const Coin = () => {
 
   const marketChart = coinDetails.marketChartValues;
   const marketValues = coinDetails.marketValues;
-  const [chartData, setChartData] = useState(coinDetails.chartValues);
+  const [chartData, setChartData] = useState(
+    cloneDeep(coinDetails.chartValues),
+  );
 
   const dayClickHandler = () => {
+      const clonedMarketChart = cloneDeep(marketChart);
+      const clonedMarketValues = cloneDeep(marketValues);
     setChartData((prev) => {
       return {
-        labels: marketChart?.day.map((data) =>
+        labels: clonedMarketChart?.day.map((data) =>
           new Date(data[0]).toLocaleTimeString(),
         ),
         datasets: [
@@ -64,7 +69,7 @@ const Coin = () => {
             label: `${
               coin.name
             } Price (Past day) in ${currentCurrency.toUpperCase()}`,
-            data: marketValues?.dayMarketValues,
+            data: clonedMarketValues?.dayMarketValues,
             type: "line",
             pointRadius: 1.3,
             borderColor: "#ff9500",
@@ -77,7 +82,25 @@ const Coin = () => {
   };
 
   const weekClickHandler = () => {
+          const clonedMarketChart = cloneDeep(marketChart);
+          const clonedMarketValues = cloneDeep(marketValues);
     setChartData((prev) => {
+      console.log("test", {
+        labels: marketChart?.week.map((data) =>
+          new Date(data[0]).toLocaleDateString(),
+        ),
+        datasets: [
+          {
+            label: `${
+              coin.name
+            } Price (Past week) in ${currentCurrency.toUpperCase()}`,
+            data: clonedMarketValues?.weekMarketValues,
+            type: "line",
+            pointRadius: 1.3,
+            borderColor: "#ff9500",
+          },
+        ],
+      });
       return {
         labels: marketChart?.week.map((data) =>
           new Date(data[0]).toLocaleDateString(),
@@ -87,7 +110,7 @@ const Coin = () => {
             label: `${
               coin.name
             } Price (Past week) in ${currentCurrency.toUpperCase()}`,
-            data: marketValues?.weekMarketValues,
+            data: [...marketValues?.weekMarketValues],
             type: "line",
             pointRadius: 1.3,
             borderColor: "#ff9500",
@@ -100,6 +123,7 @@ const Coin = () => {
   };
 
   const monthClickHandler = () => {
+              const clonedMarketValues = cloneDeep(marketValues);
     setChartData((prev) => {
       return {
         labels: marketChart?.month.map((data) =>
@@ -110,7 +134,7 @@ const Coin = () => {
             label: `${
               coin.name
             } Price (Past month) in ${currentCurrency.toUpperCase()}`,
-            data: marketValues?.monthMarketValues,
+            data: clonedMarketValues?.monthMarketValues,
             type: "line",
             pointRadius: 1.3,
             borderColor: "#ff9500",
@@ -123,6 +147,7 @@ const Coin = () => {
   };
 
   const yearClickHandler = () => {
+                  const clonedMarketValues = cloneDeep(marketValues);
     setChartData((prev) => {
       return {
         labels: marketChart?.year.map((data) =>
@@ -133,7 +158,7 @@ const Coin = () => {
             label: `${
               coin.name
             } Price (Past year) in ${currentCurrency.toUpperCase()}`,
-            data: marketValues?.yearMarketValues,
+            data: clonedMarketValues?.yearMarketValues,
             type: "line",
             pointRadius: 1.3,
             borderColor: "#ff9500",
@@ -160,6 +185,31 @@ const Coin = () => {
   };
 
   const removeHTML = (str) => str.replace(/<\/?[^>]+(>|$)/g, "");
+
+  useEffect(() => {
+    switch (currentChartPeriod) {
+      case "day":
+        dayClickHandler();
+        break;
+      case "week":
+        weekClickHandler();
+        break;
+      case "month":
+        monthClickHandler();
+        break;
+      case "year":
+        yearClickHandler();
+        break;
+      default:
+        dayClickHandler();
+    }
+  }, [
+    coinDetails,
+    currentCurrency,
+    marketChart,
+    marketValues,
+    currentChartPeriod,
+  ]);
 
   useEffect(() => {
     // Check for hydration completion
