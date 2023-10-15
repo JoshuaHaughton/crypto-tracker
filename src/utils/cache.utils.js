@@ -6,10 +6,14 @@ import {
   COINLISTS_TABLENAME,
   CURRENCYRATES_TABLENAME,
   GLOBALCACHEVERSION_COOKIE_EXPIRY_TIME,
+  MAXIMUM_PRELOADED_COIN_COUNT,
 } from "../global/constants";
 import Cookie from "js-cookie";
 import { initializeStore } from "../store";
-import { fetchDataForCoinListCacheInitialization } from "./api.utils";
+import {
+  fetchCoinDetailsFromCryptoCompare,
+  fetchDataForCoinListCacheInitialization,
+} from "./api.utils";
 import { initializeCoinListCache } from "../thunks/coinListCacheThunk";
 import { updateStoreData } from "./store.utils";
 import { coinsActions } from "../store/coins";
@@ -775,5 +779,68 @@ export const preloadCoinDetails = async (
     }
   } catch (error) {
     console.error(`Error during preload operation for coin ${coinId}:`, error);
+  }
+};
+
+/**
+ * Fetches coin details and preloads them.
+ * - Checks if the coin is already preloaded.
+ * - Checks if the coin is currently being fetched.
+ * - Reads the current state of the cookie to get preloaded coins.
+ * - Checks if fetching this coin would push over the maximum count limit.
+ * - Fetches coin details.
+ * - Preloads coin details.
+ *
+ * @param {string} coinId - The ID of the coin to be fetched and preloaded.
+ * @param {Array<string>} coinsBeingFetched - List of coin IDs currently being fetched.
+ * @param {string} currentCurrency - The current currency in use.
+ * @param {Object} currencyRates - Currency conversion rates.
+ * @param {Function} dispatch - The dispatch method from the Redux store.
+ * @returns {Promise<void>}
+ */
+export const fetchAndPreloadCoin = async (
+  coinId,
+  coinsBeingFetched,
+  currentCurrency,
+  currencyRates,
+  dispatch,
+) => {
+  if (coinsBeingFetched.includes(coinId)) {
+    console.error(`Coin ${coinId} is currently being fetched.`);
+    return;
+  }
+
+  let currentPreloadedCoinIds = JSON.parse(
+    Cookie.get("preloadedCoins") || "[]",
+  );
+
+  if (
+    currentPreloadedCoinIds.length + coinsBeingFetched.length >=
+    MAXIMUM_PRELOADED_COIN_COUNT
+  ) {
+    console.warn(`Fetching coin ${coinId} would exceed preloaded coin limit.`);
+    return;
+  }
+
+  dispatch(appInfoActions.addCoinBeingFetched({ coinId }));
+
+  try {
+    const detailedData = await fetchCoinDetailsFromCryptoCompare(
+      coinId,
+      currentCurrency,
+    );
+    if (detailedData == null) return;
+
+    const { initialRates, ...dataWithoutInitialRates } = detailedData;
+    await preloadCoinDetails(
+      dispatch,
+      dataWithoutInitialRates,
+      currentCurrency,
+      currencyRates,
+    );
+  } catch (error) {
+    console.error("Error preloading coin data:", error);
+  } finally {
+    dispatch(appInfoActions.removeCoinBeingFetched({ coinId }));
   }
 };

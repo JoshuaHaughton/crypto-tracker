@@ -42,7 +42,10 @@ export const getOrInitializeStore = (
   if (!reduxStore) {
     console.warn("creating new redux store");
     reduxStore = initializeStore(initialState);
-  } else if (clientGlobalCacheVersion !== serverGlobalCacheVersion) {
+  } else if (
+    serverGlobalCacheVersion &&
+    serverGlobalCacheVersion > clientGlobalCacheVersion
+  ) {
     // If the store does exist, and the data from the server is fresh,
     // update it with the new data from the server
     console.warn("clientGlobalCacheVersion !== serverGlobalCacheVersion");
