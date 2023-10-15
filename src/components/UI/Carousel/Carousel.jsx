@@ -46,9 +46,15 @@ const Carousel = () => {
       firstRender.current = false;
       return;
     } else {
-      carouselCoins.map((coin) => (
-        <CarouselCoin key={coin.id} coin={coin} currentSymbol={currentSymbol} />
-      ));
+      setCarouselItems(
+        carouselCoins.map((coin) => (
+          <CarouselCoin
+            key={coin.id}
+            coin={coin}
+            currentSymbol={currentSymbol}
+          />
+        )),
+      );
     }
   }, [carouselCoins, currentSymbol]);
 
