@@ -1,13 +1,14 @@
 import { useEffect } from "react";
 import {
   fetchUpdateAndReinitalizeCoinListCache,
-  loadAllCachedCoinDetailsToRedux,
+  hydratePreloadedCoinsFromCache,
   optimallyUpdateGlobalCacheVersion,
   preloadCoinDetails,
-  updateGlobalCacheVersion,
   validateAndClearCache,
 } from "../utils/cache.utils";
 import { initializeCoinListCache } from "../thunks/coinListCacheThunk";
+import { useWebWorker } from "./useWebWorker";
+import { useServiceWorker } from "./useServiceWorker";
 
 /**
  * Preloads the selected coin details if they are present.
@@ -79,9 +80,13 @@ const handleCoinListInitialization = async (
  * @param {Object} store - The Redux store.
  * @param {string} serverGlobalCacheVersion - The global cache version from the server (optional, and should not be provided by the client cookie).
  */
-export const useDataInitialization = (store, serverGlobalCacheVersion) => {
+export const useAppInitialization = (store, serverGlobalCacheVersion) => {
+  console.log("useAppInitialization");
+
+  useServiceWorker();
+  useWebWorker(store.dispatch);
+
   useEffect(() => {
-    console.log("useDataInitialization");
     const initializeData = async () => {
       const areNecessaryCachesValid = await validateAndClearCache(
         serverGlobalCacheVersion,
@@ -91,7 +96,7 @@ export const useDataInitialization = (store, serverGlobalCacheVersion) => {
         areNecessaryCachesValid,
         serverGlobalCacheVersion,
       );
-      await loadAllCachedCoinDetailsToRedux(store.dispatch);
+      await hydratePreloadedCoinsFromCache(store.dispatch);
       preloadSelectedCoinDetails(store);
     };
 

@@ -15,7 +15,7 @@ import { updateStoreData } from "./store.utils";
 import { coinsActions } from "../store/coins";
 import { appInfoActions } from "../store/appInfo";
 import { postMessageToCurrencyTransformerWorker } from "./currencyTransformerService";
-import { preloadSelectedCoinDetails } from "../hooks/useDataInitialization";
+import { preloadSelectedCoinDetails } from "../hooks/useAppInitialization";
 
 /**
  * Clears cache for a specific table and key.
@@ -601,7 +601,7 @@ export const loadCachedCoinDetailsToRedux = async (currency, dispatch) => {
 };
 
 /**
- * Loads cached coin details for all supported currencies into Redux.
+ * Loads preloaded coin details for all supported currencies from IndexedDB into Redux.
  *
  * Initiates the coin details preloading process and updates the app's state
  * to indicate the start of the preloading process. It then iterates through each
@@ -612,7 +612,7 @@ export const loadCachedCoinDetailsToRedux = async (currency, dispatch) => {
  * @param {Object} dispatch - The dispatch method from the Redux store.
  * @returns {Promise<void>} Returns a promise indicating the success or failure of the loading operation.
  */
-export const loadAllCachedCoinDetailsToRedux = async (dispatch) => {
+export const hydratePreloadedCoinsFromCache = async (dispatch) => {
   dispatch(appInfoActions.startCoinDetailsPreloading());
 
   // Iterate through each supported currency
