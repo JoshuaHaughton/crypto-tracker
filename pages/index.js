@@ -44,12 +44,27 @@ export async function getServerSideProps(context) {
   );
   const usePreloadedData = context.req.cookies.usePreloadedData === "true";
 
+  // Retrieve the X-Current-Currency header value. The Service Worker sets this header when the user updates their currency preference. If the page is cached by Vercel, this header helps in busting the cache and ensuring data relevant to the user's current currency is served.
+  const incomingCurrency =
+    context.req.headers["x-current-currency"] || currentCurrency;
+  console.log("x-current-currency", incomingCurrency);
+  console.log("currentCurrency cookie", currentCurrency);
+
   // Calculate the time difference between now and the last globalCacheVersion
   let currentTimestamp = Date.now();
   const timeSinceLastFetch = currentTimestamp - clientGlobalCacheVersion;
 
+  /* Check conditions to determine whether to fetch fresh data or use cached data.
+  
+  1. If more than five minutes have passed since the last fetch, fetch fresh data. This ensures that the user receives up-to-date cryptocurrency data.
+  2. If usePreloadedData is false, this indicates that the client doesn't have recent data preloaded, or the data might be outdated; hence, fetch fresh data.
+  3. On Vercel's production environment, the `Vary` header with `X-Current-Currency` ensures that separate cache versions are maintained for different currency preferences. When a user changes their currency, the cache is busted, and `getServerSideProps` runs again, fetching fresh data for the new currency (Or using the cache if available).
+
+  Note: In a local development environment, Vercel's edge caching is not present, so every request will run `getServerSideProps` afresh. Nonetheless, the logic above is still relevant as it ensures that even locally, data remains consistent and is refreshed based on the time since the last fetch and the currency preference.
+  */
   let shouldFetchData =
     timeSinceLastFetch >= FIVE_MINUTES_IN_MS || !usePreloadedData;
+
   let initialReduxState;
   let globalCacheVersion = clientGlobalCacheVersion.toString();
 
@@ -58,7 +73,7 @@ export async function getServerSideProps(context) {
 
     try {
       const coinListData = await fetchDataForCoinListCacheInitialization(
-        currentCurrency,
+        incomingCurrency,
       );
       // Update the globalCacheVersion after the fetch has completed
       globalCacheVersion = Date.now().toString();
@@ -68,12 +83,8 @@ export async function getServerSideProps(context) {
         currency: { ...coinListData.currency },
       };
 
-      // Update the cookie with the latest globalCacheVersion and set it to expire in 5 mins
-      context.res.setHeader("Set-Cookie", [
-        `globalCacheVersion=${globalCacheVersion}; Path=/; HttpOnly Max-Age=${FIVE_MINUTES_IN_SECONDS}`,
-      ]);
-
-      // Set Cache-Control header for 5 minutes
+      // Set Cache-Control header to cache the page at the edge (CDN) for 5 minutes.
+      // The stale-while-revalidate directive means that stale data can be used while the cache is being revalidated in the background.
       context.res.setHeader(
         "Cache-Control",
         `s-maxage=${FIVE_MINUTES_IN_SECONDS}, stale-while-revalidate`,
@@ -100,7 +111,7 @@ export async function getServerSideProps(context) {
   // Clear the usePreloadedData cookie for the next navigation
   context.res.setHeader("Set-Cookie", "usePreloadedData=; Max-Age=-1; Path=/;");
 
-  // Set Vary header to consider the X-Current-Currency header in the caching mechanism
+  // Set Vary header on X-Current-Currency. This ensures that if a user changes their currency preference, the cache at the CDN will consider the header and serve the appropriate version of the page or fetch a new one if it doesn't exist.
   context.res.setHeader("Vary", "X-Current-Currency");
 
   return {

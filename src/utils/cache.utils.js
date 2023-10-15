@@ -119,6 +119,22 @@ export const saveCoinDataForCurrencyInBrowser = async (
 };
 
 /**
+ * Saves the current currency to IndexedDB.
+ *
+ * @async
+ * @function
+ * @param {string} currency - The current currency value to be saved.
+ * @throws Will throw an error if saving to IndexedDB fails.
+ */
+export const saveCurrentCurrencyInBrowser = async (currency) => {
+  try {
+    await db.currentCurrency.put({ name: "currentCurrency", value: currency });
+  } catch (err) {
+    console.error("Error saving current currency to IndexedDB", err);
+  }
+};
+
+/**
  * Validates cache data for a given table name.
  *
  * @param {string} tableName - The name of the table in the IndexedDB.

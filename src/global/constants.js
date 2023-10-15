@@ -36,3 +36,8 @@ export const CURRENT_CURRENCY_COOKIE_EXPIRY_TIME = tenYearsInFuture;
 export const GLOBALCACHEVERSION_COOKIE_EXPIRY_TIME = fiveMinutesInFuture;
 
 export const MAXIMUM_PRELOADED_COIN_COUNT = 30;
+
+export const isLocalDev = process.env.NODE_ENV !== "production";
+export const isLocalProd = process.env.NEXT_PUBLIC_IS_LOCAL === "true";
+export const isActualProd =
+  process.env.NODE_ENV === "production" && !isLocalProd;

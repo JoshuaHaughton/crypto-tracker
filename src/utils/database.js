@@ -7,6 +7,7 @@ db.version(1).stores({
   coinLists: "currency",
   coinDetails: "currency",
   currencyRates: "currency",
+  currentCurrency: "name",
 });
 
 export default db;
