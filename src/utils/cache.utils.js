@@ -789,13 +789,6 @@ export const preloadCoinDetails = async (
       },
     });
 
-    dispatch(
-      coinsActions.setCachedCoinDetailsByCurrency({
-        currency: currentCurrency,
-        coinData: coinDetails,
-      }),
-    );
-
     await saveCoinDataForCurrencyInBrowser(
       COINDETAILS_TABLENAME,
       currentCurrency,
@@ -808,14 +801,23 @@ export const preloadCoinDetails = async (
       currentCurrency,
       coinId,
     );
+
     if (!savedData || savedData.coinInfo.id !== coinId) {
       console.error(`Failed to confirm save in IndexedDB for coin ${coinId}`);
       return;
     }
 
+    dispatch(
+      coinsActions.setCachedCoinDetailsByCurrency({
+        currency: currentCurrency,
+        coinData: coinDetails,
+      }),
+    );
+
     let currentPreloadedCoinIds = JSON.parse(
       Cookie.get("preloadedCoins") || "[]",
     );
+
     if (!currentPreloadedCoinIds.includes(coinId)) {
       currentPreloadedCoinIds.push(coinId);
       Cookie.set("preloadedCoins", JSON.stringify(currentPreloadedCoinIds));
