@@ -12,13 +12,6 @@ import { useWebWorker } from "../src/hooks/useWebWorker";
 import { useEffect } from "react";
 import { useServiceWorker } from "../src/hooks/useServiceWorker";
 
-nProgress.configure({
-  minimum: 0.3,
-  easing: "ease",
-  speed: 500,
-  showSpinner: true,
-});
-
 function MyApp({ Component, pageProps }) {
   console.log("App.js rendered. pageProps", pageProps);
   const store = getOrInitializeStore(

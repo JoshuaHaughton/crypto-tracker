@@ -19,6 +19,7 @@ import { postMessageToCurrencyTransformerWorker } from "../../utils/currencyTran
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { appInfoActions } from "../../store/appInfo";
+import { startProgressBar } from "../../utils/progressBar";
 
 const Coin = ({
   name,
@@ -95,8 +96,9 @@ const Coin = ({
           dispatch,
         );
       }
-      console.log("Waiting for specific preload to complete...");
+      startProgressBar();
       setWaitingForSpecificPreload(true);
+      console.log("Waiting for specific preload to complete...");
     }
   };
 

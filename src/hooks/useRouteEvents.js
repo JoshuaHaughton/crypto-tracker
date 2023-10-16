@@ -1,26 +1,36 @@
-import nProgress from "nprogress";
-import { Router } from "next/router";
 import { useEffect } from "react";
+import {
+  startProgressBar,
+  completeProgressBar,
+  terminateProgressBar,
+} from "../utils/progressBar";
+import { Router } from "next/router";
 
 /**
- * Custom hook to handle route events and show/hide loading progress.
+ * Custom hook to handle route events and show/hide/loading progress.
  *
  * @param {Function} onComplete - Callback function to run on route change completion.
  */
 export const useRouteEvents = (onComplete) => {
   useEffect(() => {
+    const routeChangeCompleteHandler = () => {
+      completeProgressBar();
+      onComplete();
+    };
+
     // Setup event listeners for route changes
-    Router.events.on("routeChangeStart", nProgress.start);
-    Router.events.on("routeChangeError", nProgress.done);
-    Router.events.on("routeChangeComplete", nProgress.done);
-    Router.events.on("routeChangeComplete", onComplete);
+    window.addEventListener("beforeunload", terminateProgressBar);
+
+    Router.events.on("routeChangeStart", startProgressBar);
+    Router.events.on("routeChangeError", completeProgressBar);
+    Router.events.on("routeChangeComplete", routeChangeCompleteHandler);
 
     // Cleanup event listeners on unmount
     return () => {
-      Router.events.off("routeChangeStart", nProgress.start);
-      Router.events.off("routeChangeError", nProgress.done);
-      Router.events.off("routeChangeComplete", nProgress.done);
-      Router.events.off("routeChangeComplete", onComplete);
+      Router.events.off("routeChangeStart", startProgressBar);
+      Router.events.off("routeChangeError", completeProgressBar);
+      Router.events.off("routeChangeComplete", routeChangeCompleteHandler);
+      window.removeEventListener("beforeunload", terminateProgressBar);
     };
   }, [onComplete]);
 };

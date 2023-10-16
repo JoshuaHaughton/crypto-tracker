@@ -78,8 +78,9 @@ const CarouselCoin = ({ coin, currentSymbol }) => {
           dispatch,
         );
       }
-      console.log("Waiting for specific preload to complete...");
+      startProgressBar();
       setWaitingForSpecificPreload(true);
+      console.log("Waiting for specific preload to complete...");
     }
   };
 
