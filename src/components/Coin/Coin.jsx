@@ -50,11 +50,9 @@ const Coin = ({
     useState(false);
   const [loading, setLoading] = useState(
     !isCoinDetailsPreloadedFromDB &&
-      JSON.parse(Cookie.get("preloadedCoins") || "[]").includes(id),
+      JSON.parse(localStorage?.getItem("preloadedCoins") || "[]").includes(id),
   );
-  const isPreloaded =
-    coinCachedDetails != null &&
-    JSON.parse(Cookie.get("preloadedCoins") || "[]").includes(id);
+  const isPreloaded = coinCachedDetails != null;
 
   const handleMouseEnter = async () => {
     console.log("hover", id);

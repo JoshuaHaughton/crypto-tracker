@@ -691,7 +691,6 @@ export async function getServerSideProps(context) {
   const cookies = parse(context.req.headers.cookie || "");
   const currentCurrency =
     cookies.currentCurrency || initialCurrencyState.currentCurrency;
-  const preloadedCoins = JSON.parse(cookies.preloadedCoins || "[]");
 
   let initialCoinsState = defaultInitialCoinsState;
   let initialCurrencyState = defaultInitialCurrencyState;
@@ -700,7 +699,7 @@ export async function getServerSideProps(context) {
   // Before returning, make sure to delete the "usePreloadedData" cookie to reset it for the next navigation
   context.res.setHeader("Set-Cookie", "usePreloadedData=; Max-Age=-1; Path=/;");
 
-  if (usePreloadedData && preloadedCoins.includes(id)) {
+  if (usePreloadedData) {
     console.log(
       "use cached data for coins page! Not returning initialReduxState from server",
     );

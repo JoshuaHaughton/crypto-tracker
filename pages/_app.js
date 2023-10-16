@@ -1,3 +1,4 @@
+import "../src/utils/polyfills";
 import { Provider } from "react-redux";
 import { Layout } from "../src/components/Layout/Layout";
 import { MediaQueryHandler } from "../src/components/MediaQueryHandler/MediaQueryHandler";

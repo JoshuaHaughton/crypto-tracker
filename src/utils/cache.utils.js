@@ -475,7 +475,7 @@ export const clearAllCaches = async () => {
   await clearCacheForAllKeysInTable(COINLISTS_TABLENAME);
   await clearCacheForAllKeysInTable(COINDETAILS_TABLENAME);
   await clearCacheForAllKeysInTable(CURRENCYRATES_TABLENAME);
-  Cookie.remove("preloadedCoins");
+  localStorage?.removeItem("preloadedCoins");
   console.log("Cache cleared for preloadedCoins");
   console.warn("ALL CACHES CLEARED");
 };
@@ -815,12 +815,15 @@ export const preloadCoinDetails = async (
     );
 
     let currentPreloadedCoinIds = JSON.parse(
-      Cookie.get("preloadedCoins") || "[]",
+      localStorage?.getItem("preloadedCoins") || "[]",
     );
 
     if (!currentPreloadedCoinIds.includes(coinId)) {
       currentPreloadedCoinIds.push(coinId);
-      Cookie.set("preloadedCoins", JSON.stringify(currentPreloadedCoinIds));
+      localStorage?.setItem(
+        "preloadedCoins",
+        JSON.stringify(currentPreloadedCoinIds),
+      );
     }
   } catch (error) {
     console.error(`Error during preload operation for coin ${coinId}:`, error);
@@ -830,9 +833,9 @@ export const preloadCoinDetails = async (
 /**
  * Fetches coin details and preloads them. This function takes care of the following:
  * - Ensures the coin isn't already being fetched.
- * - Checks the current state of the cookie to get preloaded coins.
+ * - Checks the current state of the cache to get preloaded coins.
  * - Determines if fetching this coin would exceed the maximum count limit.
- * - If the limit would be exceeded, it removes the earliest added coin from IndexedDB and the cookie.
+ * - If the limit would be exceeded, it removes the earliest added coin from IndexedDB and the cache.
  * - Fetches and preloads coin details.
  *
  * @param {string} coinId - The ID of the coin to be fetched and preloaded.
@@ -855,9 +858,9 @@ export const fetchAndPreloadCoin = async (
     return;
   }
 
-  // Get the current preloaded coin IDs from the cookie.
+  // Get the current preloaded coin IDs from the cache.
   let currentPreloadedCoinIds = JSON.parse(
-    Cookie.get("preloadedCoins") || "[]",
+    localStorage?.getItem("preloadedCoins") || "[]",
   );
 
   // Check if fetching this coin would exceed the maximum preloaded coin count.
@@ -875,8 +878,11 @@ export const fetchAndPreloadCoin = async (
       coinToRemove,
     );
 
-    // Update the cookie with the new list of preloaded coins.
-    Cookie.set("preloadedCoins", JSON.stringify(currentPreloadedCoinIds));
+    // Update the cache with the new list of preloaded coins.
+    localStorage?.setItem(
+      "preloadedCoins",
+      JSON.stringify(currentPreloadedCoinIds),
+    );
     console.warn(
       `Removed earliest added coin ${coinToRemove} to make space for new coins.`,
     );
