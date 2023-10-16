@@ -21,8 +21,8 @@ export const sliceActionMap = {
  * @param {Object} storeUpdates - The updated state to merge into the existing state.
  */
 export function updateStoreData(reduxStore, storeUpdates) {
-  console.log("reduxStore", reduxStore.getState());
-  console.log("storeUpdates", storeUpdates);
+  console.log("existing reduxStore - updateStoreData", reduxStore.getState());
+  console.log("storeUpdates - updateStoreData", storeUpdates);
 
   if (
     typeof storeUpdates !== "object" ||
@@ -38,7 +38,7 @@ export function updateStoreData(reduxStore, storeUpdates) {
   batch(() => {
     Object.keys(storeUpdates).forEach((sliceName) => {
       const updateData = storeUpdates[sliceName];
-      if (updateData !== undefined && updateData !== null) {
+      if (updateData != null) {
         const updateSliceAction = sliceActionMap[sliceName];
         if (updateSliceAction) {
           reduxStore.dispatch(updateSliceAction(updateData));

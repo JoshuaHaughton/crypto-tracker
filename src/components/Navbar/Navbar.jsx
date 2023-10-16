@@ -74,8 +74,8 @@ const Navbar = () => {
 
   useEffect(() => {
     if (waitingForPreload && isCoinListPreloaded) {
-      Cookie.set("usePreloadedData", "true");
       setWaitingForPreload(false);
+      Cookie.set("usePreloadedData", "true");
       router.push("/");
     }
   }, [waitingForPreload, isCoinListPreloaded]);

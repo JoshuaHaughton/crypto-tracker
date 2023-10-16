@@ -1,4 +1,4 @@
-import { merge } from "lodash";
+import { isEmpty, merge } from "lodash";
 import { configureStore } from "@reduxjs/toolkit";
 import currencyReducer, { initialCurrencyState } from "./currency";
 import coinsReducer, { initialCoinsState } from "./coins";
@@ -31,6 +31,7 @@ export const getOrInitializeStore = (
   initialState,
   serverGlobalCacheVersion,
 ) => {
+  console.log("getOrInitializeStore - initialState", initialState);
   // If it's on the server side, always create a new store
   if (typeof window === "undefined") {
     return initializeStore(initialState);
@@ -43,13 +44,22 @@ export const getOrInitializeStore = (
     console.warn("creating new redux store");
     reduxStore = initializeStore(initialState);
   } else if (
-    serverGlobalCacheVersion &&
-    serverGlobalCacheVersion > clientGlobalCacheVersion
+    initialState != null &&
+    ((serverGlobalCacheVersion &&
+      serverGlobalCacheVersion >= clientGlobalCacheVersion) ||
+      !isEmpty(initialState.coins?.selectedCoinDetails))
   ) {
-    // If the store does exist, and the data from the server is fresh,
-    // update it with the new data from the server
-    console.warn("clientGlobalCacheVersion !== serverGlobalCacheVersion");
+    // If we get fresh data from the server (new GCV) or we get selectedCoin details from the server
+    // (Coin detail page without preloading), We should update the store.
+    // NOTE - GCV doesn't reset on new selectedCoin Detail fetches
+    if (serverGlobalCacheVersion == clientGlobalCacheVersion) {
+      console.warn("cache used to update redux store");
+    } else {
+      console.warn("Updating redux store with fresh data from the server");
+    }
     updateStoreData(reduxStore, initialState);
+  } else {
+    console.warn("Existing redux store used without updates.");
   }
 
   return reduxStore;
@@ -65,9 +75,9 @@ export function initializeStore(initialState = {}) {
 
   // Set preloadedState using a loop
   const preloadedState = merge({}, initialStates, initialState);
-  console.log("initialStates", initialStates);
-  console.log("initialState", initialState);
-  console.log("preloadedState", preloadedState);
+  console.log("initialStates - initializeStore", initialStates);
+  console.log("initialState - initializeStore", initialState);
+  console.log("preloadedState - initializeStore", preloadedState);
 
   reduxStore = configureStore({
     reducer: {

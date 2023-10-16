@@ -9,6 +9,7 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { fetchAndPreloadCoin } from "../../../utils/cache.utils";
 import { coinsActions } from "../../../store/coins";
+import { startProgressBar } from "../../../utils/progressBar";
 
 const CarouselCoin = ({ coin, currentSymbol }) => {
   const { id } = coin;
