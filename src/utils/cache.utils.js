@@ -156,6 +156,37 @@ export const getCoinDataForCurrencyByIdFromBrowser = async (
 };
 
 /**
+ * Deletes coin data for a specific currency and coin ID from indexedDB cache.
+ *
+ * @param {string} tableName - The name of the table in the IndexedDB.
+ * @param {string} currency - The currency for which coin data is to be deleted.
+ * @param {string} coinId - The ID of the coin to be deleted.
+ * @returns {Promise<void>} - Returns a promise that resolves when the coin data is deleted.
+ */
+export const deleteCoinDataForCurrencyByIdFromBrowser = async (
+  tableName,
+  currency,
+  coinId,
+) => {
+  try {
+    const coinDataForCurrency = await db[tableName].get(currency);
+    if (
+      coinDataForCurrency &&
+      coinDataForCurrency.coinData &&
+      coinDataForCurrency.coinData[coinId]
+    ) {
+      delete coinDataForCurrency.coinData[coinId];
+      await db[tableName].put(coinDataForCurrency, currency);
+    }
+  } catch (err) {
+    console.error(
+      `Error deleting coin data from IndexedDB for currency ${currency} and coin ID ${coinId}:`,
+      err,
+    );
+  }
+};
+
+/**
  * Saves the current currency to IndexedDB.
  *
  * @async
@@ -795,13 +826,12 @@ export const preloadCoinDetails = async (
 };
 
 /**
- * Fetches coin details and preloads them.
- * - Checks if the coin is already preloaded.
- * - Checks if the coin is currently being fetched.
- * - Reads the current state of the cookie to get preloaded coins.
- * - Checks if fetching this coin would push over the maximum count limit.
- * - Fetches coin details.
- * - Preloads coin details.
+ * Fetches coin details and preloads them. This function takes care of the following:
+ * - Ensures the coin isn't already being fetched.
+ * - Checks the current state of the cookie to get preloaded coins.
+ * - Determines if fetching this coin would exceed the maximum count limit.
+ * - If the limit would be exceeded, it removes the earliest added coin from IndexedDB and the cookie.
+ * - Fetches and preloads coin details.
  *
  * @param {string} coinId - The ID of the coin to be fetched and preloaded.
  * @param {Array<string>} coinsBeingFetched - List of coin IDs currently being fetched.
@@ -817,33 +847,54 @@ export const fetchAndPreloadCoin = async (
   currencyRates,
   dispatch,
 ) => {
+  // Check if the coin is currently being fetched.
   if (coinsBeingFetched.includes(coinId)) {
     console.error(`Coin ${coinId} is currently being fetched.`);
     return;
   }
 
+  // Get the current preloaded coin IDs from the cookie.
   let currentPreloadedCoinIds = JSON.parse(
     Cookie.get("preloadedCoins") || "[]",
   );
 
+  // Check if fetching this coin would exceed the maximum preloaded coin count.
   if (
     currentPreloadedCoinIds.length + coinsBeingFetched.length >=
     MAXIMUM_PRELOADED_COIN_COUNT
   ) {
-    console.warn(`Fetching coin ${coinId} would exceed preloaded coin limit.`);
-    return;
+    // Remove the earliest added coin from the list.
+    const coinToRemove = currentPreloadedCoinIds.shift();
+
+    // Remove this coin's data from IndexedDB.
+    await deleteCoinDataForCurrencyByIdFromBrowser(
+      COINDETAILS_TABLENAME,
+      currentCurrency,
+      coinToRemove,
+    );
+
+    // Update the cookie with the new list of preloaded coins.
+    Cookie.set("preloadedCoins", JSON.stringify(currentPreloadedCoinIds));
+    console.warn(
+      `Removed earliest added coin ${coinToRemove} to make space for new coins.`,
+    );
   }
 
+  // Mark the coin as being fetched to prevent duplicate fetches.
   dispatch(appInfoActions.addCoinBeingFetched({ coinId }));
 
   try {
+    // Fetch the detailed data for the coin.
     const detailedData = await fetchCoinDetailsFromCryptoCompare(
       coinId,
       currentCurrency,
     );
     if (detailedData == null) return;
 
+    // Extract the initial rates from the detailed data.
     const { initialRates, ...dataWithoutInitialRates } = detailedData;
+
+    // Preload the coin details.
     await preloadCoinDetails(
       dispatch,
       dataWithoutInitialRates,
@@ -853,6 +904,7 @@ export const fetchAndPreloadCoin = async (
   } catch (error) {
     console.error("Error preloading coin data:", error);
   } finally {
+    // Mark the coin as no longer being fetched.
     dispatch(appInfoActions.removeCoinBeingFetched({ coinId }));
   }
 };
