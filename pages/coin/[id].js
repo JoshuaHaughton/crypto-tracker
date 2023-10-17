@@ -1,372 +1,37 @@
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import HistoryChart from "../../src/components/UI/HistoryChart";
 import styles from "./Coin.module.css";
 import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  coinsActions,
-  initialCoinsState as defaultInitialCoinsState,
-} from "../../src/store/coins";
+import { useSelector } from "react-redux";
+import { initialCoinsState as defaultInitialCoinsState } from "../../src/store/coins";
 import Link from "next/link";
-import {
-  currencyActions,
-  initialCurrencyState as defaultInitialCurrencyState,
-} from "../../src/store/currency";
-import { convertCurrency } from "../../src/utils/currency.utils";
-import db from "../../src/utils/database";
-import { initializeCoinListCache } from "../../src/thunks/coinListCacheThunk";
-import {
-  fetchBaseDataFromCryptoCompare,
-  fetchCoinDetailsFromCryptoCompare,
-} from "../../src/utils/api.utils";
+import { initialCurrencyState as defaultInitialCurrencyState } from "../../src/store/currency";
+import { fetchCoinDetailsFromCryptoCompare } from "../../src/utils/api.utils";
 import { parse } from "cookie";
-import {
-  fetchDataFromIndexedDB,
-  isCacheValid,
-} from "../../src/utils/cache.utils";
-import {
-  COINLISTS_TABLENAME,
-  SYMBOLS_BY_CURRENCIES,
-} from "../../src/global/constants";
+import { SYMBOLS_BY_CURRENCIES } from "../../src/global/constants";
 import Cookie from "js-cookie";
-import { cloneDeep } from "lodash";
 import { useRouter } from "next/router";
+import { bigNumberFormatter, removeHTML } from "../../src/utils/global.utils";
+import useChartData from "../../src/hooks/useChartData";
 
 const Coin = () => {
-  const currentSymbol = useSelector((state) => state.currency.symbol);
-  const currentCurrency = useSelector(
-    (state) => state.currency.currentCurrency,
-  );
-  // Check if data exists in the Redux store
-  const coinListInStore = useSelector(
-    (state) => state.coins.displayedCoinListCoins,
-  );
+  const router = useRouter();
   const coinDetails = useSelector((state) => state.coins.selectedCoinDetails);
   console.log("coinDetails", coinDetails);
-  const coin = useSelector((state) => state.coins.selectedCoinDetails.coinInfo);
+  const coin = coinDetails.coinInfo;
 
-  const dispatch = useDispatch();
-  const [currentChartPeriod, setCurrentChartPeriod] = useState("day");
-  const isHydrated = useRef(false);
-  const firstRender = useRef(true);
-  const [loading, setLoading] = useState(false);
-  const [waitingForPreload, setWaitingForPreload] = useState(false);
-  const router = useRouter();
+  const currentSymbol = useSelector((state) => state.currency.symbol);
   const isCoinListPreloaded = useSelector(
     (state) => state.appInfo.isCoinListPreloaded,
   );
 
-  const marketChart = coinDetails.marketChartValues;
-  const marketValues = coinDetails.marketValues;
-  const [chartData, setChartData] = useState(
-    cloneDeep(coinDetails.chartValues),
-  );
+  const [loading, setLoading] = useState(false);
+  const [waitingForPreload, setWaitingForPreload] = useState(false);
 
-  const dayClickHandler = () => {
-    const clonedMarketChart = cloneDeep(marketChart);
-    const clonedMarketValues = cloneDeep(marketValues);
-    setChartData((prev) => {
-      return {
-        labels: clonedMarketChart?.day.map((data) =>
-          new Date(data[0]).toLocaleTimeString(),
-        ),
-        datasets: [
-          {
-            label: `${
-              coin.name
-            } Price (Past day) in ${currentCurrency.toUpperCase()}`,
-            data: clonedMarketValues?.dayMarketValues,
-            type: "line",
-            pointRadius: 1.3,
-            borderColor: "#ff9500",
-          },
-        ],
-      };
-    });
-
-    setCurrentChartPeriod("day");
-  };
-
-  const weekClickHandler = () => {
-    const clonedMarketChart = cloneDeep(marketChart);
-    const clonedMarketValues = cloneDeep(marketValues);
-    setChartData((prev) => {
-      console.log("test", {
-        labels: marketChart?.week.map((data) =>
-          new Date(data[0]).toLocaleDateString(),
-        ),
-        datasets: [
-          {
-            label: `${
-              coin.name
-            } Price (Past week) in ${currentCurrency.toUpperCase()}`,
-            data: clonedMarketValues?.weekMarketValues,
-            type: "line",
-            pointRadius: 1.3,
-            borderColor: "#ff9500",
-          },
-        ],
-      });
-      return {
-        labels: marketChart?.week.map((data) =>
-          new Date(data[0]).toLocaleDateString(),
-        ),
-        datasets: [
-          {
-            label: `${
-              coin.name
-            } Price (Past week) in ${currentCurrency.toUpperCase()}`,
-            data: [...marketValues?.weekMarketValues],
-            type: "line",
-            pointRadius: 1.3,
-            borderColor: "#ff9500",
-          },
-        ],
-      };
-    });
-
-    setCurrentChartPeriod("week");
-  };
-
-  const monthClickHandler = () => {
-    const clonedMarketValues = cloneDeep(marketValues);
-    setChartData((prev) => {
-      return {
-        labels: marketChart?.month.map((data) =>
-          new Date(data[0]).toLocaleDateString(),
-        ),
-        datasets: [
-          {
-            label: `${
-              coin.name
-            } Price (Past month) in ${currentCurrency.toUpperCase()}`,
-            data: clonedMarketValues?.monthMarketValues,
-            type: "line",
-            pointRadius: 1.3,
-            borderColor: "#ff9500",
-          },
-        ],
-      };
-    });
-
-    setCurrentChartPeriod("month");
-  };
-
-  const yearClickHandler = () => {
-    const clonedMarketValues = cloneDeep(marketValues);
-    setChartData((prev) => {
-      return {
-        labels: marketChart?.year.map((data) =>
-          new Date(data[0]).toLocaleDateString(),
-        ),
-        datasets: [
-          {
-            label: `${
-              coin.name
-            } Price (Past year) in ${currentCurrency.toUpperCase()}`,
-            data: clonedMarketValues?.yearMarketValues,
-            type: "line",
-            pointRadius: 1.3,
-            borderColor: "#ff9500",
-          },
-        ],
-      };
-    });
-
-    setCurrentChartPeriod("year");
-  };
-
-  const bigNumberFormatter = (num) => {
-    if (num > 999 && num < 1000000) {
-      return (num / 1000).toFixed(1) + "K"; // convert to K for numbers > 1000 < 1 million
-    } else if (num > 1000000 && num < 1000000000) {
-      return (num / 1000000).toFixed(1) + "M"; // convert to M for numbers > 1 million
-    } else if (num > 1000000000 && num < 1000000000000) {
-      return (num / 1000000000).toFixed(1) + "B"; // convert to B for numbers > 1 billion
-    } else if (num > 1000000000000) {
-      return (num / 1000000000000).toFixed(1) + "T"; // convert to T for numbers > 1 trillion
-    } else if (num <= 999) {
-      return num; // if value < 1000, nothing to do
-    }
-  };
-
-  const removeHTML = (str) => str.replace(/<\/?[^>]+(>|$)/g, "");
-
-  useEffect(() => {
-    switch (currentChartPeriod) {
-      case "day":
-        dayClickHandler();
-        break;
-      case "week":
-        weekClickHandler();
-        break;
-      case "month":
-        monthClickHandler();
-        break;
-      case "year":
-        yearClickHandler();
-        break;
-      default:
-        dayClickHandler();
-    }
-  }, [
-    coinDetails,
-    currentCurrency,
-    marketChart,
-    marketValues,
-    currentChartPeriod,
-  ]);
-
-  useEffect(() => {
-    // Check for hydration completion
-    if (!isHydrated.current) {
-      return;
-    }
-
-    // Initialize the worker
-    // const currencyTransformerWorker = new Worker(
-    //   "/webWorkers/currencyTransformerWorker.js",
-    // );
-
-    // Define the message handler for the worker
-    const handleWorkerMessage = (e) => {
-      const { transformedData } = e.data;
-
-      // Dispatch initial data for the current currency
-      dispatch(
-        coinsActions.updateSelectedCoinDetailsForCurrency({
-          currency: currentCurrency.toUpperCase(),
-          coinDetail: coinDetails,
-        }),
-      );
-
-      // Update IndexedDB with the fresh coin details
-      db.coinDetails.put({
-        currency: currentCurrency.toUpperCase(),
-        details: coinDetails,
-      });
-
-      // Dispatch transformed data for other currencies
-      Object.keys(transformedData).forEach((currency) => {
-        dispatch(
-          coinsActions.updateSelectedCoinDetailsForCurrency({
-            currency,
-            coinDetail: transformedData[currency],
-          }),
-        );
-
-        // Update IndexedDB
-        db.coinDetails.put({
-          currency,
-          details: transformedData[currency],
-        });
-      });
-
-      console.log("coin worker ran");
-    };
-
-    // Attach the event listener to the worker
-    // currencyTransformerWorker.addEventListener("message", handleWorkerMessage);
-
-    // If coin and initialRates are available, post data to the worker
-    // if (coin && initialRates) {
-    //   console.log("post to COIN PAGE worker");
-    //   currencyTransformerWorker.postMessage({
-    //     type: "transformAllCoinDetailsCurrencies",
-    //     data: {
-    //       coinToTransform: coin,
-    //       fromCurrency: currentCurrency.toUpperCase(),
-    //       currencyRates: initialRates,
-    //       currenciesToExclude: [currentCurrency.toUpperCase()],
-    //     },
-    //   });
-    // }
-
-    // Cleanup: remove the event listener and terminate the worker when the component is unmounted
-    return () => {
-      console.log("unmount coin worker");
-      // currencyTransformerWorker.removeEventListener(
-      //   "message",
-      //   handleWorkerMessage,
-      // );
-      // currencyTransformerWorker.terminate();
-    };
-  }, [isHydrated]);
-
-  useEffect(() => {
-    // should do if either the cache isnt valid or on page revalidates (new data)
-    // const prefetchHomePage = async () => {
-    //   console.log("prefetchHomePage");
-
-    //   let initialRates, initialHundredCoins, trendingCarouselCoins;
-
-    //   // Check the cache first
-    //   const cacheIsValid = isCacheValid(COINLISTS_TABLENAME);
-    //   const cachedCoinList = await fetchDataFromIndexedDB(
-    //     COINLISTS_TABLENAME,
-    //     currentCurrency.toUpperCase(),
-    //   );
-
-    //   if (cacheIsValid && cachedCoinList) {
-    //     // Use cached data if available
-    //     console.log("Use cached data if available");
-    //     initialHundredCoins = cachedCoinList.initialHundredCoins;
-    //     trendingCarouselCoins = cachedCoinList.trendingCarouselCoins;
-    //   } else {
-    //     // Fetch from API if not in cache
-    //     console.log("Fetch from API if not in cache");
-    //     const fetchedData = await fetchBaseDataFromCryptoCompare();
-    //     initialRates = fetchedData.initialRates;
-    //     initialHundredCoins = fetchedData.initialHundredCoins;
-    //     trendingCarouselCoins = fetchedData.trendingCarouselCoins;
-
-    //     // Update the global coinlist cache
-    //     dispatch(
-    //       coinsActions.updateCoins({
-    //         displayedCoinListCoins: initialHundredCoins,
-    //         trendingCarouselCoins,
-    //         symbol: currentSymbol,
-    //       }),
-    //     );
-    //     dispatch(
-    //       coinsActions.setCoinListForCurrency({
-    //         currency: currentCurrency,
-    //         coinData: initialHundredCoins,
-    //       }),
-    //     );
-    //     dispatch(currencyActions.updateRates({ currencyRates: initialRates }));
-    //     dispatch(initializeCoinListCache());
-
-    //     // Handle global cache version update
-    //     const currentTimestamp = Date.now().toString();
-    //     Cookie.set("globalCacheVersion", currentTimestamp);
-    //   }
-    // };
-
-    if (coinListInStore && coinListInStore.length > 0) {
-      return;
-    } else {
-      // If the data doesn't already exist in Redux, then fetch & preload it
-      // prefetchHomePage();
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!isHydrated.current) {
-      isHydrated.current = true;
-      return;
-    }
-
-    if (firstRender.current) {
-      firstRender.current = false;
-      return;
-    }
-    // handle from thunk instead
-
-    // updateSelectedCoinCurrencyValues();
-  }, [currentCurrency]);
+  const { chartData, currentChartPeriod, setCurrentChartPeriod } =
+    useChartData(coinDetails);
 
   const handleLinkClick = (event) => {
     event.preventDefault();
@@ -406,16 +71,13 @@ const Coin = () => {
               <Image
                 src={coin.image}
                 alt={coin.name}
-                // layout={'fill'}
                 width={88}
                 height={88}
                 className={styles.image}
               />
-              {/* <div className={styles.text_wrapper}> */}
+
               <h1 className={styles.name}>{coin.name}</h1>
               <h4 className={styles.symbol}>{coin.symbol.toUpperCase()}</h4>
-
-              {/* </div> */}
             </div>
             <div className={styles.description}>
               <p>
@@ -440,16 +102,6 @@ const Coin = () => {
               </p>
             </div>
 
-            {/* <div className={styles.info_row}>
-              <h3>All Time High:</h3>
-              <p className={styles.current}>
-                {currentSymbol}
-                {coin.all_time_high.toLocaleString("en-US", {
-                  maximumFractionDigits: 8,
-                  minimumFractionDigits: 2,
-                })}
-              </p>
-            </div> */}
             <div className={styles.info_row}>
               <h3>Market Cap:</h3>
               <p className={styles.current}>
@@ -496,45 +148,51 @@ const Coin = () => {
             {currentChartPeriod === "day" ? (
               <button
                 className={styles.selected_button}
-                onClick={dayClickHandler}
+                onClick={() => setCurrentChartPeriod("day")}
               >
                 Day
               </button>
             ) : (
-              <button onClick={dayClickHandler}>Day</button>
+              <button onClick={() => setCurrentChartPeriod("day")}>Day</button>
             )}
 
             {currentChartPeriod === "week" ? (
               <button
                 className={styles.selected_button}
-                onClick={weekClickHandler}
+                onClick={() => setCurrentChartPeriod("week")}
               >
                 Week
               </button>
             ) : (
-              <button onClick={weekClickHandler}>Week</button>
+              <button onClick={() => setCurrentChartPeriod("week")}>
+                Week
+              </button>
             )}
 
             {currentChartPeriod === "month" ? (
               <button
                 className={styles.selected_button}
-                onClick={monthClickHandler}
+                onClick={() => setCurrentChartPeriod("month")}
               >
                 Month
               </button>
             ) : (
-              <button onClick={monthClickHandler}>Month</button>
+              <button onClick={() => setCurrentChartPeriod("month")}>
+                Month
+              </button>
             )}
 
             {currentChartPeriod === "year" ? (
               <button
                 className={styles.selected_button}
-                onClick={yearClickHandler}
+                onClick={() => setCurrentChartPeriod("year")}
               >
                 Year
               </button>
             ) : (
-              <button onClick={yearClickHandler}>Year</button>
+              <button onClick={() => setCurrentChartPeriod("year")}>
+                Year
+              </button>
             )}
           </div>
 
