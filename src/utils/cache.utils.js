@@ -604,7 +604,7 @@ export const fetchUpdateAndReinitalizeCoinListCache = async (
               ...state.coins.coinListCoinsByCurrency,
               [currentCurrency]: cacheData.coinData,
             },
-            trendingCarouselCoins: cacheData.coinData,
+            trendingCarouselCoins: cacheData.coinData.slice(0, 10),
           },
           currency: {
             ...state.currency,

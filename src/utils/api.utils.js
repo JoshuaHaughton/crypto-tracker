@@ -128,7 +128,7 @@ export async function fetchCoinDetailsFromCryptoCompare(
   );
 
   if (cryptoCompareData.Response === "Error") {
-    console.error(cryptoCompareData, '. returning');
+    console.error(cryptoCompareData, ". returning");
     return null;
   }
 
@@ -216,12 +216,32 @@ export async function fetchCoinDetailsFromCryptoCompare(
   const priceChange30d = data30[data30.length - 1].close - data30[0].close;
   const priceChange365d = data365[data365.length - 1].close - data365[0].close;
 
+  // Helper function to determine if a value is falsy or Infinity
+  const isInvalid = (value) => !value || !isFinite(value);
+
   // Calculate percentage changes
   const priceChangePercentage1d =
     (priceChange1d / data365[data365.length - 2].close) * 100;
   const priceChangePercentage7d = (priceChange7d / data7[0].close) * 100;
-  const priceChangePercentage30d = (priceChange30d / data30[0].close) * 100;
-  const priceChangePercentage365d = (priceChange365d / data365[0].close) * 100;
+  const priceChangePercentage30dRaw = (priceChange30d / data30[0].close) * 100;
+  const priceChangePercentage365dRaw =
+    (priceChange365d / data365[0].close) * 100;
+
+  const priceChangePercentage30d = isInvalid(priceChangePercentage30dRaw)
+    ? priceChangePercentage7d
+    : priceChangePercentage30dRaw;
+  const priceChangePercentage365d = isInvalid(priceChangePercentage365dRaw)
+    ? priceChangePercentage30d
+    : priceChangePercentage365dRaw;
+
+  console.log("priceChangePercentage7d", priceChangePercentage365d);
+  console.log(
+    "priceChangePercentage7d",
+    (priceChange365d / data365[0].close) * 100,
+  );
+  console.log("priceChangePercentage7d", priceChangePercentage30d);
+  console.log("priceChange365d", priceChange365d);
+  console.log("data365[0].close", data365[0].close);
 
   if (
     !cryptoCompareData ||
