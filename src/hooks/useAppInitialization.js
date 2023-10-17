@@ -38,7 +38,7 @@ export const preloadSelectedCoinDetails = async (store) => {
       currencyRates,
     );
   } else {
-    console.log("We did not start with CoinDetals data from server.");
+    console.log("We did not start with CoinDetails data from server.");
   }
 };
 

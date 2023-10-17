@@ -44,9 +44,7 @@ const Navbar = () => {
   const currentCurrency = useSelector(
     (state) => state.currency.currentCurrency,
   );
-  console.log("currentCurrency", currentCurrency);
   const currentSymbol = useSelector((state) => state.currency.symbol);
-  console.log("currentSymbol", currentSymbol);
   const isBreakpoint555 = useSelector(
     (state) => state.mediaQuery.isBreakpoint555,
   );
@@ -95,11 +93,11 @@ const Navbar = () => {
           </div>
 
           <div className={styles.nav_list}>
-            <Link href="/" passHref>
+            {/* <Link href="/" passHref> */}
               <div className={styles.link_wrapper} onClick={handleLinkClick}>
                 <HomeIcon /> {!isBreakpoint555 && `Home`}
               </div>
-            </Link>
+            {/* </Link> */}
 
             <StyledSelect
               variant="outlined"

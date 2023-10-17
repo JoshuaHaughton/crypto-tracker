@@ -432,13 +432,24 @@ export const areNecessaryCachesValid = async (serverGlobalCacheVersion = 0) => {
   );
   console.log("fiveMinutesInMilliseconds", fiveMinutesInMilliseconds);
 
-  let shouldResetCache =
-    // Data doesn't exist in the cache
-    !clientGlobalCacheVersion ||
-    // The client cache is more than 5 minutes old
-    currentTime - clientGlobalCacheVersion > fiveMinutesInMilliseconds ||
-    // The server has fetched new data
-    serverGlobalCacheVersion > clientGlobalCacheVersion;
+  let dataDoesNotExist = !clientGlobalCacheVersion;
+  let cacheIsOld =
+    currentTime - clientGlobalCacheVersion > fiveMinutesInMilliseconds;
+  let serverHasNewData = serverGlobalCacheVersion > clientGlobalCacheVersion;
+
+  if (dataDoesNotExist) {
+    console.warn("Cache data doesn't exist.");
+  }
+
+  if (cacheIsOld) {
+    console.warn("The client cache is more than 5 minutes old.");
+  }
+
+  if (serverHasNewData) {
+    console.warn("The server has fetched new data.");
+  }
+
+  let shouldResetCache = dataDoesNotExist || cacheIsOld || serverHasNewData;
 
   if (shouldResetCache) {
     console.warn("Invalid GlobalCacheVersion");
