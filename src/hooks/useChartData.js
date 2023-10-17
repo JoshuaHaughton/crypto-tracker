@@ -69,7 +69,7 @@ function useChartData(coinDetails) {
       labels: labels,
       datasets: [
         {
-          label: `${coinDetails.coinInfo.name} Price (${
+          label: `${coinDetails.coinAttributes.name} Price (${
             config.label
           }) in ${currentCurrency.toUpperCase()}`,
           data: dataValues,

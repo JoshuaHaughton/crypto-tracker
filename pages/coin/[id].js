@@ -20,7 +20,7 @@ const Coin = () => {
   const router = useRouter();
   const coinDetails = useSelector((state) => state.coins.selectedCoinDetails);
   console.log("coinDetails", coinDetails);
-  const coin = coinDetails.coinInfo;
+  const coinAttributes = coinDetails.coinAttributes;
 
   const currentSymbol = useSelector((state) => state.currency.symbol);
   const isCoinListPreloaded = useSelector(
@@ -69,24 +69,29 @@ const Coin = () => {
           <header className={styles.header}>
             <div className={styles.title_wrapper}>
               <Image
-                src={coin.image}
-                alt={coin.name}
+                src={coinAttributes.image}
+                alt={coinAttributes.name}
                 width={88}
                 height={88}
                 className={styles.image}
               />
 
-              <h1 className={styles.name}>{coin.name}</h1>
-              <h4 className={styles.symbol}>{coin.symbol.toUpperCase()}</h4>
+              <h1 className={styles.name}>{coinAttributes.name}</h1>
+              <h4 className={styles.symbol}>
+                {coinAttributes.symbol.toUpperCase()}
+              </h4>
             </div>
             <div className={styles.description}>
               <p>
-                {coin.description.split(".").length > 2
-                  ? `${removeHTML(coin.description)
+                {coinAttributes.description.split(".").length > 2
+                  ? `${removeHTML(coinAttributes.description)
                       .split(".")
                       .slice(0, 2)
                       .join(". ")}.`
-                  : `${removeHTML(coin.description).slice(0, 170)}...`}
+                  : `${removeHTML(coinAttributes.description).slice(
+                      0,
+                      170,
+                    )}...`}
               </p>
             </div>
           </header>
@@ -96,7 +101,7 @@ const Coin = () => {
               <h3>Current Price:</h3>
               <p className={styles.current}>
                 {currentSymbol}
-                {coin.current_price.toLocaleString("en-US", {
+                {coinAttributes.current_price.toLocaleString("en-US", {
                   maximumFractionDigits: 8,
                 })}
               </p>
@@ -106,26 +111,28 @@ const Coin = () => {
               <h3>Market Cap:</h3>
               <p className={styles.current}>
                 {currentSymbol}
-                {bigNumberFormatter(coin.market_cap)}
+                {bigNumberFormatter(coinAttributes.market_cap)}
               </p>
             </div>
 
             <div className={styles.info_row}>
               <h3>24h Price Change:</h3>
-              {+coin?.price_change_1d > 0 ? (
+              {+coinAttributes?.price_change_1d > 0 ? (
                 <p className={styles.current}>
-                  {+coin?.price_change_1d < 1 &&
-                    `${currentSymbol}${coin?.price_change_1d}`}
-                  {+coin?.price_change_1d > 1 &&
-                    `${currentSymbol}${coin?.price_change_1d.toFixed(2)}`}
+                  {+coinAttributes?.price_change_1d < 1 &&
+                    `${currentSymbol}${coinAttributes?.price_change_1d}`}
+                  {+coinAttributes?.price_change_1d > 1 &&
+                    `${currentSymbol}${coinAttributes?.price_change_1d.toFixed(
+                      2,
+                    )}`}
                 </p>
               ) : (
                 <p className={styles.current}>
-                  {+coin?.price_change_1d < -1 &&
-                    `${currentSymbol}${coin?.price_change_1d.toLocaleString()}`}
-                  {+coin?.price_change_1d > -1 &&
+                  {+coinAttributes?.price_change_1d < -1 &&
+                    `${currentSymbol}${coinAttributes?.price_change_1d.toLocaleString()}`}
+                  {+coinAttributes?.price_change_1d > -1 &&
                     `- ${currentSymbol}${Math.abs(
-                      coin?.price_change_1d,
+                      coinAttributes?.price_change_1d,
                     ).toFixed(8)}`}
                 </p>
               )}
@@ -204,13 +211,16 @@ const Coin = () => {
                   <div className={styles.card_description}>
                     <p>Day Gain/Loss</p>
                     {/* <p>Past Day %:</p> */}
-                    {coin?.price_change_percentage_24h >= 0 ? (
+                    {coinAttributes?.price_change_percentage_24h >= 0 ? (
                       <h3 className={styles.green}>
-                        +{coin?.price_change_percentage_24h.toFixed(3)}%
+                        +
+                        {coinAttributes?.price_change_percentage_24h.toFixed(3)}
+                        %
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin?.price_change_percentage_24h.toFixed(3)}%
+                        {coinAttributes?.price_change_percentage_24h.toFixed(3)}
+                        %
                       </h3>
                     )}
                   </div>
@@ -220,13 +230,16 @@ const Coin = () => {
                   <div className={styles.card_description}>
                     <p>Day Gain/Loss</p>
                     {/* <p>Past Day %:</p> */}
-                    {coin?.price_change_percentage_24h >= 0 ? (
+                    {coinAttributes?.price_change_percentage_24h >= 0 ? (
                       <h3 className={styles.green}>
-                        +{coin?.price_change_percentage_24h.toFixed(3)}%
+                        +
+                        {coinAttributes?.price_change_percentage_24h.toFixed(3)}
+                        %
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin?.price_change_percentage_24h.toFixed(3)}%
+                        {coinAttributes?.price_change_percentage_24h.toFixed(3)}
+                        %
                       </h3>
                     )}
                   </div>
@@ -238,13 +251,14 @@ const Coin = () => {
                   <div className={styles.card_description}>
                     <p>Week Gain/Loss</p>
                     {/* <h3></h3> */}
-                    {coin?.price_change_percentage_7d >= 0 ? (
+                    {coinAttributes?.price_change_percentage_7d >= 0 ? (
                       <h3 className={styles.green}>
-                        +{coin?.price_change_percentage_7d.toFixed(3)}%
+                        +{coinAttributes?.price_change_percentage_7d.toFixed(3)}
+                        %
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin?.price_change_percentage_7d.toFixed(3)}%
+                        {coinAttributes?.price_change_percentage_7d.toFixed(3)}%
                       </h3>
                     )}
                   </div>
@@ -254,13 +268,14 @@ const Coin = () => {
                   <div className={styles.card_description}>
                     <p>Week Gain/Loss</p>
                     {/* <h3></h3> */}
-                    {coin?.price_change_percentage_7d >= 0 ? (
+                    {coinAttributes?.price_change_percentage_7d >= 0 ? (
                       <h3 className={styles.green}>
-                        +{coin?.price_change_percentage_7d.toFixed(3)}%
+                        +{coinAttributes?.price_change_percentage_7d.toFixed(3)}
+                        %
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin?.price_change_percentage_7d.toFixed(3)}%
+                        {coinAttributes?.price_change_percentage_7d.toFixed(3)}%
                       </h3>
                     )}
                   </div>
@@ -271,13 +286,16 @@ const Coin = () => {
                 <div className={styles.selected_card}>
                   <div className={styles.card_description}>
                     <p>Month Gain/Loss:</p>
-                    {coin?.price_change_percentage_30d >= 0 ? (
+                    {coinAttributes?.price_change_percentage_30d >= 0 ? (
                       <h3 className={styles.green}>
-                        +{coin?.price_change_percentage_30d.toFixed(3)}%
+                        +
+                        {coinAttributes?.price_change_percentage_30d.toFixed(3)}
+                        %
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin?.price_change_percentage_30d.toFixed(3)}%
+                        {coinAttributes?.price_change_percentage_30d.toFixed(3)}
+                        %
                       </h3>
                     )}
                   </div>
@@ -286,13 +304,16 @@ const Coin = () => {
                 <div>
                   <div className={styles.card_description}>
                     <p>Month Gain/Loss:</p>
-                    {coin?.price_change_percentage_30d >= 0 ? (
+                    {coinAttributes?.price_change_percentage_30d >= 0 ? (
                       <h3 className={styles.green}>
-                        +{coin?.price_change_percentage_30d.toFixed(3)}%
+                        +
+                        {coinAttributes?.price_change_percentage_30d.toFixed(3)}
+                        %
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin?.price_change_percentage_30d.toFixed(3)}%
+                        {coinAttributes?.price_change_percentage_30d.toFixed(3)}
+                        %
                       </h3>
                     )}
                   </div>
@@ -305,13 +326,14 @@ const Coin = () => {
                     {/* <p>Past Year:</p> */}
                     <p>Year Gain/Loss</p>
                     {/* <h3></h3> */}
-                    {coin?.price_change_percentage_1y >= 0 ? (
+                    {coinAttributes?.price_change_percentage_1y >= 0 ? (
                       <h3 className={styles.green}>
-                        +{coin?.price_change_percentage_1y.toFixed(3)}%
+                        +{coinAttributes?.price_change_percentage_1y.toFixed(3)}
+                        %
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin?.price_change_percentage_1y.toFixed(3)}%
+                        {coinAttributes?.price_change_percentage_1y.toFixed(3)}%
                       </h3>
                     )}
                   </div>
@@ -321,13 +343,14 @@ const Coin = () => {
                   <div className={styles.card_description}>
                     <p>Year Gain/Loss</p>
                     {/* <h3></h3> */}
-                    {coin?.price_change_percentage_1y >= 0 ? (
+                    {coinAttributes?.price_change_percentage_1y >= 0 ? (
                       <h3 className={styles.green}>
-                        +{coin?.price_change_percentage_1y.toFixed(3)}%
+                        +{coinAttributes?.price_change_percentage_1y.toFixed(3)}
+                        %
                       </h3>
                     ) : (
                       <h3 className={styles.red}>
-                        {coin?.price_change_percentage_1y.toFixed(3)}%
+                        {coinAttributes?.price_change_percentage_1y.toFixed(3)}%
                       </h3>
                     )}
                   </div>
@@ -373,7 +396,7 @@ export async function getServerSideProps(context) {
     );
 
     const {
-      coinInfo,
+      coinAttributes,
       marketChartValues,
       marketValues,
       chartValues,
@@ -385,14 +408,14 @@ export async function getServerSideProps(context) {
         initialReduxState: {
           coins: {
             selectedCoinDetails: {
-              coinInfo,
+              coinAttributes,
               marketChartValues,
               marketValues,
               chartValues,
             },
             selectedCoinDetailsByCurrency: {
               [currentCurrency]: {
-                coinInfo,
+                coinAttributes,
                 marketChartValues,
                 marketValues,
                 chartValues,
@@ -400,8 +423,8 @@ export async function getServerSideProps(context) {
             },
             cachedCoinDetailsByCurrency: {
               [currentCurrency]: {
-                [coinInfo.symbol.toUpperCase()]: {
-                  coinInfo,
+                [coinAttributes.symbol.toUpperCase()]: {
+                  coinAttributes,
                   marketChartValues,
                   marketValues,
                   chartValues,

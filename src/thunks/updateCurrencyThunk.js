@@ -91,7 +91,7 @@ export const updateCurrency = createAsyncThunk(
     if (Object.keys(selectedCoinDetails).length > 0) {
       const cache =
         cachedCoinDetailsByCurrency[updatedCurrency]?.[
-          selectedCoinDetails.coinInfo.symbol.toUpperCase()
+          selectedCoinDetails.coinAttributes.symbol.toUpperCase()
         ];
       console.log("cache", cachedCoinDetailsByCurrency);
       console.log("cache", cache);

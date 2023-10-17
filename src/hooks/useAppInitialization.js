@@ -26,7 +26,7 @@ export const preloadSelectedCoinDetails = async (store) => {
   const currencyRates = store.getState().currency.currencyRates;
   if (
     Object.keys(selectedCoinDetails).length > 0 &&
-    selectedCoinDetails.coinInfo
+    selectedCoinDetails.coinAttributes
   ) {
     console.log(
       "We started with CoinDetails data, meaning it's new data from the server. Let's preload that.",

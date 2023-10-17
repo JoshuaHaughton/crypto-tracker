@@ -252,7 +252,7 @@ export async function fetchCoinDetailsFromCryptoCompare(
   }
 
   // Construct the coin information
-  const coinInfo = {
+  const coinAttributes = {
     id,
     symbol: coinData.FROMSYMBOL,
     name: assetData.NAME,
@@ -277,7 +277,7 @@ export async function fetchCoinDetailsFromCryptoCompare(
     datasets: [
       {
         label: `${
-          coinInfo.name
+          coinAttributes.name
         } Price (Past day) in ${targetCurrency.toUpperCase()}`,
         data: marketValues.dayMarketValues,
         type: "line",
@@ -288,7 +288,7 @@ export async function fetchCoinDetailsFromCryptoCompare(
   };
 
   return {
-    coinInfo,
+    coinAttributes,
     marketChartValues,
     marketValues,
     chartValues,

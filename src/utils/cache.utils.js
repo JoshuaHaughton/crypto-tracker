@@ -93,7 +93,7 @@ export const saveCoinDataForCurrencyInBrowser = async (
       const existingCoinData = (await db[tableName].get(currency)) || {};
 
       // Get the coin's symbol from the data
-      const coinSymbol = coinData.coinInfo.symbol;
+      const coinSymbol = coinData.coinAttributes.symbol;
 
       // Merge the new coin data into the existing data for the currency
       const mergedCoinData = {
@@ -786,7 +786,7 @@ export const preloadCoinDetails = async (
   currentCurrency,
   currencyRates,
 ) => {
-  const coinId = coinDetails.coinInfo.id;
+  const coinId = coinDetails.coinAttributes.id;
   console.log(`Preloading details for coin ${coinId}`, coinDetails);
 
   try {
@@ -813,7 +813,7 @@ export const preloadCoinDetails = async (
       coinId,
     );
 
-    if (!savedData || savedData.coinInfo.id !== coinId) {
+    if (!savedData || savedData.coinAttributes.id !== coinId) {
       console.error(`Failed to confirm save in IndexedDB for coin ${coinId}`);
       return;
     }

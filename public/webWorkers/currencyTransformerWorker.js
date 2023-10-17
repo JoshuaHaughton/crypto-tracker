@@ -175,40 +175,40 @@ const transformCurrencyForCoinDetails = (
   currencyRates,
 ) => ({
   ...coinToTransform,
-  coinInfo: {
-    ...coinToTransform.coinInfo,
+  coinAttributes: {
+    ...coinToTransform.coinAttributes,
     current_price: convertCurrency(
-      coinToTransform.coinInfo.current_price,
+      coinToTransform.coinAttributes.current_price,
       fromCurrency,
       toCurrency,
       currencyRates,
     ),
     market_cap: convertCurrency(
-      coinToTransform.coinInfo.market_cap,
+      coinToTransform.coinAttributes.market_cap,
       fromCurrency,
       toCurrency,
       currencyRates,
     ),
     price_change_1d: convertCurrency(
-      coinToTransform.coinInfo.price_change_1d,
+      coinToTransform.coinAttributes.price_change_1d,
       fromCurrency,
       toCurrency,
       currencyRates,
     ),
     price_change_7d: convertCurrency(
-      coinToTransform.coinInfo.price_change_7d,
+      coinToTransform.coinAttributes.price_change_7d,
       fromCurrency,
       toCurrency,
       currencyRates,
     ),
     price_change_30d: convertCurrency(
-      coinToTransform.coinInfo.price_change_30d,
+      coinToTransform.coinAttributes.price_change_30d,
       fromCurrency,
       toCurrency,
       currencyRates,
     ),
     price_change_365d: convertCurrency(
-      coinToTransform.coinInfo.price_change_365d,
+      coinToTransform.coinAttributes.price_change_365d,
       fromCurrency,
       toCurrency,
       currencyRates,
