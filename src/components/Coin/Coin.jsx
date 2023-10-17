@@ -64,6 +64,7 @@ const Coin = ({
       console.log(`Coin ${id} is already preloaded.`);
       return;
     }
+    router.prefetch(`/coin/${id}`);
     await fetchAndPreloadCoin(
       id,
       coinsBeingFetched,

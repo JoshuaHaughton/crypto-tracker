@@ -56,6 +56,10 @@ const Navbar = () => {
     (state) => state.appInfo.isCoinListPreloaded,
   );
 
+  const handleLinkHover = () => {
+    router.prefetch(`/`);
+  };
+
   const handleLinkClick = (event) => {
     event.preventDefault();
 
@@ -88,15 +92,23 @@ const Navbar = () => {
     <>
       <nav className={styles.nav}>
         <div className={styles.container}>
-          <div className={styles.logo_container} onClick={handleLinkClick}>
+          <div
+            className={styles.logo_container}
+            onClick={handleLinkClick}
+            onMouseEnter={handleLinkHover}
+          >
             <Image src={logo} alt="" layout="fill" className={styles.logo} />
           </div>
 
           <div className={styles.nav_list}>
             {/* <Link href="/" passHref> */}
-              <div className={styles.link_wrapper} onClick={handleLinkClick}>
-                <HomeIcon /> {!isBreakpoint555 && `Home`}
-              </div>
+            <div
+              className={styles.link_wrapper}
+              onClick={handleLinkClick}
+              onMouseEnter={handleLinkHover}
+            >
+              <HomeIcon /> {!isBreakpoint555 && `Home`}
+            </div>
             {/* </Link> */}
 
             <StyledSelect
