@@ -4,7 +4,7 @@ import {
   hydrateCoinListFromAvailableSources,
   hydratePreloadedCoinsFromCacheIfAvailable,
   preloadDetailsForCurrentCoinIfOnDetailsPage,
-  validateAndClearCache,
+  validateAndResetCacheIfInvalid,
 } from "../utils/cache.utils";
 import { useWebWorker } from "./useWebWorker";
 import { useServiceWorker } from "./useServiceWorker";
@@ -25,7 +25,7 @@ export const useAppInitialization = (store, serverGlobalCacheVersion) => {
 
   useEffect(() => {
     const initializeData = async () => {
-      const areNecessaryCachesValid = await validateAndClearCache(
+      const areNecessaryCachesValid = await validateAndResetCacheIfInvalid(
         serverGlobalCacheVersion,
       );
       hydrateCoinListFromAvailableSources(

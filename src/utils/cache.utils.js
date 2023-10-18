@@ -493,9 +493,9 @@ export const clearAllCaches = async () => {
  * @param {string} serverGlobalCacheVersion - The global cache version from the server (optional, and should not be provided by the client cookie).
  * @returns {Promise<boolean>} Returns `true` if the cache is valid, otherwise `false` and the cache is cleared.
  */
-export const validateAndClearCache = async (serverGlobalCacheVersion) => {
+export const validateAndResetCacheIfInvalid = async (serverGlobalCacheVersion) => {
   const isCacheValid = await areNecessaryCachesValid(serverGlobalCacheVersion);
-  console.log("areNecessaryCachesValid - validateAndClearCache", isCacheValid);
+  console.log("areNecessaryCachesValid - validateAndResetCacheIfInvalid", isCacheValid);
 
   if (!isCacheValid) {
     console.log("Cache is invalid. Clearing...");
