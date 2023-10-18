@@ -1,9 +1,9 @@
+import "react-alice-carousel/lib/alice-carousel.css";
 import { useEffect } from "react";
 import CoinList from "../src/components/CoinList";
 import Banner from "../src/components/UI/Banner/Banner";
 import Pagination from "../src/components/UI/Pagination.jsx";
 import styles from "./Home.module.css";
-import "react-alice-carousel/lib/alice-carousel.css";
 import { useSelector } from "react-redux";
 import { initialCoinsState } from "../src/store/coins";
 import { initialCurrencyState } from "../src/store/currency";
@@ -11,7 +11,6 @@ import { fetchDataForCoinListCacheInitialization } from "../src/utils/api.utils"
 import {
   FIVE_MINUTES_IN_MS,
   FIVE_MINUTES_IN_SECONDS,
-  TEN_YEARS_IN_SECONDS,
 } from "../src/global/constants";
 
 export default function Home() {
@@ -111,7 +110,7 @@ export async function getServerSideProps(context) {
   // Clear the usePreloadedData cookie for the next navigation
   context.res.setHeader("Set-Cookie", "usePreloadedData=; Max-Age=-1; Path=/;");
 
-  // Set Vary header on X-Current-Currency & X-Global-Cache-Version. This ensures that if a user changes their currency preference, or fetches new data clientside, the cache at the CDN will consider the header and serve the appropriate version of the page or fetch a new one if it doesn't exist.
+  // Set Vary header on X-Current-Currency & X-Global-Cache-Version. This ensures that if a user changes their currency preference, or fetches new data clientside, the serviceWorker will detect it & add the headersso the cache at the CDN will consider the header and serve the appropriate version of the page or fetch a new one if it doesn't exist.
   context.res.setHeader("Vary", "X-Current-Currency, X-Global-Cache-Version");
 
   return {

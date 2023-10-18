@@ -9,13 +9,13 @@ import { Router } from "next/router";
 /**
  * Custom hook to handle route events and show/hide/loading progress.
  *
- * @param {Function} onComplete - Callback function to run on route change completion.
+ * @param {Function} checkAndResetCache - Cache reset function to run at the end of every route change
  */
-export const useRouteEvents = (onComplete) => {
+export const useRouteEvents = (checkAndResetCache) => {
   useEffect(() => {
     const routeChangeCompleteHandler = () => {
       completeProgressBar();
-      onComplete();
+      checkAndResetCache();
     };
 
     // Setup event listeners for route changes
@@ -32,5 +32,5 @@ export const useRouteEvents = (onComplete) => {
       Router.events.off("routeChangeComplete", routeChangeCompleteHandler);
       window.removeEventListener("beforeunload", terminateProgressBar);
     };
-  }, [onComplete]);
+  }, [checkAndResetCache]);
 };

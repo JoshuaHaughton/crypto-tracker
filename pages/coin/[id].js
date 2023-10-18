@@ -1,5 +1,5 @@
 import HistoryChart from "../../src/components/UI/HistoryChart";
-import styles from "./Coin.module.css";
+import styles from "./CoinDetails.module.css";
 import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";

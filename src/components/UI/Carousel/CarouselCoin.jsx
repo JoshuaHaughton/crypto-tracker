@@ -9,7 +9,7 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { fetchAndPreloadCoin } from "../../../utils/cache.utils";
 import { coinsActions } from "../../../store/coins";
-import { startProgressBar } from "../../../utils/progressBar";
+// import { startProgressBar } from "../../../utils/progressBar";
 
 const CarouselCoin = ({ coin, currentSymbol }) => {
   const { id } = coin;
@@ -80,7 +80,7 @@ const CarouselCoin = ({ coin, currentSymbol }) => {
           dispatch,
         );
       }
-      startProgressBar();
+      // startProgressBar();
       setWaitingForSpecificPreload(true);
       console.log("Waiting for specific preload to complete...");
     }

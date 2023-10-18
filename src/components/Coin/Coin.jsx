@@ -1,25 +1,11 @@
-import Link from "next/link";
-import styles from "./Coin.module.css";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "next/router";
 import Image from "next/image";
 import Cookie from "js-cookie";
-import { useDispatch, useSelector } from "react-redux";
+import styles from "./Coin.module.css";
 import { coinsActions } from "../../store/coins";
-import { useState } from "react";
-import { fetchCoinDetailsFromCryptoCompare } from "../../utils/api.utils";
-import {
-  fetchAndPreloadCoin,
-  preloadCoinDetails,
-  saveCoinDataForCurrencyInBrowser,
-} from "../../utils/cache.utils";
-import {
-  COINDETAILS_TABLENAME,
-  MAXIMUM_PRELOADED_COIN_COUNT,
-} from "../../global/constants";
-import { postMessageToCurrencyTransformerWorker } from "../../utils/currencyTransformerService";
-import { useRouter } from "next/router";
-import { useEffect } from "react";
-import { appInfoActions } from "../../store/appInfo";
-import { startProgressBar } from "../../utils/progressBar";
+import { fetchAndPreloadCoin } from "../../utils/cache.utils";
 
 const Coin = ({
   name,
@@ -97,7 +83,6 @@ const Coin = ({
           dispatch,
         );
       }
-      startProgressBar();
       setWaitingForSpecificPreload(true);
       console.log("Waiting for specific preload to complete...");
     }
