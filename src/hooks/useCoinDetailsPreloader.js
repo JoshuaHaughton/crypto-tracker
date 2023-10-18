@@ -1,10 +1,10 @@
-import { useEffect } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Cookie from "js-cookie";
 import { useRouter } from "next/router";
 import { coinsActions } from "../store/coins";
 import { fetchAndPreloadCoin } from "../utils/cache.utils";
-import { appInfoActions } from "../store/appInfo";
 
 /**
  * A custom hook to preload coin details for a given coin ID.
@@ -15,12 +15,19 @@ import { appInfoActions } from "../store/appInfo";
 export function useCoinDetailsPreloader(id) {
   const dispatch = useDispatch();
   const router = useRouter();
-  const currentCurrency = useSelector((state) => state.currency.currentCurrency);
+  const currentCurrency = useSelector(
+    (state) => state.currency.currentCurrency,
+  );
   const currencyRates = useSelector((state) => state.currency.currencyRates);
+  const coinsBeingFetched = useSelector(
+    (state) => state.appInfo.coinsBeingFetched,
+  );
   const coinCachedDetails = useSelector(
-    (state) => state.coins.cachedCoinDetailsByCurrency[currentCurrency][id]
+    (state) => state.coins.cachedCoinDetailsByCurrency[currentCurrency][id],
   );
   const isPreloaded = coinCachedDetails != null;
+  const [waitingForSpecificPreload, setWaitingForSpecificPreload] =
+    useState(false);
 
   // Handler for mouse enter event on a coin
   const handleMouseEnter = async () => {
@@ -37,7 +44,13 @@ export function useCoinDetailsPreloader(id) {
     router.prefetch(`/coin/${id}`);
 
     // Fetch and preload coin details
-    await fetchAndPreloadCoin(id, currentCurrency, currencyRates, dispatch);
+    await fetchAndPreloadCoin(
+      id,
+      coinsBeingFetched,
+      currentCurrency,
+      currencyRates,
+      dispatch,
+    );
   };
 
   // Handler for click event on a coin
@@ -45,26 +58,41 @@ export function useCoinDetailsPreloader(id) {
     // If coin details are preloaded, navigate to the coin's details page immediately
     if (isPreloaded) {
       console.log("PRELOADED DATA BEING USED", coinCachedDetails);
-      dispatch(coinsActions.updateSelectedCoin({ coinDetails: coinCachedDetails }));
+      dispatch(
+        coinsActions.updateSelectedCoin({ coinDetails: coinCachedDetails }),
+      );
       Cookie.set("usePreloadedData", "true");
       router.push(`/coin/${id}`);
     } else {
       // If coin details are not preloaded, start the preload process
-      fetchAndPreloadCoin(id, currentCurrency, currencyRates, dispatch);
-      dispatch(appInfoActions.startProgressBar());
+      fetchAndPreloadCoin(
+        id,
+        coinsBeingFetched,
+        currentCurrency,
+        currencyRates,
+        dispatch,
+      );
+      router.prefetch(`/coin/${id}`);
+      setWaitingForSpecificPreload(true);
       console.log("Waiting for specific preload to complete...");
     }
   };
 
-  // Use an effect to handle navigation once specific preloading completes
+  // useEffect to handle navigation only after waiting for specific preload
   useEffect(() => {
-    if (isPreloaded) {
-      dispatch(coinsActions.updateSelectedCoin({ coinDetails: coinCachedDetails }));
+    if (waitingForSpecificPreload && isPreloaded) {
+      console.log(
+        "ROUTER PUSH AFTER waiting for  preloaded data to complete",
+        coinCachedDetails,
+      );
+      dispatch(
+        coinsActions.updateSelectedCoin({ coinDetails: coinCachedDetails }),
+      );
       Cookie.set("usePreloadedData", "true");
-      console.log("ROUTER PUSH AFTER waiting for preloaded data", coinCachedDetails);
       router.push(`/coin/${id}`);
+      setWaitingForSpecificPreload(false);
     }
-  }, [isPreloaded]);
+  }, [waitingForSpecificPreload, isPreloaded]);
 
   return { handleMouseEnter, handleCoinClick };
 }
