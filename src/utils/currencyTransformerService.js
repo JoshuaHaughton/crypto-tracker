@@ -3,7 +3,7 @@ import { coinsActions } from "../store/coins";
 import { currencyActions } from "../store/currency";
 import {
   COINDETAILS_TABLENAME,
-  COINLISTS_TABLENAME,
+  POPULARCOINSLISTS_TABLENAME,
 } from "../global/constants";
 import { saveCoinDataForCurrencyInBrowser } from "./cache.utils";
 
@@ -96,17 +96,17 @@ export function initializeCurrencyTransformerWorker(dispatch) {
       }
     }
 
-    if (type === "transformCoinListCurrency") {
+    if (type === "transformPopularCoinsListCurrency") {
       batch(() => {
         // Store transformed coin data in Redux
         dispatch(
           coinsActions.updateCoins({
-            displayedCoinListCoins: transformedData,
+            displayedPopularCoinsListCoins: transformedData,
             trendingCarouselCoins: transformedData.slice(0, 10),
           }),
         );
         dispatch(
-          coinsActions.setCoinListForCurrency({
+          coinsActions.setPopularCoinsListForCurrency({
             toCurrency,
             coinData: transformedData,
           }),
@@ -117,7 +117,7 @@ export function initializeCurrencyTransformerWorker(dispatch) {
       // Wait for all storage operations to complete
       try {
         await saveCoinDataForCurrencyInBrowser(
-          COINLISTS_TABLENAME,
+          POPULARCOINSLISTS_TABLENAME,
           toCurrency,
           transformedData,
         );
@@ -126,13 +126,13 @@ export function initializeCurrencyTransformerWorker(dispatch) {
       }
     }
 
-    if (type === "transformAllCoinListCurrencies") {
+    if (type === "transformAllPopularCoinsListCurrencies") {
       const storagePromises = [];
 
       for (const currency in transformedData) {
         // Store transformed coin data in Redux
         dispatch(
-          coinsActions.setCoinListForCurrency({
+          coinsActions.setPopularCoinsListForCurrency({
             currency,
             coinData: transformedData[currency],
           }),
@@ -141,7 +141,7 @@ export function initializeCurrencyTransformerWorker(dispatch) {
         // Prepare transformed data for cache
         storagePromises.push(
           saveCoinDataForCurrencyInBrowser(
-            COINLISTS_TABLENAME,
+            POPULARCOINSLISTS_TABLENAME,
             currency,
             transformedData[currency],
           ),

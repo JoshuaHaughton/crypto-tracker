@@ -297,7 +297,7 @@ export async function fetchCoinDetailsFromCryptoCompare(
 }
 
 /**
- * Asynchronously fetches the necessary data for CoinList cache initialization based on the specified currency.
+ * Asynchronously fetches the necessary data for PopularCoinsList cache initialization based on the specified currency.
  *
  * @async
  * @function
@@ -305,20 +305,23 @@ export async function fetchCoinDetailsFromCryptoCompare(
  * @returns {Promise<Object>} Returns an object containing the coins and currency data.
  * @throws Will return default state objects for coins and currency if there's an error in fetching.
  */
-export const fetchDataForCoinListCacheInitialization = async (
+export const fetchDataForPopularCoinsListCacheInitialization = async (
   targetCurrency,
 ) => {
-  console.log("fetchDataForCoinListCacheInitialization", targetCurrency);
+  console.log(
+    "fetchDataForPopularCoinsListCacheInitialization",
+    targetCurrency,
+  );
   try {
     const { initialRates, initialHundredCoins, trendingCarouselCoins } =
       await fetchBaseDataFromCryptoCompare(targetCurrency);
 
     return {
       coins: {
-        displayedCoinListCoins: initialHundredCoins,
+        displayedPopularCoinsListCoins: initialHundredCoins,
         trendingCarouselCoins: trendingCarouselCoins,
-        coinListCoinsByCurrency: {
-          ...initialCoinsState.coinListCoinsByCurrency,
+        popularPopularCoinsListCoinsByCurrency: {
+          ...initialCoinsState.popularPopularCoinsListCoinsByCurrency,
           [targetCurrency]: initialHundredCoins,
         },
       },

@@ -10,34 +10,34 @@ const pageSize = 10;
 
 const Pagination = () => {
   const dispatch = useDispatch();
-  const coinListPageNumber = useSelector(
-    (state) => state.appInfo.coinListPageNumber,
+  const popularCoinsListPageNumber = useSelector(
+    (state) => state.appInfo.popularCoinsListPageNumber,
   );
 
   const paginationRange = usePagination({
-    currentPage: coinListPageNumber,
+    currentPage: popularCoinsListPageNumber,
     totalCount,
     siblingCount,
     pageSize,
   });
 
   // If there are less than 2 times in pagination range we shall not render the component
-  if (coinListPageNumber === 0 || paginationRange?.length < 2) {
+  if (popularCoinsListPageNumber === 0 || paginationRange?.length < 2) {
     return null;
   }
 
   const onNext = () => {
     dispatch(
-      appInfoActions.updateCoinListPageNumber({
-        coinListPageNumber: coinListPageNumber + 1,
+      appInfoActions.updatePopularCoinsListPageNumber({
+        popularCoinsListPageNumber: popularCoinsListPageNumber + 1,
       }),
     );
   };
 
   const onPrevious = () => {
     dispatch(
-      appInfoActions.updateCoinListPageNumber({
-        coinListPageNumber: coinListPageNumber - 1,
+      appInfoActions.updatePopularCoinsListPageNumber({
+        popularCoinsListPageNumber: popularCoinsListPageNumber - 1,
       }),
     );
   };
@@ -51,7 +51,7 @@ const Pagination = () => {
       {/* Left navigation arrow */}
       <li
         className={
-          coinListPageNumber === 1
+          popularCoinsListPageNumber === 1
             ? `${styles.item} ${styles.disabled}`
             : styles.item
         }
@@ -73,14 +73,14 @@ const Pagination = () => {
         return (
           <li
             className={
-              pageNumber === coinListPageNumber
+              pageNumber === popularCoinsListPageNumber
                 ? `${styles.item} ${styles.selected}`
                 : styles.item
             }
             onClick={() =>
               dispatch(
-                appInfoActions.updateCoinListPageNumber({
-                  coinListPageNumber: pageNumber,
+                appInfoActions.updatePopularCoinsListPageNumber({
+                  popularCoinsListPageNumber: pageNumber,
                 }),
               )
             }
@@ -93,7 +93,7 @@ const Pagination = () => {
       {/*  Right Navigation arrow */}
       <li
         className={
-          coinListPageNumber === lastPage
+          popularCoinsListPageNumber === lastPage
             ? `${styles.item} ${styles.disabled}`
             : styles.item
         }

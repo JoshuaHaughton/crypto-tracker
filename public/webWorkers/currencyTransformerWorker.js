@@ -22,7 +22,7 @@ const convertCurrency = (value, fromCurrency, toCurrency, currencyRates) => {
  * @param {Object} currencyRates The conversion rates.
  * @returns {Array} The list of coins with transformed currency data.
  */
-const transformCurrencyForCoinList = (
+const transformCurrencyForPopularCoinsList = (
   coinsToTransform,
   fromCurrency,
   toCurrency,
@@ -241,16 +241,17 @@ self.addEventListener(
     const { type, data } = event.data;
 
     switch (type) {
-      case "transformCoinListCurrency":
-        const transformedCoinList = transformCurrencyForCoinList(
-          data.coinsToTransform,
-          data.fromCurrency,
-          data.toCurrency,
-          data.currencyRates,
-        );
+      case "transformPopularCoinsListCurrency":
+        const transformedPopularCoinsList =
+          transformCurrencyForPopularCoinsList(
+            data.coinsToTransform,
+            data.fromCurrency,
+            data.toCurrency,
+            data.currencyRates,
+          );
         self.postMessage({
           type,
-          transformedData: transformedCoinList,
+          transformedData: transformedPopularCoinsList,
           toCurrency: data.toCurrency,
         });
         break;
@@ -269,7 +270,7 @@ self.addEventListener(
         });
         break;
 
-      case "transformAllCoinListCurrencies":
+      case "transformAllPopularCoinsListCurrencies":
         // Extract the necessary data for the transformation
         const {
           coinsToTransform,
@@ -288,11 +289,11 @@ self.addEventListener(
         }
 
         // Create an object to store the transformed data for each target currency
-        const coinListTransformedData = {};
+        const popularCoinsListTransformedData = {};
 
         targetCurrencies.forEach((targetCurrency) => {
-          coinListTransformedData[targetCurrency] =
-            transformCurrencyForCoinList(
+          popularCoinsListTransformedData[targetCurrency] =
+            transformCurrencyForPopularCoinsList(
               coinsToTransform,
               fromCurrency,
               targetCurrency,
@@ -302,7 +303,7 @@ self.addEventListener(
 
         self.postMessage({
           type,
-          transformedData: coinListTransformedData,
+          transformedData: popularCoinsListTransformedData,
         });
         break;
 

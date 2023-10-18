@@ -4,7 +4,7 @@ export const CACHE_EXPIRY_TIME_IN_MINUTES = 5;
 
 export const ALL_CURRENCIES = ["CAD", "USD", "AUD", "GBP"];
 
-export const COINLISTS_TABLENAME = "coinLists";
+export const POPULARCOINSLISTS_TABLENAME = "popularCoinsLists";
 
 export const COINDETAILS_TABLENAME = "coinDetails";
 

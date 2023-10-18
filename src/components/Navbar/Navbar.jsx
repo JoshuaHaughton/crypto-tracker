@@ -52,8 +52,8 @@ const Navbar = () => {
 
   const router = useRouter();
 
-  const isCoinListPreloaded = useSelector(
-    (state) => state.appInfo.isCoinListPreloaded,
+  const isPopularCoinsListPreloaded = useSelector(
+    (state) => state.appInfo.isPopularCoinsListPreloaded,
   );
 
   const handleLinkHover = () => {
@@ -63,7 +63,7 @@ const Navbar = () => {
   const handleLinkClick = (event) => {
     event.preventDefault();
 
-    if (isCoinListPreloaded) {
+    if (isPopularCoinsListPreloaded) {
       Cookie.set("usePreloadedData", "true");
       router.push("/");
     } else {
@@ -75,12 +75,12 @@ const Navbar = () => {
   };
 
   useEffect(() => {
-    if (waitingForPreload && isCoinListPreloaded) {
+    if (waitingForPreload && isPopularCoinsListPreloaded) {
       setWaitingForPreload(false);
       Cookie.set("usePreloadedData", "true");
       router.push("/");
     }
-  }, [waitingForPreload, isCoinListPreloaded]);
+  }, [waitingForPreload, isPopularCoinsListPreloaded]);
 
   const handleCurrencyChange = (e) => {
     const currency = e.target.value.split(",")[0].toUpperCase();

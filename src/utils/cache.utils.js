@@ -2,16 +2,16 @@ import db from "./database";
 import {
   ALL_CURRENCIES,
   COINDETAILS_TABLENAME,
-  COINLISTS_TABLENAME,
+  POPULARCOINSLISTS_TABLENAME,
   CURRENCYRATES_TABLENAME,
   MAXIMUM_PRELOADED_COIN_COUNT,
 } from "../global/constants";
 import Cookie from "js-cookie";
 import {
   fetchCoinDetailsFromCryptoCompare,
-  fetchDataForCoinListCacheInitialization,
+  fetchDataForPopularCoinsListCacheInitialization,
 } from "./api.utils";
-import { initializeCoinListCache } from "../thunks/coinListCacheThunk";
+import { initializePopularCoinsListCache } from "../thunks/popularCoinsListCacheThunk";
 import { updateStoreData } from "./store.utils";
 import { coinsActions } from "../store/coins";
 import { appInfoActions } from "../store/appInfo";
@@ -105,7 +105,7 @@ export const saveCoinDataForCurrencyInBrowser = async (
 
       // Store the merged data back into the database
       await db[tableName].put(mergedCoinData, currency);
-    } else if (tableName === COINLISTS_TABLENAME) {
+    } else if (tableName === POPULARCOINSLISTS_TABLENAME) {
       await db[tableName].put({ currency, coinData });
     } else if (tableName === CURRENCYRATES_TABLENAME) {
       await db[tableName].put({ currency, rates: coinData });
@@ -231,14 +231,16 @@ export const validateCacheDataForTable = async (tableName) => {
       const dataForCurrency = await fetchDataFromIndexedDB(tableName, currency);
 
       switch (tableName) {
-        case COINLISTS_TABLENAME:
-          // Validate CoinList data
+        case POPULARCOINSLISTS_TABLENAME:
+          // Validate PopularCoinsList data
           if (
             !dataForCurrency ||
             !Array.isArray(dataForCurrency.coinData) ||
             dataForCurrency.coinData.length === 0
           ) {
-            console.warn(`Invalid coinList data for currency: ${currency}`);
+            console.warn(
+              `Invalid popularPopularCoinsList data for currency: ${currency}`,
+            );
             return false;
           }
           break;
@@ -453,13 +455,15 @@ export const areNecessaryCachesValid = async (serverGlobalCacheVersion = 0) => {
   }
   console.log("Valid GlobalCacheVersion!");
 
-  // Check if all IndexedDB CoinList caches are valid
-  const isCoinListValid = await validateCacheDataForTable(COINLISTS_TABLENAME);
-  if (!isCoinListValid) {
-    console.warn("Invalid CoinList Cache");
+  // Check if all IndexedDB PopularCoinsList caches are valid
+  const isPopularCoinsListValid = await validateCacheDataForTable(
+    POPULARCOINSLISTS_TABLENAME,
+  );
+  if (!isPopularCoinsListValid) {
+    console.warn("Invalid PopularCoinsList Cache");
     return false;
   }
-  console.log("Valid CoinList Cache!");
+  console.log("Valid PopularCoinsList Cache!");
 
   // Check if all IndexedDB CurrencyRates caches are valid
   const isCurrencyRatesValid = await validateCacheDataForTable(
@@ -479,7 +483,7 @@ export const areNecessaryCachesValid = async (serverGlobalCacheVersion = 0) => {
  */
 export const clearAllCaches = async () => {
   console.warn("CLEARING ALL CACHES");
-  await clearCacheForAllKeysInTable(COINLISTS_TABLENAME);
+  await clearCacheForAllKeysInTable(POPULARCOINSLISTS_TABLENAME);
   await clearCacheForAllKeysInTable(COINDETAILS_TABLENAME);
   await clearCacheForAllKeysInTable(CURRENCYRATES_TABLENAME);
   localStorage?.removeItem("preloadedCoins");
@@ -493,9 +497,14 @@ export const clearAllCaches = async () => {
  * @param {string} serverGlobalCacheVersion - The global cache version from the server (optional, and should not be provided by the client cookie).
  * @returns {Promise<boolean>} Returns `true` if the cache is valid, otherwise `false` and the cache is cleared.
  */
-export const validateAndResetCacheIfInvalid = async (serverGlobalCacheVersion) => {
+export const validateAndResetCacheIfInvalid = async (
+  serverGlobalCacheVersion,
+) => {
   const isCacheValid = await areNecessaryCachesValid(serverGlobalCacheVersion);
-  console.log("areNecessaryCachesValid - validateAndResetCacheIfInvalid", isCacheValid);
+  console.log(
+    "areNecessaryCachesValid - validateAndResetCacheIfInvalid",
+    isCacheValid,
+  );
 
   if (!isCacheValid) {
     console.log("Cache is invalid. Clearing...");
@@ -564,7 +573,7 @@ export const fetchCurrencyDataFromIndexedDB = async (
 };
 
 /**
- * Fetches new CoinList Data, updates the Redux store, and then reinitializes the CoinList Cache.
+ * Fetches new PopularCoinsList Data, updates the Redux store, and then reinitializes the PopularCoinsList Cache.
  *
  * If `shouldIgnoreCache` is set to false, the function checks the cache and attempts to fetch the coin list data from it.
  * If the cache fetch fails or returns invalid data, it logs an error and proceeds to fetch from the API.
@@ -577,13 +586,13 @@ export const fetchCurrencyDataFromIndexedDB = async (
  * @param {boolean} indexedDBCacheIsValid - A flag indicating whether the cache is valid or not. If passed, will not do another indexedDB request.
  * @returns {Promise<void>} - A promise that resolves when the store is updated and the cache is reinitialized.
  */
-export const fetchUpdateAndReinitalizeCoinListCache = async (
+export const fetchUpdateAndReinitalizePopularCoinsListCache = async (
   store,
   indexedDBCacheIsValid,
 ) => {
-  console.log("fetchUpdateAndReinitalizeCoinListCache");
+  console.log("fetchUpdateAndReinitalizePopularCoinsListCache");
 
-  let coinListCacheData;
+  let popularPopularCoinsListCacheData;
   const state = store.getState();
   const currentCurrency = state.currency.currentCurrency;
 
@@ -595,7 +604,7 @@ export const fetchUpdateAndReinitalizeCoinListCache = async (
   if (isCacheValid) {
     try {
       const cacheData = await fetchDataFromIndexedDB(
-        COINLISTS_TABLENAME,
+        POPULARCOINSLISTS_TABLENAME,
         currentCurrency,
       );
       const currencyRatesCacheData = await fetchCurrencyDataFromIndexedDB(
@@ -603,12 +612,12 @@ export const fetchUpdateAndReinitalizeCoinListCache = async (
       );
 
       if (cacheData?.coinData) {
-        coinListCacheData = {
+        popularPopularCoinsListCacheData = {
           coins: {
             ...state.coins,
-            displayedCoinListCoins: cacheData.coinData,
-            coinListCoinsByCurrency: {
-              ...state.coins.coinListCoinsByCurrency,
+            displayedPopularCoinsListCoins: cacheData.coinData,
+            popularPopularCoinsListCoinsByCurrency: {
+              ...state.coins.popularPopularCoinsListCoinsByCurrency,
               [currentCurrency]: cacheData.coinData,
             },
             trendingCarouselCoins: cacheData.coinData.slice(0, 10),
@@ -618,29 +627,35 @@ export const fetchUpdateAndReinitalizeCoinListCache = async (
             currencyRates: currencyRatesCacheData,
           },
         };
-        console.log("cache USED for fetchDataForCoinListCacheInitialization");
+        console.log(
+          "cache USED for fetchDataForPopularCoinsListCacheInitialization",
+        );
       } else {
         throw new Error("No valid data in cache");
       }
     } catch (error) {
       console.error("Error fetching from cache:", error);
-      coinListCacheData = await fetchDataForCoinListCacheInitialization(
-        currentCurrency,
+      popularPopularCoinsListCacheData =
+        await fetchDataForPopularCoinsListCacheInitialization(currentCurrency);
+      storeCurrencyRatesInIndexedDB(
+        popularPopularCoinsListCacheData.currency.currencyRates,
       );
-      storeCurrencyRatesInIndexedDB(coinListCacheData.currency.currencyRates);
     }
   } else {
-    console.log("cache NOT used for fetchDataForCoinListCacheInitialization");
-    coinListCacheData = await fetchDataForCoinListCacheInitialization(
-      currentCurrency,
+    console.log(
+      "cache NOT used for fetchDataForPopularCoinsListCacheInitialization",
     );
+    popularPopularCoinsListCacheData =
+      await fetchDataForPopularCoinsListCacheInitialization(currentCurrency);
     updateGlobalCacheVersion();
-    storeCurrencyRatesInIndexedDB(coinListCacheData.currency.currencyRates);
+    storeCurrencyRatesInIndexedDB(
+      popularPopularCoinsListCacheData.currency.currencyRates,
+    );
   }
 
-  updateStoreData(store, coinListCacheData);
+  updateStoreData(store, popularPopularCoinsListCacheData);
   return store.dispatch(
-    initializeCoinListCache({ indexedDBCacheIsValid: isCacheValid }),
+    initializePopularCoinsListCache({ indexedDBCacheIsValid: isCacheValid }),
   );
 };
 
@@ -743,16 +758,18 @@ export const checkAndResetCache = async (store, serverGlobalCacheVersion) => {
 
   // If the server's cache version matches the client's, fetch fresh data and then update the store because the cache is invalid for some other reason than server expiry - like the version expiring on the client (coin page since we don't return a new GCV), or being malformed for some reason.
   if (serverGlobalCacheVersion === clientGlobalCacheVersion) {
-    await fetchUpdateAndReinitalizeCoinListCache(store, false);
+    await fetchUpdateAndReinitalizePopularCoinsListCache(store, false);
     updateGlobalCacheVersion();
     return;
   }
 
   // If the server's globalCacheVersion is different from the client, then it's because new data was fetched there. In that case, we should use the data to dispatch
-  if (store.getState().coins.displayedCoinListCoins.length > 0) {
-    // New CoinLists Data
-    console.warn("New CoinLists Data");
-    store.dispatch(initializeCoinListCache({ indexedDBCacheIsValid: false }));
+  if (store.getState().coins.displayedPopularCoinsListCoins.length > 0) {
+    // New PopularCoinsLists Data
+    console.warn("New PopularCoinsLists Data");
+    store.dispatch(
+      initializePopularCoinsListCache({ indexedDBCacheIsValid: false }),
+    );
     updateGlobalCacheVersion(serverGlobalCacheVersion);
   } else if (
     Object.keys(store.getState().coins.selectedCoinDetails).length > 0
@@ -956,39 +973,46 @@ export const preloadDetailsForCurrentCoinIfOnDetailsPage = async (store) => {
 };
 
 /**
- * Hydrates the CoinList data from the best available source.
+ * Hydrates the PopularCoinsList data from the best available source.
  *
  * The function first checks for initial data from the server. If unavailable, it then checks the IndexedDB cache.
- * If the data is also not in the cache, it fetches the CoinList data via an API call.
- * This ensures that the CoinList is always hydrated with the most readily available data.
+ * If the data is also not in the cache, it fetches the PopularCoinsList data via an API call.
+ * This ensures that the PopularCoinsList is always hydrated with the most readily available data.
  *
  * @param {Object} store - The Redux store.
  * @param {boolean} isCacheValid - Indicates whether the cache is valid or not.
  * @param {string} serverGlobalCacheVersion - The global cache version from the server (optional, and should not be provided by the client cookie).
  * @returns {Promise<void>}
  */
-export const hydrateCoinListFromAvailableSources = async (
+export const hydratePopularCoinsListFromAvailableSources = async (
   store,
   isCacheValid,
   serverGlobalCacheVersion,
 ) => {
-  const initialHundredCoins = store.getState().coins.displayedCoinListCoins;
+  const initialHundredCoins =
+    store.getState().coins.displayedPopularCoinsListCoins;
 
   // Handle the case where no initial coin list data is available
   if (!Array.isArray(initialHundredCoins) || initialHundredCoins.length === 0) {
-    console.log("We didn't start with CoinLists data so we need to fetch it.");
-    fetchUpdateAndReinitalizeCoinListCache(store, isCacheValid).then(() =>
-      store.dispatch(appInfoActions.finishCoinListPreloading()),
+    console.log(
+      "We didn't start with PopularCoinsLists data so we need to fetch it.",
+    );
+    fetchUpdateAndReinitalizePopularCoinsListCache(store, isCacheValid).then(
+      () => store.dispatch(appInfoActions.finishPopularCoinsListPreloading()),
     );
   } else {
     console.log(
-      "We started with CoinLists data from the server. DON'T FETCH IT AGAIN, just initialize the cache with it.",
+      "We started with PopularCoinsLists data from the server. DON'T FETCH IT AGAIN, just initialize the cache with it.",
     );
     store
       .dispatch(
-        initializeCoinListCache({ indexedDBCacheIsValid: isCacheValid }),
+        initializePopularCoinsListCache({
+          indexedDBCacheIsValid: isCacheValid,
+        }),
       )
-      .then(() => store.dispatch(appInfoActions.finishCoinListPreloading()));
+      .then(() =>
+        store.dispatch(appInfoActions.finishPopularCoinsListPreloading()),
+      );
     optimallyUpdateGlobalCacheVersion(serverGlobalCacheVersion);
   }
 };

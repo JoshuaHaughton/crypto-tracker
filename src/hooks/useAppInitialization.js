@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect } from "react";
 import {
-  hydrateCoinListFromAvailableSources,
+  hydratePopularCoinsListFromAvailableSources,
   hydratePreloadedCoinsFromCacheIfAvailable,
   preloadDetailsForCurrentCoinIfOnDetailsPage,
   validateAndResetCacheIfInvalid,
@@ -28,7 +28,7 @@ export const useAppInitialization = (store, serverGlobalCacheVersion) => {
       const areNecessaryCachesValid = await validateAndResetCacheIfInvalid(
         serverGlobalCacheVersion,
       );
-      hydrateCoinListFromAvailableSources(
+      hydratePopularCoinsListFromAvailableSources(
         store,
         areNecessaryCachesValid,
         serverGlobalCacheVersion,

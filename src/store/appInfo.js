@@ -2,9 +2,9 @@ import { createSlice } from "@reduxjs/toolkit";
 import { withCommonActions } from "./commonActions";
 
 export const initialAppInfoState = {
-  coinListPageNumber: 1,
+  popularCoinsListPageNumber: 1,
   isCoinDetailsPreloadedFromDB: false,
-  isCoinListPreloaded: false,
+  isPopularCoinsListPreloaded: false,
   coinsBeingFetched: [],
 };
 
@@ -13,10 +13,11 @@ const appInfoSliceDefinition = {
   name: "appInfo",
   initialState: initialAppInfoState,
   reducers: {
-    updateCoinListPageNumber(state, action) {
-      console.log("updateCoinListPageNumber", action);
-      if (action.payload.coinListPageNumber) {
-        state.coinListPageNumber = action.payload.coinListPageNumber;
+    updatePopularCoinsListPageNumber(state, action) {
+      console.log("updatePopularCoinsListPageNumber", action);
+      if (action.payload.popularCoinsListPageNumber) {
+        state.popularCoinsListPageNumber =
+          action.payload.popularCoinsListPageNumber;
       }
     },
     startCoinDetailsPreloading: (state) => {
@@ -25,12 +26,12 @@ const appInfoSliceDefinition = {
     finishCoinDetailsPreloading: (state) => {
       state.isCoinDetailsPreloadedFromDB = true;
     },
-    startCoinListPreloading: (state) => {
-      state.isCoinListPreloaded = false;
+    startPopularCoinsListPreloading: (state) => {
+      state.isPopularCoinsListPreloaded = false;
     },
-    finishCoinListPreloading: (state) => {
-      console.log("finishCoinListPreloading");
-      state.isCoinListPreloaded = true;
+    finishPopularCoinsListPreloading: (state) => {
+      console.log("finishPopularCoinsListPreloading");
+      state.isPopularCoinsListPreloaded = true;
     },
     // Add a coin to the list of coins being fetched
     addCoinBeingFetched: (state, action) => {

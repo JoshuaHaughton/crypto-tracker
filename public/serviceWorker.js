@@ -4,7 +4,7 @@ let db;
 
 // Schema from Dexie initialization code
 const SCHEMA = {
-  coinLists: "currency",
+  popularCoinsLists: "currency",
   coinDetails: "currency",
   currencyRates: "currency",
   globalCacheInfo: "key",

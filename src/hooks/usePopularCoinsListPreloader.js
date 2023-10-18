@@ -9,17 +9,17 @@ import { useRouter } from "next/router";
  *
  * @returns {Object} Handlers for link hover and link click events.
  */
-export function useCoinListPreloader() {
+export function usePopularCoinsListPreloader() {
   const router = useRouter();
-  const isCoinListPreloaded = useSelector(
-    (state) => state.appInfo.isCoinListPreloaded,
+  const isPopularCoinsListPreloaded = useSelector(
+    (state) => state.appInfo.isPopularCoinsListPreloaded,
   );
-  // The CoinList is automatically preloaded by the useAppInitialization hook
-  const [loading, setLoading] = useState(!isCoinListPreloaded);
+  // The PopularCoinsList is automatically preloaded by the useAppInitialization hook
+  const [loading, setLoading] = useState(!isPopularCoinsListPreloaded);
   const [waitingForPreload, setWaitingForPreload] = useState(false);
 
   const handleMouseEnter = () => {
-    console.log("handleMouseEnter - useCoinListPreloader");
+    console.log("handleMouseEnter - usePopularCoinsListPreloader");
     // Prefetch the route for the coin list page
     router.prefetch(`/`);
   };
@@ -29,12 +29,12 @@ export function useCoinListPreloader() {
     event.preventDefault();
 
     // If coin list data is preloaded, navigate to the coin list page immediately
-    if (isCoinListPreloaded) {
-      console.log("usePreloadedData - useCoinListPreloader");
+    if (isPopularCoinsListPreloaded) {
+      console.log("usePreloadedData - usePopularCoinsListPreloader");
       Cookie.set("usePreloadedData", "true");
       router.push("/");
     } else {
-      console.log("start the preload process - useCoinListPreloader");
+      console.log("start the preload process - usePopularCoinsListPreloader");
       // If coin list data is not preloaded, start the preload process
       if (!loading) {
         setLoading(true);
@@ -45,15 +45,15 @@ export function useCoinListPreloader() {
 
   // Handle navigation once coin list preloading completes
   useEffect(() => {
-    if (waitingForPreload && isCoinListPreloaded) {
+    if (waitingForPreload && isPopularCoinsListPreloaded) {
       console.log(
-        "Handle navigation once coin list preloading completes - useCoinListPreloader",
+        "Handle navigation once coin list preloading completes - usePopularCoinsListPreloader",
       );
       setWaitingForPreload(false);
       Cookie.set("usePreloadedData", "true");
       router.push("/");
     }
-  }, [waitingForPreload, isCoinListPreloaded]);
+  }, [waitingForPreload, isPopularCoinsListPreloaded]);
 
   return { handleMouseEnter, handleLinkClick };
 }

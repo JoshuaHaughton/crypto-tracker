@@ -1,34 +1,34 @@
 import "react-alice-carousel/lib/alice-carousel.css";
 import { useEffect } from "react";
-import CoinList from "../src/components/CoinList";
+import PopularCoinsList from "../src/components/PopularCoinsList";
 import Banner from "../src/components/UI/Banner/Banner";
 import Pagination from "../src/components/UI/Pagination.jsx";
 import styles from "./Home.module.css";
 import { useSelector } from "react-redux";
 import { initialCoinsState } from "../src/store/coins";
 import { initialCurrencyState } from "../src/store/currency";
-import { fetchDataForCoinListCacheInitialization } from "../src/utils/api.utils";
+import { fetchDataForPopularCoinsListCacheInitialization } from "../src/utils/api.utils";
 import {
   FIVE_MINUTES_IN_MS,
   FIVE_MINUTES_IN_SECONDS,
 } from "../src/global/constants";
 
 export default function Home() {
-  const coinListPageNumber = useSelector(
-    (state) => state.appInfo.coinListPageNumber,
+  const popularCoinsListPageNumber = useSelector(
+    (state) => state.appInfo.popularCoinsListPageNumber,
   );
 
   useEffect(() => {
-    if (coinListPageNumber !== 1) {
+    if (popularCoinsListPageNumber !== 1) {
       window.scrollTo(0, 448);
     }
-  }, [coinListPageNumber]);
+  }, [popularCoinsListPageNumber]);
 
   return (
     <div className={styles.container}>
       <Banner />
       <h2>Crypto Prices</h2>
-      <CoinList />
+      <PopularCoinsList />
       <Pagination />
     </div>
   );
@@ -68,18 +68,17 @@ export async function getServerSideProps(context) {
   let globalCacheVersion = clientGlobalCacheVersion.toString();
 
   if (shouldFetchData) {
-    console.log("Fetching new CoinLists data on the server");
+    console.log("Fetching new PopularCoinsLists data on the server");
 
     try {
-      const coinListData = await fetchDataForCoinListCacheInitialization(
-        incomingCurrency,
-      );
+      const popularCoinsListData =
+        await fetchDataForPopularCoinsListCacheInitialization(incomingCurrency);
       // Update the globalCacheVersion after the fetch has completed
       globalCacheVersion = Date.now().toString();
 
       initialReduxState = {
-        coins: { ...coinListData.coins },
-        currency: { ...coinListData.currency },
+        coins: { ...popularCoinsListData.coins },
+        currency: { ...popularCoinsListData.currency },
       };
 
       // Set Cache-Control header to cache the page at the edge (CDN) for 5 minutes.

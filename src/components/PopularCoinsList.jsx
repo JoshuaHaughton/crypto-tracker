@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Coin from "./Coin/Coin";
-import styles from "./CoinList.module.css";
+import styles from "./PopularCoinsList.module.css";
 import { TextField } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -20,7 +20,7 @@ const bigNumberFormatter = (num) => {
 
 const PageSize = 10;
 
-const CoinList = ({ initialHundredCoins }) => {
+const PopularCoinsList = ({ initialHundredCoins }) => {
   const dispatch = useDispatch();
   const isBreakpoint380 = useSelector(
     (state) => state.mediaQuery.isBreakpoint380,
@@ -31,11 +31,12 @@ const CoinList = ({ initialHundredCoins }) => {
   const isBreakpoint1250 = useSelector(
     (state) => state.mediaQuery.isBreakpoint1250,
   );
-  const displayedCoinListCoins = useSelector(
-    (state) => state.coins.displayedCoinListCoins,
+  const displayedPopularCoinsListCoins = useSelector(
+    (state) => state.coins.displayedPopularCoinsListCoins,
   );
-  const coinListPageNumber = useSelector(
-    (state) => state.appInfo.coinListPageNumber,
+  console.log(displayedPopularCoinsListCoins);
+  const popularCoinsListPageNumber = useSelector(
+    (state) => state.appInfo.popularCoinsListPageNumber,
   );
   const currentSymbol = useSelector((state) => state.currency.symbol);
   const currentCurrency = useSelector(
@@ -43,31 +44,33 @@ const CoinList = ({ initialHundredCoins }) => {
   );
   const [search, setSearch] = useState("");
   const [shownCoins, setShownCoins] = useState(
-    displayedCoinListCoins.length < 1
-      ? initialHundredCoins.slice(
-          (coinListPageNumber - 1) * PageSize,
-          (coinListPageNumber - 1) * PageSize + PageSize,
-        )
-      : displayedCoinListCoins.slice(
-          (coinListPageNumber - 1) * PageSize,
-          (coinListPageNumber - 1) * PageSize + PageSize,
-        ),
+    displayedPopularCoinsListCoins.slice(
+      (popularCoinsListPageNumber - 1) * PageSize,
+      (popularCoinsListPageNumber - 1) * PageSize + PageSize,
+    ),
   );
 
   const currentPageCoins = useMemo(() => {
-    const firstPageIndex = (coinListPageNumber - 1) * PageSize;
+    const firstPageIndex = (popularCoinsListPageNumber - 1) * PageSize;
     const lastPageIndex = firstPageIndex + PageSize;
 
-    if (displayedCoinListCoins.length < 1) {
+    if (displayedPopularCoinsListCoins.length < 1) {
       setShownCoins(initialHundredCoins.slice(firstPageIndex, lastPageIndex));
       return initialHundredCoins.slice(firstPageIndex, lastPageIndex);
     } else {
       setShownCoins(
-        displayedCoinListCoins.slice(firstPageIndex, lastPageIndex),
+        displayedPopularCoinsListCoins.slice(firstPageIndex, lastPageIndex),
       );
-      return displayedCoinListCoins.slice(firstPageIndex, lastPageIndex);
+      return displayedPopularCoinsListCoins.slice(
+        firstPageIndex,
+        lastPageIndex,
+      );
     }
-  }, [coinListPageNumber, displayedCoinListCoins, initialHundredCoins]);
+  }, [
+    popularCoinsListPageNumber,
+    displayedPopularCoinsListCoins,
+    initialHundredCoins,
+  ]);
 
   const handleChange = (e) => {
     e.preventDefault();
@@ -76,7 +79,7 @@ const CoinList = ({ initialHundredCoins }) => {
 
   useEffect(() => {
     if (search !== "") {
-      let searchedCoins = displayedCoinListCoins?.filter((coin) => {
+      let searchedCoins = displayedPopularCoinsListCoins?.filter((coin) => {
         return coin.name.toLowerCase().includes(search.toLowerCase());
       });
       setShownCoins(searchedCoins);
@@ -177,4 +180,4 @@ const CoinList = ({ initialHundredCoins }) => {
   );
 };
 
-export default React.memo(CoinList);
+export default PopularCoinsList;

@@ -4,7 +4,7 @@ const db = new Dexie("CryptoTrackerDB");
 
 // Define the database schema
 db.version(1).stores({
-  coinLists: "currency",
+  popularCoinsLists: "currency",
   coinDetails: "currency",
   currencyRates: "currency",
   globalCacheInfo: "key",

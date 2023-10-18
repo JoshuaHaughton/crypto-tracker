@@ -10,7 +10,7 @@ import { parse } from "cookie";
 import { SYMBOLS_BY_CURRENCIES } from "../../src/global/constants";
 import { bigNumberFormatter, removeHTML } from "../../src/utils/global.utils";
 import useChartData from "../../src/hooks/useChartData";
-import { useCoinListPreloader } from "../../src/hooks/useCoinListPreloader";
+import { usePopularCoinsListPreloader } from "../../src/hooks/usePopularCoinsListPreloader";
 
 const CoinDetails = () => {
   const coinDetails = useSelector((state) => state.coins.selectedCoinDetails);
@@ -20,7 +20,7 @@ const CoinDetails = () => {
 
   const { chartData, currentChartPeriod, setCurrentChartPeriod } =
     useChartData(coinDetails);
-  const { handleMouseEnter, handleLinkClick } = useCoinListPreloader();
+  const { handleMouseEnter, handleLinkClick } = usePopularCoinsListPreloader();
 
   return (
     <div className={styles.container}>
