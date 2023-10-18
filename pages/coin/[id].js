@@ -1,71 +1,37 @@
-import { useEffect, useState } from "react";
 import HistoryChart from "../../src/components/UI/HistoryChart";
 import styles from "./Coin.module.css";
 import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useSelector } from "react-redux";
-import { initialCoinsState as defaultInitialCoinsState } from "../../src/store/coins";
-import Link from "next/link";
-import { initialCurrencyState as defaultInitialCurrencyState } from "../../src/store/currency";
+import { initialCurrencyState } from "../../src/store/currency";
 import { fetchCoinDetailsFromCryptoCompare } from "../../src/utils/api.utils";
 import { parse } from "cookie";
 import { SYMBOLS_BY_CURRENCIES } from "../../src/global/constants";
-import Cookie from "js-cookie";
-import { useRouter } from "next/router";
 import { bigNumberFormatter, removeHTML } from "../../src/utils/global.utils";
 import useChartData from "../../src/hooks/useChartData";
+import { useCoinListPreloader } from "../../src/hooks/useCoinListPreloader";
 
-const Coin = () => {
-  const router = useRouter();
+const CoinDetails = () => {
   const coinDetails = useSelector((state) => state.coins.selectedCoinDetails);
   console.log("coinDetails", coinDetails);
   const coinAttributes = coinDetails.coinAttributes;
-
   const currentSymbol = useSelector((state) => state.currency.symbol);
-  const isCoinListPreloaded = useSelector(
-    (state) => state.appInfo.isCoinListPreloaded,
-  );
-
-  const [loading, setLoading] = useState(false);
-  const [waitingForPreload, setWaitingForPreload] = useState(false);
 
   const { chartData, currentChartPeriod, setCurrentChartPeriod } =
     useChartData(coinDetails);
-
-  const handleLinkClick = (event) => {
-    event.preventDefault();
-
-    if (isCoinListPreloaded) {
-      Cookie.set("usePreloadedData", "true");
-      router.push("/");
-    } else {
-      if (!loading) {
-        setLoading(true);
-      }
-      setWaitingForPreload(true);
-    }
-  };
-
-  useEffect(() => {
-    if (waitingForPreload && isCoinListPreloaded) {
-      Cookie.set("usePreloadedData", "true");
-      setWaitingForPreload(false);
-      router.push("/");
-    }
-  }, [waitingForPreload, isCoinListPreloaded]);
+  const { handleMouseEnter, handleLinkClick } = useCoinListPreloader();
 
   return (
     <div className={styles.container}>
       <div className={styles.row}>
         <div className={styles.coin_info}>
-          <Link href="/" className={styles.back_link} passHref>
-            <FontAwesomeIcon
-              icon={faArrowLeft}
-              className={styles.back_link}
-              onClick={handleLinkClick}
-            />
-          </Link>
+          <FontAwesomeIcon
+            icon={faArrowLeft}
+            className={styles.back_link}
+            onMouseEnter={handleMouseEnter}
+            onClick={handleLinkClick}
+          />
           <header className={styles.header}>
             <div className={styles.title_wrapper}>
               <Image
@@ -364,29 +330,24 @@ const Coin = () => {
   );
 };
 
-export default Coin;
+export default CoinDetails;
 
 export async function getServerSideProps(context) {
   const { id } = context.params;
-
   const cookies = parse(context.req.headers.cookie || "");
   const currentCurrency =
     cookies.currentCurrency || initialCurrencyState.currentCurrency;
-
-  let initialCoinsState = defaultInitialCoinsState;
-  let initialCurrencyState = defaultInitialCurrencyState;
-
   const usePreloadedData = cookies.usePreloadedData === "true";
+
   // Before returning, make sure to delete the "usePreloadedData" cookie to reset it for the next navigation
   context.res.setHeader("Set-Cookie", "usePreloadedData=; Max-Age=-1; Path=/;");
 
   if (usePreloadedData) {
     console.log(
-      "use cached data for coins page! Not returning initialReduxState from server",
+      "use cached data for coinDetails page! Not returning initialReduxState from server",
     );
     return { props: {} };
   }
-
   console.log("fetch new data for coins page...");
 
   try {
@@ -441,11 +402,11 @@ export async function getServerSideProps(context) {
       },
     };
   } catch (err) {
-    console.log(err);
+    // Return default data and log error
+    console.warn(err);
     return {
       props: {
         initialReduxState: {
-          coins: initialCoinsState,
           currency: {
             currentCurrency,
             symbol: SYMBOLS_BY_CURRENCIES[currentCurrency],
