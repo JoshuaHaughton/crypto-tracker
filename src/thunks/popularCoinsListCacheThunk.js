@@ -28,7 +28,7 @@ export const initializePopularCoinsListCache = createAsyncThunk(
   "coins/initializePopularCoinsListCache",
   async (options = { indexedDBCacheIsValid: null }, { dispatch, getState }) => {
     const state = getState();
-    const initialHundredCoins = state.coins.displayedPopularCoinsListCoins;
+    const initialHundredCoins = state.coins.displayedPopularCoinsList;
     const initialRates = state.currency.currencyRates;
     const currentCurrency = state.currency.currentCurrency;
     const { indexedDBCacheIsValid } = options;

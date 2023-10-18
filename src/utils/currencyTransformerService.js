@@ -101,7 +101,7 @@ export function initializeCurrencyTransformerWorker(dispatch) {
         // Store transformed coin data in Redux
         dispatch(
           coinsActions.updateCoins({
-            displayedPopularCoinsListCoins: transformedData,
+            displayedPopularCoinsList: transformedData,
             trendingCarouselCoins: transformedData.slice(0, 10),
           }),
         );

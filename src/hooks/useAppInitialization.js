@@ -11,7 +11,7 @@ import { useServiceWorker } from "./useServiceWorker";
 import { useRouteEvents } from "./useRouteEvents";
 
 /**
- * Custom hook to handle data initialization.
+ * Custom hook to handle data initialization on the initial load of the app.
  *
  * @param {Object} store - The Redux store.
  * @param {string} serverGlobalCacheVersion - The global cache version from the server (optional, and should not be provided by the client cookie).

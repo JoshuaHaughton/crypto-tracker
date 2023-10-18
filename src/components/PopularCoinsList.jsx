@@ -31,8 +31,8 @@ const PopularCoinsList = ({ initialHundredCoins }) => {
   const isBreakpoint1250 = useSelector(
     (state) => state.mediaQuery.isBreakpoint1250,
   );
-  const displayedPopularCoinsListCoins = useSelector(
-    (state) => state.coins.displayedPopularCoinsListCoins,
+  const displayedPopularCoinsList = useSelector(
+    (state) => state.coins.displayedPopularCoinsList,
   );
   const popularCoinsListPageNumber = useSelector(
     (state) => state.appInfo.popularCoinsListPageNumber,
@@ -43,7 +43,7 @@ const PopularCoinsList = ({ initialHundredCoins }) => {
   );
   const [search, setSearch] = useState("");
   const [shownCoins, setShownCoins] = useState(
-    displayedPopularCoinsListCoins.slice(
+    displayedPopularCoinsList.slice(
       (popularCoinsListPageNumber - 1) * PageSize,
       (popularCoinsListPageNumber - 1) * PageSize + PageSize,
     ),
@@ -53,21 +53,18 @@ const PopularCoinsList = ({ initialHundredCoins }) => {
     const firstPageIndex = (popularCoinsListPageNumber - 1) * PageSize;
     const lastPageIndex = firstPageIndex + PageSize;
 
-    if (displayedPopularCoinsListCoins.length < 1) {
+    if (displayedPopularCoinsList.length < 1) {
       setShownCoins(initialHundredCoins.slice(firstPageIndex, lastPageIndex));
       return initialHundredCoins.slice(firstPageIndex, lastPageIndex);
     } else {
       setShownCoins(
-        displayedPopularCoinsListCoins.slice(firstPageIndex, lastPageIndex),
+        displayedPopularCoinsList.slice(firstPageIndex, lastPageIndex),
       );
-      return displayedPopularCoinsListCoins.slice(
-        firstPageIndex,
-        lastPageIndex,
-      );
+      return displayedPopularCoinsList.slice(firstPageIndex, lastPageIndex);
     }
   }, [
     popularCoinsListPageNumber,
-    displayedPopularCoinsListCoins,
+    displayedPopularCoinsList,
     initialHundredCoins,
   ]);
 
@@ -78,14 +75,14 @@ const PopularCoinsList = ({ initialHundredCoins }) => {
 
   useEffect(() => {
     if (search !== "") {
-      let searchedCoins = displayedPopularCoinsListCoins?.filter((coin) => {
+      let searchedCoins = displayedPopularCoinsList?.filter((coin) => {
         return coin.name.toLowerCase().includes(search.toLowerCase());
       });
       setShownCoins(searchedCoins);
     } else {
       setShownCoins(currentPageCoins);
     }
-  }, [search]);
+  }, [currentPageCoins, displayedPopularCoinsList, search]);
 
   return (
     <div className={styles.container}>

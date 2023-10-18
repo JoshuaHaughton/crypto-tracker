@@ -318,10 +318,10 @@ export const fetchDataForPopularCoinsListCacheInitialization = async (
 
     return {
       coins: {
-        displayedPopularCoinsListCoins: initialHundredCoins,
+        displayedPopularCoinsList: initialHundredCoins,
         trendingCarouselCoins: trendingCarouselCoins,
-        popularPopularCoinsListCoinsByCurrency: {
-          ...initialCoinsState.popularPopularCoinsListCoinsByCurrency,
+        popularCoinsListByCurrency: {
+          ...initialCoinsState.popularCoinsListByCurrency,
           [targetCurrency]: initialHundredCoins,
         },
       },

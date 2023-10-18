@@ -24,8 +24,8 @@ export const updateCurrency = createAsyncThunk(
     const { currency: updatedCurrency } = payload;
     const {
       coins: {
-        displayedPopularCoinsListCoins,
-        popularCoinsListCoinsByCurrency,
+        displayedPopularCoinsList,
+        popularCoinsListByCurrency,
         selectedCoinDetails,
         cachedCoinDetailsByCurrency,
       },
@@ -48,7 +48,7 @@ export const updateCurrency = createAsyncThunk(
           type === "Details"
             ? coinsActions.updateSelectedCoin({ coinDetails: cache })
             : coinsActions.updateCoins({
-                displayedPopularCoinsListCoins: cache,
+                displayedPopularCoinsList: cache,
                 trendingCarouselCoins: cache.slice(0, 10),
               }),
         );
@@ -101,8 +101,8 @@ export const updateCurrency = createAsyncThunk(
     // Handle coin list transformations
     updateCurrencyAndCache(
       "List",
-      displayedPopularCoinsListCoins,
-      popularCoinsListCoinsByCurrency[updatedCurrency],
+      displayedPopularCoinsList,
+      popularCoinsListByCurrency[updatedCurrency],
     );
   },
 );

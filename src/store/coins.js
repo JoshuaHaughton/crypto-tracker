@@ -15,8 +15,8 @@ export const initialCoinsState = {
     AUD: {},
     GBP: {},
   },
-  displayedPopularCoinsListCoins: [],
-  popularCoinsListCoinsByCurrency: {
+  displayedPopularCoinsList: [],
+  popularCoinsListByCurrency: {
     CAD: [],
     USD: [],
     AUD: [],
@@ -33,9 +33,9 @@ const coinsSliceDefinition = {
   reducers: {
     updateCoins(state, action) {
       console.log("updateCoins", action);
-      if (action.payload.displayedPopularCoinsListCoins) {
-        state.displayedPopularCoinsListCoins =
-          action.payload.displayedPopularCoinsListCoins;
+      if (action.payload.displayedPopularCoinsList) {
+        state.displayedPopularCoinsList =
+          action.payload.displayedPopularCoinsList;
       }
 
       if (action.payload.trendingCarouselCoins) {
@@ -55,7 +55,7 @@ const coinsSliceDefinition = {
     setPopularCoinsListForCurrency(state, action) {
       console.log("setPopularCoinsListForCurrency", action);
       const { currency, coinData } = action.payload;
-      state.popularCoinsListCoinsByCurrency[currency] = coinData;
+      state.popularCoinsListByCurrency[currency] = coinData;
     },
     updateSelectedCoinDetailsForCurrency(state, action) {
       console.log("updateSelectedCoinDetailsForCurrency", action);

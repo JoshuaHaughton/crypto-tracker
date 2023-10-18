@@ -239,7 +239,7 @@ export const validateCacheDataForTable = async (tableName) => {
             dataForCurrency.coinData.length === 0
           ) {
             console.warn(
-              `Invalid popularPopularCoinsList data for currency: ${currency}`,
+              `Invalid popularCoinsList data for currency: ${currency}`,
             );
             return false;
           }
@@ -592,7 +592,7 @@ export const fetchUpdateAndReinitalizePopularCoinsListCache = async (
 ) => {
   console.log("fetchUpdateAndReinitalizePopularCoinsListCache");
 
-  let popularPopularCoinsListCacheData;
+  let popularCoinsListCacheData;
   const state = store.getState();
   const currentCurrency = state.currency.currentCurrency;
 
@@ -612,12 +612,12 @@ export const fetchUpdateAndReinitalizePopularCoinsListCache = async (
       );
 
       if (cacheData?.coinData) {
-        popularPopularCoinsListCacheData = {
+        popularCoinsListCacheData = {
           coins: {
             ...state.coins,
-            displayedPopularCoinsListCoins: cacheData.coinData,
-            popularPopularCoinsListCoinsByCurrency: {
-              ...state.coins.popularPopularCoinsListCoinsByCurrency,
+            displayedPopularCoinsList: cacheData.coinData,
+            popularCoinsListByCurrency: {
+              ...state.coins.popularCoinsListByCurrency,
               [currentCurrency]: cacheData.coinData,
             },
             trendingCarouselCoins: cacheData.coinData.slice(0, 10),
@@ -635,25 +635,25 @@ export const fetchUpdateAndReinitalizePopularCoinsListCache = async (
       }
     } catch (error) {
       console.error("Error fetching from cache:", error);
-      popularPopularCoinsListCacheData =
+      popularCoinsListCacheData =
         await fetchDataForPopularCoinsListCacheInitialization(currentCurrency);
       storeCurrencyRatesInIndexedDB(
-        popularPopularCoinsListCacheData.currency.currencyRates,
+        popularCoinsListCacheData.currency.currencyRates,
       );
     }
   } else {
     console.log(
       "cache NOT used for fetchDataForPopularCoinsListCacheInitialization",
     );
-    popularPopularCoinsListCacheData =
+    popularCoinsListCacheData =
       await fetchDataForPopularCoinsListCacheInitialization(currentCurrency);
     updateGlobalCacheVersion();
     storeCurrencyRatesInIndexedDB(
-      popularPopularCoinsListCacheData.currency.currencyRates,
+      popularCoinsListCacheData.currency.currencyRates,
     );
   }
 
-  updateStoreData(store, popularPopularCoinsListCacheData);
+  updateStoreData(store, popularCoinsListCacheData);
   return store.dispatch(
     initializePopularCoinsListCache({ indexedDBCacheIsValid: isCacheValid }),
   );
@@ -764,7 +764,7 @@ export const checkAndResetCache = async (store, serverGlobalCacheVersion) => {
   }
 
   // If the server's globalCacheVersion is different from the client, then it's because new data was fetched there. In that case, we should use the data to dispatch
-  if (store.getState().coins.displayedPopularCoinsListCoins.length > 0) {
+  if (store.getState().coins.displayedPopularCoinsList.length > 0) {
     // New PopularCoinsLists Data
     console.warn("New PopularCoinsLists Data");
     store.dispatch(
@@ -989,8 +989,7 @@ export const hydratePopularCoinsListFromAvailableSources = async (
   isCacheValid,
   serverGlobalCacheVersion,
 ) => {
-  const initialHundredCoins =
-    store.getState().coins.displayedPopularCoinsListCoins;
+  const initialHundredCoins = store.getState().coins.displayedPopularCoinsList;
 
   // Handle the case where no initial coin list data is available
   if (!Array.isArray(initialHundredCoins) || initialHundredCoins.length === 0) {
