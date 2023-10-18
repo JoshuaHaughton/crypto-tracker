@@ -16,9 +16,9 @@ const CarouselCoin = ({ coin, currentSymbol }) => {
       onMouseEnter={handleMouseEnter}
       onClick={handleCoinClick}
     >
-      <Link href={`/coin/${coin.id}`} passHref>
-        <Image src={coin.image} alt={coin.name} height={80} width={80} />
-      </Link>
+      {/* <Link href={`/coin/${coin.id}`} passHref> */}
+      <Image src={coin.image} alt={coin.name} height={80} width={80} />
+      {/* </Link> */}
       <p>
         {coin?.symbol.toUpperCase()}&nbsp;
         {profit ? (

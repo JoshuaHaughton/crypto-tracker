@@ -34,7 +34,6 @@ const PopularCoinsList = ({ initialHundredCoins }) => {
   const displayedPopularCoinsListCoins = useSelector(
     (state) => state.coins.displayedPopularCoinsListCoins,
   );
-  console.log(displayedPopularCoinsListCoins);
   const popularCoinsListPageNumber = useSelector(
     (state) => state.appInfo.popularCoinsListPageNumber,
   );

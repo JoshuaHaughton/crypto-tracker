@@ -1,7 +1,6 @@
 import React from "react";
 import styles from "./Navbar.module.css";
 import logo from "../../../public/Crypto.svg";
-import Link from "next/link";
 import Image from "next/image";
 import HomeIcon from "@mui/icons-material/Home";
 import MenuItem from "@mui/material/MenuItem";
@@ -12,9 +11,7 @@ import { outlinedInputClasses } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
 import { updateCurrency } from "../../thunks/updateCurrencyThunk";
-import Cookie from "js-cookie";
-import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { usePopularCoinsListPreloader } from "../../hooks/usePopularCoinsListPreloader";
 
 const vertical = "bottom";
 const horizontal = "center";
@@ -37,10 +34,8 @@ const StyledSelect = styled(Select)(`
 `);
 
 const Navbar = () => {
+  const dispatch = useDispatch();
   const [openNotificationBar, setOpenNotificationBar] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [waitingForPreload, setWaitingForPreload] = useState(false);
-
   const currentCurrency = useSelector(
     (state) => state.currency.currentCurrency,
   );
@@ -48,39 +43,7 @@ const Navbar = () => {
   const isBreakpoint555 = useSelector(
     (state) => state.mediaQuery.isBreakpoint555,
   );
-  const dispatch = useDispatch();
-
-  const router = useRouter();
-
-  const isPopularCoinsListPreloaded = useSelector(
-    (state) => state.appInfo.isPopularCoinsListPreloaded,
-  );
-
-  const handleLinkHover = () => {
-    router.prefetch(`/`);
-  };
-
-  const handleLinkClick = (event) => {
-    event.preventDefault();
-
-    if (isPopularCoinsListPreloaded) {
-      Cookie.set("usePreloadedData", "true");
-      router.push("/");
-    } else {
-      if (!loading) {
-        setLoading(true);
-      }
-      setWaitingForPreload(true);
-    }
-  };
-
-  useEffect(() => {
-    if (waitingForPreload && isPopularCoinsListPreloaded) {
-      setWaitingForPreload(false);
-      Cookie.set("usePreloadedData", "true");
-      router.push("/");
-    }
-  }, [waitingForPreload, isPopularCoinsListPreloaded]);
+  const { handleLinkClick, handleLinkHover } = usePopularCoinsListPreloader();
 
   const handleCurrencyChange = (e) => {
     const currency = e.target.value.split(",")[0].toUpperCase();
@@ -101,7 +64,6 @@ const Navbar = () => {
           </div>
 
           <div className={styles.nav_list}>
-            {/* <Link href="/" passHref> */}
             <div
               className={styles.link_wrapper}
               onClick={handleLinkClick}
@@ -109,7 +71,6 @@ const Navbar = () => {
             >
               <HomeIcon /> {!isBreakpoint555 && `Home`}
             </div>
-            {/* </Link> */}
 
             <StyledSelect
               variant="outlined"
