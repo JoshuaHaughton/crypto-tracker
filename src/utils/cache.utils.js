@@ -1,15 +1,12 @@
 import db from "./database";
 import {
   ALL_CURRENCIES,
-  CACHE_EXPIRY_TIME_IN_MINUTES,
   COINDETAILS_TABLENAME,
   COINLISTS_TABLENAME,
   CURRENCYRATES_TABLENAME,
-  GLOBALCACHEVERSION_COOKIE_EXPIRY_TIME,
   MAXIMUM_PRELOADED_COIN_COUNT,
 } from "../global/constants";
 import Cookie from "js-cookie";
-import { initializeStore } from "../store";
 import {
   fetchCoinDetailsFromCryptoCompare,
   fetchDataForCoinListCacheInitialization,
@@ -19,7 +16,6 @@ import { updateStoreData } from "./store.utils";
 import { coinsActions } from "../store/coins";
 import { appInfoActions } from "../store/appInfo";
 import { postMessageToCurrencyTransformerWorker } from "./currencyTransformerService";
-import { preloadSelectedCoinDetails } from "../hooks/useAppInitialization";
 
 /**
  * Clears cache for a specific table and key.
@@ -495,7 +491,7 @@ export const clearAllCaches = async () => {
  * Validates the cache based on server's global cache version and clears it if it's invalid.
  *
  * @param {string} serverGlobalCacheVersion - The global cache version from the server (optional, and should not be provided by the client cookie).
- * @returns {Promise<boolean>} - Returns `true` if the cache is valid, otherwise `false` and the cache is cleared.
+ * @returns {Promise<boolean>} Returns `true` if the cache is valid, otherwise `false` and the cache is cleared.
  */
 export const validateAndClearCache = async (serverGlobalCacheVersion) => {
   const isCacheValid = await areNecessaryCachesValid(serverGlobalCacheVersion);
@@ -692,18 +688,18 @@ export const loadCachedCoinDetailsToRedux = async (currency, dispatch) => {
 };
 
 /**
- * Loads preloaded coin details for all supported currencies from IndexedDB into Redux.
+ * Loads all available cached preloaded coinDetails for all supported currencies from IndexedDB into Redux.
  *
  * Initiates the coin details preloading process and updates the app's state
- * to indicate the start of the preloading process. It then iterates through each
+ * to indicate the start of the CoinDetails preloading process. It then iterates through each
  * supported currency and attempts to load the cached coin details from IndexedDB
  * into the Redux store. Once the process completes for all currencies, the app's
- * state is updated again to indicate the end of the preloading process.
+ * state is updated again to indicate the end of the CoinDetails preloading process.
  *
  * @param {Object} dispatch - The dispatch method from the Redux store.
- * @returns {Promise<void>} Returns a promise indicating the success or failure of the loading operation.
+ * @returns {Promise<void>} Returns a promise indicating the success or failure of the CoinDetails loading operation.
  */
-export const hydratePreloadedCoinsFromCache = async (dispatch) => {
+export const hydratePreloadedCoinsFromCacheIfAvailable = async (dispatch) => {
   dispatch(appInfoActions.startCoinDetailsPreloading());
 
   // Iterate through each supported currency
@@ -763,7 +759,7 @@ export const checkAndResetCache = async (store, serverGlobalCacheVersion) => {
   ) {
     // New CoinDetail Data
     console.warn("New CoinDetail Data");
-    await preloadSelectedCoinDetails(store);
+    await preloadDetailsForCurrentCoinIfOnDetailsPage(store);
   }
 };
 
@@ -925,5 +921,74 @@ export const fetchAndPreloadCoin = async (
   } finally {
     // Mark the coin as no longer being fetched.
     dispatch(appInfoActions.removeCoinBeingFetched({ coinId }));
+  }
+};
+
+/**
+ * Preloads the details for the currently selected coin if on its details page.
+ *
+ * This function checks if the details for the selected coin are present and then preloads them into the cache.
+ * This preloading is particularly intended for when the user is on the coin's details page.
+ *
+ * @param {Object} store - The Redux store.
+ * @returns {Promise<void>}
+ */
+export const preloadDetailsForCurrentCoinIfOnDetailsPage = async (store) => {
+  const selectedCoinDetails = store.getState().coins.selectedCoinDetails;
+  const currentCurrency = store.getState().currency.currentCurrency;
+  const currencyRates = store.getState().currency.currencyRates;
+  if (
+    Object.keys(selectedCoinDetails).length > 0 &&
+    selectedCoinDetails.coinAttributes
+  ) {
+    console.log(
+      "We started with CoinDetails data, meaning it's new data from the server. Let's preload that.",
+    );
+    await preloadCoinDetails(
+      store.dispatch,
+      selectedCoinDetails,
+      currentCurrency,
+      currencyRates,
+    );
+  } else {
+    console.log("We did not start with CoinDetails data from server.");
+  }
+};
+
+/**
+ * Hydrates the CoinList data from the best available source.
+ *
+ * The function first checks for initial data from the server. If unavailable, it then checks the IndexedDB cache.
+ * If the data is also not in the cache, it fetches the CoinList data via an API call.
+ * This ensures that the CoinList is always hydrated with the most readily available data.
+ *
+ * @param {Object} store - The Redux store.
+ * @param {boolean} isCacheValid - Indicates whether the cache is valid or not.
+ * @param {string} serverGlobalCacheVersion - The global cache version from the server (optional, and should not be provided by the client cookie).
+ * @returns {Promise<void>}
+ */
+export const hydrateCoinListFromAvailableSources = async (
+  store,
+  isCacheValid,
+  serverGlobalCacheVersion,
+) => {
+  const initialHundredCoins = store.getState().coins.displayedCoinListCoins;
+
+  // Handle the case where no initial coin list data is available
+  if (!Array.isArray(initialHundredCoins) || initialHundredCoins.length === 0) {
+    console.log("We didn't start with CoinLists data so we need to fetch it.");
+    fetchUpdateAndReinitalizeCoinListCache(store, isCacheValid).then(() =>
+      store.dispatch(appInfoActions.finishCoinListPreloading()),
+    );
+  } else {
+    console.log(
+      "We started with CoinLists data from the server. DON'T FETCH IT AGAIN, just initialize the cache with it.",
+    );
+    store
+      .dispatch(
+        initializeCoinListCache({ indexedDBCacheIsValid: isCacheValid }),
+      )
+      .then(() => store.dispatch(appInfoActions.finishCoinListPreloading()));
+    optimallyUpdateGlobalCacheVersion(serverGlobalCacheVersion);
   }
 };

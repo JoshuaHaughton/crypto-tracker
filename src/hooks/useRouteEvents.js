@@ -5,17 +5,19 @@ import {
   terminateProgressBar,
 } from "../utils/progressBar";
 import { Router } from "next/router";
+import { checkAndResetCache } from "../utils/cache.utils";
 
 /**
- * Custom hook to handle route events and show/hide/loading progress.
+ * Custom hook to handle route events.
  *
- * @param {Function} checkAndResetCache - Cache reset function to run at the end of every route change
+ * @param {Object} store - The Redux store.
+ * @param {string} serverGlobalCacheVersion - The global cache version from the server (optional, and should not be provided by the client cookie).
  */
-export const useRouteEvents = (checkAndResetCache) => {
+export const useRouteEvents = (store, serverGlobalCacheVersion) => {
   useEffect(() => {
     const routeChangeCompleteHandler = () => {
       completeProgressBar();
-      checkAndResetCache();
+      checkAndResetCache(store, serverGlobalCacheVersion);
     };
 
     // Setup event listeners for route changes
@@ -32,5 +34,5 @@ export const useRouteEvents = (checkAndResetCache) => {
       Router.events.off("routeChangeComplete", routeChangeCompleteHandler);
       window.removeEventListener("beforeunload", terminateProgressBar);
     };
-  }, [checkAndResetCache]);
+  }, [store, serverGlobalCacheVersion]);
 };
