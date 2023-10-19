@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import styles from "./Carousel.module.css";
 import CarouselCoin from "./CarouselCoin";
@@ -23,6 +24,7 @@ const responsiveBreakpoints = {
 };
 
 const Carousel = () => {
+  const [isMounted, setIsMounted] = useState(false);
   const currentSymbol = useSelector((state) => state.currency.symbol);
   const carouselCoins = useSelector(
     (state) => state.coins.trendingCarouselCoins,
@@ -31,6 +33,10 @@ const Carousel = () => {
     <CarouselCoin key={coin.id} coin={coin} currentSymbol={currentSymbol} />
   ));
 
+  useEffect(() => {
+    setIsMounted(true); // Set the component as mounted after the initial render (AliceCarousel issue)
+  }, []);
+
   return (
     <section className={styles.carousel}>
       {/* 
@@ -38,17 +44,19 @@ const Carousel = () => {
           The AliceCarousel library has an issue with initial rendering that requires setting the innerWidth manually to
           prevent visual glitches.
       */}
-      <AliceCarousel
-        mouseTracking
-        infinite
-        autoPlay
-        autoPlayInterval={1000}
-        animationDuration={1500}
-        disableDotsControls
-        disableButtonsControls
-        responsive={responsiveBreakpoints}
-        items={formattedCarouselCoins}
-      />
+      {isMounted && (
+        <AliceCarousel
+          mouseTracking
+          infinite
+          autoPlay
+          autoPlayInterval={1000}
+          animationDuration={1500}
+          disableDotsControls
+          disableButtonsControls
+          responsive={responsiveBreakpoints}
+          items={formattedCarouselCoins}
+        />
+      )}
     </section>
   );
 };
