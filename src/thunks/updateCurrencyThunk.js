@@ -43,9 +43,9 @@ export const updateCurrency = createAsyncThunk(
 
     const updateCurrencyAndCache = (type, coins, cache) => {
       if (cache && !isEmpty(cache)) {
-        console.log(`CACHE USED - COIN ${type.toUpperCase()}`);
+        console.log(`CACHE USED - ${type.toUpperCase()}`);
         dispatch(
-          type === "Details"
+          type === "CoinDetails"
             ? coinsActions.updateSelectedCoin({ coinDetails: cache })
             : coinsActions.updateCoins({
                 displayedPopularCoinsList: cache,
@@ -56,13 +56,13 @@ export const updateCurrency = createAsyncThunk(
         dispatch(currencyActions.changeCurrency(payload));
       } else {
         // We update the currency after the transformations when not using the cache iside of the transformerworker so that we call it as soon as it's ready
-        console.log(`CACHE NOT USED - COIN ${type.toUpperCase()}`);
-        console.log(`CACHE NOT USED - COIN`, coins);
+        console.log(`CACHE NOT USED - ${type.toUpperCase()}`);
+        console.log(`CACHE NOT USED - DATA`, coins);
         // Only transform the requested currency first to save time. Then, we cache the rest
         postMessageToCurrencyTransformerWorker({
-          type: `transformCoin${type}Currency`,
+          type: `transform${type}Currency`,
           data: {
-            [type === "Details" ? "coinToTransform" : "coinsToTransform"]:
+            [type === "CoinDetails" ? "coinToTransform" : "coinsToTransform"]:
               coins,
             fromCurrency: currentCurrency.toUpperCase(),
             toCurrency: updatedCurrency.toUpperCase(),
@@ -71,9 +71,9 @@ export const updateCurrency = createAsyncThunk(
         });
         // Re-attempt caching all coins - if one doesn't exist, then there's a good chance that there's more than one
         postMessageToCurrencyTransformerWorker({
-          type: `transformAllCoin${type}Currencies`,
+          type: `transformAll${type}Currencies`,
           data: {
-            [type === "Details" ? "coinToTransform" : "coinsToTransform"]:
+            [type === "CoinDetails" ? "coinToTransform" : "coinsToTransform"]:
               coins,
             fromCurrency: currentCurrency.toUpperCase(),
             currencyRates: initialRates,
@@ -95,12 +95,12 @@ export const updateCurrency = createAsyncThunk(
         ];
       console.log("cache", cachedCoinDetailsByCurrency);
       console.log("cache", cache);
-      updateCurrencyAndCache("Details", selectedCoinDetails, cache);
+      updateCurrencyAndCache("CoinDetails", selectedCoinDetails, cache);
     }
 
     // Handle coin list transformations
     updateCurrencyAndCache(
-      "List",
+      "PopularCoinsList",
       displayedPopularCoinsList,
       popularCoinsListByCurrency[updatedCurrency],
     );

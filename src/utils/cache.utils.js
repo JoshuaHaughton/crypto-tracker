@@ -614,16 +614,13 @@ export const fetchUpdateAndReinitalizePopularCoinsListCache = async (
       if (cacheData?.coinData) {
         popularCoinsListCacheData = {
           coins: {
-            ...state.coins,
             displayedPopularCoinsList: cacheData.coinData,
             popularCoinsListByCurrency: {
-              ...state.coins.popularCoinsListByCurrency,
               [currentCurrency]: cacheData.coinData,
             },
             trendingCarouselCoins: cacheData.coinData.slice(0, 10),
           },
           currency: {
-            ...state.currency,
             currencyRates: currencyRatesCacheData,
           },
         };
@@ -996,9 +993,8 @@ export const hydratePopularCoinsListFromAvailableSources = async (
     console.log(
       "We didn't start with PopularCoinsLists data so we need to fetch it.",
     );
-    fetchUpdateAndReinitalizePopularCoinsListCache(store, isCacheValid).then(
-      () => store.dispatch(appInfoActions.finishPopularCoinsListPreloading()),
-    );
+    await fetchUpdateAndReinitalizePopularCoinsListCache(store, isCacheValid);
+    store.dispatch(appInfoActions.finishPopularCoinsListPreloading());
   } else {
     console.log(
       "We started with PopularCoinsLists data from the server. DON'T FETCH IT AGAIN, just initialize the cache with it.",
