@@ -5,7 +5,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useSelector } from "react-redux";
 import { initialCurrencyState } from "../../src/store/currency";
-import { fetchCoinDetailsFromCryptoCompare } from "../../src/utils/api.utils";
+import {
+  fetchCoinDetailsFromCryptoCompare,
+  prepareCoinDetailsPageProps,
+} from "../../src/utils/api.utils";
 import { parse } from "cookie";
 import { SYMBOLS_BY_CURRENCIES } from "../../src/global/constants";
 import { bigNumberFormatter, removeHTML } from "../../src/utils/global.utils";
@@ -333,86 +336,7 @@ const CoinDetails = () => {
 export default CoinDetails;
 
 export async function getServerSideProps(context) {
-  const { id } = context.params;
-  const cookies = parse(context.req.headers.cookie || "");
-  const currentCurrency =
-    cookies.currentCurrency || initialCurrencyState.currentCurrency;
-  const usePreloadedData = cookies.usePreloadedData === "true";
+  const coinDetailsPageProps = await prepareCoinDetailsPageProps(context);
 
-  // Before returning, make sure to delete the "usePreloadedData" cookie to reset it for the next navigation
-  context.res.setHeader("Set-Cookie", "usePreloadedData=; Max-Age=-1; Path=/;");
-
-  if (usePreloadedData) {
-    console.log(
-      "use cached data for coinDetails page! Not returning initialReduxState from server",
-    );
-    return { props: {} };
-  }
-  console.log("fetch new data for coins page...");
-
-  try {
-    const coinDetails = await fetchCoinDetailsFromCryptoCompare(
-      id,
-      currentCurrency,
-    );
-
-    const {
-      coinAttributes,
-      marketChartValues,
-      marketValues,
-      chartValues,
-      initialRates,
-    } = coinDetails;
-
-    return {
-      props: {
-        initialReduxState: {
-          coins: {
-            selectedCoinDetails: {
-              coinAttributes,
-              marketChartValues,
-              marketValues,
-              chartValues,
-            },
-            selectedCoinDetailsByCurrency: {
-              [currentCurrency]: {
-                coinAttributes,
-                marketChartValues,
-                marketValues,
-                chartValues,
-              },
-            },
-            cachedCoinDetailsByCurrency: {
-              [currentCurrency]: {
-                [coinAttributes.symbol.toUpperCase()]: {
-                  coinAttributes,
-                  marketChartValues,
-                  marketValues,
-                  chartValues,
-                },
-              },
-            },
-          },
-          currency: {
-            currentCurrency,
-            symbol: SYMBOLS_BY_CURRENCIES[currentCurrency],
-            currencyRates: initialRates,
-          },
-        },
-      },
-    };
-  } catch (err) {
-    // Return default data and log error
-    console.warn(err);
-    return {
-      props: {
-        initialReduxState: {
-          currency: {
-            currentCurrency,
-            symbol: SYMBOLS_BY_CURRENCIES[currentCurrency],
-          },
-        },
-      },
-    };
-  }
+  return coinDetailsPageProps;
 }

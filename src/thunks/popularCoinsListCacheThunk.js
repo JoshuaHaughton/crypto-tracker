@@ -1,5 +1,4 @@
 import {
-  areNecessaryCachesValid,
   saveCoinDataForCurrencyInBrowser,
   storeCurrencyRatesInIndexedDB,
   validateCacheDataForTable,
@@ -16,7 +15,7 @@ import { postMessageToCurrencyTransformerWorker } from "../utils/currencyTransfo
  * The thunk checks if coin data exists in the cache (IndexedDB) and is valid.
  * - If the cache is valid, it just dispatches the cached data to the Redux store.
  *
- * - If the cache is invalid or the data does not exist, or if the assumeInvalidIndexedDBCache option is true,
+ * - If the cache is invalid or the data does not exist,
  *   it sends the initial coin data to a web worker for currency transformation. Once the web worker
  *   processes the data and sends it back, the thunk:
  *    - Dispatches the transformed data to the Redux store.

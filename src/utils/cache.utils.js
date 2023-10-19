@@ -999,15 +999,12 @@ export const hydratePopularCoinsListFromAvailableSources = async (
     console.log(
       "We started with PopularCoinsLists data from the server. DON'T FETCH IT AGAIN, just initialize the cache with it.",
     );
-    store
-      .dispatch(
-        initializePopularCoinsListCache({
-          indexedDBCacheIsValid: isCacheValid,
-        }),
-      )
-      .then(() =>
-        store.dispatch(appInfoActions.finishPopularCoinsListPreloading()),
-      );
+    await store.dispatch(
+      initializePopularCoinsListCache({
+        indexedDBCacheIsValid: isCacheValid,
+      }),
+    );
+    store.dispatch(appInfoActions.finishPopularCoinsListPreloading());
     optimallyUpdateGlobalCacheVersion(serverGlobalCacheVersion);
   }
 };
