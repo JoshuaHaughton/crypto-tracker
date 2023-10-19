@@ -1,5 +1,6 @@
 .carousel {
   height: 50%;
+  min-height: 216.5px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -8,7 +9,7 @@
 .carousel_item {
   display: flex !important;
   flex-direction: column !important;
-  justify-content: center !important; 
+  justify-content: center !important;
   align-items: center !important;
   overflow: show;
 }

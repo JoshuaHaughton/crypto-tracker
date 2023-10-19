@@ -1,5 +1,4 @@
-import React from "react";
-import Link from "next/link";
+import { memo } from "react";
 import Image from "next/image";
 import styles from "./Carousel.module.css";
 import { useCoinDetailsPreloader } from "../../../hooks/useCoinDetailsPreloader";
@@ -16,9 +15,7 @@ const CarouselCoin = ({ coin, currentSymbol }) => {
       onMouseEnter={handleMouseEnter}
       onClick={handleCoinClick}
     >
-      {/* <Link href={`/coin/${coin.id}`} passHref> */}
-      <Image src={coin.image} alt={coin.name} height={80} width={80} />
-      {/* </Link> */}
+      <Image src={coin.image} alt={coin.name} height={80} width={80} priority />
       <p>
         {coin?.symbol.toUpperCase()}&nbsp;
         {profit ? (
@@ -51,4 +48,4 @@ const CarouselCoin = ({ coin, currentSymbol }) => {
   );
 };
 
-export default CarouselCoin;
+export default memo(CarouselCoin);
