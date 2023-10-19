@@ -1,4 +1,3 @@
-import "react-alice-carousel/lib/alice-carousel.css";
 import { useEffect } from "react";
 import PopularCoinsList from "../src/components/PopularCoinsList";
 import Banner from "../src/components/UI/Banner/Banner";

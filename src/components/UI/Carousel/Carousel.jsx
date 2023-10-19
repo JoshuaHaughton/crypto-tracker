@@ -1,8 +1,8 @@
-import { memo, useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import styles from "./Carousel.module.css";
 import CarouselCoin from "./CarouselCoin";
 import AliceCarousel from "react-alice-carousel";
+import "react-alice-carousel/lib/alice-carousel.css";
 
 const responsiveBreakpoints = {
   0: {
@@ -27,42 +27,30 @@ const Carousel = () => {
   const carouselCoins = useSelector(
     (state) => state.coins.trendingCarouselCoins,
   );
-
-  // State to track if the carousel items are ready to be displayed
-  const [isReady, setIsReady] = useState(false);
-
   const formattedCarouselCoins = carouselCoins.map((coin) => (
     <CarouselCoin key={coin.id} coin={coin} currentSymbol={currentSymbol} />
   ));
 
-  useEffect(() => {
-    // Check if the items for the carousel are populated
-    if (formattedCarouselCoins.length > 0) {
-      setIsReady(true);
-    }
-  }, [formattedCarouselCoins]);
-
-  // With the AliceCarousel library, there's an issue with the initial rendering
-  // when the items are not yet available, causing visual glitches.
-  // By ensuring the items are available before rendering the carousel, we can prevent these issues.
   return (
     <section className={styles.carousel}>
-      {/* TODO: Consider using a different carousel library during CSS updates for better performance and fewer workarounds */}
-      {isReady ? (
-        <AliceCarousel
-          mouseTracking
-          infinite
-          autoPlayInterval={1000}
-          animationDuration={1500}
-          disableDotsControls
-          disableButtonsControls
-          responsive={responsiveBreakpoints}
-          items={formattedCarouselCoins}
-          autoPlay
-        />
-      ) : null}
+      {/* 
+          TODO: Use a different carousel library during CSS updates for better performance.
+          The AliceCarousel library has an issue with initial rendering that requires setting the innerWidth manually to
+          prevent visual glitches.
+      */}
+      <AliceCarousel
+        mouseTracking
+        infinite
+        autoPlay
+        autoPlayInterval={1000}
+        animationDuration={1500}
+        disableDotsControls
+        disableButtonsControls
+        responsive={responsiveBreakpoints}
+        items={formattedCarouselCoins}
+      />
     </section>
   );
 };
 
-export default memo(Carousel);
+export default Carousel;
