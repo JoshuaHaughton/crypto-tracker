@@ -29,7 +29,7 @@ export const updateCurrency = createAsyncThunk(
         selectedCoinDetails,
         cachedCoinDetailsByCurrency,
       },
-      currency: { currentCurrency, currencyRates: initialRates },
+      currency: { currentCurrency, currencyRates },
     } = getState();
 
     // Update cookie immediately
@@ -66,7 +66,7 @@ export const updateCurrency = createAsyncThunk(
               coins,
             fromCurrency: currentCurrency.toUpperCase(),
             toCurrency: updatedCurrency.toUpperCase(),
-            currencyRates: initialRates,
+            currencyRates,
           },
         });
         // Re-attempt caching all coins - if one doesn't exist, then there's a good chance that there's more than one
@@ -76,7 +76,7 @@ export const updateCurrency = createAsyncThunk(
             [type === "CoinDetails" ? "coinToTransform" : "coinsToTransform"]:
               coins,
             fromCurrency: currentCurrency.toUpperCase(),
-            currencyRates: initialRates,
+            currencyRates,
             // Only transform the ones that haven't been transformed yet
             currenciesToExclude: [
               updatedCurrency.toUpperCase(),

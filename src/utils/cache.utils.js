@@ -9,7 +9,7 @@ import {
 import Cookie from "js-cookie";
 import {
   fetchCoinDetailsFromCryptoCompare,
-  fetchDataForPopularCoinsListCacheInitialization,
+  getPopularCoinsCacheData,
 } from "./api.utils";
 import { initializePopularCoinsListCache } from "../thunks/popularCoinsListCacheThunk";
 import { updateStoreData } from "./store.utils";
@@ -624,26 +624,22 @@ export const fetchUpdateAndReinitalizePopularCoinsListCache = async (
             currencyRates: currencyRatesCacheData,
           },
         };
-        console.log(
-          "cache USED for fetchDataForPopularCoinsListCacheInitialization",
-        );
+        console.log("cache USED for getPopularCoinsCacheData");
       } else {
         throw new Error("No valid data in cache");
       }
     } catch (error) {
       console.error("Error fetching from cache:", error);
-      popularCoinsListCacheData =
-        await fetchDataForPopularCoinsListCacheInitialization(currentCurrency);
+      popularCoinsListCacheData = await getPopularCoinsCacheData(
+        currentCurrency,
+      );
       storeCurrencyRatesInIndexedDB(
         popularCoinsListCacheData.currency.currencyRates,
       );
     }
   } else {
-    console.log(
-      "cache NOT used for fetchDataForPopularCoinsListCacheInitialization",
-    );
-    popularCoinsListCacheData =
-      await fetchDataForPopularCoinsListCacheInitialization(currentCurrency);
+    console.log("cache NOT used for getPopularCoinsCacheData");
+    popularCoinsListCacheData = await getPopularCoinsCacheData(currentCurrency);
     updateGlobalCacheVersion();
     storeCurrencyRatesInIndexedDB(
       popularCoinsListCacheData.currency.currencyRates,
@@ -921,12 +917,12 @@ export const fetchAndPreloadCoin = async (
     if (detailedData == null) return;
 
     // Extract the initial rates from the detailed data.
-    const { initialRates, ...dataWithoutInitialRates } = detailedData;
+    const { currencyRates, ...dataWithoutCurrencyRates } = detailedData;
 
     // Preload the coin details.
     await preloadCoinDetails(
       dispatch,
-      dataWithoutInitialRates,
+      dataWithoutCurrencyRates,
       currentCurrency,
       currencyRates,
     );

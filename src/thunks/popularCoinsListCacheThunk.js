@@ -28,7 +28,7 @@ export const initializePopularCoinsListCache = createAsyncThunk(
   async (options = { indexedDBCacheIsValid: null }, { dispatch, getState }) => {
     const state = getState();
     const initialHundredCoins = state.coins.displayedPopularCoinsList;
-    const initialRates = state.currency.currencyRates;
+    const currencyRates = state.currency.currencyRates;
     const currentCurrency = state.currency.currentCurrency;
     const { indexedDBCacheIsValid } = options;
     console.log("initializePopularCoinsListCache thunk active", state);
@@ -57,7 +57,7 @@ export const initializePopularCoinsListCache = createAsyncThunk(
           data: {
             coinsToTransform: initialHundredCoins,
             fromCurrency: currentCurrency.toUpperCase(),
-            currencyRates: initialRates,
+            currencyRates: currencyRates,
             // We start off with the initial coins for the current currency, so we can exclude it to avoid
             // an unnecessary computation
             currenciesToExclude: [currentCurrency],
@@ -83,7 +83,7 @@ export const initializePopularCoinsListCache = createAsyncThunk(
           ),
         );
 
-        return storeCurrencyRatesInIndexedDB(initialRates);
+        return storeCurrencyRatesInIndexedDB(currencyRates);
       }
     } else {
       console.log(
