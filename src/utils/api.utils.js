@@ -6,6 +6,7 @@ import {
 } from "../global/constants";
 import { initialCoinsState } from "../store/coins";
 import { initialCurrencyState } from "../store/currency";
+import { getCurrencyRatesFromExchangeData } from "./global.utils";
 
 /**
  * Fetches Top 100 assets, Trending Coins, & Exchange Rate data from CryptoCompare for the specified currency.
@@ -31,32 +32,7 @@ export async function fetchPopularCoinsData(
   const exchangeData = await exchangeRateResponse.json();
   console.warn("exchangeData - preload", exchangeData);
 
-  const currencyRates = {
-    CAD: {
-      CAD: 1,
-      USD: exchangeData.RAW.CAD.USD.PRICE,
-      AUD: exchangeData.RAW.CAD.AUD.PRICE,
-      GBP: exchangeData.RAW.CAD.GBP.PRICE,
-    },
-    USD: {
-      CAD: 1 / exchangeData.RAW.CAD.USD.PRICE,
-      USD: 1,
-      AUD: exchangeData.RAW.CAD.AUD.PRICE / exchangeData.RAW.CAD.USD.PRICE,
-      GBP: exchangeData.RAW.CAD.GBP.PRICE / exchangeData.RAW.CAD.USD.PRICE,
-    },
-    AUD: {
-      CAD: 1 / exchangeData.RAW.CAD.AUD.PRICE,
-      USD: exchangeData.RAW.CAD.USD.PRICE / exchangeData.RAW.CAD.AUD.PRICE,
-      AUD: 1,
-      GBP: exchangeData.RAW.CAD.GBP.PRICE / exchangeData.RAW.CAD.AUD.PRICE,
-    },
-    GBP: {
-      CAD: 1 / exchangeData.RAW.CAD.GBP.PRICE,
-      USD: exchangeData.RAW.CAD.USD.PRICE / exchangeData.RAW.CAD.GBP.PRICE,
-      AUD: exchangeData.RAW.CAD.AUD.PRICE / exchangeData.RAW.CAD.GBP.PRICE,
-      GBP: 1,
-    },
-  };
+  const currencyRates = getCurrencyRatesFromExchangeData(exchangeData);
 
   // Fetching the top 100 assets by market cap from CryptoCompare in requested currency
   const assetsResponse = await fetch(
@@ -137,44 +113,7 @@ export async function fetchCoinDetailsFromCryptoCompare(
     return null;
   }
 
-  const currencyRates = {
-    CAD: {
-      CAD: 1,
-      USD: cryptoCompareData.RAW.CAD.USD.PRICE,
-      AUD: cryptoCompareData.RAW.CAD.AUD.PRICE,
-      GBP: cryptoCompareData.RAW.CAD.GBP.PRICE,
-    },
-    USD: {
-      CAD: 1 / cryptoCompareData.RAW.CAD.USD.PRICE,
-      USD: 1,
-      AUD:
-        cryptoCompareData.RAW.CAD.AUD.PRICE /
-        cryptoCompareData.RAW.CAD.USD.PRICE,
-      GBP:
-        cryptoCompareData.RAW.CAD.GBP.PRICE /
-        cryptoCompareData.RAW.CAD.USD.PRICE,
-    },
-    AUD: {
-      CAD: 1 / cryptoCompareData.RAW.CAD.AUD.PRICE,
-      USD:
-        cryptoCompareData.RAW.CAD.USD.PRICE /
-        cryptoCompareData.RAW.CAD.AUD.PRICE,
-      AUD: 1,
-      GBP:
-        cryptoCompareData.RAW.CAD.GBP.PRICE /
-        cryptoCompareData.RAW.CAD.AUD.PRICE,
-    },
-    GBP: {
-      CAD: 1 / cryptoCompareData.RAW.CAD.GBP.PRICE,
-      USD:
-        cryptoCompareData.RAW.CAD.USD.PRICE /
-        cryptoCompareData.RAW.CAD.GBP.PRICE,
-      AUD:
-        cryptoCompareData.RAW.CAD.AUD.PRICE /
-        cryptoCompareData.RAW.CAD.GBP.PRICE,
-      GBP: 1,
-    },
-  };
+  const currencyRates = getCurrencyRatesFromExchangeData(cryptoCompareData);
 
   const coinData = cryptoCompareData.RAW[id.toUpperCase()][targetCurrency];
   const assetData = assetDataR.Data;
