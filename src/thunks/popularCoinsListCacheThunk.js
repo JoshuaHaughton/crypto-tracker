@@ -7,7 +7,7 @@ import { coinsActions } from "../store/coins";
 import db from "../utils/database";
 import { POPULARCOINSLISTS_TABLENAME } from "../global/constants";
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { postMessageToCurrencyTransformerWorker } from "../utils/currencyTransformerService";
+import { postMessageToCurrencyTransformerWorker } from "../../public/webWorkers/currencyTransformer/manager";
 
 /**
  * Async thunk to manage caching of PopularCoinsList data for multiple currencies.

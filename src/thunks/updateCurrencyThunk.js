@@ -1,7 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { coinsActions } from "../store/coins";
 import { currencyActions } from "../store/currency";
-import { postMessageToCurrencyTransformerWorker } from "../utils/currencyTransformerService";
+import { postMessageToCurrencyTransformerWorker } from "../../public/webWorkers/currencyTransformer/manager";
 import Cookies from "js-cookie";
 import { CURRENT_CURRENCY_COOKIE_EXPIRY_TIME } from "../global/constants";
 import { isEmpty } from "lodash";

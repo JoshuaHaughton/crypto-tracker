@@ -1,11 +1,11 @@
 import { batch } from "react-redux";
-import { coinsActions } from "../store/coins";
-import { currencyActions } from "../store/currency";
+import { saveCoinDataForCurrencyInBrowser } from "../../../src/utils/cache.utils";
+import { currencyActions } from "../../../src/store/currency";
+import { coinsActions } from "../../../src/store/coins";
 import {
   COINDETAILS_TABLENAME,
   POPULARCOINSLISTS_TABLENAME,
-} from "../global/constants";
-import { saveCoinDataForCurrencyInBrowser } from "./cache.utils";
+} from "../../../src/global/constants";
 
 /**
  * A reference to the currency transformer worker.
@@ -27,15 +27,13 @@ export function initializeCurrencyTransformerWorker(dispatch) {
   if (typeof window === "undefined") return;
 
   currencyTransformerWorker = new Worker(
-    "/webWorkers/currencyTransformerWorker.js",
+    "/webWorkers/currencyTransformer/worker.js",
   );
   console.log("currencyTransformerWorker created");
 
   currencyTransformerWorker.onmessage = async (event) => {
-    console.log("currencyTransformerWorker message received");
-
     const { transformedData, type, toCurrency } = event.data;
-    console.log("handleTransformedDataFromWorker", transformedData);
+    console.log(`currencyTransformerWorker message received - ${type}`);
 
     if (type === "transformCoinDetailsCurrency") {
       batch(() => {
@@ -155,6 +153,7 @@ export function initializeCurrencyTransformerWorker(dispatch) {
         console.error("Error during IndexedDB storage:", err);
       }
     }
+    console.log(`currencyTransformerWorker job complete! - ${type}`);
   };
 }
 

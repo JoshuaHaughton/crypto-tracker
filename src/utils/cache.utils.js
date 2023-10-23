@@ -15,7 +15,7 @@ import { initializePopularCoinsListCache } from "../thunks/popularCoinsListCache
 import { updateStoreData } from "./store.utils";
 import { coinsActions } from "../store/coins";
 import { appInfoActions } from "../store/appInfo";
-import { postMessageToCurrencyTransformerWorker } from "./currencyTransformerService";
+import { postMessageToCurrencyTransformerWorker } from "../../public/webWorkers/currencyTransformer/manager";
 
 /**
  * Clears cache for a specific table and key.
@@ -888,7 +888,7 @@ export const fetchAndPreloadCoin = async (
     // Remove the earliest added coin from the list.
     const coinToRemove = currentPreloadedCoinIds.shift();
 
-    // Remove this coin's data from IndexedDB.
+    // Remove that coin's data from IndexedDB.
     await deleteCoinDataForCurrencyByIdFromBrowser(
       COINDETAILS_TABLENAME,
       currentCurrency,
