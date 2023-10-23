@@ -5,7 +5,7 @@ import {
   hydratePreloadedCoinsFromCacheIfAvailable,
   preloadDetailsForCurrentCoinIfOnDetailsPage,
   validateAndResetCacheIfInvalid,
-} from "../utils/cache.utils";
+} from "../../utils/cache.utils";
 import { useWebWorker } from "./useWebWorker";
 import { useServiceWorker } from "./useServiceWorker";
 import { useRouteEvents } from "./useRouteEvents";

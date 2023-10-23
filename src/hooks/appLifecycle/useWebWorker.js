@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import {
   initializeCurrencyTransformerWorker,
   terminateCurrencyTransformerWorker,
-} from "../../public/webWorkers/currencyTransformer/manager";
+} from "../../../public/webWorkers/currencyTransformer/manager";
 
 /**
  * Custom hook to manage web worker initialization and termination.

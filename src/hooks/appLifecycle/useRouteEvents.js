@@ -3,9 +3,9 @@ import {
   startProgressBar,
   completeProgressBar,
   terminateProgressBar,
-} from "../utils/progressBar";
+} from "../../utils/progressBar";
 import { Router } from "next/router";
-import { checkAndResetCache } from "../utils/cache.utils";
+import { checkAndResetCache } from "../../utils/cache.utils";
 
 /**
  * Custom hook to handle route events.

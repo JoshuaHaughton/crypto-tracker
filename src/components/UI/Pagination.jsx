@@ -1,5 +1,5 @@
 import React from "react";
-import { usePagination } from "../../hooks/usePagination";
+import { usePagination } from "../../hooks/ui/usePagination";
 import styles from "./pagination.module.scss";
 import { useDispatch, useSelector } from "react-redux";
 import { appInfoActions } from "../../store/appInfo";

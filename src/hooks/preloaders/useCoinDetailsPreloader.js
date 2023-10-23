@@ -3,8 +3,8 @@ import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Cookie from "js-cookie";
 import { useRouter } from "next/router";
-import { coinsActions } from "../store/coins";
-import { fetchAndPreloadCoin } from "../utils/cache.utils";
+import { coinsActions } from "../../store/coins";
+import { fetchAndPreloadCoin } from "../../utils/cache.utils";
 
 /**
  * A custom hook to preload coin details for a given coin ID.

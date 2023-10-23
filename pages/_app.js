@@ -4,7 +4,7 @@ import { Provider } from "react-redux";
 import { Layout } from "../src/components/Layout/Layout";
 import { MediaQueryHandler } from "../src/components/MediaQueryHandler/MediaQueryHandler";
 import { getOrInitializeStore } from "../src/store";
-import { useAppInitialization } from "../src/hooks/useAppInitialization";
+import { useAppInitialization } from "../src/hooks/appLifecycle/useAppInitialization";
 
 function MyApp({ Component, pageProps }) {
   console.log("App.js rendered. pageProps", pageProps);

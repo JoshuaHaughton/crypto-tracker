@@ -1,7 +1,7 @@
 import { memo } from "react";
 import Image from "next/image";
 import styles from "./Carousel.module.css";
-import { useCoinDetailsPreloader } from "../../../hooks/useCoinDetailsPreloader";
+import { useCoinDetailsPreloader } from "../../../hooks/preloaders/useCoinDetailsPreloader";
 
 const CarouselCoin = ({ coin, currentSymbol }) => {
   const { id } = coin;

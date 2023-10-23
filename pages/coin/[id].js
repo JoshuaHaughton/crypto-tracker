@@ -12,8 +12,8 @@ import {
 import { parse } from "cookie";
 import { SYMBOLS_BY_CURRENCIES } from "../../src/global/constants";
 import { bigNumberFormatter, removeHTML } from "../../src/utils/global.utils";
-import useChartData from "../../src/hooks/useChartData";
-import { usePopularCoinsListPreloader } from "../../src/hooks/usePopularCoinsListPreloader";
+import useChartData from "../../src/hooks/ui/useChartData";
+import { usePopularCoinsListPreloader } from "../../src/hooks/preloaders/usePopularCoinsListPreloader";
 
 const CoinDetails = () => {
   const coinDetails = useSelector((state) => state.coins.selectedCoinDetails);
