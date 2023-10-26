@@ -1,3 +1,10 @@
+const TRANSFORM_COIN_DETAILS_CURRENCY = "transformCoinDetailsCurrency";
+const TRANSFORM_ALL_COIN_DETAILS_CURRENCIES =
+  "transformAllCoinDetailsCurrencies";
+const TRANSFORM_POPULAR_COINS_LIST_CURRENCY =
+  "transformPopularCoinsListCurrency";
+const TRANSFORM_ALL_POPULAR_COINS_LIST_CURRENCIES =
+  "transformAllPopularCoinsListCurrencies";
 const ALL_CURRENCIES = ["CAD", "USD", "AUD", "GBP"];
 
 /**
@@ -234,29 +241,33 @@ const transformCurrencyForCoinDetails = (
   ),
 });
 
-// Web Worker event listener for message events
+/**
+ * Web Worker event listener for message events related to currency transformation tasks.
+ *
+ * This Web Worker is responsible for performing currency conversions on various datasets.
+ * It operates off the main thread to ensure that currency conversions, which can be
+ * computationally intensive, do not block the main thread and cause UI issues.
+ *
+ * The worker expects messages with a specific structure and responds with the appropriate
+ * transformed data. This is part of the Currency Transformer lifecycle, where:
+ * 1. The main thread sends a message to the worker with data to be transformed.
+ * 2. The worker receives the message, performs the transformation, and posts the result back.
+ * 3. The main thread then processes the transformed result accordingly.
+ *
+ * Note: This file shouldn't have any imports because Web Workers in many environments
+ * have restrictions on using ES modules. All necessary functions or variables should
+ * be defined within the worker or passed in the message data.
+ *
+ * @listens message
+ * @param {MessageEvent} event - The message event containing data for transformation.
+ */
 self.addEventListener(
   "message",
   (event) => {
     const { type, data } = event.data;
 
     switch (type) {
-      case "transformPopularCoinsListCurrency":
-        const transformedPopularCoinsList =
-          transformCurrencyForPopularCoinsList(
-            data.coinsToTransform,
-            data.fromCurrency,
-            data.toCurrency,
-            data.currencyRates,
-          );
-        self.postMessage({
-          type,
-          transformedData: transformedPopularCoinsList,
-          toCurrency: data.toCurrency,
-        });
-        break;
-
-      case "transformCoinDetailsCurrency":
+      case TRANSFORM_COIN_DETAILS_CURRENCY:
         const transformedCoinDetails = transformCurrencyForCoinDetails(
           data.coinToTransform,
           data.fromCurrency,
@@ -270,44 +281,7 @@ self.addEventListener(
         });
         break;
 
-      case "transformAllPopularCoinsListCurrencies":
-        // Extract the necessary data for the transformation
-        const {
-          coinsToTransform,
-          fromCurrency,
-          currenciesToExclude,
-          currencyRates,
-        } = data;
-
-        let targetCurrencies = ALL_CURRENCIES;
-
-        if (currenciesToExclude?.length > 0) {
-          // Filter out the excluded currencies from the list of all currencies if it exists
-          targetCurrencies = targetCurrencies.filter(
-            (currency) => !currenciesToExclude.includes(currency),
-          );
-        }
-
-        // Create an object to store the transformed data for each target currency
-        const popularCoinsListTransformedData = {};
-
-        targetCurrencies.forEach((targetCurrency) => {
-          popularCoinsListTransformedData[targetCurrency] =
-            transformCurrencyForPopularCoinsList(
-              coinsToTransform,
-              fromCurrency,
-              targetCurrency,
-              currencyRates,
-            );
-        });
-
-        self.postMessage({
-          type,
-          transformedData: popularCoinsListTransformedData,
-        });
-        break;
-
-      case "transformAllCoinDetailsCurrencies":
+      case TRANSFORM_ALL_COIN_DETAILS_CURRENCIES:
         // Extract the necessary data for the transformation
         const {
           coinToTransform,
@@ -341,6 +315,58 @@ self.addEventListener(
         self.postMessage({
           type,
           transformedData: coinDetailsTransformedData,
+        });
+        break;
+
+      case TRANSFORM_POPULAR_COINS_LIST_CURRENCY:
+        const transformedPopularCoinsList =
+          transformCurrencyForPopularCoinsList(
+            data.coinsToTransform,
+            data.fromCurrency,
+            data.toCurrency,
+            data.currencyRates,
+          );
+        self.postMessage({
+          type,
+          transformedData: transformedPopularCoinsList,
+          toCurrency: data.toCurrency,
+        });
+        break;
+
+      case TRANSFORM_ALL_POPULAR_COINS_LIST_CURRENCIES:
+        // Extract the necessary data for the transformation
+        const {
+          coinsToTransform,
+          fromCurrency,
+          currenciesToExclude,
+          currencyRates,
+        } = data;
+
+        let targetCurrencies = ALL_CURRENCIES;
+
+        if (currenciesToExclude?.length > 0) {
+          // Filter out the excluded currencies from the list of all currencies if it exists
+          targetCurrencies = targetCurrencies.filter(
+            (currency) => !currenciesToExclude.includes(currency),
+          );
+        }
+
+        // Create an object to store the transformed data for each target currency
+        const popularCoinsListTransformedData = {};
+
+        targetCurrencies.forEach((targetCurrency) => {
+          popularCoinsListTransformedData[targetCurrency] =
+            transformCurrencyForPopularCoinsList(
+              coinsToTransform,
+              fromCurrency,
+              targetCurrency,
+              currencyRates,
+            );
+        });
+
+        self.postMessage({
+          type,
+          transformedData: popularCoinsListTransformedData,
         });
         break;
 

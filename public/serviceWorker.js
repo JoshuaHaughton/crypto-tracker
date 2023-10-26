@@ -77,7 +77,7 @@ const getValueFromDB = async (key, storeName = "globalCacheInfo") => {
 };
 
 /**
- * Event listener for fetch events. Intercepts requests to the root path and
+ * Event listener for fetch events. Intercepts requests to the PopularCoinsList page and
  * modifies the request headers based on the data fetched from IndexedDB.
  * This ensures that Vercel's caching mechanism uniquely caches content for each currency and cache version.
  * @listens fetch
