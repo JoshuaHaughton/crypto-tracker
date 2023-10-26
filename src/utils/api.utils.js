@@ -7,16 +7,18 @@ import {
 import { initialCoinsState } from "../store/coins";
 import { initialCurrencyState } from "../store/currency";
 import { getCurrencyRatesFromExchangeData } from "./global.utils";
+import { formatCoinDetails } from "./dataFormat.utils";
 
 /**
- * Fetches Top 100 assets, Trending Coins, & Exchange Rate data from CryptoCompare for the specified currency.
+ * Fetches & formats the Top 100 coins, Trending Coins, & Currency Exchange Rate data from CryptoCompare for the specified currency.
  *
  * @param {string} targetCurrency - The target currency for which data should be fetched.
- * @returns {Object} An object containing the initial rates, initial hundred coins, and trending carousel coins.
+ * @returns {Object} An object containing currency rates, top 100 coins, and trending coins.
  */
 export async function fetchPopularCoinsData(
   targetCurrency = initialCurrencyState.initialCurrency,
 ) {
+  console.warn("fetchPopularCoinsData");
   const apiKey = process.env.NEXT_PUBLIC_CRYPTOCOMPARE_API_KEY;
   const fetchOptions = {
     headers: {
@@ -67,6 +69,7 @@ export async function fetchPopularCoinsData(
   }).filter(Boolean);
 
   const trendingCarouselCoins = initialHundredCoins.slice(0, 10);
+  console.warn("fetchPopularCoinsData successful!");
 
   return {
     currencyRates,
@@ -76,17 +79,18 @@ export async function fetchPopularCoinsData(
 }
 
 /**
- * Fetches details for a specific coin, including its historical data from CryptoCompare, for the specified currency.
+ * Fetches in-depth details for a specific coin, including its historical data, for the specified currency.
  *
  * @param {string} id - The coin identifier.
  * @param {string} targetCurrency - The target currency for conversions.
- * @param {boolean} [clientFetch=false] - Whether or not this fetch is from the client. If it is, we should use the proxy for necessary api calls.
+ * @param {boolean} [clientFetch=false] - Whether or not this fetch is from the client. If it is, we should use the proxy for coinPaprika api calls.
  * @returns {Object} An object containing details of the coin and other related data.
  */
-export async function fetchCoinDetailsFromCryptoCompare(
+export async function fetchCoinDetailsData(
   id,
   targetCurrency = initialCurrencyState.initialCurrency,
 ) {
+  console.warn("fetchCoinDetailsData", id);
   const cryptoCompareApiKey = process.env.NEXT_PUBLIC_CRYPTOCOMPARE_API_KEY;
   const cryptoCompareFetchOptions = {
     headers: {
@@ -100,148 +104,47 @@ export async function fetchCoinDetailsFromCryptoCompare(
     `https://min-api.cryptocompare.com/data/v2/histohour?fsym=${id}&tsym=${targetCurrency}&limit=24`,
     `https://min-api.cryptocompare.com/data/v2/histoday?fsym=${id}&tsym=${targetCurrency}&limit=365`,
   ];
-  console.log(urls);
 
-  const [cryptoCompareData, assetDataR, dayData, yearData] = await Promise.all(
+  const [cryptoCompareData, assetData, dayData, yearData] = await Promise.all(
     urls.map((url) =>
       fetch(url, cryptoCompareFetchOptions).then((res) => res.json()),
     ),
   );
 
-  if (cryptoCompareData.Response === "Error") {
-    console.error(cryptoCompareData, ". returning");
+  if (
+    !cryptoCompareData ||
+    !cryptoCompareData.RAW ||
+    !cryptoCompareData.RAW[id.toUpperCase()] ||
+    cryptoCompareData.Response === "Error"
+  ) {
+    console.error(
+      cryptoCompareData,
+      "Error from CryptoCompare response.",
+      cryptoCompareData,
+    );
     return null;
   }
 
   const currencyRates = getCurrencyRatesFromExchangeData(cryptoCompareData);
-
-  const coinData = cryptoCompareData.RAW[id.toUpperCase()][targetCurrency];
-  const assetData = assetDataR.Data;
-
-  console.log("assetDataR", assetDataR);
-  console.log("yearData", cryptoCompareData);
-
-  // Derive 7-day and 30-day data from the 365-day data
-  const weekData = {
-    Data: {
-      Data: yearData.Data.Data.slice(-7),
-    },
-  };
-  const monthData = {
-    Data: {
-      Data: yearData.Data.Data.slice(-30), // Last 30 days data
-    },
-  };
-
-  // Extracting and formatting chart and market data
-  const marketChartValues = {
-    day: dayData.Data.Data.map((data) => [data.time, data.close]),
-    week: weekData.Data.Data.map((data) => [data.time, data.close]),
-    month: monthData.Data.Data.map((data) => [data.time, data.close]),
-    year: yearData.Data.Data.map((data) => [data.time, data.close]),
-  };
-
-  const marketValues = {
-    dayMarketValues: dayData.Data.Data.map((data) => data.close),
-    weekMarketValues: weekData.Data.Data.map((data) => data.close),
-    monthMarketValues: monthData.Data.Data.map((data) => data.close),
-    yearMarketValues: yearData.Data.Data.map((data) => data.close),
-  };
-
-  // Extract necessary data points
-  const data365 = yearData.Data.Data;
-  const data30 = data365.slice(-30);
-  const data7 = data365.slice(-7);
-  const data1 = data365.slice(-1);
-
-  // Calculate price changes
-  const priceChange1d = data1[0].close - data365[data365.length - 2].close;
-  const priceChange7d = data7[data7.length - 1].close - data7[0].close;
-  const priceChange30d = data30[data30.length - 1].close - data30[0].close;
-  const priceChange365d = data365[data365.length - 1].close - data365[0].close;
-
-  // Helper function to determine if a value is falsy or Infinity
-  const isInvalid = (value) => !value || !isFinite(value);
-
-  // Calculate percentage changes
-  const priceChangePercentage1d =
-    (priceChange1d / data365[data365.length - 2].close) * 100;
-  const priceChangePercentage7d = (priceChange7d / data7[0].close) * 100;
-  const priceChangePercentage30dRaw = (priceChange30d / data30[0].close) * 100;
-  const priceChangePercentage365dRaw =
-    (priceChange365d / data365[0].close) * 100;
-
-  const priceChangePercentage30d = isInvalid(priceChangePercentage30dRaw)
-    ? priceChangePercentage7d
-    : priceChangePercentage30dRaw;
-  const priceChangePercentage365d = isInvalid(priceChangePercentage365dRaw)
-    ? priceChangePercentage30d
-    : priceChangePercentage365dRaw;
-
-  console.log("priceChangePercentage7d", priceChangePercentage365d);
-  console.log(
-    "priceChangePercentage7d",
-    (priceChange365d / data365[0].close) * 100,
-  );
-  console.log("priceChangePercentage7d", priceChangePercentage30d);
-  console.log("priceChange365d", priceChange365d);
-  console.log("data365[0].close", data365[0].close);
-
-  if (
-    !cryptoCompareData ||
-    !cryptoCompareData.RAW ||
-    !cryptoCompareData.RAW[id.toUpperCase()]
-  ) {
-    return { notFound: true };
-  }
-
-  // Construct the coin information
-  const coinAttributes = {
+  const formattedData = formatCoinDetails(
+    cryptoCompareData,
+    assetData,
+    dayData,
+    yearData,
     id,
-    symbol: coinData.FROMSYMBOL,
-    name: assetData.NAME,
-    image: assetData.LOGO_URL,
-    description: assetData.ASSET_DESCRIPTION_SUMMARY,
-    current_price: coinData.PRICE,
-    market_cap: coinData.MKTCAP,
-    price_change_1d: priceChange1d,
-    price_change_percentage_24h: priceChangePercentage1d,
-    price_change_7d: priceChange7d,
-    price_change_percentage_7d: priceChangePercentage7d,
-    price_change_30d: priceChange30d,
-    price_change_percentage_30d: priceChangePercentage30d,
-    price_change_365d: priceChange365d,
-    price_change_percentage_1y: priceChangePercentage365d,
-  };
+    targetCurrency,
+  );
 
-  const chartValues = {
-    labels: marketChartValues?.day.map((data) =>
-      new Date(data[0]).toLocaleTimeString(),
-    ),
-    datasets: [
-      {
-        label: `${
-          coinAttributes.name
-        } Price (Past day) in ${targetCurrency.toUpperCase()}`,
-        data: marketValues.dayMarketValues,
-        type: "line",
-        pointRadius: 1.3,
-        borderColor: "#ff9500",
-      },
-    ],
-  };
+  // Add the currencyRates to the formattedData
+  formattedData.currencyRates = currencyRates;
 
-  return {
-    coinAttributes,
-    marketChartValues,
-    marketValues,
-    chartValues,
-    currencyRates,
-  };
+  console.warn("fetchCoinDetailsData successful!", id);
+
+  return formattedData;
 }
 
 /**
- * Fetches the necessary data for PopularCoinsList cache initialization based on the specified currency.
+ * Fetches the data for PopularCoinsList cache initialization based on the specified currency.
  *
  * @async
  * @function
@@ -250,35 +153,37 @@ export async function fetchCoinDetailsFromCryptoCompare(
  * @throws Will return default state objects for coins and currency if there's an error in fetching.
  */
 export const getPopularCoinsCacheData = async (targetCurrency) => {
-  console.log("getPopularCoinsCacheData", targetCurrency);
+  console.log("getPopularCoinsCacheData for: ", targetCurrency);
+
+  // Default State in case the fetch fails
+  let result = {
+    coins: { ...initialCoinsState },
+    currency: {
+      currentCurrency: targetCurrency,
+      symbol: SYMBOLS_BY_CURRENCIES[targetCurrency],
+    },
+  };
+
   try {
     const { currencyRates, initialHundredCoins, trendingCarouselCoins } =
       await fetchPopularCoinsData(targetCurrency);
 
-    return {
-      coins: {
-        displayedPopularCoinsList: initialHundredCoins,
-        trendingCarouselCoins: trendingCarouselCoins,
-        popularCoinsListByCurrency: {
-          [targetCurrency]: initialHundredCoins,
-        },
-      },
-      currency: {
-        currencyRates: currencyRates,
-        currentCurrency: targetCurrency,
-        symbol: SYMBOLS_BY_CURRENCIES[targetCurrency],
-      },
+    console.log("getPopularCoinsCacheData successful!");
+
+    result.coins.displayedPopularCoinsList = initialHundredCoins;
+    result.coins.trendingCarouselCoins = trendingCarouselCoins;
+    result.coins.popularCoinsListByCurrency = {
+      [targetCurrency]: initialHundredCoins,
     };
+
+    result.currency.currencyRates = currencyRates;
+    result.currency.currentCurrency = targetCurrency;
+    result.currency.symbol = SYMBOLS_BY_CURRENCIES[targetCurrency];
   } catch (err) {
     console.log(err);
-    return {
-      coins: initialCoinsState,
-      currency: {
-        currentCurrency: targetCurrency,
-        symbol: SYMBOLS_BY_CURRENCIES[targetCurrency],
-      },
-    };
   }
+
+  return result;
 };
 
 /**
@@ -308,10 +213,7 @@ export async function prepareCoinDetailsPageProps(context) {
   let initialReduxState;
 
   try {
-    const coinDetails = await fetchCoinDetailsFromCryptoCompare(
-      id,
-      currentCurrency,
-    );
+    const coinDetails = await fetchCoinDetailsData(id, currentCurrency);
     const {
       coinAttributes,
       marketChartValues,

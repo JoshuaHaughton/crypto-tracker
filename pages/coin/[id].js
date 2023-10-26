@@ -5,10 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useSelector } from "react-redux";
 import { initialCurrencyState } from "../../src/store/currency";
-import {
-  fetchCoinDetailsFromCryptoCompare,
-  prepareCoinDetailsPageProps,
-} from "../../src/utils/api.utils";
+import { prepareCoinDetailsPageProps } from "../../src/utils/api.utils";
 import { parse } from "cookie";
 import { SYMBOLS_BY_CURRENCIES } from "../../src/global/constants";
 import { bigNumberFormatter, removeHTML } from "../../src/utils/global.utils";

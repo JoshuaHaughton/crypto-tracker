@@ -7,10 +7,7 @@ import {
   MAXIMUM_PRELOADED_COIN_COUNT,
 } from "../global/constants";
 import Cookie from "js-cookie";
-import {
-  fetchCoinDetailsFromCryptoCompare,
-  getPopularCoinsCacheData,
-} from "./api.utils";
+import { fetchCoinDetailsData, getPopularCoinsCacheData } from "./api.utils";
 import { initializePopularCoinsListCache } from "../thunks/popularCoinsListCacheThunk";
 import { updateStoreData } from "./store.utils";
 import { coinsActions } from "../store/coins";
@@ -793,7 +790,7 @@ export const preloadCoinDetails = async (
   currencyRates,
 ) => {
   const coinId = coinDetails.coinAttributes.id;
-  console.log(`Preloading details for coin ${coinId}`, coinDetails);
+  console.warn(`Preloading details for coin ${coinId}`, coinDetails);
 
   try {
     postMessageToCurrencyTransformerWorker({
@@ -910,10 +907,7 @@ export const fetchAndPreloadCoin = async (
 
   try {
     // Fetch the detailed data for the coin.
-    const detailedData = await fetchCoinDetailsFromCryptoCompare(
-      coinId,
-      currentCurrency,
-    );
+    const detailedData = await fetchCoinDetailsData(coinId, currentCurrency);
     if (detailedData == null) return;
 
     // Extract the initial rates from the detailed data.

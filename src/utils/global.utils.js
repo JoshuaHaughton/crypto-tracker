@@ -1,3 +1,5 @@
+import { isFinite, isNil } from "lodash";
+
 export function debounce(func, delay) {
   let timeout;
   return function (...args) {
@@ -80,3 +82,13 @@ export function getCurrencyRatesFromExchangeData(exchangeData) {
     GBP: gbpRates,
   };
 }
+
+/**
+ * Checks if the number is valid.
+ *
+ * @param {number} number - The number to check.
+ * @returns {boolean} True if the number is valid, false otherwise.
+ */
+export const isValid = (number) => {
+  return !isNil(number) || isFinite(number);
+};
