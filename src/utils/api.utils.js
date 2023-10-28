@@ -10,10 +10,18 @@ import { getCurrencyRatesFromExchangeData } from "./global.utils";
 import { formatCoinDetails } from "./dataFormat.utils";
 
 /**
- * Fetches & formats the Top 100 coins, Trending Coins, & Currency Exchange Rate data from CryptoCompare for the specified currency.
+ * Fetches and formats the top 100 coins, trending coins, and currency exchange rate data from CryptoCompare for the specified currency.
  *
- * @param {string} targetCurrency - The target currency for which data should be fetched.
- * @returns {Object} An object containing currency rates, top 100 coins, and trending coins.
+ * @function
+ * @async
+ * @param {string} [targetCurrency=initialCurrencyState.initialCurrency] - The target currency for which data should be fetched.
+ *
+ * @returns {Promise<Object>} A promise that resolves to an object containing:
+ *  - `currencyRates` {Object} - Exchange rates for various currencies.
+ *  - `initialHundredCoins` {Array<Object>} - List of the top 100 coins with their details.
+ *  - `trendingCarouselCoins` {Array<Object>} - List of the top 10 coins from the top 100 list.
+ *
+ * @throws {Error} Throws an error if there's an issue fetching data.
  */
 export async function fetchPopularCoinsData(
   targetCurrency = initialCurrencyState.initialCurrency,
@@ -26,50 +34,54 @@ export async function fetchPopularCoinsData(
     },
   };
 
-  // Fetching currencyRates for all currencies using CAD as the base
-  const exchangeRateResponse = await fetch(
+  let currencyRates;
+  let initialHundredCoins;
+  let trendingCarouselCoins;
+
+  const urls = [
     `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=CAD&tsyms=USD,AUD,GBP`,
-    fetchOptions,
-  );
-  const exchangeData = await exchangeRateResponse.json();
-  console.warn("exchangeData - preload", exchangeData);
-
-  const currencyRates = getCurrencyRatesFromExchangeData(exchangeData);
-
-  // Fetching the top 100 assets by market cap from CryptoCompare in requested currency
-  const assetsResponse = await fetch(
     `https://min-api.cryptocompare.com/data/top/mktcapfull?limit=100&tsym=${targetCurrency}`,
-    fetchOptions,
-  );
-  const assetsData = await assetsResponse.json();
+  ];
 
-  const initialHundredCoins = assetsData.Data.map((entry, i) => {
-    const coin = entry.CoinInfo;
-    const metrics = entry.RAW?.[targetCurrency];
-    if (!metrics) {
-      // console.warn(`Metrics not found for coin: ${coin.Name}`);
-      return null;
-    }
+  try {
+    // Fetch data concurrently using Promise.all
+    const [exchangeData, assetsData] = await Promise.all(
+      urls.map((url) => fetch(url, fetchOptions).then((res) => res.json())),
+    );
 
-    return {
-      id: coin.Name,
-      symbol: coin.Name,
-      name: coin.FullName,
-      image: `https://cryptocompare.com${coin.ImageUrl}`,
-      current_price: metrics.PRICE,
-      market_cap: metrics.MKTCAP,
-      market_cap_rank: i + 1,
-      total_volume: metrics.TOTALVOLUME24HTO,
-      high_24h: metrics.HIGH24HOUR,
-      low_24h: metrics.LOW24HOUR,
-      price_change_24h: metrics.CHANGE24HOUR,
-      price_change_percentage_24h: metrics.CHANGEPCT24HOUR,
-      circulating_supply: metrics.SUPPLY,
-    };
-  }).filter(Boolean);
+    // Extract currency rates from exchange data
+    currencyRates = getCurrencyRatesFromExchangeData(exchangeData);
 
-  const trendingCarouselCoins = initialHundredCoins.slice(0, 10);
-  console.warn("fetchPopularCoinsData successful!");
+    initialHundredCoins = assetsData.Data.map((entry, i) => {
+      const coin = entry.CoinInfo;
+      const metrics = entry.RAW?.[targetCurrency];
+      if (!metrics) {
+        // console.warn(`Metrics not found for coin: ${coin.Name}`);
+        return null;
+      }
+
+      return {
+        id: coin.Name,
+        symbol: coin.Name,
+        name: coin.FullName,
+        image: `https://cryptocompare.com${coin.ImageUrl}`,
+        current_price: metrics.PRICE,
+        market_cap: metrics.MKTCAP,
+        market_cap_rank: i + 1,
+        total_volume: metrics.TOTALVOLUME24HTO,
+        high_24h: metrics.HIGH24HOUR,
+        low_24h: metrics.LOW24HOUR,
+        price_change_24h: metrics.CHANGE24HOUR,
+        price_change_percentage_24h: metrics.CHANGEPCT24HOUR,
+        circulating_supply: metrics.SUPPLY,
+      };
+    }).filter(Boolean);
+
+    trendingCarouselCoins = initialHundredCoins.slice(0, 10);
+    console.warn("fetchPopularCoinsData successful!");
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
 
   return {
     currencyRates,
@@ -98,6 +110,8 @@ export async function fetchCoinDetailsData(
     },
   };
 
+  let formattedData;
+
   const urls = [
     `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${id.toUpperCase()},CAD&tsyms=USD,AUD,GBP,CAD`,
     `https://data-api.cryptocompare.com/asset/v1/data/by/symbol?asset_symbol=${id.toUpperCase()}`,
@@ -105,40 +119,44 @@ export async function fetchCoinDetailsData(
     `https://min-api.cryptocompare.com/data/v2/histoday?fsym=${id}&tsym=${targetCurrency}&limit=365`,
   ];
 
-  const [cryptoCompareData, assetData, dayData, yearData] = await Promise.all(
-    urls.map((url) =>
-      fetch(url, cryptoCompareFetchOptions).then((res) => res.json()),
-    ),
-  );
-
-  if (
-    !cryptoCompareData ||
-    !cryptoCompareData.RAW ||
-    !cryptoCompareData.RAW[id.toUpperCase()] ||
-    cryptoCompareData.Response === "Error"
-  ) {
-    console.error(
-      cryptoCompareData,
-      "Error from CryptoCompare response.",
-      cryptoCompareData,
+  try {
+    const [cryptoCompareData, assetData, dayData, yearData] = await Promise.all(
+      urls.map((url) =>
+        fetch(url, cryptoCompareFetchOptions).then((res) => res.json()),
+      ),
     );
-    return null;
+
+    if (
+      !cryptoCompareData ||
+      !cryptoCompareData.RAW ||
+      !cryptoCompareData.RAW[id.toUpperCase()] ||
+      cryptoCompareData.Response === "Error"
+    ) {
+      console.error(
+        cryptoCompareData,
+        "Error from CryptoCompare response.",
+        cryptoCompareData,
+      );
+      return null;
+    }
+
+    formattedData = formatCoinDetails(
+      cryptoCompareData,
+      assetData,
+      dayData,
+      yearData,
+      id,
+      targetCurrency,
+    );
+    const currencyRates = getCurrencyRatesFromExchangeData(cryptoCompareData);
+
+    // Add the currencyRates to the formattedData
+    formattedData.currencyRates = currencyRates;
+
+    console.warn("fetchCoinDetailsData successful!", id);
+  } catch (err) {
+    console.error("Err fetching data - fetchCoinDetailsData", err);
   }
-
-  const currencyRates = getCurrencyRatesFromExchangeData(cryptoCompareData);
-  const formattedData = formatCoinDetails(
-    cryptoCompareData,
-    assetData,
-    dayData,
-    yearData,
-    id,
-    targetCurrency,
-  );
-
-  // Add the currencyRates to the formattedData
-  formattedData.currencyRates = currencyRates;
-
-  console.warn("fetchCoinDetailsData successful!", id);
 
   return formattedData;
 }
@@ -180,7 +198,7 @@ export const getPopularCoinsCacheData = async (targetCurrency) => {
     result.currency.currentCurrency = targetCurrency;
     result.currency.symbol = SYMBOLS_BY_CURRENCIES[targetCurrency];
   } catch (err) {
-    console.log(err);
+    console.error("Err retrieving data - getPopularCoinsCacheData", err);
   }
 
   return result;
