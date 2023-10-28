@@ -1,3 +1,4 @@
+import { batch } from "react-redux";
 import {
   COINDETAILS_TABLENAME,
   POPULARCOINSLISTS_TABLENAME,

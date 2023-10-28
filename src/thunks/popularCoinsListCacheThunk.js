@@ -12,22 +12,24 @@ import { postMessageToCurrencyTransformerWorker } from "../../public/webWorkers/
 /**
  * Async thunk to manage caching of PopularCoinsList data for multiple currencies.
  *
- * The thunk checks if coin data exists in the cache (IndexedDB) and is valid.
+ * The thunk checks if popularCoinsList data exists in the cache (IndexedDB) and is valid.
  * - If the cache is valid, it just dispatches the cached data to the Redux store.
  *
  * - If the cache is invalid or the data does not exist,
- *   it sends the initial coin data to a web worker for currency transformation. Once the web worker
+ *   it sends the initial popularCoinsList data to a web worker for currency transformation. Once the web worker
  *   processes the data and sends it back, the thunk:
  *    - Dispatches the transformed data to the Redux store.
  *    - Caches the transformed data in IndexedDB.
  *
+ * @param {Object} options - Options object.
+ * @param {boolean} [options.indexedDBCacheIsValid] - A flag indicating whether the cache is valid or not. If provided, will not do another indexedDB request.
  * @returns {Function} Thunk action.
  */
 export const initializePopularCoinsListCache = createAsyncThunk(
   "coins/initializePopularCoinsListCache",
-  async (options = { indexedDBCacheIsValid: null }, { dispatch, getState }) => {
+  async (options = {}, { dispatch, getState }) => {
     const state = getState();
-    const initialHundredCoins = state.coins.displayedPopularCoinsList;
+    const popularCoinsList = state.coins.displayedPopularCoinsList;
     const currencyRates = state.currency.currencyRates;
     const currentCurrency = state.currency.currentCurrency;
     const { indexedDBCacheIsValid } = options;
@@ -55,7 +57,7 @@ export const initializePopularCoinsListCache = createAsyncThunk(
         postMessageToCurrencyTransformerWorker({
           type: "transformAllPopularCoinsListCurrencies",
           data: {
-            coinsToTransform: initialHundredCoins,
+            coinsToTransform: popularCoinsList,
             fromCurrency: currentCurrency.toUpperCase(),
             currencyRates: currencyRates,
             // We start off with the initial coins for the current currency, so we can exclude it to avoid
@@ -68,7 +70,7 @@ export const initializePopularCoinsListCache = createAsyncThunk(
         dispatch(
           coinsActions.setPopularCoinsListForCurrency({
             currency: currentCurrency.toUpperCase(),
-            coinData: initialHundredCoins,
+            coinData: popularCoinsList,
           }),
         );
 
@@ -76,7 +78,7 @@ export const initializePopularCoinsListCache = createAsyncThunk(
         await saveCoinDataForCurrencyInBrowser(
           POPULARCOINSLISTS_TABLENAME,
           currentCurrency.toUpperCase(),
-          initialHundredCoins,
+          popularCoinsList,
         ).then(() =>
           console.log(
             "REDUX CACHE INITIALIZED - initializePopularCoinsListCache thunk",

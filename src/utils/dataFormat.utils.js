@@ -124,7 +124,7 @@ function calculatePriceChangePercentages(priceChanges, yearData) {
 }
 
 /**
- * Formats the coin details using helper functions.
+ * Formats the coin details data fetched from the API s that it can be stored in Redux and caches.
  *
  * @param {Object} cryptoCompareData - The main data from the API.
  * @param {Object} assetData - Additional asset data.
@@ -134,7 +134,7 @@ function calculatePriceChangePercentages(priceChanges, yearData) {
  * @param {string} targetCurrency - The target currency for the formatting.
  * @returns {Object} An object containing formatted coin details.
  */
-export function formatCoinDetails(
+export function formatCoinDetailsData(
   cryptoCompareData,
   assetData,
   dayData,

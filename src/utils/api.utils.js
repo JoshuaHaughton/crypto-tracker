@@ -7,18 +7,18 @@ import {
 import { initialCoinsState } from "../store/coins";
 import { initialCurrencyState } from "../store/currency";
 import { getCurrencyRatesFromExchangeData } from "./global.utils";
-import { formatCoinDetails } from "./dataFormat.utils";
+import { formatCoinDetailsData } from "./dataFormat.utils";
 
 /**
  * Fetches and formats the top 100 coins, trending coins, and currency exchange rate data from CryptoCompare for the specified currency.
  *
  * @function
  * @async
- * @param {string} [targetCurrency=initialCurrencyState.initialCurrency] - The target currency for which data should be fetched.
+ * @param {string} [targetCurrency] - The target currency for which data should be fetched.
  *
  * @returns {Promise<Object>} A promise that resolves to an object containing:
  *  - `currencyRates` {Object} - Exchange rates for various currencies.
- *  - `initialHundredCoins` {Array<Object>} - List of the top 100 coins with their details.
+ *  - `popularCoinsList` {Array<Object>} - List of the top 100 coins with their details.
  *  - `trendingCarouselCoins` {Array<Object>} - List of the top 10 coins from the top 100 list.
  *
  * @throws {Error} Throws an error if there's an issue fetching data.
@@ -35,7 +35,7 @@ export async function fetchPopularCoinsData(
   };
 
   let currencyRates;
-  let initialHundredCoins;
+  let popularCoinsList;
   let trendingCarouselCoins;
 
   const urls = [
@@ -52,7 +52,7 @@ export async function fetchPopularCoinsData(
     // Extract currency rates from exchange data
     currencyRates = getCurrencyRatesFromExchangeData(exchangeData);
 
-    initialHundredCoins = assetsData.Data.map((entry, i) => {
+    popularCoinsList = assetsData.Data.map((entry, i) => {
       const coin = entry.CoinInfo;
       const metrics = entry.RAW?.[targetCurrency];
       if (!metrics) {
@@ -77,7 +77,7 @@ export async function fetchPopularCoinsData(
       };
     }).filter(Boolean);
 
-    trendingCarouselCoins = initialHundredCoins.slice(0, 10);
+    trendingCarouselCoins = popularCoinsList.slice(0, 10);
     console.warn("fetchPopularCoinsData successful!");
   } catch (error) {
     console.error("Error fetching data:", error);
@@ -85,7 +85,7 @@ export async function fetchPopularCoinsData(
 
   return {
     currencyRates,
-    initialHundredCoins,
+    popularCoinsList,
     trendingCarouselCoins,
   };
 }
@@ -140,7 +140,7 @@ export async function fetchCoinDetailsData(
       return null;
     }
 
-    formattedData = formatCoinDetails(
+    formattedData = formatCoinDetailsData(
       cryptoCompareData,
       assetData,
       dayData,
@@ -170,7 +170,7 @@ export async function fetchCoinDetailsData(
  * @returns {Promise<Object>} Returns an object containing the coins and currency data.
  * @throws Will return default state objects for coins and currency if there's an error in fetching.
  */
-export const getPopularCoinsCacheData = async (targetCurrency) => {
+export async function getPopularCoinsCacheData(targetCurrency) {
   console.log("getPopularCoinsCacheData for: ", targetCurrency);
 
   // Default State in case the fetch fails
@@ -183,15 +183,15 @@ export const getPopularCoinsCacheData = async (targetCurrency) => {
   };
 
   try {
-    const { currencyRates, initialHundredCoins, trendingCarouselCoins } =
+    const { currencyRates, popularCoinsList, trendingCarouselCoins } =
       await fetchPopularCoinsData(targetCurrency);
 
     console.log("getPopularCoinsCacheData successful!");
 
-    result.coins.displayedPopularCoinsList = initialHundredCoins;
+    result.coins.displayedPopularCoinsList = popularCoinsList;
     result.coins.trendingCarouselCoins = trendingCarouselCoins;
     result.coins.popularCoinsListByCurrency = {
-      [targetCurrency]: initialHundredCoins,
+      [targetCurrency]: popularCoinsList,
     };
 
     result.currency.currencyRates = currencyRates;
@@ -202,7 +202,7 @@ export const getPopularCoinsCacheData = async (targetCurrency) => {
   }
 
   return result;
-};
+}
 
 /**
  * Fetches and prepares the initial props for a coin's details page.

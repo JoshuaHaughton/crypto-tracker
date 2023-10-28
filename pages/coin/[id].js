@@ -14,7 +14,6 @@ import { usePopularCoinsListPreloader } from "../../src/hooks/preloaders/usePopu
 
 const CoinDetails = () => {
   const coinDetails = useSelector((state) => state.coins.selectedCoinDetails);
-  console.log("coinDetails", coinDetails);
   const coinAttributes = coinDetails.coinAttributes;
   const currentSymbol = useSelector((state) => state.currency.symbol);
 

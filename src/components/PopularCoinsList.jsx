@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import Coin from "./Coin/Coin";
 import styles from "./PopularCoinsList.module.css";
 import { TextField } from "@mui/material";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 const bigNumberFormatter = (num) => {
   if (num > 999 && num < 1000000) {
@@ -20,8 +20,7 @@ const bigNumberFormatter = (num) => {
 
 const PageSize = 10;
 
-const PopularCoinsList = ({ initialHundredCoins }) => {
-  const dispatch = useDispatch();
+const PopularCoinsList = ({ popularCoinsList }) => {
   const isBreakpoint380 = useSelector(
     (state) => state.mediaQuery.isBreakpoint380,
   );
@@ -54,19 +53,15 @@ const PopularCoinsList = ({ initialHundredCoins }) => {
     const lastPageIndex = firstPageIndex + PageSize;
 
     if (displayedPopularCoinsList.length < 1) {
-      setShownCoins(initialHundredCoins.slice(firstPageIndex, lastPageIndex));
-      return initialHundredCoins.slice(firstPageIndex, lastPageIndex);
+      setShownCoins(popularCoinsList.slice(firstPageIndex, lastPageIndex));
+      return popularCoinsList.slice(firstPageIndex, lastPageIndex);
     } else {
       setShownCoins(
         displayedPopularCoinsList.slice(firstPageIndex, lastPageIndex),
       );
       return displayedPopularCoinsList.slice(firstPageIndex, lastPageIndex);
     }
-  }, [
-    popularCoinsListPageNumber,
-    displayedPopularCoinsList,
-    initialHundredCoins,
-  ]);
+  }, [popularCoinsListPageNumber, displayedPopularCoinsList, popularCoinsList]);
 
   const handleChange = (e) => {
     e.preventDefault();

@@ -7,13 +7,20 @@ import { getOrInitializeStore } from "../src/store";
 import { useAppInitialization } from "../src/hooks/appLifecycle/useAppInitialization";
 
 function MyApp({ Component, pageProps }) {
-  console.log("App.js rendered. pageProps", pageProps);
+  if (typeof window !== "undefined") {
+    console.log("App.js rendered. pageProps", pageProps);
+  }
+
   const store = getOrInitializeStore(
     pageProps.initialReduxState,
     pageProps.globalCacheVersion,
   );
 
-  useAppInitialization(store, pageProps.globalCacheVersion);
+  useAppInitialization(
+    store,
+    pageProps.initialReduxState,
+    pageProps.globalCacheVersion,
+  );
 
   return (
     <Provider store={store}>

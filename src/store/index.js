@@ -31,10 +31,11 @@ export const getOrInitializeStore = (
   initialState,
   serverGlobalCacheVersion,
 ) => {
-  console.log("getOrInitializeStore - initialState", initialState);
   // If it's on the server side, always create a new store
   if (typeof window === "undefined") {
     return initializeStore(initialState);
+  } else {
+    console.log("getOrInitializeStore - initialState", initialState);
   }
 
   const clientGlobalCacheVersion = Cookie.get("globalCacheVersion");
@@ -75,9 +76,11 @@ export function initializeStore(initialState = {}) {
 
   // Set preloadedState using a loop
   const preloadedState = merge({}, initialStates, initialState);
-  console.log("initialStates - initializeStore", initialStates);
-  console.log("initialState - initializeStore", initialState);
-  console.log("preloadedState - initializeStore", preloadedState);
+  if (typeof window !== "undefined") {
+    console.log("initialStates - initializeStore", initialStates);
+    console.log("initialState - initializeStore", initialState);
+    console.log("preloadedState - initializeStore", preloadedState);
+  }
 
   reduxStore = configureStore({
     reducer: {
