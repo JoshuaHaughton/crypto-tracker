@@ -5,7 +5,7 @@ import { postMessageToCurrencyTransformerWorker } from "../../public/webWorkers/
 import Cookies from "js-cookie";
 import { CURRENT_CURRENCY_COOKIE_EXPIRY_TIME } from "../global/constants";
 import { isEmpty } from "lodash";
-import { saveCurrentCurrencyInBrowser } from "../utils/cache.utils";
+import { storeCurrentCurrencyInIndexedDB } from "../utils/cache.utils";
 
 /**
  * Thunk to update currency.
@@ -39,7 +39,7 @@ export const updateCurrency = createAsyncThunk(
 
     // Save the currency to indexedDB for serviceWorker access (serviceWorker API can't currently access cookies)
     // We use the service worker to bust the Vercel cache in production
-    saveCurrentCurrencyInBrowser(updatedCurrency);
+    storeCurrentCurrencyInIndexedDB(updatedCurrency);
 
     const updateCurrencyAndCache = (type, coins, cache) => {
       if (cache && !isEmpty(cache)) {

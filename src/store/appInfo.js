@@ -5,7 +5,8 @@ export const initialAppInfoState = {
   popularCoinsListPageNumber: 1,
   isCoinDetailsPreloadedFromDB: false,
   isPopularCoinsListPreloaded: false,
-  coinsBeingFetched: [],
+  coinsBeingFetched: {},
+  coinsBeingFetchedOrder: [],
 };
 
 // AppInfo Reducers
@@ -35,22 +36,30 @@ const appInfoSliceDefinition = {
     },
     // Add a coin to the list of coins being fetched
     addCoinBeingFetched: (state, action) => {
-      console.log("addCoinBeingFetched", action);
-      if (!state.coinsBeingFetched.includes(action.payload.coinId)) {
-        state.coinsBeingFetched.push(action.payload.coinId);
+      console.warn("addCoinBeingFetched", action.payload.coinId);
+      const coinId = action.payload.coinId;
+
+      if (!state.coinsBeingFetched[coinId]) {
+        state.coinsBeingFetched[coinId] = true;
+        state.coinsBeingFetchedOrder.push(coinId);
       }
     },
     // Remove a coin from the list of coins being fetched
     removeCoinBeingFetched: (state, action) => {
-      console.log("removeCoinBeingFetched", action);
-      state.coinsBeingFetched = state.coinsBeingFetched.filter(
-        (coinId) => coinId !== action.payload.coinId,
+      console.warn("removeCoinBeingFetched", action.payload.coinId);
+      const coinId = action.payload.coinId;
+
+      const { [coinId]: removed, ...remaining } = state.coinsBeingFetched;
+      state.coinsBeingFetched = remaining;
+      state.coinsFetchedOrder = state.coinsFetchedOrder.filter(
+        (id) => id !== coinId,
       );
     },
     // Reset the list of coins being fetched
     resetCoinsBeingFetched: (state) => {
       console.log("resetCoinsBeingFetched");
-      state.coinsBeingFetched = [];
+      state.coinsBeingFetched = {};
+      state.coinsBeingFetchedOrder = [];
     },
   },
 };

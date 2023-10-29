@@ -5,7 +5,7 @@ import {
 } from "../../../src/global/constants";
 import { coinsActions } from "../../../src/store/coins";
 import { currencyActions } from "../../../src/store/currency";
-import { saveCoinDataForCurrencyInBrowser } from "../../../src/utils/cache.utils";
+import { saveTableDataForCurrencyInIndexedDB } from "../../../src/utils/cache.utils";
 
 export const TRANSFORM_COIN_DETAILS_CURRENCY = "transformCoinDetailsCurrency";
 export const TRANSFORM_ALL_COIN_DETAILS_CURRENCIES =
@@ -49,7 +49,7 @@ async function handleTransformedCoinDetailSForCurrency(
 
   // Wait for all storage operations to complete
   try {
-    await saveCoinDataForCurrencyInBrowser(
+    await saveTableDataForCurrencyInIndexedDB(
       COINDETAILS_TABLENAME,
       toCurrency,
       transformedData,
@@ -88,7 +88,7 @@ async function handleTransformedCoinDetailsForMultipleCurrencies(
 
     // Prepare transformed data for cache
     storagePromises.push(
-      saveCoinDataForCurrencyInBrowser(
+      saveTableDataForCurrencyInIndexedDB(
         COINDETAILS_TABLENAME,
         currency,
         transformedData[currency],
@@ -142,7 +142,7 @@ async function handleTransformedPopularCoinsForCurrency(
 
   // Wait for all storage operations to complete
   try {
-    await saveCoinDataForCurrencyInBrowser(
+    await saveTableDataForCurrencyInIndexedDB(
       POPULARCOINSLISTS_TABLENAME,
       toCurrency,
       transformedData,
@@ -181,7 +181,7 @@ async function handleTransformedPopularCoinsForMultipleCurrencies(
 
     // Prepare transformed data for cache
     storagePromises.push(
-      saveCoinDataForCurrencyInBrowser(
+      saveTableDataForCurrencyInIndexedDB(
         POPULARCOINSLISTS_TABLENAME,
         currency,
         transformedData[currency],

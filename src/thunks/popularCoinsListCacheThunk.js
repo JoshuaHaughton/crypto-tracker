@@ -1,5 +1,5 @@
 import {
-  saveCoinDataForCurrencyInBrowser,
+  saveTableDataForCurrencyInIndexedDB,
   storeCurrencyRatesInIndexedDB,
   validateCacheDataForTable,
 } from "../utils/cache.utils";
@@ -75,7 +75,7 @@ export const initializePopularCoinsListCache = createAsyncThunk(
         );
 
         // Store initial data in cache
-        await saveCoinDataForCurrencyInBrowser(
+        await saveTableDataForCurrencyInIndexedDB(
           POPULARCOINSLISTS_TABLENAME,
           currentCurrency.toUpperCase(),
           popularCoinsList,

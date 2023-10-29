@@ -58,7 +58,7 @@ const initializeDB = () => {
  * @returns {Promise<any>} The value associated with the key or null if not found.
  * @throws {Error} Throws an error if there's an issue accessing the IndexedDB.
  */
-const getValueFromDB = async (key, storeName = "globalCacheInfo") => {
+const getValueFromDB = async (key, storeName = GLOBAL_CACHE_INFO_STORE) => {
   await initializeDB();
 
   return new Promise((resolve, reject) => {

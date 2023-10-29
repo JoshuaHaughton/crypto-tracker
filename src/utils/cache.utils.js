@@ -1,14 +1,14 @@
 import db from "./database";
+import Cookie from "js-cookie";
 import {
   ALL_CURRENCIES,
   COINDETAILS_TABLENAME,
   POPULARCOINSLISTS_TABLENAME,
   CURRENCYRATES_TABLENAME,
-  MAXIMUM_PRELOADED_COIN_COUNT,
   FIVE_MINUTES_IN_MS,
+  GLOBALCACHEINFO_TABLENAME,
 } from "../global/constants";
-import Cookie from "js-cookie";
-import { fetchCoinDetailsData, getPopularCoinsCacheData } from "./api.utils";
+import { getPopularCoinsCacheData } from "./api.utils";
 import { initializePopularCoinsListCache } from "../thunks/popularCoinsListCacheThunk";
 import { updateStoreData } from "./store.utils";
 import { coinsActions } from "../store/coins";
@@ -225,7 +225,7 @@ export async function validateAndReinitializeCacheOnRouteChange(
         "Fetching new PopularCoinsLists Data to initialize cache - validateAndReinitializeCacheOnRouteChange",
       );
       // Fetch new PopularCoinsData from API before initializing cache
-      await fetchUpdateAndReinitalizePopularCoinsListCache({
+      await fetchAndUpdatePopularCoinsListCache({
         store,
         indexedDBCacheIsValid: false,
       });
@@ -244,7 +244,7 @@ export async function validateAndReinitializeCacheOnRouteChange(
     console.warn(
       "Using New CoinDetail Data to preload the cache - validateAndReinitializeCacheOnRouteChange",
     );
-    await preloadDetailsForCurrentCoinIfOnDetailsPage(store);
+    await preloadDetailsForCurrentCoinIfOnDetailsPage(store, initialReduxState);
   }
 }
 
@@ -323,7 +323,7 @@ export function updateGlobalCacheVersion(serverGlobalCacheVersion) {
   }
 
   // Save GCV to IndexedDB so that we can access it in the serviceWorker
-  saveGlobalCacheVersionInIndexedDB(valueToSet);
+  storeGlobalCacheVersionInIndexedDB(valueToSet);
 
   console.warn("globalCacheVersion updated", valueToSet);
 }
@@ -348,7 +348,7 @@ export function updateGlobalCacheVersionIfNecessary(serverGlobalCacheVersion) {
 // Adding to Cache
 
 /**
- * Saves coin data to IndexedDB for a specific currency.
+ * Saves data to IndexedDB for a specific table and currency.
  *
  * @param {string} tableName - The name of the table in the IndexedDB where the coin data should be stored.
  * @param {string} currency - The currency identifier under which the coin data should be stored.
@@ -356,7 +356,7 @@ export function updateGlobalCacheVersionIfNecessary(serverGlobalCacheVersion) {
  *
  * @returns {Promise<void>} - Resolves when the data is successfully saved.
  */
-export async function saveCoinDataForCurrencyInBrowser(
+export async function saveTableDataForCurrencyInIndexedDB(
   tableName,
   currency,
   coinData,
@@ -371,18 +371,12 @@ export async function saveCoinDataForCurrencyInBrowser(
 
       // Merge the new coin data into the existing data for the currency
       const mergedCoinData = {
-        ...existingCoinData,
-        coinData: {
-          ...(existingCoinData.coinData || {}), // spread existing coinData if it exists
-          [coinSymbol]: coinData,
-        },
+        ...(existingCoinData.coinData || {}),
+        [coinSymbol]: coinData,
       };
 
-      // Add the currency property to the mergedCoinData object for indexedDB queries
-      mergedCoinData.currency = currency;
-
       // Store the merged data back into the database
-      await db[tableName].put(mergedCoinData, currency);
+      await db[tableName].put({ currency, coinData: mergedCoinData });
     } else if (tableName === POPULARCOINSLISTS_TABLENAME) {
       await db[tableName].put({ currency, coinData });
     } else if (tableName === CURRENCYRATES_TABLENAME) {
@@ -397,41 +391,6 @@ export async function saveCoinDataForCurrencyInBrowser(
 }
 
 /**
- * Saves the current currency to IndexedDB.
- *
- * @async
- * @function
- * @param {string} currency - The current currency value to be saved.
- * @throws Will throw an error if saving to IndexedDB fails.
- */
-export async function saveCurrentCurrencyInBrowser(currency) {
-  try {
-    await db.globalCacheInfo.put({ key: "currentCurrency", value: currency });
-  } catch (err) {
-    console.error("Error saving current currency to IndexedDB", err);
-  }
-}
-
-/**
- * Saves the global cache version to IndexedDB.
- *
- * @async
- * @function
- * @param {string} cacheVersion - The current global cache version value to be saved.
- * @throws Will throw an error if saving to IndexedDB fails.
- */
-export async function saveGlobalCacheVersionInIndexedDB(cacheVersion) {
-  try {
-    await db.globalCacheInfo.put({
-      key: "globalCacheVersion",
-      value: cacheVersion,
-    });
-  } catch (err) {
-    console.error("Error saving global cache version to IndexedDB", err);
-  }
-}
-
-/**
  * Stores currency rates in IndexedDB cache.
  *
  * @param {Object} currencyRates - The currency rates data to be stored.
@@ -441,7 +400,7 @@ export function storeCurrencyRatesInIndexedDB(currencyRates) {
   const storagePromises = [];
 
   for (const key of Object.keys(currencyRates)) {
-    const promise = saveCoinDataForCurrencyInBrowser(
+    const promise = saveTableDataForCurrencyInIndexedDB(
       CURRENCYRATES_TABLENAME,
       key,
       currencyRates[key],
@@ -458,25 +417,83 @@ export function storeCurrencyRatesInIndexedDB(currencyRates) {
 }
 
 /**
- * Fetches new PopularCoinsList Data, updates the Redux store, and then reinitializes the PopularCoinsList Cache.
+ * Stores data to the GlobalCacheInfo table in IndexedDB.
  *
- * If `options.shouldIgnoreCache` is set to false, the function checks the cache and attempts to fetch the coin list data from it.
- * If the cache fetch fails or returns invalid data, it logs an error and proceeds to fetch from the API.
+ * @async
+ * @function
+ * @param {string} currency - The current currency value to be saved.
+ * @throws Will throw an error if saving to IndexedDB fails.
+ */
+export async function storeGlobalCacheInfoInIndexedDB({ key, value }) {
+  try {
+    await db[GLOBALCACHEINFO_TABLENAME].put({ key, value });
+  } catch (err) {
+    console.error(`Error saving ${key} to IndexedDB`, err);
+  }
+}
+
+/**
+ * Saves the current currency to IndexedDB.
  *
- * If `options.shouldIgnoreCache` is set to true, the function directly fetches the coin list data from the API.
+ * @async
+ * @function
+ * @param {string} currency - The current currency value to be saved.
+ * @throws Will throw an error if saving to IndexedDB fails.
+ */
+export async function storeCurrentCurrencyInIndexedDB(currency) {
+  await storeGlobalCacheInfoInIndexedDB({
+    key: "currentCurrency",
+    value: currency,
+  });
+}
+
+/**
+ * Saves the global cache version to IndexedDB.
  *
- * If new data was fetched from the API, the globalCacheVersion is updated accordingly.
+ * @async
+ * @function
+ * @param {string} cacheVersion - The current global cache version value to be saved.
+ * @throws Will throw an error if saving to IndexedDB fails.
+ */
+export async function storeGlobalCacheVersionInIndexedDB(cacheVersion) {
+  await storeGlobalCacheInfoInIndexedDB({
+    key: "globalCacheVersion",
+    value: cacheVersion,
+  });
+}
+
+/**
+ * Checks the validity of the popular coins list cache and updates it if necessary.
+ *
+ * This function performs the following steps:
+ *
+ * - If `options.indexedDBCacheIsValid` is explicitly passed:
+ *   - Uses the provided value to determine the cache's validity without checking IndexedDB.
+ *
+ * - If `options.indexedDBCacheIsValid` is not provided (i.e., `undefined`):
+ *   - Checks if the popular coins list cache in IndexedDB is valid.
+ *
+ * - If the cache is valid:
+ *   - Attempts to fetch the coin list data from the cache.
+ *   - If fetching from the cache fails or the data is invalid, fetches from the API and updates the cache.
+ *
+ * - If the cache is not valid:
+ *   - Fetches the coin list data directly from the API.
+ *   - Updates the global cache version.
+ *   - Updates the cache with the newly fetched data.
+ *
+ * - Updates the Redux store with the appropriate data (either from the cache or the API).
  *
  * @param {Object} options - The options object.
  * @param {Object} options.store - The Redux store to update with the fetched data.
- * @param {boolean} options.indexedDBCacheIsValid - A flag indicating whether the cache is valid or not. If passed, will not do another indexedDB request.
+ * @param {boolean} [options.indexedDBCacheIsValid] - Optional. If provided, it directly indicates whether the IndexedDB cache is valid or not, bypassing any IndexedDB validity check. If left undefined, the function will check the validity from IndexedDB.
  * @returns {Promise<void>} - A promise that resolves when the store is updated and the cache is reinitialized.
  */
-export async function fetchUpdateAndReinitalizePopularCoinsListCache({
+export async function fetchAndUpdatePopularCoinsListCache({
   store,
   indexedDBCacheIsValid,
 }) {
-  console.log("fetchUpdateAndReinitalizePopularCoinsListCache");
+  console.log("fetchAndUpdatePopularCoinsListCache");
 
   let popularCoinsListCacheData;
   const state = store.getState();
@@ -493,7 +510,7 @@ export async function fetchUpdateAndReinitalizePopularCoinsListCache({
         POPULARCOINSLISTS_TABLENAME,
         currentCurrency,
       );
-      const currencyRatesCacheData = await fetchCurrencyDataFromIndexedDB(
+      const currencyRatesCacheData = await fetchDataForCurrenciesFromIndexedDB(
         CURRENCYRATES_TABLENAME,
       );
 
@@ -533,7 +550,7 @@ export async function fetchUpdateAndReinitalizePopularCoinsListCache({
   }
 
   updateStoreData(store, popularCoinsListCacheData);
-  return store.dispatch(
+  await store.dispatch(
     initializePopularCoinsListCache({ indexedDBCacheIsValid: isCacheValid }),
   );
 }
@@ -543,19 +560,29 @@ export async function fetchUpdateAndReinitalizePopularCoinsListCache({
 /**
  * Preloads the details for the currently selected coin if on its details page.
  *
- * This function checks if the details for the selected coin are present and then preloads them into the cache.
- * This preloading is particularly intended for when the user is on the coin's details page.
+ * This function checks if the details for the selected coin are present in the initial Redux state.
+ * If present, it verifies the coin isn't already preloaded (by checking the "preloadedCoins" cookie).
+ * If the coin isn't already preloaded, it preloads the coin details into the cache.
  *
  * @param {Object} store - The Redux store.
+ * @param {Object} initialReduxState - The initial Redux state from the server.
  * @returns {Promise<void>}
  */
-export async function preloadDetailsForCurrentCoinIfOnDetailsPage(store) {
-  const selectedCoinDetails = store.getState().coins.selectedCoinDetails;
-  const currentCurrency = store.getState().currency.currentCurrency;
-  const currencyRates = store.getState().currency.currencyRates;
+export async function preloadDetailsForCurrentCoinIfOnDetailsPage(
+  store,
+  initialReduxState,
+) {
+  const { selectedCoinDetails } = initialReduxState.coins;
+  const { currentCurrency, currencyRates } = store.getState().currency;
+
+  const preloadedCoinIds = JSON.parse(
+    localStorage?.getItem("preloadedCoins") || "[]",
+  );
+
   if (
-    Object.keys(selectedCoinDetails).length > 0 &&
-    selectedCoinDetails.coinAttributes
+    !isEmpty(selectedCoinDetails) &&
+    selectedCoinDetails.coinAttributes &&
+    !preloadedCoinIds.includes(selectedCoinDetails.coinAttributes.id)
   ) {
     console.log(
       "We started with CoinDetails data, meaning it's new data from the server. Let's preload that.",
@@ -567,91 +594,9 @@ export async function preloadDetailsForCurrentCoinIfOnDetailsPage(store) {
       currencyRates,
     );
   } else {
-    console.log("We did not start with CoinDetails data from server.");
-  }
-}
-
-/**
- * Fetches coin details and preloads them. This function takes care of the following:
- * - Ensures the coin isn't already being fetched.
- * - Checks the current state of the cache to get preloaded coins.
- * - Determines if fetching this coin would exceed the maximum count limit.
- * - If the limit would be exceeded, it removes the earliest added coin from IndexedDB and the cache.
- * - Fetches and preloads coin details.
- *
- * @param {string} coinId - The ID of the coin to be fetched and preloaded.
- * @param {Array<string>} coinsBeingFetched - List of coin IDs currently being fetched.
- * @param {string} currentCurrency - The current currency in use.
- * @param {Object} currencyRates - Currency conversion rates.
- * @param {Function} dispatch - The dispatch method from the Redux store.
- * @returns {Promise<void>}
- */
-export async function fetchAndPreloadCoin(
-  coinId,
-  coinsBeingFetched,
-  currentCurrency,
-  currencyRates,
-  dispatch,
-) {
-  // Check if the coin is currently being fetched.
-  if (coinsBeingFetched.includes(coinId)) {
-    console.error(`Coin ${coinId} is currently being fetched.`);
-    return;
-  }
-
-  // Get the current preloaded coin IDs from the cache.
-  let currentPreloadedCoinIds = JSON.parse(
-    localStorage?.getItem("preloadedCoins") || "[]",
-  );
-
-  // Check if fetching this coin would exceed the maximum preloaded coin count.
-  if (
-    currentPreloadedCoinIds.length + coinsBeingFetched.length >=
-    MAXIMUM_PRELOADED_COIN_COUNT
-  ) {
-    // Remove the earliest added coin from the list.
-    const coinToRemove = currentPreloadedCoinIds.shift();
-
-    // Remove that coin's data from IndexedDB.
-    await deleteCoinDataForCurrencyByIdFromBrowser(
-      COINDETAILS_TABLENAME,
-      currentCurrency,
-      coinToRemove,
+    console.log(
+      "We did not start with CoinDetails data from server or the coin is already preloaded.",
     );
-
-    // Update the cache with the new list of preloaded coins.
-    localStorage?.setItem(
-      "preloadedCoins",
-      JSON.stringify(currentPreloadedCoinIds),
-    );
-    console.warn(
-      `Removed earliest added coin ${coinToRemove} to make space for new coins.`,
-    );
-  }
-
-  // Mark the coin as being fetched to prevent duplicate fetches.
-  dispatch(appInfoActions.addCoinBeingFetched({ coinId }));
-
-  try {
-    // Fetch the detailed data for the coin.
-    const detailedData = await fetchCoinDetailsData(coinId, currentCurrency);
-    if (detailedData == null) return;
-
-    // Extract the initial rates from the detailed data.
-    const { currencyRates, ...dataWithoutCurrencyRates } = detailedData;
-
-    // Preload the coin details.
-    await preloadCoinDetails(
-      dispatch,
-      dataWithoutCurrencyRates,
-      currentCurrency,
-      currencyRates,
-    );
-  } catch (error) {
-    console.error("Error preloading coin data:", error);
-  } finally {
-    // Mark the coin as no longer being fetched.
-    dispatch(appInfoActions.removeCoinBeingFetched({ coinId }));
   }
 }
 
@@ -688,15 +633,14 @@ export async function preloadCoinDetails(
       },
     });
 
-    await saveCoinDataForCurrencyInBrowser(
+    await saveTableDataForCurrencyInIndexedDB(
       COINDETAILS_TABLENAME,
       currentCurrency,
       coinDetails,
     );
 
     // Confirm that the data is saved in IndexedDB
-    const savedData = await getCoinDataForCurrencyByIdFromBrowser(
-      COINDETAILS_TABLENAME,
+    const savedData = await getCoinDetailsForCurrencyByIdFromBrowser(
       currentCurrency,
       coinId,
     );
@@ -751,26 +695,26 @@ export async function fetchDataFromIndexedDB(tableName, key) {
 }
 
 /**
- * Fetches coin data for a specific currency and coin ID from indexedDB cache.
+ * Fetches coinDetails for a specific currency and coin ID from indexedDB cache.
  *
- * @param {string} tableName - The name of the table in the IndexedDB.
  * @param {string} currency - The currency for which coin data is to be fetched.
  * @param {string} coinId - The ID of the coin to be fetched.
  * @returns {Promise<any>} - Returns a promise that resolves to the fetched coin data or `null` if not found.
  */
-export async function getCoinDataForCurrencyByIdFromBrowser(
-  tableName,
+export async function getCoinDetailsForCurrencyByIdFromBrowser(
   currency,
   coinId,
 ) {
   try {
-    const coinDataForCurrency = await db[tableName].get(currency);
+    const coinDetailsForCurrency = await db[COINDETAILS_TABLENAME].get(
+      currency,
+    );
     if (
-      coinDataForCurrency &&
-      coinDataForCurrency.coinData &&
-      coinDataForCurrency.coinData[coinId]
+      coinDetailsForCurrency &&
+      coinDetailsForCurrency.coinData &&
+      coinDetailsForCurrency.coinData[coinId]
     ) {
-      return coinDataForCurrency.coinData[coinId];
+      return coinDetailsForCurrency.coinData[coinId];
     } else {
       return null;
     }
@@ -807,7 +751,7 @@ export async function hydratePopularCoinsListFromAvailableSources(
     console.log(
       "We didn't start with PopularCoinsLists data so we need to fetch it.",
     );
-    await fetchUpdateAndReinitalizePopularCoinsListCache({
+    await fetchAndUpdatePopularCoinsListCache({
       store,
       indexedDBCacheIsValid: isCacheValid,
     });
@@ -834,7 +778,7 @@ export async function hydratePopularCoinsListFromAvailableSources(
  * @returns {Promise<{ [key: string]: any }>} - Returns a promise that resolves to an object
  *   where each key is a currency key and the corresponding value is the fetched data, or `null` if not found.
  */
-export async function fetchCurrencyDataFromIndexedDB(
+export async function fetchDataForCurrenciesFromIndexedDB(
   tableName,
   currencyKeys = ALL_CURRENCIES,
 ) {
@@ -874,7 +818,7 @@ export async function hydratePreloadedCoinsFromCacheIfAvailable(dispatch) {
   // Iterate through each supported currency
   for (const currency of ALL_CURRENCIES) {
     try {
-      await loadCachedCoinDetailsToRedux(currency, dispatch);
+      await hydrateReduxWithPreloadedCoinsForCurrency(currency, dispatch);
     } catch (error) {
       console.error(
         `Error attempting to load CoinDetails preloaded cache for currency ${currency} into Redux:`,
@@ -893,8 +837,11 @@ export async function hydratePreloadedCoinsFromCacheIfAvailable(dispatch) {
  * @param {function} dispatch - The dispatch method from the store.
  * @returns {Promise<void>} Returns a promise indicating success or failure.
  */
-export async function loadCachedCoinDetailsToRedux(currency, dispatch) {
-  console.log("loadCachedCoinDetailsToRedux");
+export async function hydrateReduxWithPreloadedCoinsForCurrency(
+  currency,
+  dispatch,
+) {
+  console.log("hydrateReduxWithPreloadedCoinsForCurrency");
   try {
     const fetchedData = await fetchDataFromIndexedDB(
       COINDETAILS_TABLENAME,
@@ -949,12 +896,12 @@ export async function clearCache(tableName, key) {
 }
 
 /**
- * Clears cache for all keys in a specific table.
+ * Clears cache for a specific table.
  * @param {string} tableName - The name of the table in the IndexedDB.
  */
-export async function clearCacheForAllKeysInTable(tableName) {
+export async function clearCacheForTable(tableName) {
   try {
-    await db[tableName].clear(); // Clear all keys in the table
+    await db[tableName].clear();
     console.log(`Cache cleared from IndexedDB for all keys in ${tableName}`);
   } catch (err) {
     console.error(
@@ -967,25 +914,25 @@ export async function clearCacheForAllKeysInTable(tableName) {
 /**
  * Deletes coin data for a specific currency and coin ID from indexedDB cache.
  *
- * @param {string} tableName - The name of the table in the IndexedDB.
  * @param {string} currency - The currency for which coin data is to be deleted.
  * @param {string} coinId - The ID of the coin to be deleted.
  * @returns {Promise<void>} - Returns a promise that resolves when the coin data is deleted.
  */
-export async function deleteCoinDataForCurrencyByIdFromBrowser(
-  tableName,
+export async function deleteCoinDetailsByIdForCurrencyFromIndexedDb(
   currency,
   coinId,
 ) {
   try {
-    const coinDataForCurrency = await db[tableName].get(currency);
+    const coinDetailsForCurrency = await db[COINDETAILS_TABLENAME].get(
+      currency,
+    );
     if (
-      coinDataForCurrency &&
-      coinDataForCurrency.coinData &&
-      coinDataForCurrency.coinData[coinId]
+      coinDetailsForCurrency &&
+      coinDetailsForCurrency.coinData &&
+      coinDetailsForCurrency.coinData[coinId]
     ) {
-      delete coinDataForCurrency.coinData[coinId];
-      await db[tableName].put(coinDataForCurrency, currency);
+      delete coinDetailsForCurrency.coinData[coinId];
+      await db[tableName].put(coinDetailsForCurrency, currency);
     }
   } catch (err) {
     console.error(
@@ -996,56 +943,13 @@ export async function deleteCoinDataForCurrencyByIdFromBrowser(
 }
 
 /**
- * Removes data for a given coin from the COINDETAILS table in the IndexedDB for all currencies.
- *
- * @param {string} coinId - The ID of the coin to remove.
- * @returns {Promise<void>} Returns a promise indicating success or failure of the removal operation.
- */
-export async function removeCoinDetailsFromIndexedDBForAllCurrencies(coinId) {
-  try {
-    const removalPromises = ALL_CURRENCIES.map(async (currency) => {
-      // Fetch the existing data for the currency
-      const existingData = await fetchDataFromIndexedDB(
-        COINDETAILS_TABLENAME,
-        currency,
-      );
-
-      if (
-        existingData &&
-        existingData.coinData &&
-        existingData.coinData[coinId]
-      ) {
-        // Remove the coin data from the existing data
-        delete existingData.coinData[coinId];
-
-        // Store the updated data back into the database
-        await fetchDataFromIndexedDB(COINDETAILS_TABLENAME, currency).put(
-          existingData,
-        );
-
-        console.log(
-          `Data for coin ${coinId} and currency ${currency} removed from table ${COINDETAILS_TABLENAME}`,
-        );
-      }
-    });
-
-    await Promise.all(removalPromises);
-  } catch (err) {
-    console.error(
-      `Error removing data for coin ${coinId} from ${COINDETAILS_TABLENAME} for all currencies:`,
-      err,
-    );
-  }
-}
-
-/**
  * Clears cache from indexedDB, and cookie.
  */
 export async function clearAllCaches() {
   console.warn("CLEARING ALL CACHES");
-  await clearCacheForAllKeysInTable(POPULARCOINSLISTS_TABLENAME);
-  await clearCacheForAllKeysInTable(COINDETAILS_TABLENAME);
-  await clearCacheForAllKeysInTable(CURRENCYRATES_TABLENAME);
+  await clearCacheForTable(POPULARCOINSLISTS_TABLENAME);
+  await clearCacheForTable(COINDETAILS_TABLENAME);
+  await clearCacheForTable(CURRENCYRATES_TABLENAME);
   localStorage?.removeItem("preloadedCoins");
   console.log("Cache cleared for preloadedCoins");
   console.warn("ALL CACHES CLEARED");

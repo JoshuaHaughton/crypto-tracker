@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import Cookie from "js-cookie";
 import { useRouter } from "next/router";
 import { coinsActions } from "../../store/coins";
-import { fetchAndPreloadCoin } from "../../utils/cache.utils";
+import { fetchAndPreloadCoinDetailsThunk } from "../../thunks/fetchAndPreloadCoinDetailsThunk";
 
 /**
  * A custom hook to preload coin details for a given coin ID.
@@ -17,10 +17,6 @@ export function useCoinDetailsPreloader(id) {
   const router = useRouter();
   const currentCurrency = useSelector(
     (state) => state.currency.currentCurrency,
-  );
-  const currencyRates = useSelector((state) => state.currency.currencyRates);
-  const coinsBeingFetched = useSelector(
-    (state) => state.appInfo.coinsBeingFetched,
   );
   const coinCachedDetails = useSelector(
     (state) => state.coins.cachedCoinDetailsByCurrency[currentCurrency][id],
@@ -44,12 +40,10 @@ export function useCoinDetailsPreloader(id) {
     router.prefetch(`/coin/${id}`);
 
     // Fetch and preload coin details
-    await fetchAndPreloadCoin(
-      id,
-      coinsBeingFetched,
-      currentCurrency,
-      currencyRates,
-      dispatch,
+    dispatch(
+      fetchAndPreloadCoinDetailsThunk({
+        coinId: id,
+      }),
     );
   };
 
@@ -65,12 +59,10 @@ export function useCoinDetailsPreloader(id) {
       router.push(`/coin/${id}`);
     } else {
       // If coin details are not preloaded, start the preload process
-      fetchAndPreloadCoin(
-        id,
-        coinsBeingFetched,
-        currentCurrency,
-        currencyRates,
-        dispatch,
+      dispatch(
+        fetchAndPreloadCoinDetailsThunk({
+          coinId: id,
+        }),
       );
       router.prefetch(`/coin/${id}`);
       setWaitingForSpecificPreload(true);

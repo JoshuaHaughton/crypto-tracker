@@ -10,6 +10,8 @@ export const COINDETAILS_TABLENAME = "coinDetails";
 
 export const CURRENCYRATES_TABLENAME = "currencyRates";
 
+export const GLOBALCACHEINFO_TABLENAME = "globalCacheInfo";
+
 export const SYMBOLS_BY_CURRENCIES = {
   CAD: "$",
   USD: "$",

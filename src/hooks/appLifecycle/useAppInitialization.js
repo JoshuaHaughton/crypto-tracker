@@ -41,7 +41,7 @@ export const useAppInitialization = (
         serverGlobalCacheVersion,
       );
       await hydratePreloadedCoinsFromCacheIfAvailable(store.dispatch);
-      preloadDetailsForCurrentCoinIfOnDetailsPage(store);
+      preloadDetailsForCurrentCoinIfOnDetailsPage(store, initialReduxState);
     };
 
     initializeData();
