@@ -578,11 +578,14 @@ export async function preloadDetailsForCurrentCoinIfOnDetailsPage(
   const preloadedCoinIds = JSON.parse(
     localStorage?.getItem("preloadedCoins") || "[]",
   );
+  const coinIsAlreadyPreloaded =
+    selectedCoinDetails != null &&
+    preloadedCoinIds.includes(selectedCoinDetails.coinAttributes?.id);
 
   if (
     !isEmpty(selectedCoinDetails) &&
     selectedCoinDetails.coinAttributes &&
-    !preloadedCoinIds.includes(selectedCoinDetails.coinAttributes.id)
+    !coinIsAlreadyPreloaded
   ) {
     console.log(
       "We started with CoinDetails data, meaning it's new data from the server. Let's preload that.",
@@ -594,9 +597,11 @@ export async function preloadDetailsForCurrentCoinIfOnDetailsPage(
       currencyRates,
     );
   } else {
-    console.log(
-      "We did not start with CoinDetails data from server or the coin is already preloaded.",
-    );
+    if (coinIsAlreadyPreloaded) {
+      console.warn("The coin is already preloaded.");
+    } else {
+      console.warn("We did not start with CoinDetails data from the server.");
+    }
   }
 }
 
@@ -749,7 +754,7 @@ export async function hydratePopularCoinsListFromAvailableSources(
   // Handle the case where no popularCoinsList data is available
   if (!Array.isArray(popularCoinsList) || popularCoinsList.length === 0) {
     console.log(
-      "We didn't start with PopularCoinsLists data so we need to fetch it.",
+      "We didn't start with PopularCoinsLists data from the server so we need to fetch it from the cache or API.",
     );
     await fetchAndUpdatePopularCoinsListCache({
       store,

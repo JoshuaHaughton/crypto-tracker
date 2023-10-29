@@ -92,20 +92,16 @@ export const initializePopularCoinsListCache = createAsyncThunk(
         "VALID COIN LISTS CACHE - initializePopularCoinsListCache thunk",
       );
 
-      return db.popularCoinLists
-        .each((data) => {
-          if (
-            data.currency !== currentCurrency.toUpperCase() &&
-            data?.coinData
-          ) {
-            dispatch(
-              coinsActions.setPopularCoinsListForCurrency({
-                currency: data.currency,
-                coinData: data.coinData,
-              }),
-            );
-          }
-        })
+      return db[POPULARCOINSLISTS_TABLENAME].each((data) => {
+        if (data.currency !== currentCurrency.toUpperCase() && data?.coinData) {
+          dispatch(
+            coinsActions.setPopularCoinsListForCurrency({
+              currency: data.currency,
+              coinData: data.coinData,
+            }),
+          );
+        }
+      })
         .catch((err) =>
           console.error("Error fetching data from IndexedDB:", err),
         )
