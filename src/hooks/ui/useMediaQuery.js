@@ -1,13 +1,5 @@
+import { debounce } from "lodash";
 import { useState, useEffect } from "react";
-
-// Debounce utility function
-const debounce = (func, delay) => {
-  let timer;
-  return (...args) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => func.apply(this, args), delay);
-  };
-};
 
 export const useMediaQuery = (breakpoint, debounceTime = 100) => {
   const [matches, setMatches] = useState(false);

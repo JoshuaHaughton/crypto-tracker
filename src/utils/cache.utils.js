@@ -10,7 +10,7 @@ import {
 } from "../global/constants";
 import { getPopularCoinsCacheData } from "./api.utils";
 import { initializePopularCoinsListCache } from "../thunks/popularCoinsListCacheThunk";
-import { updateStoreData } from "./store.utils";
+import { updateStoreData } from "./reduxStore.utils";
 import { coinsActions } from "../store/coins";
 import { appInfoActions } from "../store/appInfo";
 import { postMessageToCurrencyTransformerWorker } from "../../public/webWorkers/currencyTransformer/manager";

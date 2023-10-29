@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { SYMBOLS_BY_CURRENCIES } from "../global/constants";
 import { withCommonActions } from "./commonActions";
+import { isEmpty } from "lodash";
 
 export const initialCurrencyState = {
   initialCurrency: "CAD",

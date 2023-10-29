@@ -6,8 +6,7 @@ import {
 } from "../global/constants";
 import { initialCoinsState } from "../store/coins";
 import { initialCurrencyState } from "../store/currency";
-import { getCurrencyRatesFromExchangeData } from "./global.utils";
-import { formatCoinDetailsData } from "./dataFormat.utils";
+import { formatCoinDetailsData, formatCurrencyRates } from "./dataFormat.utils";
 
 /**
  * Fetches and formats the top 100 coins, trending coins, and currency exchange rate data from CryptoCompare for the specified currency.
@@ -50,7 +49,7 @@ export async function fetchPopularCoinsData(
     );
 
     // Extract currency rates from exchange data
-    currencyRates = getCurrencyRatesFromExchangeData(exchangeData);
+    currencyRates = formatCurrencyRates(exchangeData);
 
     popularCoinsList = assetsData.Data.map((entry, i) => {
       const coin = entry.CoinInfo;
@@ -148,7 +147,7 @@ export async function fetchCoinDetailsData(
       id,
       targetCurrency,
     );
-    const currencyRates = getCurrencyRatesFromExchangeData(cryptoCompareData);
+    const currencyRates = formatCurrencyRates(cryptoCompareData);
 
     // Add the currencyRates to the formattedData
     formattedData.currencyRates = currencyRates;

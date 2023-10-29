@@ -1,5 +1,7 @@
 import { isValid } from "./global.utils";
 
+// Formatting CoinDetails after retrieval from the API
+
 /**
  * Extracts and formats market chart values.
  *
@@ -206,5 +208,58 @@ export function formatCoinDetailsData(
     marketValues,
     chartValues,
     // currencyRates is computed in the main function
+  };
+}
+
+// Formatting Currency rates after retrieval from the API
+
+/**
+ * Converts the exchange data from the API into a structured format for easier currency conversions.
+ *
+ * The function takes in raw exchange data and processes it to provide conversion rates between
+ * different currency pairs. The resulting object provides a way to get conversion rates between
+ * any two supported currencies.
+ *
+ * @param {Object} exchangeData - The raw exchange data from the API.
+ * @returns {Object} An object representing conversion rates between supported currency pairs.
+ */
+export function formatCurrencyRates(exchangeData) {
+  // Extracting conversion rates for CAD
+  const cadRates = {
+    CAD: 1,
+    USD: exchangeData.RAW.CAD.USD.PRICE,
+    AUD: exchangeData.RAW.CAD.AUD.PRICE,
+    GBP: exchangeData.RAW.CAD.GBP.PRICE,
+  };
+
+  // Extracting conversion rates for USD using CAD as the base
+  const usdRates = {
+    CAD: 1 / cadRates.USD,
+    USD: 1,
+    AUD: cadRates.AUD / cadRates.USD,
+    GBP: cadRates.GBP / cadRates.USD,
+  };
+
+  // Extracting conversion rates for AUD using CAD as the base
+  const audRates = {
+    CAD: 1 / cadRates.AUD,
+    USD: cadRates.USD / cadRates.AUD,
+    AUD: 1,
+    GBP: cadRates.GBP / cadRates.AUD,
+  };
+
+  // Extracting conversion rates for GBP using CAD as the base
+  const gbpRates = {
+    CAD: 1 / cadRates.GBP,
+    USD: cadRates.USD / cadRates.GBP,
+    AUD: cadRates.AUD / cadRates.GBP,
+    GBP: 1,
+  };
+
+  return {
+    CAD: cadRates,
+    USD: usdRates,
+    AUD: audRates,
+    GBP: gbpRates,
   };
 }

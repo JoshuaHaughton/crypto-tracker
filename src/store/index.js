@@ -4,9 +4,8 @@ import currencyReducer, { initialCurrencyState } from "./currency";
 import coinsReducer, { initialCoinsState } from "./coins";
 import appInfoReducer, { initialAppInfoState } from "./appInfo";
 import mediaQueryReducer, { initialMediaQueryState } from "./mediaQuery";
-import { updateStoreData } from "../utils/store.utils";
+import { updateStoreData } from "../utils/reduxStore.utils";
 import Cookie from "js-cookie";
-import { deepMerge } from "../utils/global.utils";
 
 /**
  * Global reference to the Redux store.
