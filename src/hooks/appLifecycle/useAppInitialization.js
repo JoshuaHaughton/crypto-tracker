@@ -35,13 +35,17 @@ export const useAppInitialization = (
         await validateNecessaryCachesAndClearAllIfInvalid(
           serverGlobalCacheVersion,
         );
+
       hydratePopularCoinsListFromAvailableSources(
         store,
         areNecessaryCachesValid,
         serverGlobalCacheVersion,
       );
       await hydratePreloadedCoinsFromCacheIfAvailable(store.dispatch);
-      preloadDetailsForCurrentCoinIfOnDetailsPage(store, initialReduxState);
+      void preloadDetailsForCurrentCoinIfOnDetailsPage(
+        store,
+        initialReduxState,
+      );
     };
 
     initializeData();

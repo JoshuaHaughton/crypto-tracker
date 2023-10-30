@@ -21,6 +21,22 @@ export const useRouteEvents = (
   serverGlobalCacheVersion,
 ) => {
   useEffect(() => {
+    // Setup event listeners for route changes
+    window.addEventListener("beforeunload", terminateProgressBar);
+    Router.events.on("routeChangeStart", startProgressBar);
+    Router.events.on("routeChangeError", completeProgressBar);
+
+    // Cleanup event listeners on unmount
+    return () => {
+      window.removeEventListener("beforeunload", terminateProgressBar);
+      Router.events.off("routeChangeStart", startProgressBar);
+      Router.events.off("routeChangeError", completeProgressBar);
+    };
+  }, []); // Empty dependency array ensures this runs only once on mount and unmount
+
+  // This RouteHandler depends on updated state, so we should separate it's logic into a useEffect with
+  // the appropriate dependencies
+  useEffect(() => {
     const routeChangeCompleteHandler = () => {
       completeProgressBar();
       validateAndReinitializeCacheOnRouteChange(
@@ -30,19 +46,11 @@ export const useRouteEvents = (
       );
     };
 
-    // Setup event listeners for route changes
-    window.addEventListener("beforeunload", terminateProgressBar);
-
-    Router.events.on("routeChangeStart", startProgressBar);
-    Router.events.on("routeChangeError", completeProgressBar);
     Router.events.on("routeChangeComplete", routeChangeCompleteHandler);
 
     // Cleanup event listeners on unmount
     return () => {
-      Router.events.off("routeChangeStart", startProgressBar);
-      Router.events.off("routeChangeError", completeProgressBar);
       Router.events.off("routeChangeComplete", routeChangeCompleteHandler);
-      window.removeEventListener("beforeunload", terminateProgressBar);
     };
-  }, [store, initialReduxState]);
+  }, [store, initialReduxState, serverGlobalCacheVersion]);
 };

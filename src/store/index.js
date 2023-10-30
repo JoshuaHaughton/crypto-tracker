@@ -38,20 +38,26 @@ export const getOrInitializeStore = (
   }
 
   const clientGlobalCacheVersion = Cookie.get("globalCacheVersion");
+  // Since we cache the PopularCoinsList page in production, we only know we get fresh PopularCoins
+  // when the GCV from the server is newer than the client
+  const popularCoinsWereFetchedOnServer =
+    serverGlobalCacheVersion &&
+    serverGlobalCacheVersion >= clientGlobalCacheVersion;
+  const selectedCoinDetailsWereFetchedOnServer = !isEmpty(
+    initialState.coins?.selectedCoinDetails,
+  );
 
   // If the store doesn't exist, create a new one
   if (!reduxStore) {
     console.warn("creating new redux store");
     reduxStore = initializeStore(initialState);
   } else if (
-    initialState != null &&
-    ((serverGlobalCacheVersion &&
-      serverGlobalCacheVersion >= clientGlobalCacheVersion) ||
-      !isEmpty(initialState.coins?.selectedCoinDetails))
+    !isEmpty(initialState) &&
+    (popularCoinsWereFetchedOnServer || selectedCoinDetailsWereFetchedOnServer)
   ) {
-    // If we get fresh data from the server (new GCV) or we get selectedCoin details from the server
+    // If we get PopularCoins data from the server (new GCV) or we get selectedCoinDetails from the server
     // (Coin detail page without preloading), We should update the store.
-    // NOTE - GCV doesn't reset on new selectedCoin Detail fetches
+    // NOTE - GCV doesn't reset on new selectedCoinDetails fetches - it is tied to the latest fetch for PopularCoins
     if (serverGlobalCacheVersion == clientGlobalCacheVersion) {
       console.warn("cache used to update redux store");
     } else {
