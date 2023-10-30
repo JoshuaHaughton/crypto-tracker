@@ -749,6 +749,7 @@ export async function hydratePopularCoinsListFromAvailableSources(
   isCacheValid,
   serverGlobalCacheVersion,
 ) {
+  console.log("hydratePopularCoinsListFromAvailableSources");
   const popularCoinsList = store.getState().coins.displayedPopularCoinsList;
 
   // Handle the case where no popularCoinsList data is available
@@ -770,8 +771,8 @@ export async function hydratePopularCoinsListFromAvailableSources(
         indexedDBCacheIsValid: isCacheValid,
       }),
     );
+    updateGlobalCacheVersion(serverGlobalCacheVersion);
     store.dispatch(appInfoActions.finishPopularCoinsListPreloading());
-    updateGlobalCacheVersionIfNecessary(serverGlobalCacheVersion);
   }
 }
 
@@ -869,9 +870,7 @@ export async function hydrateReduxWithPreloadedCoinsForCurrency(
       );
     } else {
       // No data fetched
-      console.warn(
-        `No data found in CoinDetails preloaded cache for ${currency}.`,
-      );
+      console.log(`No preloaded CoinDetails data in cache for ${currency}.`);
     }
   } catch (error) {
     console.error(

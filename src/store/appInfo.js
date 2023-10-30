@@ -51,7 +51,7 @@ const appInfoSliceDefinition = {
 
       const { [coinId]: removed, ...remaining } = state.coinsBeingFetched;
       state.coinsBeingFetched = remaining;
-      state.coinsFetchedOrder = state.coinsFetchedOrder.filter(
+      state.coinsBeingFetchedOrder = state.coinsBeingFetchedOrder.filter(
         (id) => id !== coinId,
       );
     },

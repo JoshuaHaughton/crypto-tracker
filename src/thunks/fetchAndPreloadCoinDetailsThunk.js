@@ -64,10 +64,10 @@ export const fetchAndPreloadCoinDetailsThunk = createAsyncThunk(
       );
     }
 
-    // Mark the coin as being fetched to prevent duplicate fetches.
-    dispatch(appInfoActions.addCoinBeingFetched({ coinId }));
-
     try {
+      // Mark the coin as being fetched to prevent duplicate fetches.
+      dispatch(appInfoActions.addCoinBeingFetched({ coinId }));
+
       // Fetch the detailed data for the coin.
       const detailedData = await fetchCoinDetailsData(coinId, currentCurrency);
       if (detailedData == null) return;
