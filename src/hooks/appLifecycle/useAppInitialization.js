@@ -36,12 +36,14 @@ export const useAppInitialization = (
           serverGlobalCacheVersion,
         );
 
-      hydratePopularCoinsListFromAvailableSources(
+      await hydratePopularCoinsListFromAvailableSources(
         store,
         areNecessaryCachesValid,
         serverGlobalCacheVersion,
       );
+
       await hydratePreloadedCoinsFromCacheIfAvailable(store.dispatch);
+
       void preloadDetailsForCurrentCoinIfOnDetailsPage(
         store,
         initialReduxState,

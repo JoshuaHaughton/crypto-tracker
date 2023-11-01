@@ -1,10 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Cookie from "js-cookie";
 import { useRouter } from "next/router";
 import { coinsActions } from "../../store/coins";
 import { fetchAndPreloadCoinDetailsThunk } from "../../thunks/fetchAndPreloadCoinDetailsThunk";
+import { isEmpty } from "lodash";
 
 /**
  * A custom hook to preload coin details for a given coin ID.
@@ -21,7 +22,13 @@ export function useCoinDetailsPreloader(id) {
   const coinCachedDetails = useSelector(
     (state) => state.coins.cachedCoinDetailsByCurrency[currentCurrency][id],
   );
-  const isPreloaded = coinCachedDetails != null;
+  const isPreloaded = !isEmpty(coinCachedDetails?.chartValues);
+  const isPreloadedRef = useRef(isPreloaded);
+
+  useEffect(() => {
+    isPreloadedRef.current = isPreloaded;
+  }, [isPreloaded]);
+
   const [waitingForSpecificPreload, setWaitingForSpecificPreload] =
     useState(false);
 
@@ -31,7 +38,7 @@ export function useCoinDetailsPreloader(id) {
     console.log("isPreloaded?", isPreloaded);
 
     // Check if the coin is already preloaded
-    if (isPreloaded) {
+    if (isPreloadedRef.current) {
       console.log(`Coin ${id} is already preloaded.`);
       return;
     }
@@ -49,8 +56,10 @@ export function useCoinDetailsPreloader(id) {
 
   // Handler for click event on a coin
   const handleCoinClick = () => {
+    console.log("click");
+    console.log("isPreloadedRef", isPreloadedRef.current);
     // If coin details are preloaded, navigate to the coin's details page immediately
-    if (isPreloaded) {
+    if (isPreloadedRef.current) {
       console.log("PRELOADED DATA BEING USED", coinCachedDetails);
       dispatch(
         coinsActions.updateSelectedCoin({ coinDetails: coinCachedDetails }),
@@ -72,9 +81,9 @@ export function useCoinDetailsPreloader(id) {
 
   // useEffect to handle navigation only after waiting for specific preload
   useEffect(() => {
-    if (waitingForSpecificPreload && isPreloaded) {
+    if (waitingForSpecificPreload && isPreloadedRef.current) {
       console.log(
-        "ROUTER PUSH AFTER waiting for  preloaded data to complete",
+        "ROUTER PUSH AFTER waiting for preloaded data to complete",
         coinCachedDetails,
       );
       dispatch(

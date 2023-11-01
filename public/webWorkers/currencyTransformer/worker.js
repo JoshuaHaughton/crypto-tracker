@@ -1,3 +1,5 @@
+const COINDETAILS_TABLENAME = "coinDetails";
+const POPULARCOINSLISTS_TABLENAME = "popularCoinsLists";
 const TRANSFORM_COIN_DETAILS_CURRENCY = "transformCoinDetailsCurrency";
 const TRANSFORM_ALL_COIN_DETAILS_CURRENCIES =
   "transformAllCoinDetailsCurrencies";
@@ -242,6 +244,25 @@ const transformCurrencyForCoinDetails = (
 });
 
 /**
+ * Extracts and maps PopularCoins to be used as the shallow base for CoinDetails for each coin.
+ *
+ * @param {Array} popularCoinsList - The list of popular coins with basic attributes.
+ * @returns {Object} - An object where each key is the coin's id and the value is the coin's detailed attributes.
+ */
+function mapPopularCoinsToShallowDetailedAttributes(popularCoinsList) {
+  // Ensure the input is an array and has data
+  if (!Array.isArray(popularCoinsList) || popularCoinsList.length === 0) {
+    return {};
+  }
+
+  // Reduce the popularCoinsList to an object with coin ids as keys
+  return popularCoinsList.reduce((acc, coin) => {
+    acc[coin.id] = { coinAttributes: coin };
+    return acc;
+  }, {});
+}
+
+/**
  * Web Worker event listener for message events related to currency transformation tasks.
  *
  * This Web Worker is responsible for performing currency conversions on various datasets.
@@ -326,9 +347,17 @@ self.addEventListener(
             data.toCurrency,
             data.currencyRates,
           );
+        const cachedCoinDetailsForCurrency =
+          mapPopularCoinsToShallowDetailedAttributes(
+            transformedPopularCoinsList,
+          );
+
         self.postMessage({
           type,
-          transformedData: transformedPopularCoinsList,
+          transformedData: {
+            [POPULARCOINSLISTS_TABLENAME]: transformedPopularCoinsList,
+            [COINDETAILS_TABLENAME]: cachedCoinDetailsForCurrency,
+          },
           toCurrency: data.toCurrency,
         });
         break;
@@ -353,6 +382,7 @@ self.addEventListener(
 
         // Create an object to store the transformed data for each target currency
         const popularCoinsListTransformedData = {};
+        const cachedCoinDetailsTransformedData = {};
 
         targetCurrencies.forEach((targetCurrency) => {
           popularCoinsListTransformedData[targetCurrency] =
@@ -362,11 +392,19 @@ self.addEventListener(
               targetCurrency,
               currencyRates,
             );
+
+          cachedCoinDetailsTransformedData[targetCurrency] =
+            mapPopularCoinsToShallowDetailedAttributes(
+              popularCoinsListTransformedData[targetCurrency],
+            );
         });
 
         self.postMessage({
           type,
-          transformedData: popularCoinsListTransformedData,
+          transformedData: {
+            [POPULARCOINSLISTS_TABLENAME]: popularCoinsListTransformedData,
+            [COINDETAILS_TABLENAME]: cachedCoinDetailsTransformedData,
+          },
         });
         break;
 

@@ -9,12 +9,13 @@ import {
   GLOBALCACHEINFO_TABLENAME,
 } from "../global/constants";
 import { getPopularCoinsCacheData } from "./api.utils";
-import { initializePopularCoinsListCache } from "../thunks/popularCoinsListCacheThunk";
+import { initializePopularCoinsAndDetailsCache } from "../thunks/initializeCoinCacheThunk";
 import { updateStoreData } from "./reduxStore.utils";
 import { coinsActions } from "../store/coins";
 import { appInfoActions } from "../store/appInfo";
 import { postMessageToCurrencyTransformerWorker } from "../../public/webWorkers/currencyTransformer/manager";
-import { isEmpty } from "lodash";
+import { isEmpty, isObject, mergeWith } from "lodash";
+import { mapPopularCoinsToShallowDetailedAttributes } from "./dataFormat.utils";
 
 // Validating/Updating Cache Data
 
@@ -216,7 +217,7 @@ export async function validateAndReinitializeCacheOnRouteChange(
       );
       // Initialize cache with PopularCoinsData from the server
       await store.dispatch(
-        initializePopularCoinsListCache({ indexedDBCacheIsValid: false }),
+        initializePopularCoinsAndDetailsCache({ indexedDBCacheIsValid: false }),
       );
       // Use the GCV from server on the client
       updateGlobalCacheVersion(serverGlobalCacheVersion);
@@ -225,7 +226,7 @@ export async function validateAndReinitializeCacheOnRouteChange(
         "Fetching new PopularCoinsLists Data to initialize cache - validateAndReinitializeCacheOnRouteChange",
       );
       // Fetch new PopularCoinsData from API before initializing cache
-      await fetchAndUpdatePopularCoinsListCache({
+      await fetchAndInitializeCoinsCache({
         store,
         indexedDBCacheIsValid: false,
       });
@@ -364,16 +365,34 @@ export async function saveTableDataForCurrencyInIndexedDB(
   try {
     if (tableName === COINDETAILS_TABLENAME) {
       // Get the existing coin data for the specified currency
-      const existingCoinData = (await db[tableName].get(currency)) || {};
+      const existingCoinData =
+        (await db[tableName].get(currency))?.coinData || {};
 
       // Get the coin's symbol from the data
-      const coinSymbol = coinData.coinAttributes.symbol;
+      const coinSymbol = coinData?.coinAttributes?.id;
 
-      // Merge the new coin data into the existing data for the currency
-      const mergedCoinData = {
-        ...(existingCoinData.coinData || {}),
-        [coinSymbol]: coinData,
-      };
+      // Construct the data to merge based on the existence of coinSymbol
+      const dataToMerge = coinSymbol ? { [coinSymbol]: coinData } : coinData;
+
+      function customizer(objValue, srcValue) {
+        if (Array.isArray(objValue) && Array.isArray(srcValue)) {
+          return srcValue;
+        }
+
+        if (isObject(objValue) && isObject(srcValue)) {
+          return mergeWith({}, objValue, srcValue, customizer);
+        }
+
+        return objValue != null ? objValue : srcValue;
+      }
+
+      // Use mergeWith for both individual coin and entire data
+      const mergedCoinData = mergeWith(
+        {},
+        existingCoinData,
+        dataToMerge,
+        customizer,
+      );
 
       // Store the merged data back into the database
       await db[tableName].put({ currency, coinData: mergedCoinData });
@@ -489,15 +508,17 @@ export async function storeGlobalCacheVersionInIndexedDB(cacheVersion) {
  * @param {boolean} [options.indexedDBCacheIsValid] - Optional. If provided, it directly indicates whether the IndexedDB cache is valid or not, bypassing any IndexedDB validity check. If left undefined, the function will check the validity from IndexedDB.
  * @returns {Promise<void>} - A promise that resolves when the store is updated and the cache is reinitialized.
  */
-export async function fetchAndUpdatePopularCoinsListCache({
+export async function fetchAndInitializeCoinsCache({
   store,
   indexedDBCacheIsValid,
 }) {
-  console.log("fetchAndUpdatePopularCoinsListCache");
+  console.log("fetchAndInitializeCoinsCache");
 
   let popularCoinsListCacheData;
   const state = store.getState();
   const currentCurrency = state.currency.currentCurrency;
+  const selectedCoinDetails = state.coins.selectedCoinDetails;
+  const isCoinCurrentlySelected = !isEmpty(selectedCoinDetails);
 
   const isCacheValid =
     indexedDBCacheIsValid != null
@@ -506,31 +527,49 @@ export async function fetchAndUpdatePopularCoinsListCache({
 
   if (isCacheValid) {
     try {
-      const cacheData = await fetchDataFromIndexedDB(
-        POPULARCOINSLISTS_TABLENAME,
-        currentCurrency,
+      const popularCoinsListByCurrency = {};
+      const cachedCoinDetailsByCurrency = {};
+
+      // Fetch popular coins data concurrently for all currencies
+      const allCurrenciesData = await Promise.all(
+        ALL_CURRENCIES.map(async (currency) => {
+          const { coinData } = await fetchDataFromIndexedDB(
+            POPULARCOINSLISTS_TABLENAME,
+            currency,
+          );
+          return { currency, coinData };
+        }),
       );
+
+      allCurrenciesData.forEach(({ currency, coinData }) => {
+        popularCoinsListByCurrency[currency] = coinData;
+        cachedCoinDetailsByCurrency[currency] =
+          mapPopularCoinsToShallowDetailedAttributes(coinData);
+        if (isCoinCurrentlySelected) {
+          const coinId = selectedCoinDetails.coinAttributes.id;
+          delete cachedCoinDetailsByCurrency[currency][coinId];
+        }
+      });
+
       const currencyRatesCacheData = await fetchDataForCurrenciesFromIndexedDB(
         CURRENCYRATES_TABLENAME,
       );
 
-      if (cacheData?.coinData) {
-        popularCoinsListCacheData = {
-          coins: {
-            displayedPopularCoinsList: cacheData.coinData,
-            popularCoinsListByCurrency: {
-              [currentCurrency]: cacheData.coinData,
-            },
-            trendingCarouselCoins: cacheData.coinData.slice(0, 10),
-          },
-          currency: {
-            currencyRates: currencyRatesCacheData,
-          },
-        };
-        console.log("cache USED for getPopularCoinsCacheData");
-      } else {
-        throw new Error("No valid data in cache");
-      }
+      popularCoinsListCacheData = {
+        coins: {
+          displayedPopularCoinsList:
+            popularCoinsListByCurrency[currentCurrency],
+          trendingCarouselCoins: popularCoinsListByCurrency[
+            currentCurrency
+          ]?.slice(0, 10),
+          popularCoinsListByCurrency,
+          cachedCoinDetailsByCurrency,
+        },
+        currency: {
+          currencyRates: currencyRatesCacheData,
+        },
+      };
+      console.log("cache USED for getPopularCoinsCacheData");
     } catch (error) {
       console.error("Error fetching from cache:", error);
       popularCoinsListCacheData = await getPopularCoinsCacheData(
@@ -551,7 +590,9 @@ export async function fetchAndUpdatePopularCoinsListCache({
 
   updateStoreData(store, popularCoinsListCacheData);
   await store.dispatch(
-    initializePopularCoinsListCache({ indexedDBCacheIsValid: isCacheValid }),
+    initializePopularCoinsAndDetailsCache({
+      indexedDBCacheIsValid: isCacheValid,
+    }),
   );
 }
 
@@ -572,14 +613,14 @@ export async function preloadDetailsForCurrentCoinIfOnDetailsPage(
   store,
   initialReduxState,
 ) {
-  const { selectedCoinDetails } = initialReduxState.coins;
+  const selectedCoinDetails = initialReduxState?.coins?.selectedCoinDetails;
   const { currentCurrency, currencyRates } = store.getState().currency;
 
   const preloadedCoinIds = JSON.parse(
     localStorage?.getItem("preloadedCoins") || "[]",
   );
   const coinIsAlreadyPreloaded =
-    selectedCoinDetails != null &&
+    selectedCoinDetails?.chartValues != null &&
     preloadedCoinIds.includes(selectedCoinDetails.coinAttributes?.id);
 
   if (
@@ -600,7 +641,9 @@ export async function preloadDetailsForCurrentCoinIfOnDetailsPage(
     if (coinIsAlreadyPreloaded) {
       console.warn("The coin is already preloaded.");
     } else {
-      console.warn("We did not start with CoinDetails data from the server.");
+      console.warn(
+        "We did not start with CoinDetails data from the server (We aren't on the CoinDetails page).",
+      );
     }
   }
 }
@@ -656,7 +699,7 @@ export async function preloadCoinDetails(
     }
 
     dispatch(
-      coinsActions.setCachedCoinDetailsByCurrency({
+      coinsActions.mergeCachedCoinDetailsForCurrency({
         currency: currentCurrency,
         coinData: coinDetails,
       }),
@@ -757,7 +800,7 @@ export async function hydratePopularCoinsListFromAvailableSources(
     console.log(
       "We didn't start with PopularCoinsLists data from the server so we need to fetch it from the cache or API.",
     );
-    await fetchAndUpdatePopularCoinsListCache({
+    await fetchAndInitializeCoinsCache({
       store,
       indexedDBCacheIsValid: isCacheValid,
     });
@@ -767,7 +810,7 @@ export async function hydratePopularCoinsListFromAvailableSources(
       "We started with PopularCoinsLists data from the server. DON'T FETCH IT AGAIN, just initialize the cache with it.",
     );
     await store.dispatch(
-      initializePopularCoinsListCache({
+      initializePopularCoinsAndDetailsCache({
         indexedDBCacheIsValid: isCacheValid,
       }),
     );
@@ -858,7 +901,7 @@ export async function hydrateReduxWithPreloadedCoinsForCurrency(
     if (fetchedData && fetchedData.coinData) {
       console.log(`Preloaded Coin Data exists for ${currency}: ${fetchedData}`);
       dispatch(
-        coinsActions.setCachedCoinDetailsForCurrency({
+        coinsActions.mergeCachedCoinDetailsForCurrency({
           currency,
           coinData: fetchedData.coinData,
         }),

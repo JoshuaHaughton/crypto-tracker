@@ -44,7 +44,7 @@ export const getOrInitializeStore = (
     serverGlobalCacheVersion &&
     serverGlobalCacheVersion >= clientGlobalCacheVersion;
   const selectedCoinDetailsWereFetchedOnServer = !isEmpty(
-    initialState.coins?.selectedCoinDetails,
+    initialState?.coins?.selectedCoinDetails,
   );
 
   // If the store doesn't exist, create a new one

@@ -20,7 +20,7 @@ const bigNumberFormatter = (num) => {
 
 const PageSize = 10;
 
-const PopularCoinsList = ({ popularCoinsList }) => {
+const PopularCoinsList = () => {
   const isBreakpoint380 = useSelector(
     (state) => state.mediaQuery.isBreakpoint380,
   );
@@ -53,15 +53,15 @@ const PopularCoinsList = ({ popularCoinsList }) => {
     const lastPageIndex = firstPageIndex + PageSize;
 
     if (displayedPopularCoinsList.length < 1) {
-      setShownCoins(popularCoinsList.slice(firstPageIndex, lastPageIndex));
-      return popularCoinsList.slice(firstPageIndex, lastPageIndex);
+      setShownCoins([]);
+      return [];
     } else {
       setShownCoins(
         displayedPopularCoinsList.slice(firstPageIndex, lastPageIndex),
       );
       return displayedPopularCoinsList.slice(firstPageIndex, lastPageIndex);
     }
-  }, [popularCoinsListPageNumber, displayedPopularCoinsList, popularCoinsList]);
+  }, [popularCoinsListPageNumber, displayedPopularCoinsList]);
 
   const handleChange = (e) => {
     e.preventDefault();

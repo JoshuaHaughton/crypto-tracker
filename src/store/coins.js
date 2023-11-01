@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { withCommonActions } from "./commonActions";
+import { cloneDeep, isObject, mergeWith } from "lodash";
 
 export const initialCoinsState = {
   selectedCoinDetails: {},
@@ -73,6 +74,38 @@ const coinsSliceDefinition = {
       console.log("setCachedCoinDetailsForCurrency", action);
       const { currency, coinData } = action.payload;
       state.cachedCoinDetailsByCurrency[currency] = coinData;
+    },
+    mergeCachedCoinDetailsForCurrency(state, action) {
+      console.log("mergeCachedCoinDetailsForCurrency", action);
+      const { currency, coinData } = action.payload;
+
+      // Check if coinData is just the object without the id as a key
+      let formattedCoinData = coinData;
+      if (coinData.coinAttributes && coinData.coinAttributes.id) {
+        formattedCoinData = { [coinData.coinAttributes.id]: coinData };
+      } else {
+        formattedCoinData = coinData;
+      }
+
+      function customizer(objValue, srcValue) {
+        if (Array.isArray(objValue) && Array.isArray(srcValue)) {
+          return srcValue;
+        }
+
+        if (isObject(objValue) && isObject(srcValue)) {
+          return mergeWith({}, objValue, srcValue, customizer);
+        }
+
+        return objValue != null ? objValue : srcValue;
+      }
+
+      const mergedData = mergeWith(
+        {},
+        state.cachedCoinDetailsByCurrency[currency],
+        formattedCoinData,
+        customizer,
+      );
+      state.cachedCoinDetailsByCurrency[currency] = mergedData;
     },
   },
 };

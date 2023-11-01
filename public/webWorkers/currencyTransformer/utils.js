@@ -26,7 +26,7 @@ export const TRANSFORM_ALL_POPULAR_COINS_LIST_CURRENCIES =
  * @param {Object} toCurrency - The currency to update to.
  * @param {Function} dispatch - Redux dispatch function.
  */
-async function handleTransformedCoinDetailSForCurrency(
+async function handleTransformedCoinDetailsForCurrency(
   transformedData,
   toCurrency,
   dispatch,
@@ -39,7 +39,7 @@ async function handleTransformedCoinDetailSForCurrency(
       }),
     );
     dispatch(
-      coinsActions.setCachedCoinDetailsByCurrency({
+      coinsActions.mergeCachedCoinDetailsForCurrency({
         currency: toCurrency,
         coinData: transformedData,
       }),
@@ -80,7 +80,7 @@ async function handleTransformedCoinDetailsForMultipleCurrencies(
   for (const currency in transformedData) {
     // Store transformed coin data in Redux
     dispatch(
-      coinsActions.setCachedCoinDetailsByCurrency({
+      coinsActions.mergeCachedCoinDetailsForCurrency({
         currency,
         coinData: transformedData[currency],
       }),
@@ -127,14 +127,22 @@ async function handleTransformedPopularCoinsForCurrency(
     // Store transformed coin data in Redux
     dispatch(
       coinsActions.updateCoins({
-        displayedPopularCoinsList: transformedData,
-        trendingCarouselCoins: transformedData.slice(0, 10),
+        displayedPopularCoinsList: transformedData[POPULARCOINSLISTS_TABLENAME],
+        trendingCarouselCoins: transformedData[
+          POPULARCOINSLISTS_TABLENAME
+        ].slice(0, 10),
       }),
     );
     dispatch(
       coinsActions.setPopularCoinsListForCurrency({
-        toCurrency,
-        coinData: transformedData,
+        currency: toCurrency,
+        coinData: transformedData[POPULARCOINSLISTS_TABLENAME],
+      }),
+    );
+    dispatch(
+      coinsActions.setCachedCoinDetailsForCurrency({
+        currency: toCurrency,
+        coinData: transformedData[COINDETAILS_TABLENAME],
       }),
     );
     dispatch(currencyActions.changeCurrency({ currency: toCurrency }));
@@ -142,10 +150,10 @@ async function handleTransformedPopularCoinsForCurrency(
 
   // Wait for all storage operations to complete
   try {
-    await saveTableDataForCurrencyInIndexedDB(
+    void saveTableDataForCurrencyInIndexedDB(
       POPULARCOINSLISTS_TABLENAME,
       toCurrency,
-      transformedData,
+      transformedData[POPULARCOINSLISTS_TABLENAME],
     );
   } catch (err) {
     console.error("Error during IndexedDB storage:", err);
@@ -169,13 +177,25 @@ async function handleTransformedPopularCoinsForMultipleCurrencies(
   dispatch,
 ) {
   const storagePromises = [];
+  console.log(
+    "handleTransformedPopularCoinsForMultipleCurrencies",
+    transformedData,
+  );
 
-  for (const currency in transformedData) {
-    // Store transformed coin data in Redux
+  for (const currency in transformedData[POPULARCOINSLISTS_TABLENAME]) {
+    // Store transformed PopularCoins data in Redux
     dispatch(
       coinsActions.setPopularCoinsListForCurrency({
         currency,
-        coinData: transformedData[currency],
+        coinData: transformedData[POPULARCOINSLISTS_TABLENAME][currency],
+      }),
+    );
+
+    // Store Shallow CoinDetails data in Redux
+    dispatch(
+      coinsActions.setCachedCoinDetailsForCurrency({
+        currency,
+        coinData: transformedData[COINDETAILS_TABLENAME][currency],
       }),
     );
 
@@ -184,7 +204,7 @@ async function handleTransformedPopularCoinsForMultipleCurrencies(
       saveTableDataForCurrencyInIndexedDB(
         POPULARCOINSLISTS_TABLENAME,
         currency,
-        transformedData[currency],
+        transformedData[POPULARCOINSLISTS_TABLENAME][currency],
       ),
     );
   }
@@ -217,7 +237,7 @@ export async function handleCurrencyTransformerMessage(event, dispatch) {
 
   switch (type) {
     case TRANSFORM_COIN_DETAILS_CURRENCY:
-      await handleTransformedCoinDetailSForCurrency(
+      await handleTransformedCoinDetailsForCurrency(
         transformedData,
         toCurrency,
         dispatch,

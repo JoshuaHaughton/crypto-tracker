@@ -88,13 +88,14 @@ export const updateCurrency = createAsyncThunk(
     };
 
     // Handle selected coin details transformations if needed.
-    if (Object.keys(selectedCoinDetails).length > 0) {
-      const cache =
-        cachedCoinDetailsByCurrency[updatedCurrency]?.[
-          selectedCoinDetails.coinAttributes.symbol.toUpperCase()
-        ];
-      console.log("cache", cachedCoinDetailsByCurrency);
-      console.log("cache", cache);
+    if (!isEmpty(selectedCoinDetails)) {
+      const coinId = selectedCoinDetails.coinAttributes.id.toUpperCase();
+      const fullPreloadExists =
+        cachedCoinDetailsByCurrency[updatedCurrency]?.[coinId]?.chartValues !=
+        null;
+      const cache = fullPreloadExists
+        ? cachedCoinDetailsByCurrency[updatedCurrency]?.[coinId]
+        : null;
       updateCurrencyAndCache("CoinDetails", selectedCoinDetails, cache);
     }
 

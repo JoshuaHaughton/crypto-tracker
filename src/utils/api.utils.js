@@ -6,7 +6,11 @@ import {
 } from "../global/constants";
 import { initialCoinsState } from "../store/coins";
 import { initialCurrencyState } from "../store/currency";
-import { formatCoinDetailsData, formatCurrencyRates } from "./dataFormat.utils";
+import {
+  formatCoinDetailsData,
+  formatCurrencyRates,
+  mapPopularCoinsToShallowDetailedAttributes,
+} from "./dataFormat.utils";
 
 /**
  * Fetches and formats the top 100 coins, trending coins, and currency exchange rate data from CryptoCompare for the specified currency.
@@ -184,6 +188,8 @@ export async function getPopularCoinsCacheData(targetCurrency) {
   try {
     const { currencyRates, popularCoinsList, trendingCarouselCoins } =
       await fetchPopularCoinsData(targetCurrency);
+    const shallowCoinDetails =
+      mapPopularCoinsToShallowDetailedAttributes(popularCoinsList);
 
     console.log("getPopularCoinsCacheData successful!");
 
@@ -191,6 +197,9 @@ export async function getPopularCoinsCacheData(targetCurrency) {
     result.coins.trendingCarouselCoins = trendingCarouselCoins;
     result.coins.popularCoinsListByCurrency = {
       [targetCurrency]: popularCoinsList,
+    };
+    result.coins.cachedCoinDetailsByCurrency = {
+      [targetCurrency]: shallowCoinDetails,
     };
 
     result.currency.currencyRates = currencyRates;
@@ -253,16 +262,6 @@ export async function prepareCoinDetailsPageProps(context) {
             marketChartValues,
             marketValues,
             chartValues,
-          },
-        },
-        cachedCoinDetailsByCurrency: {
-          [currentCurrency]: {
-            [coinAttributes.symbol.toUpperCase()]: {
-              coinAttributes,
-              marketChartValues,
-              marketValues,
-              chartValues,
-            },
           },
         },
       },

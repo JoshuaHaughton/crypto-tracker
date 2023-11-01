@@ -1,3 +1,4 @@
+import { keyBy } from "lodash";
 import { isValid } from "./global.utils";
 
 // Formatting CoinDetails after retrieval from the API
@@ -262,4 +263,22 @@ export function formatCurrencyRates(exchangeData) {
     AUD: audRates,
     GBP: gbpRates,
   };
+}
+
+/**
+ * Extracts and maps attributes from the PopularCoins lists to be used as the shallow CoinDetails for each coin prior to preloading. THis allows us to maintain consistent valus that appear in the list, as well as the details page.
+ *
+ * @param {Array} popularCoinsList - The list of popular coins with basic attributes.
+ * @returns {Object} An object where each key is a coin's id and the value is an object with a single key `coinAttributes` that points to the coin's data.
+ */
+export function mapPopularCoinsToShallowDetailedAttributes(popularCoinsList) {
+  // Ensure the input is an array and has data
+  if (!Array.isArray(popularCoinsList) || popularCoinsList.length === 0) {
+    return {};
+  }
+
+  return popularCoinsList.reduce((acc, coin) => {
+    acc[coin.id] = { coinAttributes: coin };
+    return acc;
+  }, {});
 }
