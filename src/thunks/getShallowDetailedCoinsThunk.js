@@ -20,7 +20,7 @@ export const getShallowDetailedCoins = createAsyncThunk(
 
     // Set this as showllow copy of CoinDetails so that coins can maintain consitent attributes in the COinDetails page. Without this, the API would return a different price than what's displayed for the PopularCOinsList
     dispatch(
-      coinsActions.setCachedCoinDetailsForCurrency({
+      coinsActions.setCachedCoinDetailsByCurrency({
         currency: currentCurrency,
         coinData,
       }),

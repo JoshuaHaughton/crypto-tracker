@@ -140,7 +140,7 @@ async function handleTransformedPopularCoinsForCurrency(
       }),
     );
     dispatch(
-      coinsActions.setCachedCoinDetailsForCurrency({
+      coinsActions.setCachedCoinDetailsByCurrency({
         currency: toCurrency,
         coinData: transformedData[COINDETAILS_TABLENAME],
       }),
@@ -193,7 +193,7 @@ async function handleTransformedPopularCoinsForMultipleCurrencies(
 
     // Store Shallow CoinDetails data in Redux
     dispatch(
-      coinsActions.setCachedCoinDetailsForCurrency({
+      coinsActions.setCachedCoinDetailsByCurrency({
         currency,
         coinData: transformedData[COINDETAILS_TABLENAME][currency],
       }),

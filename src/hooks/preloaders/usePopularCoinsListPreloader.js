@@ -11,11 +11,11 @@ import { useRouter } from "next/router";
  */
 export function usePopularCoinsListPreloader() {
   const router = useRouter();
-  const isPopularCoinsListPreloaded = useSelector(
-    (state) => state.appInfo.isPopularCoinsListPreloaded,
+  const arePopularCoinsListsHydrated = useSelector(
+    (state) => state.appInfo.arePopularCoinsListsHydrated,
   );
   // The PopularCoinsList is automatically preloaded by the useAppInitialization hook
-  const [loading, setLoading] = useState(!isPopularCoinsListPreloaded);
+  const [loading, setLoading] = useState(!arePopularCoinsListsHydrated);
   const [waitingForPreload, setWaitingForPreload] = useState(false);
 
   const handleMouseEnter = () => {
@@ -29,7 +29,7 @@ export function usePopularCoinsListPreloader() {
     event.preventDefault();
 
     // If coin list data is preloaded, navigate to the coin list page immediately
-    if (isPopularCoinsListPreloaded) {
+    if (arePopularCoinsListsHydrated) {
       console.log("usePreloadedData - usePopularCoinsListPreloader");
       Cookie.set("usePreloadedData", "true");
       router.push("/");
@@ -45,7 +45,7 @@ export function usePopularCoinsListPreloader() {
 
   // Handle navigation once coin list preloading completes
   useEffect(() => {
-    if (waitingForPreload && isPopularCoinsListPreloaded) {
+    if (waitingForPreload && arePopularCoinsListsHydrated) {
       console.log(
         "Handle navigation once coin list preloading completes - usePopularCoinsListPreloader",
       );
@@ -53,7 +53,7 @@ export function usePopularCoinsListPreloader() {
       Cookie.set("usePreloadedData", "true");
       router.push("/");
     }
-  }, [waitingForPreload, isPopularCoinsListPreloaded]);
+  }, [waitingForPreload, arePopularCoinsListsHydrated]);
 
   return { handleMouseEnter, handleLinkClick };
 }

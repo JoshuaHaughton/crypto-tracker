@@ -798,7 +798,7 @@ export async function hydrateCoinsCacheFromAvailableSources(
       store,
       indexedDBCacheIsValid: isCacheValid,
     });
-    store.dispatch(appInfoActions.finishPopularCoinsListPreloading());
+    store.dispatch(appInfoActions.finishPopularCoinsListsHydration());
   } else {
     console.log(
       "We started with PopularCoinsLists data from the server. DON'T FETCH IT AGAIN, just initialize the cache with it.",
@@ -809,7 +809,7 @@ export async function hydrateCoinsCacheFromAvailableSources(
       }),
     );
     updateGlobalCacheVersion(serverGlobalCacheVersion);
-    store.dispatch(appInfoActions.finishPopularCoinsListPreloading());
+    store.dispatch(appInfoActions.finishPopularCoinsListsHydration());
   }
 
   await hydratePreloadedCoinsFromCacheIfAvailable(store.dispatch);
@@ -858,7 +858,7 @@ export async function fetchDataForCurrenciesFromIndexedDB(
  * @returns {Promise<void>} Returns a promise indicating the success or failure of the CoinDetails loading operation.
  */
 export async function hydratePreloadedCoinsFromCacheIfAvailable(dispatch) {
-  dispatch(appInfoActions.startCoinDetailsPreloading());
+  dispatch(appInfoActions.startCoinDetailsHydration());
 
   // Iterate through each supported currency
   for (const currency of ALL_CURRENCIES) {
@@ -870,7 +870,7 @@ export async function hydratePreloadedCoinsFromCacheIfAvailable(dispatch) {
         error,
       );
     } finally {
-      dispatch(appInfoActions.finishCoinDetailsPreloading());
+      dispatch(appInfoActions.finishCoinDetailsHydration());
     }
   }
 }

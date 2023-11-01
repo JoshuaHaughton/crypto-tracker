@@ -88,7 +88,7 @@ export const initializePopularCoinsAndDetailsCache = createAsyncThunk(
 
         // Store initial Shallow Coin Details data in Redux
         dispatch(
-          coinsActions.setCachedCoinDetailsForCurrency({
+          coinsActions.setCachedCoinDetailsByCurrency({
             currency: currentCurrency.toUpperCase(),
             coinData: shallowCoinDetails,
           }),
@@ -121,7 +121,7 @@ export const initializePopularCoinsAndDetailsCache = createAsyncThunk(
             }),
           );
           dispatch(
-            coinsActions.setCachedCoinDetailsForCurrency({
+            coinsActions.setCachedCoinDetailsByCurrency({
               currency: data.currency,
               coinData: mapPopularCoinsToShallowDetailedAttributes(
                 data.coinData,

@@ -25,7 +25,6 @@ export const initialCoinsState = {
     GBP: [],
   },
   trendingCarouselCoins: [],
-  symbol: "$",
 };
 
 // Coins Reducers
@@ -35,23 +34,9 @@ const coinsSliceDefinition = {
   reducers: {
     updateCoins(state, action) {
       console.log("updateCoins", action);
-      if (action.payload.displayedPopularCoinsList) {
-        state.displayedPopularCoinsList =
-          action.payload.displayedPopularCoinsList;
-      }
-
-      if (action.payload.trendingCarouselCoins) {
-        state.trendingCarouselCoins = action.payload.trendingCarouselCoins;
-      }
-
-      if (action.payload.symbol) {
-        state.symbol = action.payload.symbol;
-      }
-    },
-    updateSelectedCoin(state, action) {
-      console.log("updateSelectedCoin", action);
-      if (action.payload.coinDetails) {
-        state.selectedCoinDetails = action.payload.coinDetails;
+      const payloadKeys = Object.keys(action.payload);
+      for (let key of payloadKeys) {
+        state[key] = action.payload[key];
       }
     },
     setPopularCoinsListForCurrency(state, action) {
@@ -59,20 +44,25 @@ const coinsSliceDefinition = {
       const { currency, coinData } = action.payload;
       state.popularCoinsListByCurrency[currency] = coinData;
     },
-    updateSelectedCoinDetailsForCurrency(state, action) {
-      console.log("updateSelectedCoinDetailsForCurrency", action);
+    updateSelectedCoin(state, action) {
+      console.log("updateSelectedCoin", action);
+      if (action.payload.coinDetails) {
+        state.selectedCoinDetails = action.payload.coinDetails;
+      }
+    },
+    updateSelectedCoinDetailsByCurrency(state, action) {
+      console.log("updateSelectedCoinDetailsByCurrency", action);
       const { currency, coinDetail } = action.payload;
       state.selectedCoinDetailsByCurrency[currency] = coinDetail;
     },
-    setCachedCoinDetailsByCurrency(state, action) {
+    updateCachedCoinDetailsForCurrency(state, action) {
       console.log("setCachedCoinDetailsByCurrency", action);
       const { currency, coinData } = action.payload;
       state.cachedCoinDetailsByCurrency[currency][coinData.coinAttributes.id] =
         coinData;
     },
-    // todo, combine with above
-    setCachedCoinDetailsForCurrency(state, action) {
-      console.log("setCachedCoinDetailsForCurrency", action);
+    setCachedCoinDetailsByCurrency(state, action) {
+      console.log("setCachedCoinDetailsByCurrency", action);
       const { currency, coinData } = action.payload;
       state.cachedCoinDetailsByCurrency[currency] = coinData;
     },

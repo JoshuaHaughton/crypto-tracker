@@ -3,8 +3,8 @@ import { withCommonActions } from "./commonActions";
 
 export const initialAppInfoState = {
   popularCoinsListPageNumber: 1,
-  isCoinDetailsPreloadedFromDB: false,
-  isPopularCoinsListPreloaded: false,
+  areCoinDetailsHydratedFromDB: false,
+  arePopularCoinsListsHydrated: false,
   coinsBeingPreloaded: {},
   coinsBeingPreloadedOrder: [],
 };
@@ -21,18 +21,18 @@ const appInfoSliceDefinition = {
           action.payload.popularCoinsListPageNumber;
       }
     },
-    startCoinDetailsPreloading: (state) => {
-      state.isCoinDetailsPreloadedFromDB = false;
+    startCoinDetailsHydration: (state) => {
+      state.areCoinDetailsHydratedFromDB = false;
     },
-    finishCoinDetailsPreloading: (state) => {
-      state.isCoinDetailsPreloadedFromDB = true;
+    finishCoinDetailsHydration: (state) => {
+      state.areCoinDetailsHydratedFromDB = true;
     },
-    startPopularCoinsListPreloading: (state) => {
-      state.isPopularCoinsListPreloaded = false;
+    startPopularCoinsListsHydration: (state) => {
+      state.arePopularCoinsListsHydrated = false;
     },
-    finishPopularCoinsListPreloading: (state) => {
-      console.log("finishPopularCoinsListPreloading");
-      state.isPopularCoinsListPreloaded = true;
+    finishPopularCoinsListsHydration: (state) => {
+      console.log("finishPopularCoinsListsHydration");
+      state.arePopularCoinsListsHydrated = true;
     },
     // Add a coin to the list of coins being fetched
     addCoinBeingPreloaded: (state, action) => {
