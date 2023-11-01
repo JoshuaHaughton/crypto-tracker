@@ -1,4 +1,3 @@
-import { keyBy } from "lodash";
 import { isValid } from "./global.utils";
 
 // Formatting CoinDetails after retrieval from the API

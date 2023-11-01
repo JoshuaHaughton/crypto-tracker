@@ -92,11 +92,6 @@ export function useCoinDetailsPreloader(id) {
       dispatch(
         coinsActions.updateSelectedCoin({ coinDetails: coinCachedDetails }),
       );
-      dispatch(
-        coinsActions.updateCoins({
-          displayedPopularCoinsList: null,
-        }),
-      );
       Cookie.set("usePreloadedData", "true");
       router.push(`/coin/${id}`);
       setWaitingForSpecificPreload(false);
