@@ -14,8 +14,9 @@ import { updateStoreData } from "./reduxStore.utils";
 import { coinsActions } from "../store/coins";
 import { appInfoActions } from "../store/appInfo";
 import { postMessageToCurrencyTransformerWorker } from "../../public/webWorkers/currencyTransformer/manager";
-import { isEmpty, isObject, mergeWith } from "lodash";
+import { isEmpty, mergeWith } from "lodash";
 import { mapPopularCoinsToShallowDetailedAttributes } from "./dataFormat.utils";
+import { replaceArraysDeepMergeObjects } from "./global.utils";
 
 // Validating/Updating Cache Data
 
@@ -374,24 +375,12 @@ export async function saveTableDataForCurrencyInIndexedDB(
       // Construct the data to merge based on the existence of coinSymbol
       const dataToMerge = coinSymbol ? { [coinSymbol]: coinData } : coinData;
 
-      function customizer(objValue, srcValue) {
-        if (Array.isArray(objValue) && Array.isArray(srcValue)) {
-          return srcValue;
-        }
-
-        if (isObject(objValue) && isObject(srcValue)) {
-          return mergeWith({}, objValue, srcValue, customizer);
-        }
-
-        return objValue != null ? objValue : srcValue;
-      }
-
       // Use mergeWith for both individual coin and entire data
       const mergedCoinData = mergeWith(
         {},
         existingCoinData,
         dataToMerge,
-        customizer,
+        replaceArraysDeepMergeObjects,
       );
 
       // Store the merged data back into the database

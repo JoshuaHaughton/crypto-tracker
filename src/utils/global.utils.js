@@ -25,3 +25,25 @@ export const removeHTML = (str) => str.replace(/<\/?[^>]+(>|$)/g, "");
 export const isValid = (number) => {
   return !isNil(number) || isFinite(number);
 };
+
+/**
+ * Custom lodash merge strategy that:
+ * - Replaces original arrays with new ones.
+ * - Deeply merges objects.
+ * - Retains non-null original values over new values.
+ *
+ * @param {*} objValue - The original value.
+ * @param {*} srcValue - The new value to be merged.
+ * @returns {*} - The merged result.
+ */
+export function replaceArraysDeepMergeObjects(objValue, srcValue) {
+  if (Array.isArray(objValue) && Array.isArray(srcValue)) {
+    return srcValue;
+  }
+
+  if (isObject(objValue) && isObject(srcValue)) {
+    return mergeWith({}, objValue, srcValue, replaceArraysDeepMergeObjects);
+  }
+
+  return objValue != null ? objValue : srcValue;
+}

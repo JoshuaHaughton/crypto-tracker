@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { withCommonActions } from "./commonActions";
-import { cloneDeep, isObject, mergeWith } from "lodash";
+import { mergeWith } from "lodash";
+import { replaceArraysDeepMergeObjects } from "../utils/global.utils";
 
 export const initialCoinsState = {
   selectedCoinDetails: {},
@@ -87,23 +88,11 @@ const coinsSliceDefinition = {
         formattedCoinData = coinData;
       }
 
-      function customizer(objValue, srcValue) {
-        if (Array.isArray(objValue) && Array.isArray(srcValue)) {
-          return srcValue;
-        }
-
-        if (isObject(objValue) && isObject(srcValue)) {
-          return mergeWith({}, objValue, srcValue, customizer);
-        }
-
-        return objValue != null ? objValue : srcValue;
-      }
-
       const mergedData = mergeWith(
         {},
         state.cachedCoinDetailsByCurrency[currency],
         formattedCoinData,
-        customizer,
+        replaceArraysDeepMergeObjects,
       );
       state.cachedCoinDetailsByCurrency[currency] = mergedData;
     },
