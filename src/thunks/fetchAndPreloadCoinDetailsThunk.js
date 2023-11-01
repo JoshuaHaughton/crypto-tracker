@@ -21,16 +21,16 @@ export const fetchAndPreloadCoinDetailsThunk = createAsyncThunk(
     const { coinId } = payload;
 
     const state = getState();
-    const { coinsBeingFetched } = state.appInfo;
+    const { coinsBeingPreloaded } = state.appInfo;
     const { currentCurrency, currencyRates } = state.currency;
 
     console.warn(
-      "coinsBeingFetched - fetchAndPreloadCoinDetailsThunk",
-      coinsBeingFetched,
+      "coinsBeingPreloaded - fetchAndPreloadCoinDetailsThunk",
+      coinsBeingPreloaded,
     );
 
     // Check if the coin is currently being fetched.
-    if (coinsBeingFetched[coinId]) {
+    if (coinsBeingPreloaded[coinId]) {
       console.error(`Coin ${coinId} is currently being fetched.`);
       return;
     }
@@ -42,7 +42,8 @@ export const fetchAndPreloadCoinDetailsThunk = createAsyncThunk(
 
     // Check if fetching this coin would exceed the maximum preloaded coin count.
     if (
-      currentPreloadedCoinIds.length + Object.keys(coinsBeingFetched).length >=
+      currentPreloadedCoinIds.length +
+        Object.keys(coinsBeingPreloaded).length >=
       MAXIMUM_PRELOADED_COIN_COUNT
     ) {
       // Remove the earliest added coin from the list.
@@ -66,7 +67,7 @@ export const fetchAndPreloadCoinDetailsThunk = createAsyncThunk(
 
     try {
       // Mark the coin as being fetched to prevent duplicate fetches.
-      dispatch(appInfoActions.addCoinBeingFetched({ coinId }));
+      dispatch(appInfoActions.addCoinBeingPreloaded({ coinId }));
 
       // Fetch the detailed data for the coin.
       const detailedData = await fetchCoinDetailsData(coinId, currentCurrency);
@@ -89,7 +90,7 @@ export const fetchAndPreloadCoinDetailsThunk = createAsyncThunk(
       console.error("Error preloading coin data:", error);
     } finally {
       // Mark the coin as no longer being fetched.
-      dispatch(appInfoActions.removeCoinBeingFetched({ coinId }));
+      dispatch(appInfoActions.removeCoinBeingPreloaded({ coinId }));
     }
   },
 );

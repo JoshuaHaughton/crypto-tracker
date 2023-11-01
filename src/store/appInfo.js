@@ -5,8 +5,8 @@ export const initialAppInfoState = {
   popularCoinsListPageNumber: 1,
   isCoinDetailsPreloadedFromDB: false,
   isPopularCoinsListPreloaded: false,
-  coinsBeingFetched: {},
-  coinsBeingFetchedOrder: [],
+  coinsBeingPreloaded: {},
+  coinsBeingPreloadedOrder: [],
 };
 
 // AppInfo Reducers
@@ -35,31 +35,31 @@ const appInfoSliceDefinition = {
       state.isPopularCoinsListPreloaded = true;
     },
     // Add a coin to the list of coins being fetched
-    addCoinBeingFetched: (state, action) => {
-      console.warn("addCoinBeingFetched", action.payload.coinId);
+    addCoinBeingPreloaded: (state, action) => {
+      console.warn("addCoinBeingPreloaded", action.payload.coinId);
       const coinId = action.payload.coinId;
 
-      if (!state.coinsBeingFetched[coinId]) {
-        state.coinsBeingFetched[coinId] = true;
-        state.coinsBeingFetchedOrder.push(coinId);
+      if (!state.coinsBeingPreloaded[coinId]) {
+        state.coinsBeingPreloaded[coinId] = true;
+        state.coinsBeingPreloadedOrder.push(coinId);
       }
     },
     // Remove a coin from the list of coins being fetched
-    removeCoinBeingFetched: (state, action) => {
-      console.warn("removeCoinBeingFetched", action.payload.coinId);
+    removeCoinBeingPreloaded: (state, action) => {
+      console.warn("removeCoinBeingPreloaded", action.payload.coinId);
       const coinId = action.payload.coinId;
 
-      const { [coinId]: removed, ...remaining } = state.coinsBeingFetched;
-      state.coinsBeingFetched = remaining;
-      state.coinsBeingFetchedOrder = state.coinsBeingFetchedOrder.filter(
+      const { [coinId]: removed, ...remaining } = state.coinsBeingPreloaded;
+      state.coinsBeingPreloaded = remaining;
+      state.coinsBeingPreloadedOrder = state.coinsBeingPreloadedOrder.filter(
         (id) => id !== coinId,
       );
     },
     // Reset the list of coins being fetched
-    resetCoinsBeingFetched: (state) => {
-      console.log("resetCoinsBeingFetched");
-      state.coinsBeingFetched = {};
-      state.coinsBeingFetchedOrder = [];
+    resetCoinsBeingPreloaded: (state) => {
+      console.log("resetCoinsBeingPreloaded");
+      state.coinsBeingPreloaded = {};
+      state.coinsBeingPreloadedOrder = [];
     },
   },
 };

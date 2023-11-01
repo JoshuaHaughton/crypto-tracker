@@ -57,11 +57,11 @@ export const initializePopularCoinsAndDetailsCache = createAsyncThunk(
     if (!isCacheValid) {
       if (indexedDBCacheIsValid === false) {
         console.log(
-          "SKIPPED POPOULARCOINSLISTS CACHE (Skipped extra validateCacheDataForTable call) - initializePopularCoinsAndDetailsCache",
+          "SKIPPED POPULARCOINSLISTS CACHE (Skipped extra validateCacheDataForTable call) - initializePopularCoinsAndDetailsCache",
         );
       } else {
         console.log(
-          "INVALID POPOULARCOINSLISTS CACHE - initializePopularCoinsAndDetailsCache",
+          "INVALID POPULARCOINSLISTS CACHE - initializePopularCoinsAndDetailsCache",
         );
       }
 

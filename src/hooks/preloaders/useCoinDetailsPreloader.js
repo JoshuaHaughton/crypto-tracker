@@ -19,6 +19,9 @@ export function useCoinDetailsPreloader(id) {
   const currentCurrency = useSelector(
     (state) => state.currency.currentCurrency,
   );
+  const popularCoinsListForCurrentCurrency = useSelector(
+    (state) => state.coins.cachedCoinDetailsByCurrency[currentCurrency],
+  );
   const coinCachedDetails = useSelector(
     (state) => state.coins.cachedCoinDetailsByCurrency[currentCurrency][id],
   );
@@ -88,6 +91,11 @@ export function useCoinDetailsPreloader(id) {
       );
       dispatch(
         coinsActions.updateSelectedCoin({ coinDetails: coinCachedDetails }),
+      );
+      dispatch(
+        coinsActions.updateCoins({
+          displayedPopularCoinsList: null,
+        }),
       );
       Cookie.set("usePreloadedData", "true");
       router.push(`/coin/${id}`);

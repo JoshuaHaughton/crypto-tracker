@@ -776,23 +776,28 @@ export async function getCoinDetailsForCurrencyByIdFromBrowser(
 }
 
 /**
- * Hydrates the PopularCoinsList data from the best available source.
+ * Hydrates coin-related data (PopularCoinsList, Shallow CoinDetails, & Preloaded CoinDetails)
+ * from the optimal available source.
  *
- * The function first checks for initial popularCoinsList data from the server. If unavailable, it then checks the IndexedDB cache.
- * If the data is also not in the cache, it fetches the PopularCoinsList data via an API call.
- * This ensures that the PopularCoinsList is always hydrated with the most readily available data.
+ * 1. Prioritizes using initial popularCoinsList data provided by the server.
+ * 2. If the server data is unavailable, checks the IndexedDB cache.
+ * 3. If the data isn't found in the cache either, fetches it via an API call.
  *
- * @param {Object} store - The Redux store.
- * @param {boolean} isCacheValid - Indicates whether the cache is valid or not.
- * @param {string} serverGlobalCacheVersion - The global cache version from the server (optional, and should not be provided by the client cookie).
- * @returns {Promise<void>}
+ * Once the PopularCoinsList data is obtained, it uses them to compute Shallow CoinDetails
+ * and store them in Redux (Not IndexedDB). Finally, we check/use IndexedDB to fetch & hydrate
+ * any avaliable preloaded coins from the cache.
+ *
+ * @param {Object} store - The Redux store to update with the fetched data.
+ * @param {boolean} isCacheValid - Flag indicating the validity of the cache.
+ * @param {string} [serverGlobalCacheVersion] - Optional. The server's global cache version. Shouldn't be provided by client cookies.
+ * @returns {Promise<void>} - A promise indicating completion.
  */
-export async function hydratePopularCoinsListFromAvailableSources(
+export async function hydrateCoinsCacheFromAvailableSources(
   store,
   isCacheValid,
   serverGlobalCacheVersion,
 ) {
-  console.log("hydratePopularCoinsListFromAvailableSources");
+  console.log("hydrateCoinsCacheFromAvailableSources");
   const popularCoinsList = store.getState().coins.displayedPopularCoinsList;
 
   // Handle the case where no popularCoinsList data is available
@@ -817,6 +822,8 @@ export async function hydratePopularCoinsListFromAvailableSources(
     updateGlobalCacheVersion(serverGlobalCacheVersion);
     store.dispatch(appInfoActions.finishPopularCoinsListPreloading());
   }
+
+  await hydratePreloadedCoinsFromCacheIfAvailable(store.dispatch);
 }
 
 /**
