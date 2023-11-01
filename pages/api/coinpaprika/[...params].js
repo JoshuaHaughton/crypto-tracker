@@ -5,9 +5,6 @@ export default async function handler(req, res) {
     console.log(
       `Fetching from Coinpaprika: https://api.coinpaprika.com${externalPath}`,
     );
-    console.log(
-      `reqqqqq`, req.url,
-    );
     const response = await fetch(`https://api.coinpaprika.com${externalPath}`);
     const data = await response.json();
     res.status(200).json(data);

@@ -326,7 +326,8 @@ export async function preparePopularCoinsListPageProps(context) {
   let shouldFetchData =
     timeSinceLastFetch >= FIVE_MINUTES_IN_MS || !usePreloadedData;
 
-  let initialReduxState, globalCacheVersion;
+  let initialReduxState = null;
+  let globalCacheVersion = null;
 
   if (shouldFetchData) {
     console.log("Fetching new PopularCoinsLists data on the server");
