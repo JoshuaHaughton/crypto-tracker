@@ -28,6 +28,9 @@ function MyApp({ Component, pageProps }) {
         <Layout>
           <Component {...pageProps} />
         </Layout>
+        {/* Modal divs */}
+        <div id="backdrop-root"></div>
+        <div id="overlay-root"></div>
       </MediaQueryHandler>
     </Provider>
   );

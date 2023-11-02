@@ -4,6 +4,7 @@ import currencyReducer, { initialCurrencyState } from "./currency";
 import coinsReducer, { initialCoinsState } from "./coins";
 import appInfoReducer, { initialAppInfoState } from "./appInfo";
 import mediaQueryReducer, { initialMediaQueryState } from "./mediaQuery";
+import modalsReducer, { initialModalsState } from "./modals";
 import { updateStoreData } from "../utils/reduxStore.utils";
 import Cookie from "js-cookie";
 
@@ -17,6 +18,7 @@ const initialStates = {
   coins: initialCoinsState,
   appInfo: initialAppInfoState,
   mediaQuery: initialMediaQueryState,
+  modals: initialModalsState,
 };
 
 /**
@@ -93,6 +95,7 @@ export function initializeStore(initialState = {}) {
       coins: coinsReducer,
       appInfo: appInfoReducer,
       mediaQuery: mediaQueryReducer,
+      modals: modalsReducer,
     },
     preloadedState: preloadedState,
   });
