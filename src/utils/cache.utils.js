@@ -7,9 +7,8 @@ import {
   CURRENCYRATES_TABLENAME,
   FIVE_MINUTES_IN_MS,
   GLOBALCACHEINFO_TABLENAME,
-  SERVICE_WORKER_MESSAGE_TYPES,
 } from "../global/constants";
-import { getPopularCoinsCacheData } from "./api.utils";
+import { getPopularCoinsCacheData } from "./api.client.utils";
 import { initializePopularCoinsAndDetailsCache } from "../thunks/initializeCoinCacheThunk";
 import { updateStoreData } from "./reduxStore.utils";
 import { coinsActions } from "../store/coins";
@@ -325,11 +324,8 @@ export function updateGlobalCacheVersion(serverGlobalCacheVersion) {
     Cookie.set("globalCacheVersion", valueToSet);
   }
 
-  // Save GCV to Service Worker
-  postMessageToServiceWorker({
-    type: SERVICE_WORKER_MESSAGE_TYPES.SET_GLOBAL_CACHE_VERSION,
-    value: valueToSet,
-  });
+  // Save GCV to IndexedDB so that we can access it in the serviceWorker
+  storeGlobalCacheVersionInIndexedDB(valueToSet);
 
   console.warn("globalCacheVersion updated", valueToSet);
 }
@@ -542,33 +538,6 @@ export async function fetchAndInitializeCoinsCache({
     }),
   );
 }
-
-/**
- * Posts a message to the service worker with a specified type and value.
- *
- * @param {string} type - The type of the message to be sent to the service worker.
- * @param {string|number} value - The value associated with the message type.
- */
-export function postMessageToServiceWorker({ type, value }) {
-  if (!type || value === undefined) {
-    console.error("postMessageToServiceWorker requires a type and a value.");
-    return;
-  }
-
-  // Ensure that the service worker is available and ready
-  if (navigator?.serviceWorker && navigator.serviceWorker.controller) {
-    // Structure the message in a consistent format
-    const message = { type, value };
-
-    // Post the message to the active service worker
-    navigator.serviceWorker.controller.postMessage(message);
-    console.log(`Message posted to service worker: ${type} set to `, value);
-  } else {
-    console.error("Service worker is not registered or active.");
-  }
-}
-
-// Preloading
 
 /**
  * Preloads the details for the currently selected coin if on its details page.
@@ -903,30 +872,64 @@ export async function hydrateReduxWithPreloadedCoinsForCurrency(
 }
 
 /**
- * Retrieves the user's login status from cookies.
+ * Stores data to the GlobalCacheInfo table in IndexedDB.
  *
- * @returns {string|null} The user status ('Logged-In' or 'Logged-Out') if present in the cookies, otherwise null.
+ * @async
+ * @function
+ * @param {string} currency - The current currency value to be saved.
+ * @throws Will throw an error if saving to IndexedDB fails.
  */
-export function getUserStatusFromCookies() {
-  return Cookies.get("userStatus");
+export async function storeGlobalCacheInfoInIndexedDB({ key, value }) {
+  try {
+    await db[GLOBALCACHEINFO_TABLENAME].put({ key, value });
+  } catch (err) {
+    console.error(`Error saving ${key} to IndexedDB`, err);
+  }
 }
 
 /**
- * Retrieves the global cache version from cookies.
+ * Saves the global cache version to IndexedDB.
  *
- * @returns {string|null} The global cache version if present in the cookies, otherwise null.
+ * @async
+ * @function
+ * @param {string} cacheVersion - The current global cache version value to be saved.
+ * @throws Will throw an error if saving to IndexedDB fails.
  */
-export function getGlobalCacheVersionFromCookies() {
-  return Cookies.get("globalCacheVersion");
+export async function storeGlobalCacheVersionInIndexedDB(cacheVersion) {
+  await storeGlobalCacheInfoInIndexedDB({
+    key: "globalCacheVersion",
+    value: cacheVersion,
+  });
 }
 
 /**
- * Retrieves the current currency preference from cookies.
+ * Saves the user logged-in status to IndexedDB.
  *
- * @returns {string|null} The currency code if present in the cookies, otherwise null.
+ * @async
+ * @function
+ * @param {boolean} isLoggedIn - The user's logged-in status.
+ * @throws Will throw an error if saving to IndexedDB fails.
  */
-export function getCurrencyFromCookies() {
-  return Cookies.get("currentCurrency");
+export async function storeUserLoggedInStatusInIndexedDB(isLoggedIn) {
+  await storeGlobalCacheInfoInIndexedDB({
+    key: "isLoggedIn",
+    value: isLoggedIn,
+  });
+}
+
+/**
+ * Saves the current currency to IndexedDB.
+ *
+ * @async
+ * @function
+ * @param {string} currency - The current currency value to be saved.
+ * @throws Will throw an error if saving to IndexedDB fails.
+ */
+export async function storeCurrentCurrencyInIndexedDB(currency) {
+  await storeGlobalCacheInfoInIndexedDB({
+    key: "currentCurrency",
+    value: currency,
+  });
 }
 
 // Clearing/Deleting Caches

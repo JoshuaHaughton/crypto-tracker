@@ -4,7 +4,7 @@ import {
   deleteCoinDetailsByIdForCurrencyFromIndexedDb,
   preloadCoinDetails,
 } from "../utils/cache.utils";
-import { fetchCoinDetailsData } from "../utils/api.utils";
+import { fetchCoinDetailsData } from "../utils/api.client.utils";
 import { MAXIMUM_PRELOADED_COIN_COUNT } from "../global/constants";
 
 /**

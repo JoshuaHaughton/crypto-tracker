@@ -4,7 +4,7 @@ import Banner from "../src/components/UI/Banner/Banner";
 import Pagination from "../src/components/UI/Pagination.jsx";
 import styles from "./Home.module.css";
 import { useSelector } from "react-redux";
-import { preparePopularCoinsListPageProps } from "../src/utils/api.utils";
+import { preparePopularCoinsListPageProps } from "../src/utils/api.server.utils";
 
 export default function Home() {
   const popularCoinsListPageNumber = useSelector(

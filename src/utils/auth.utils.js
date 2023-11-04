@@ -8,7 +8,7 @@ import { adminAuth } from "../config/firebaseAdmin";
  * @param {IncomingMessage} req - The HTTP incoming message (request) object.
  * @returns {Promise<{ isLoggedIn: boolean, user?: Object }>} A promise that resolves to an object indicating whether the user is logged in and their info if they are.
  */
-export async function getUserSessionFromServer(req) {
+async function getUserSessionFromServer(req) {
   // Parse the cookies from the request
   const cookies = parse(req.headers.cookie || "");
   const sessionCookie = cookies.__session || "";
@@ -62,11 +62,8 @@ export async function getAuthDataFromServer(context) {
       user: isLoggedIn ? user : null,
     };
 
-    // Set the X-User-Status header to reflect the user's login status for cache management
-    context.res.setHeader(
-      "X-User-Status",
-      isLoggedIn ? "Logged-In" : "Logged-Out",
-    );
+    // Set the X-Is-Logged-In header to 'true' or 'false' based on the isLoggedIn value
+    context.res.setHeader("X-Is-Logged-In", String(isLoggedIn));
   } catch (error) {
     // If there's an error during the auth check, log it and maintain the default state
     console.error("Error during auth checks:", error);

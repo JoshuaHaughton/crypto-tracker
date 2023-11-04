@@ -1,89 +1,124 @@
-// Message types
-const SERVICE_WORKER_MESSAGE_TYPES = Object.freeze({
-  INITIALIZE: "INITIALIZE",
-  SET_USER_STATUS: "SET_USER_STATUS",
-  SET_GLOBAL_CACHE_VERSION: "SET_GLOBAL_CACHE_VERSION",
-  SET_CURRENCY: "SET_CURRENCY",
-});
+const DB_NAME = "CryptoTrackerDB";
+const GLOBAL_CACHE_INFO_STORE = "globalCacheInfo";
+let db;
 
-// Default values
-let userStatus = "Logged-Out";
-let globalCacheVersion = null;
-let currentCurrency = "CAD";
-
-/**
- * Service Worker message event listener.
- * This event handler updates the service worker's internal state based on messages from the main thread.
- */
-self.addEventListener("message", (event) => {
-  switch (event.data.type) {
-    case SERVICE_WORKER_MESSAGE_TYPES.INITIALIZE:
-      ({ currentCurrency, userStatus, globalCacheVersion } = event.data.data);
-      console.warn("Service worker initialized with data:", event.data.data);
-      break;
-    case SERVICE_WORKER_MESSAGE_TYPES.SET_USER_STATUS:
-      userStatus = event.data.value;
-      console.warn(`[Service-worker]: User status updated to: ${userStatus}`);
-      break;
-    case SERVICE_WORKER_MESSAGE_TYPES.SET_GLOBAL_CACHE_VERSION:
-      globalCacheVersion = event.data.value;
-      console.warn(
-        `[Service-worker]: Global cache version updated to: ${globalCacheVersion}`,
-      );
-      break;
-    case SERVICE_WORKER_MESSAGE_TYPES.SET_CURRENCY:
-      currentCurrency = event.data.value;
-      console.warn(`[Service-worker]: Currency updated to: ${currentCurrency}`);
-      break;
-    default:
-      // Log an error for an unknown message type
-      console.error(
-        `[Service-worker]: Unknown message type: ${event.data.type}`,
-      );
-  }
-});
+// Schema from Dexie initialization code
+const SCHEMA = {
+  popularCoinsLists: "currency",
+  coinDetails: "currency",
+  currencyRates: "currency",
+  globalCacheInfo: "key",
+};
 
 /**
- * Service Worker fetch event listener.
- * This event handler intercepts navigation fetch requests for all pages.
- * It updates request headers with the service worker's current state such as
- * currency, user status, and cache version to manage content caching strategies
- * and deliver personalized content.
+ * Initialize and return the existing database. If the database doesn't exist or doesn't have the required object stores,
+ * the promise will be rejected. The function expects the client-side logic to handle proper database initialization.
  *
- * @param {FetchEvent} event - The fetch event triggered by a page request.
+ * @returns {Promise<IDBDatabase>} The initialized database if it exists and has the required object stores.
+ * @throws {Error} Throws an error if the database doesn't exist, doesn't have the required object stores, or there's an issue accessing the IndexedDB.
+ */
+const initializeDB = () => {
+  if (db) return Promise.resolve(db); // If db is already initialized, use it.
+
+  return new Promise((resolve, reject) => {
+    const openRequest = indexedDB.open(DB_NAME);
+    openRequest.onerror = () => {
+      reject("Error opening DB");
+    };
+    openRequest.onsuccess = () => {
+      db = openRequest.result;
+      // If the database doesn't have the expected objectStores, reject the promise
+      for (const storeName in SCHEMA) {
+        if (!db.objectStoreNames.contains(storeName)) {
+          reject(`Database is missing the '${storeName}' object store.`);
+          return;
+        }
+      }
+      resolve(db);
+    };
+    openRequest.onupgradeneeded = (event) => {
+      // If the database needs an upgrade, it might be because it doesn't exist.
+      // Since we're relying on the client for initialization, we can simply close the database and reject.
+      event.target.result.close();
+      reject("Database not initialized by the client.");
+    };
+  });
+};
+
+/**
+ * Fetches a value from the IndexedDB based on the specified key.
+ * @param {string} key - The key to fetch from the IndexedDB.
+ * @param {string} storeName - The name of the object store.
+ * @returns {Promise<any>} The value associated with the key or null if not found.
+ * @throws {Error} Throws an error if there's an issue accessing the IndexedDB.
+ */
+const getValueFromDB = async (key, storeName = GLOBAL_CACHE_INFO_STORE) => {
+  await initializeDB();
+
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(storeName, "readonly");
+    const store = transaction.objectStore(storeName);
+    const getRequest = store.get(key);
+    getRequest.onsuccess = () => {
+      resolve(getRequest.result ? getRequest.result.value : null);
+    };
+    getRequest.onerror = () => {
+      reject("Error getting value from DB");
+    };
+  });
+};
+
+/**
+ * Event listener for fetch events that intercepts requests to all navigable pages.
+ * This handler modifies the request headers based on the data fetched from IndexedDB,
+ * such as the current currency, cache version, and user logged-in status.
+ * These headers are used for cache control and content personalization on the server side.
+ *
+ * @listens fetch - The fetch event triggered by a page request.
  */
 self.addEventListener("fetch", (event) => {
-  // Check if the fetch event is a navigation request.
-  // A navigation request is made when the browser is navigating to a new page or refreshing the current one.
-  if (
+  // Check if the request is a navigation request or a GET request that accepts HTML.
+  // This generally includes document navigation requests such as link clicks or address bar navigations.
+  const isNavigationOrHTMLRequest =
     event.request.mode === "navigate" ||
     (event.request.method === "GET" &&
-      event.request.headers.get("accept").includes("text/html"))
-  ) {
-    // Respond to the navigation request with a custom response.
+      event.request.headers.get("accept")?.includes("text/html"));
+
+  if (isNavigationOrHTMLRequest) {
+    // Use handleRequest function to manage custom headers based on IndexedDB data.
     event.respondWith(handleRequest(event.request));
   }
 });
 
 /**
- * Handles an incoming fetch request by adding custom headers based on the service worker's current state.
+ * Handles the incoming fetch request by adding the necessary headers.
+ *
+ * @async
  * @param {Request} request - The incoming fetch request.
- * @returns {Promise<Response>} The fetch response with updated headers or the original fetch response in case of an error.
+ * @returns {Promise<Response>} A promise that resolves with the modified fetch response.
  */
 async function handleRequest(request) {
-  try {
-    const newHeaders = new Headers(request.headers);
-    newHeaders.set("X-Current-Currency", currentCurrency);
-    newHeaders.set("X-User-Status", userStatus);
-    newHeaders.set("X-Global-Cache-Version", globalCacheVersion?.toString());
+  const newHeaders = new Headers(request.headers);
 
+  try {
+    // Fetch values from IndexedDB
+    const currentCurrency = (await getValueFromDB("currentCurrency")) || "CAD";
+    const globalCacheVersion =
+      (await getValueFromDB("globalCacheVersion")) || Date.now().toString();
+    const isLoggedInValue = (await getValueFromDB("isLoggedIn")) || "false";
+
+    // Set the headers with the fetched values
+    newHeaders.set("X-Current-Currency", currentCurrency);
+    newHeaders.set("X-Global-Cache-Version", globalCacheVersion);
+    newHeaders.set("X-Is-Logged-In", isLoggedInValue);
+
+    // Create a new request with updated headers
     const newRequest = new Request(request, { headers: newHeaders });
-    return await fetch(newRequest);
+    return fetch(newRequest);
   } catch (error) {
-    // Log the error and return the original request
-    console.error(
+    // Log the specific error and return the original request
+    console.warn(
       `[Service-worker]: Error during fetch event handling: ${error.message}`,
-      error,
     );
     return fetch(request);
   }
