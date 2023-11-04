@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { withCommonActions } from "./commonActions";
+import { isEmpty } from "lodash";
 
 const initialAuthState = {
   isLoggedIn: false,
@@ -50,18 +51,6 @@ function extraReducers(builder) {
     .addCase(logoutUser.rejected, (state, action) => {
       state.authLoading = false;
       state.error = action.error.message || action.payload;
-    })
-    // Handle check if logged cases
-    .addCase(checkServerIfLogged.pending, (state) => {
-      state.authLoading = true;
-    })
-    .addCase(checkServerIfLogged.fulfilled, (state, action) => {
-      state.isLoggedIn = action.payload;
-      state.authLoading = false;
-    })
-    .addCase(checkServerIfLogged.rejected, (state) => {
-      state.isLoggedIn = false;
-      state.authLoading = false;
     });
 }
 
@@ -70,6 +59,12 @@ const authSliceDefinition = {
   name: "auth",
   initialState: initialAuthState,
   reducers: {
+    setUser(state, action) {
+      state.user = action.payload;
+      state.isLoggedIn = !isEmpty(action.payload);
+      state.authLoading = false;
+      state.error = null;
+    },
     clearAuthState(state) {
       state.isLoggedIn = false;
       state.user = null;

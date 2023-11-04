@@ -7,6 +7,7 @@ import {
   CURRENCYRATES_TABLENAME,
   FIVE_MINUTES_IN_MS,
   GLOBALCACHEINFO_TABLENAME,
+  SERVICE_WORKER_MESSAGE_TYPES,
 } from "../global/constants";
 import { getPopularCoinsCacheData } from "./api.utils";
 import { initializePopularCoinsAndDetailsCache } from "../thunks/initializeCoinCacheThunk";
@@ -324,8 +325,11 @@ export function updateGlobalCacheVersion(serverGlobalCacheVersion) {
     Cookie.set("globalCacheVersion", valueToSet);
   }
 
-  // Save GCV to IndexedDB so that we can access it in the serviceWorker
-  storeGlobalCacheVersionInIndexedDB(valueToSet);
+  // Save GCV to Service Worker
+  postMessageToServiceWorker({
+    type: SERVICE_WORKER_MESSAGE_TYPES.SET_GLOBAL_CACHE_VERSION,
+    value: valueToSet,
+  });
 
   console.warn("globalCacheVersion updated", valueToSet);
 }
@@ -422,52 +426,6 @@ export function storeCurrencyRatesInIndexedDB(currencyRates) {
     console.error("Error storing currency rates in IndexedDB:", error);
     throw error;
   }
-}
-
-/**
- * Stores data to the GlobalCacheInfo table in IndexedDB.
- *
- * @async
- * @function
- * @param {string} currency - The current currency value to be saved.
- * @throws Will throw an error if saving to IndexedDB fails.
- */
-export async function storeGlobalCacheInfoInIndexedDB({ key, value }) {
-  try {
-    await db[GLOBALCACHEINFO_TABLENAME].put({ key, value });
-  } catch (err) {
-    console.error(`Error saving ${key} to IndexedDB`, err);
-  }
-}
-
-/**
- * Saves the current currency to IndexedDB.
- *
- * @async
- * @function
- * @param {string} currency - The current currency value to be saved.
- * @throws Will throw an error if saving to IndexedDB fails.
- */
-export async function storeCurrentCurrencyInIndexedDB(currency) {
-  await storeGlobalCacheInfoInIndexedDB({
-    key: "currentCurrency",
-    value: currency,
-  });
-}
-
-/**
- * Saves the global cache version to IndexedDB.
- *
- * @async
- * @function
- * @param {string} cacheVersion - The current global cache version value to be saved.
- * @throws Will throw an error if saving to IndexedDB fails.
- */
-export async function storeGlobalCacheVersionInIndexedDB(cacheVersion) {
-  await storeGlobalCacheInfoInIndexedDB({
-    key: "globalCacheVersion",
-    value: cacheVersion,
-  });
 }
 
 /**
@@ -583,6 +541,31 @@ export async function fetchAndInitializeCoinsCache({
       indexedDBCacheIsValid: isCacheValid,
     }),
   );
+}
+
+/**
+ * Posts a message to the service worker with a specified type and value.
+ *
+ * @param {string} type - The type of the message to be sent to the service worker.
+ * @param {string|number} value - The value associated with the message type.
+ */
+export function postMessageToServiceWorker({ type, value }) {
+  if (!type || value === undefined) {
+    console.error("postMessageToServiceWorker requires a type and a value.");
+    return;
+  }
+
+  // Ensure that the service worker is available and ready
+  if (navigator?.serviceWorker && navigator.serviceWorker.controller) {
+    // Structure the message in a consistent format
+    const message = { type, value };
+
+    // Post the message to the active service worker
+    navigator.serviceWorker.controller.postMessage(message);
+    console.log(`Message posted to service worker: ${type} set to `, value);
+  } else {
+    console.error("Service worker is not registered or active.");
+  }
 }
 
 // Preloading
@@ -917,6 +900,33 @@ export async function hydrateReduxWithPreloadedCoinsForCurrency(
       error,
     );
   }
+}
+
+/**
+ * Retrieves the user's login status from cookies.
+ *
+ * @returns {string|null} The user status ('Logged-In' or 'Logged-Out') if present in the cookies, otherwise null.
+ */
+export function getUserStatusFromCookies() {
+  return Cookies.get("userStatus");
+}
+
+/**
+ * Retrieves the global cache version from cookies.
+ *
+ * @returns {string|null} The global cache version if present in the cookies, otherwise null.
+ */
+export function getGlobalCacheVersionFromCookies() {
+  return Cookies.get("globalCacheVersion");
+}
+
+/**
+ * Retrieves the current currency preference from cookies.
+ *
+ * @returns {string|null} The currency code if present in the cookies, otherwise null.
+ */
+export function getCurrencyFromCookies() {
+  return Cookies.get("currentCurrency");
 }
 
 // Clearing/Deleting Caches

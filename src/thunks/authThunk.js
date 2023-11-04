@@ -1,26 +1,45 @@
 // thunks/authThunks.js
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-
-// Define the base URL for the API
-const BASE_URL = "https://watchlist-server1.herokuapp.com";
+import { clientAuth, clientFirestore } from "../config/firebaseClient";
+import {
+  createUserWithEmailAndPassword,
+  updateProfile,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 
 export const signupUser = createAsyncThunk(
   "auth/signup",
   async ({ username, email, password }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
-        `${BASE_URL}/signup`,
-        {
-          username,
-          email,
-          password,
-        },
-        { withCredentials: true },
+      const userCredential = await createUserWithEmailAndPassword(
+        clientAuth,
+        email,
+        password,
       );
-      return response.data;
+      const user = userCredential.user;
+
+      // Update profile to set the displayName to the username
+      await updateProfile(user, {
+        displayName: username,
+      });
+
+      // Add a username to the Firestore database
+      await setDoc(doc(clientFirestore, "usernames", user.uid), {
+        username: username,
+        email: email,
+        uid: user.uid,
+      });
+
+      // Return the updated user info
+      return {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+      };
     } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
+      return rejectWithValue(error.message);
     }
   },
 );
@@ -29,17 +48,36 @@ export const loginUser = createAsyncThunk(
   "auth/login",
   async ({ email, password }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
-        `${BASE_URL}/login`,
-        {
-          email,
-          password,
-        },
-        { withCredentials: true },
+      // First, sign in the user with the client-side SDK
+      const userCredential = await signInWithEmailAndPassword(
+        clientAuth,
+        email,
+        password,
       );
-      return response.data;
+
+      // Then, get the ID token from the signed-in user
+      const idToken = await userCredential.user.getIdToken();
+
+      // Now, send this ID token to your Next.js API endpoint to set the session cookie
+      const response = await fetch("/api/sessionLogin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ idToken }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to set session cookie.");
+      }
+
+      // Return the user data you need
+      return {
+        uid: userCredential.user.uid,
+        email: userCredential.user.email,
+      };
     } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
+      return rejectWithValue(error.message);
     }
   },
 );
@@ -48,34 +86,10 @@ export const logoutUser = createAsyncThunk(
   "auth/logout",
   async (_, { rejectWithValue }) => {
     try {
-      // Attempt to log out the user
-      const response = await axios.get(`${BASE_URL}/logout`, {
-        withCredentials: true,
-      });
-      // If successful, return the data to indicate success
-      return response.status === 200 || response.status === 201;
+      await signOut(auth);
+      return true; // Return true to indicate success
     } catch (error) {
-      // Reject the promise with the error message or error response
-      return rejectWithValue(error.response?.data || error.message);
-    }
-  },
-);
-
-export const checkServerIfLogged = createAsyncThunk(
-  "auth/checkLogged",
-  async (_, { rejectWithValue }) => {
-    try {
-      // Check if the user is logged in by querying the server
-      const response = await axios.get(`${BASE_URL}/logged`, {
-        withCredentials: true,
-      });
-      // The server should return a status indicating the logged state
-      // We return true or false based on the response status
-      return response.status === 200 || response.status === 201;
-    } catch (error) {
-      // If there's an error, we'll consider the user as not logged in
-      // and reject the promise with the error message or error response
-      return rejectWithValue(false);
+      return rejectWithValue(error.message);
     }
   },
 );

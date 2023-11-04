@@ -29,6 +29,7 @@
     "cross-env": "^7.0.3",
     "dexie": "^3.2.4",
     "firebase": "^10.5.2",
+    "firebase-admin": "^11.11.0",
     "framer-motion": "^10.16.4",
     "js-cookie": "^3.0.5",
     "lodash": "^4.17.21",

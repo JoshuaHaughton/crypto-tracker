@@ -11,6 +11,7 @@ import {
   formatCurrencyRates,
   mapPopularCoinsToShallowDetailedAttributes,
 } from "./dataFormat.utils";
+import { getAuthDataFromServer } from "./auth.utils";
 
 /**
  * Fetches and formats the top 100 coins, trending coins, and currency exchange rate data from CryptoCompare for the specified currency.
@@ -291,10 +292,10 @@ export async function prepareCoinDetailsPageProps(context) {
 }
 
 /**
- * Fetches and prepares the initial props for the PopularCoinsList page.
+ * Fetches and prepares the initial props for the PopularCoinsList page, including user authentication status and coin data based on currency preferences.
  *
- * @param {Object} context - The Next.js context object.
- * @returns {Object} The initial props to hydrate the page with, including the Redux state.
+ * @param {Object} context - The Next.js context object with request and response objects.
+ * @returns {Object} The initial props to hydrate the page with, including the Redux state with user auth status & popular coin data.
  */
 export async function preparePopularCoinsListPageProps(context) {
   // Retrieve cookies
@@ -333,16 +334,18 @@ export async function preparePopularCoinsListPageProps(context) {
     console.log("Fetching new PopularCoinsLists data on the server");
 
     try {
+      // Check the user session and get the user details
+      const authData = await getAuthDataFromServer(context);
+      initialReduxState.auth = authData;
+
       const popularCoinsListData = await getPopularCoinsCacheData(
         incomingCurrency,
       );
       // Update the globalCacheVersion after the fetch has completed
       globalCacheVersion = Date.now().toString();
 
-      initialReduxState = {
-        coins: { ...popularCoinsListData.coins },
-        currency: { ...popularCoinsListData.currency },
-      };
+      initialReduxState.coins = { ...popularCoinsListData.coins };
+      initialReduxState.currency = { ...popularCoinsListData.currency };
 
       // Set Cache-Control header to cache the page at the edge (CDN) for 5 minutes.
       // The stale-while-revalidate directive means that stale data can be used while the cache is being revalidated in the background.
@@ -373,8 +376,24 @@ export async function preparePopularCoinsListPageProps(context) {
   // Clear the usePreloadedData cookie for the next navigation
   context.res.setHeader("Set-Cookie", "usePreloadedData=; Max-Age=-1; Path=/;");
 
-  // Set Vary header on X-Current-Currency & X-Global-Cache-Version. This ensures that if a user changes their currency preference, or fetches new data clientside, the serviceWorker will detect it & add the headersso the cache at the CDN will consider the header and serve the appropriate version of the page or fetch a new one if it doesn't exist.
-  context.res.setHeader("Vary", "X-Current-Currency, X-Global-Cache-Version");
+  /**
+   * Set Vary header on X-Current-Currency, X-Global-Cache-Version, and X-User-Status.
+   * This ensures that multiple factors can trigger a cache update or invalidation:
+   * - X-Current-Currency: If a user changes their currency preference, this will ensure
+   *   that the cache considers the user's current currency and serves the appropriate
+   *   version of the page or fetches a new one if it doesn't exist.
+   * - X-Global-Cache-Version: If new data is fetched client-side, this header can help
+   *   the service worker to detect the change and update the cache accordingly.
+   * - X-User-Status: This header is used to manage cache based on user login status.
+   *   When a user logs in or out, this header changes, signaling the CDN to serve the
+   *   correct version of the content based on the user's authentication status.
+   * This combination of headers provides fine-grained control over the cache behavior,
+   * ensuring that users see the most accurate and personalized content.
+   */
+  context.res.setHeader(
+    "Vary",
+    "X-Current-Currency, X-Global-Cache-Version, X-User-Status",
+  );
 
   return {
     props: {

@@ -43,3 +43,10 @@ export const isLocalDev = process.env.NODE_ENV !== "production";
 export const isLocalProd = process.env.NEXT_PUBLIC_IS_LOCAL === "true";
 export const isActualProd =
   process.env.NODE_ENV === "production" && !isLocalProd;
+
+export const SERVICE_WORKER_MESSAGE_TYPES = Object.freeze({
+  INITIALIZE: "INITIALIZE",
+  SET_USER_STATUS: "SET_USER_STATUS",
+  SET_GLOBAL_CACHE_VERSION: "SET_GLOBAL_CACHE_VERSION",
+  SET_CURRENCY: "SET_CURRENCY",
+});

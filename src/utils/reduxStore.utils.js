@@ -3,6 +3,8 @@ import { appInfoActions } from "../store/appInfo";
 import { coinsActions } from "../store/coins";
 import { currencyActions } from "../store/currency";
 import { mediaQueryActions } from "../store/mediaQuery";
+import { authActions } from "../store/auth";
+import { modalsActions } from "../store/modals";
 
 /**
  * Maps slice names to their respective actions for updating.
@@ -12,6 +14,8 @@ export const sliceActionMap = {
   coins: coinsActions.updateSlice,
   appInfo: appInfoActions.updateSlice,
   mediaQuery: mediaQueryActions.updateSlice,
+  auth: authActions.updateSlice,
+  modals: modalsActions.updateSlice,
 };
 
 /**

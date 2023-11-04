@@ -8,6 +8,7 @@ import {
 import { useWebWorker } from "./useWebWorker";
 import { useServiceWorker } from "./useServiceWorker";
 import { useRouteEvents } from "./useRouteEvents";
+import { useFirebaseAuth } from "./useFirebaseAuth";
 
 /**
  * Custom hook to handle data initialization on the initial load of the app.
@@ -24,6 +25,7 @@ export const useAppInitialization = (
 ) => {
   console.log("useAppInitialization");
 
+  useFirebaseAuth();
   useServiceWorker();
   useWebWorker(store.dispatch);
   useRouteEvents(store, initialReduxState, serverGlobalCacheVersion);
