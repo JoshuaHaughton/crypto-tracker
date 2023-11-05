@@ -8,7 +8,7 @@ import {
   FIVE_MINUTES_IN_MS,
   FIVE_MINUTES_IN_SECONDS,
 } from "../global/constants";
-import { getAuthDataFromServer } from "./auth.utils";
+import { prepareAuthContext } from "./auth.utils";
 import { initialCoinsState } from "../store/coins";
 
 /**
@@ -106,8 +106,8 @@ export async function preparePopularCoinsListPageProps(context) {
 
   // Retrieve the X-Current-Currency header value. The Service Worker sets this header when the user updates their currency preference. If the page is cached by Vercel, this header helps in busting the cache and ensuring data relevant to the user's current currency is served.
   const incomingCurrency =
-    context.req.headers["x-current-currency"] || currentCurrency;
-  console.log("x-current-currency", incomingCurrency);
+    context.req.headers["X-Current-Currency"] || currentCurrency;
+  console.log("X-Current-Currency", incomingCurrency);
   console.log("currentCurrency cookie", currentCurrency);
 
   // Calculate the time difference between now and the last globalCacheVersion
@@ -133,7 +133,7 @@ export async function preparePopularCoinsListPageProps(context) {
 
     try {
       // Check the user session and get the user details
-      const authData = await getAuthDataFromServer(context);
+      const authData = await prepareAuthContext(context);
       initialReduxState.auth = authData;
 
       const popularCoinsListData = await getPopularCoinsCacheData(

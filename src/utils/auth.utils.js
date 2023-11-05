@@ -46,7 +46,7 @@ async function getUserSessionFromServer(req) {
  * @param {Object} context - The Next.js context object with request and response objects.
  * @returns {Object} An object containing the user's authentication status and the associated Redux state.
  */
-export async function getAuthDataFromServer(context) {
+export async function prepareAuthContext(context) {
   let authState = {
     isLoggedIn: false,
     user: null,

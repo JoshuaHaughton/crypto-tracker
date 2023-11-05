@@ -1,6 +1,4 @@
-// thunks/authThunks.js
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
 import { clientAuth, clientFirestore } from "../config/firebaseClient";
 import {
   createUserWithEmailAndPassword,
@@ -8,6 +6,7 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
+import { storeUserLoggedInStatusInIndexedDB } from "../utils/cache.utils";
 
 export const signupUser = createAsyncThunk(
   "auth/signup",
@@ -31,6 +30,9 @@ export const signupUser = createAsyncThunk(
         email: email,
         uid: user.uid,
       });
+
+      // Store logged in status in indexedDB to be read by the service worker
+      void storeUserLoggedInStatusInIndexedDB(true);
 
       // Return the updated user info
       return {
@@ -70,6 +72,8 @@ export const loginUser = createAsyncThunk(
       if (!response.ok) {
         throw new Error("Failed to set session cookie.");
       }
+      // Store logged in status in indexedDB to be read by the service worker
+      void storeUserLoggedInStatusInIndexedDB(true);
 
       // Return the user data you need
       return {
@@ -87,6 +91,8 @@ export const logoutUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       await signOut(auth);
+      void storeUserLoggedInStatusInIndexedDB(false);
+
       return true; // Return true to indicate success
     } catch (error) {
       return rejectWithValue(error.message);
