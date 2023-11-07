@@ -15,6 +15,14 @@ const nextConfig = {
   devIndicators: {
     buildActivity: false,
   },
+  async rewrites() {
+    return [
+      {
+        source: "/app/:path*", // Catch all routes starting with /app/
+        destination: "/spa/:path*", // Route these requests to the /spa/ folder
+      },
+    ];
+  },
 };
 
 module.exports = withBundleAnalyzer(nextConfig);
