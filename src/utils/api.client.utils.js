@@ -93,7 +93,6 @@ export async function fetchPopularCoinsData(
  *
  * @param {string} id - The coin identifier.
  * @param {string} targetCurrency - The target currency for conversions.
- * @param {boolean} [clientFetch=false] - Whether or not this fetch is from the client. If it is, we should use the proxy for coinPaprika api calls.
  * @returns {Object} An object containing details of the coin and other related data.
  */
 export async function fetchCoinDetailsData(
