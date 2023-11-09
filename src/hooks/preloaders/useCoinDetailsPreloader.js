@@ -47,7 +47,7 @@ export function useCoinDetailsPreloader(id) {
     }
 
     // Prefetch the route for the coin's details page
-    router.prefetch(`/coin/${id}`);
+    router.prefetch(`/app/discover/coin/${id}`);
 
     // Fetch and preload coin details
     dispatch(
@@ -68,7 +68,7 @@ export function useCoinDetailsPreloader(id) {
         coinsActions.updateSelectedCoin({ coinDetails: coinCachedDetails }),
       );
       Cookie.set("usePreloadedData", "true");
-      router.push(`/coin/${id}`);
+      router.push(`/app/discover/coin/${id}`);
     } else {
       // If coin details are not preloaded, start the preload process
       dispatch(
@@ -76,7 +76,7 @@ export function useCoinDetailsPreloader(id) {
           coinId: id,
         }),
       );
-      router.prefetch(`/coin/${id}`);
+      router.prefetch(`/app/discover/coin/${id}`);
       setWaitingForSpecificPreload(true);
       console.log("Waiting for specific preload to complete...");
     }
@@ -93,7 +93,7 @@ export function useCoinDetailsPreloader(id) {
         coinsActions.updateSelectedCoin({ coinDetails: coinCachedDetails }),
       );
       Cookie.set("usePreloadedData", "true");
-      router.push(`/coin/${id}`);
+      router.push(`/app/discover/coin/${id}`);
       setWaitingForSpecificPreload(false);
     }
   }, [waitingForSpecificPreload, isPreloaded]);

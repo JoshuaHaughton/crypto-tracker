@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
-import PopularCoinsList from "../../components/PopularCoinsList";
-import Banner from "../../components/UI/Banner/Banner";
-import Pagination from "../../components/UI/Pagination.jsx";
-import styles from "./PopularCoins.module.css";
+import PopularCoinsList from "../../../src/components/PopularCoinsList";
+import Banner from "../../../src/components/UI/Banner/Banner";
+import Pagination from "../../../src/components/UI/Pagination";
+import styles from "./index.module.css";
 
 export default function PopularCoins() {
   const popularCoinsListPageNumber = useSelector(
@@ -19,7 +19,7 @@ export default function PopularCoins() {
   return (
     <div className={styles.container}>
       <Banner />
-      <h2>Crypto Spa slices</h2>
+      <h2>Crypto SPA - Market</h2>
       <PopularCoinsList />
       <Pagination />
     </div>

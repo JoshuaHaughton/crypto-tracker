@@ -1,12 +1,15 @@
-import HistoryChart from "../../components/UI/HistoryChart";
-import styles from "./CoinDetails.module.css";
-import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useSelector } from "react-redux";
-import { bigNumberFormatter, removeHTML } from "../../utils/global.utils";
-import useChartData from "../../hooks/ui/useChartData";
-import { usePopularCoinsListPreloader } from "../../hooks/preloaders/usePopularCoinsListPreloader";
+import Image from "next/image";
+import styles from "./[id].module.css";
+import {
+  bigNumberFormatter,
+  removeHTML,
+} from "../../../../src/utils/global.utils";
+import useChartData from "../../../../src/hooks/ui/useChartData";
+import HistoryChart from "../../../../src/components/UI/HistoryChart";
+import { usePopularCoinsListPreloader } from "../../../../src/hooks/preloaders/usePopularCoinsListPreloader";
 
 const CoinDetails = () => {
   const coinDetails = useSelector((state) => state.coins.selectedCoinDetails);
@@ -16,6 +19,8 @@ const CoinDetails = () => {
   const { chartData, currentChartPeriod, setCurrentChartPeriod } =
     useChartData(coinDetails);
   const { handleMouseEnter, handleLinkClick } = usePopularCoinsListPreloader();
+
+  if (coinAttributes == null) return null;
 
   return (
     <div className={styles.container}>

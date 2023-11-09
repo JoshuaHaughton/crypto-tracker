@@ -21,7 +21,7 @@ export function usePopularCoinsListPreloader() {
   const handleMouseEnter = () => {
     console.log("handleMouseEnter - usePopularCoinsListPreloader");
     // Prefetch the route for the coin list page
-    router.prefetch(`/`);
+    router.prefetch("/app/discover");
   };
 
   // Handler for click event on a link pointing to the coin list page
@@ -32,7 +32,7 @@ export function usePopularCoinsListPreloader() {
     if (arePopularCoinsListsHydrated) {
       console.log("usePreloadedData - usePopularCoinsListPreloader");
       Cookie.set("usePreloadedData", "true");
-      router.push("/");
+      router.push("/app/discover");
     } else {
       console.log("start the preload process - usePopularCoinsListPreloader");
       // If coin list data is not preloaded, start the preload process
@@ -51,7 +51,7 @@ export function usePopularCoinsListPreloader() {
       );
       setWaitingForPreload(false);
       Cookie.set("usePreloadedData", "true");
-      router.push("/");
+      router.push("/app/discover");
     }
   }, [waitingForPreload, arePopularCoinsListsHydrated]);
 
