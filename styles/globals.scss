@@ -1,4 +1,31 @@
-@import url("https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700&family=Rubik:wght@400;600;700&display=swap");
+* {
+  box-sizing: border-box;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  scroll-behavior: smooth;
+}
+
+html {
+  font-family: var(--primaryFont);
+  font-weight: 400;
+  line-height: 1.5;
+  color-scheme: light dark;
+  color: var(--textPrimaryColor);
+  background-color: var(--lightBodyBackgroundColor);
+  text-rendering: optimizeLegibility;
+  font-synthesis: none;
+}
+
+body {
+  background-color: var(--darkBodyBackgroundColor);
+}
 
 h1,
 h2,
@@ -6,34 +33,66 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: "Rubik", sans-serif;
+  font-family: var(--primaryFont);
 }
 
 p,
 span {
-  font-family: "Heebo", sans-serif;
+  font-family: var(--secondaryFont);
 }
 
-html,
-body {
-  padding: 0;
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-  scroll-behavior: smooth;
-}
-
-body {
-  background-color: #1a1b1d;
-}
-
+// Link styles
 a {
-  color: inherit;
+  color: var(--linkColor);
   text-decoration: none;
+
+  &:hover {
+    color: var(--linkHoverColor);
+  }
+
+  &:active {
+    color: var(--linkActiveColor);
+  }
 }
 
-* {
-  box-sizing: border-box;
+// Default button styles
+button {
+  border: 1px solid transparent;
+  border-radius: var(--buttonBorderRadius);
+  padding: var(--buttonPadding);
+  font-weight: var(--buttonFontWeight);
+  font-size: var(--small);
+  font-family: inherit;
+  background-color: var(--primaryColor);
+  color: var(--textPrimaryColor);
+  cursor: pointer;
+  transition: all 0.25s;
+
+  &:hover {
+    border-color: var(--linkHoverColor);
+  }
+
+  &:active {
+    border-color: var(--buttonActiveBorderColor);
+  }
+
+  &:focus,
+  &:focus-visible {
+    outline: 4px auto -webkit-focus-ring-color;
+  }
+}
+
+// Breakpoint mixins for responsive design
+@include mobile {
+  body {
+    font-size: var(--small);
+  }
+}
+
+@include tablet {
+  body {
+    font-size: var(--medium);
+  }
 }
 
 /* Carousel couldnt be edited in it's css file  */

@@ -1,4 +1,4 @@
-import "../styles/globals.scss";
+import "../styles/index.scss";
 import "../src/utils/polyfills";
 import { Provider } from "react-redux";
 import { useRouter } from "next/router";
