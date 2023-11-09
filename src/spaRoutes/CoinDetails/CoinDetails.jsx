@@ -4,7 +4,6 @@ import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useSelector } from "react-redux";
-import { prepareCoinDetailsPageProps } from "../../utils/api.server.utils";
 import { bigNumberFormatter, removeHTML } from "../../utils/global.utils";
 import useChartData from "../../hooks/ui/useChartData";
 import { usePopularCoinsListPreloader } from "../../hooks/preloaders/usePopularCoinsListPreloader";
@@ -327,9 +326,3 @@ const CoinDetails = () => {
 };
 
 export default CoinDetails;
-
-export async function getServerSideProps(context) {
-  const coinDetailsPageProps = await prepareCoinDetailsPageProps(context);
-
-  return coinDetailsPageProps;
-}

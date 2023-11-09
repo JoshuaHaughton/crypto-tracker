@@ -1,10 +1,9 @@
 import { useEffect } from "react";
+import { useSelector } from "react-redux";
 import PopularCoinsList from "../../components/PopularCoinsList";
 import Banner from "../../components/UI/Banner/Banner";
 import Pagination from "../../components/UI/Pagination.jsx";
-import styles from "./Home.module.css";
-import { useSelector } from "react-redux";
-import { preparePopularCoinsListPageProps } from "../../utils/api.server.utils";
+import styles from "./PopularCoins.module.css";
 
 export default function PopularCoins() {
   const popularCoinsListPageNumber = useSelector(
@@ -25,12 +24,4 @@ export default function PopularCoins() {
       <Pagination />
     </div>
   );
-}
-
-export async function getServerSideProps(context) {
-  const popularCoinsListPageProps = await preparePopularCoinsListPageProps(
-    context,
-  );
-
-  return popularCoinsListPageProps;
 }
