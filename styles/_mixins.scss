@@ -2,25 +2,25 @@
 
 // Breakpoints Mixins
 @mixin mobile {
-  @media (max-width: var(--mobile)) {
+  @media (max-width: $mobile) {
     @content;
   }
 }
 
 @mixin tablet {
-  @media (max-width: var(--tablet)) {
+  @media (max-width: $tablet) {
     @content;
   }
 }
 
 @mixin desktop {
-  @media (max-width: var(--desktop)) {
+  @media (max-width: $desktop) {
     @content;
   }
 }
 
 @mixin largeDesktop {
-  @media (max-width: var(--largeDesktop)) {
+  @media (max-width: $largeDesktop) {
     @content;
   }
 }

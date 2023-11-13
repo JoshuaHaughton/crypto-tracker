@@ -1,0 +1,180 @@
+@import "~modern-normalize";
+@import "../styles/variables";
+@import "../styles/mixins";
+@import "../styles/global";
+
+// Utilizing CSS variables for theme management and efficient styling
+:root {
+  /* 
+  Using CSS variables for themes allows for easier theme switching (e.g., dark and light mode) 
+  directly in the browser, improving performance and reducing the need for redundant classes 
+  or style recalculations. CSS variables also enhance maintainability, as they can be 
+  changed in one place and take effect globally.
+  */
+
+  /* Fonts */
+  --primaryFont: #{$primaryFont};
+  --secondaryFont: #{$secondaryFont};
+
+  /* Font Sizes */
+  --xsmall: #{$xsmall}; /* 12px */
+  --small: #{$small}; /* 16px */
+  --medium: #{$medium}; /* 24px */
+  --large: #{$large}; /* 32px */
+  --extraLarge: #{$extraLarge}; /* 80px */
+
+  /* Colors - Light Theme Defaults */
+  --textPrimaryColor: #{$textPrimaryColor};
+  --textSecondaryColor: #{$textSecondaryColor};
+  --primaryColor: #{$primaryColor};
+  --secondaryColor: #{$secondaryColor};
+  --tertiaryColor: #{$tertiaryColor};
+  --accentColor: #{$accentColor};
+  --linkHoverColor: #{$linkHoverColor};
+  --linkActiveColor: #{$linkActiveColor};
+
+  --lightBodyBackgroundColor: #{$lightBodyBackgroundColor};
+  --darkBodyBackgroundColor: #{$darkBodyBackgroundColor};
+
+  /* Breakpoints */
+  --mobile: #{$mobile};
+  --tablet: #{$tablet};
+  --desktop: #{$desktop};
+  --largeDesktop: #{$largeDesktop};
+
+  /* Conditional Breakpoints */
+  --isBreakpoint380: #{$conditionalBreakpointDefault}; /* 0 = false, 1 = true */
+  --isBreakpoint520: #{$conditionalBreakpointDefault};
+  --isBreakpoint555: #{$conditionalBreakpointDefault};
+  --isBreakpoint680: #{$conditionalBreakpointDefault};
+  --isBreakpoint1040: #{$conditionalBreakpointDefault};
+  --isBreakpoint1250: #{$conditionalBreakpointDefault};
+
+  /* Default Button Styling */
+  --buttonPadding: #{$buttonPadding};
+  --buttonBorderRadius: #{$buttonBorderRadius};
+  --buttonFontWeight: #{$buttonFontWeight};
+  --buttonActiveBorderColor: #{$buttonActiveBorderColor};
+}
+
+/* Base styles */
+* {
+  box-sizing: border-box; // Ensures consistent box-sizing
+  -webkit-text-size-adjust: 100%; // Prevents mobile browsers from adjusting text size
+  -webkit-font-smoothing: antialiased; // Smooths fonts on WebKit browsers
+  -moz-osx-font-smoothing: grayscale; // Smooths fonts on Firefox for macOS
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  scroll-behavior: smooth;
+}
+
+html {
+  font-family: var(--primaryFont);
+  font-weight: 400;
+  line-height: 1.5;
+  color-scheme: light dark;
+  color: var(--textPrimaryColor);
+  background-color: var(--lightBodyBackgroundColor);
+  text-rendering: optimizeLegibility; // Enhances the readability of text, especially at small sizes or with complex fonts
+  font-synthesis: none; // Prevents the browser from artificially synthesizing bold or italic fonts, ensuring design and brand integrity
+}
+
+body {
+  background-color: var(--darkBodyBackgroundColor);
+}
+
+// Secondary font elements
+p,
+span {
+  font-family: var(--secondaryFont);
+}
+
+// Link styles
+a {
+  color: var(--linkColor);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--linkHoverColor);
+  }
+
+  &:active {
+    color: var(--linkActiveColor);
+  }
+}
+
+// Default button styles
+button {
+  border: 1px solid transparent;
+  border-radius: var(--buttonBorderRadius);
+  padding: var(--buttonPadding);
+  font-weight: var(--buttonFontWeight);
+  font-size: var(--small);
+  font-family: inherit;
+  background-color: var(--primaryColor);
+  color: var(--textPrimaryColor);
+  cursor: pointer;
+  transition: background-color 0.25s, border-color 0.25s, color 0.25s;
+
+  &:hover {
+    border-color: var(--linkHoverColor);
+  }
+
+  &:active {
+    border-color: var(--buttonActiveBorderColor);
+  }
+
+  &:focus,
+  &:focus-visible {
+    outline: 4px auto -webkit-focus-ring-color;
+  }
+}
+
+// Breakpoint mixins for responsive design
+@include mobile {
+  body {
+    font-size: var(--small);
+  }
+}
+
+@include tablet {
+  body {
+    font-size: var(--medium);
+  }
+}
+
+/* Media query for users who have set their system preference to 'dark' */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* When the user's system preference is set to 'dark', 
+       these variables override the default light theme variables. */
+    --textPrimaryColor: #{$textPrimaryColor-Dark};
+    --textSecondaryColor: #{$textSecondaryColor-Dark};
+    --lightBodyBackgroundColor: #{$lightBodyBackgroundColor-Dark};
+    --darkBodyBackgroundColor: #{$darkBodyBackgroundColor-Dark};
+    --linkColor: #{$linkColor-Dark};
+    --linkHoverColor: #{$linkHoverColor-Dark};
+    --linkActiveColor: #{$linkActiveColor-Dark};
+    --buttonActiveBorderColor: #{$buttonActiveBorderColor-Dark};
+  }
+}
+
+.theme-dark {
+  /* This class applies the same variables as the dark theme media query. 
+     It's used for manually setting the website to dark mode, 
+     regardless of the user's system preference. 
+     Example Usage: 
+     document.documentElement.classList.add('theme-dark'); */
+  --textPrimaryColor: #{$textPrimaryColor-Dark};
+  --textSecondaryColor: #{$textSecondaryColor-Dark};
+  --lightBodyBackgroundColor: #{$lightBodyBackgroundColor-Dark};
+  --darkBodyBackgroundColor: #{$darkBodyBackgroundColor-Dark};
+  --linkColor: #{$linkColor-Dark};
+  --linkHoverColor: #{$linkHoverColor-Dark};
+  --linkActiveColor: #{$linkActiveColor-Dark};
+  --buttonActiveBorderColor: #{$buttonActiveBorderColor-Dark};
+}
