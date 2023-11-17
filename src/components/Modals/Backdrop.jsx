@@ -1,5 +1,5 @@
 import React from "react";
-import classes from "./AuthModal/AuthModal.module.css";
+import classes from "./AuthModal/AuthModal.module.scss";
 
 const Backdrop = ({ closeModal }) => {
   return (

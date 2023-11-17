@@ -12,6 +12,7 @@ import {
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { postMessageToCurrencyTransformerWorker } from "../../public/webWorkers/currencyTransformer/manager";
 import { mapPopularCoinsToShallowDetailedAttributes } from "../utils/dataFormat.utils";
+import { appInfoActions } from "../store/appInfo";
 
 /**
  * Async thunk to manage caching of both PopularCoinsList, and the shallow details data for multiple currencies.
@@ -40,6 +41,7 @@ export const initializePopularCoinsAndDetailsCache = createAsyncThunk(
     const state = getState();
     const { indexedDBCacheIsValid } = options;
     const popularCoinsList = state.coins.displayedPopularCoinsList;
+    dispatch(appInfoActions.startPopularCoinsListsHydration());
     // Used as the shallow details for coins so we can have consistent pricing throughout the app instead of fetching data that is slightly different from the API
     const shallowCoinDetails =
       mapPopularCoinsToShallowDetailedAttributes(popularCoinsList);
@@ -139,5 +141,7 @@ export const initializePopularCoinsAndDetailsCache = createAsyncThunk(
           ),
         );
     }
+
+    dispatch(appInfoActions.finishPopularCoinsListsHydration());
   },
 );

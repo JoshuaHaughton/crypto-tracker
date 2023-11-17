@@ -1,24 +1,23 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useSelector } from "react-redux";
+import Link from "next/link";
 import Image from "next/image";
-import styles from "./[id].module.css";
+import styles from "./[id].module.scss";
 import {
   bigNumberFormatter,
   removeHTML,
 } from "../../../../src/utils/global.utils";
 import useChartData from "../../../../src/hooks/ui/useChartData";
 import HistoryChart from "../../../../src/components/UI/HistoryChart";
-import { usePopularCoinsListPreloader } from "../../../../src/hooks/preloaders/usePopularCoinsListPreloader";
 
 const CoinDetails = () => {
+  const currentSymbol = useSelector((state) => state.currency.symbol);
   const coinDetails = useSelector((state) => state.coins.selectedCoinDetails);
   const coinAttributes = coinDetails.coinAttributes;
-  const currentSymbol = useSelector((state) => state.currency.symbol);
 
   const { chartData, currentChartPeriod, setCurrentChartPeriod } =
     useChartData(coinDetails);
-  const { handleMouseEnter, handleLinkClick } = usePopularCoinsListPreloader();
 
   if (coinAttributes == null) return null;
 
@@ -26,12 +25,9 @@ const CoinDetails = () => {
     <div className={styles.container}>
       <div className={styles.row}>
         <div className={styles.coin_info}>
-          <FontAwesomeIcon
-            icon={faArrowLeft}
-            className={styles.back_link}
-            onMouseEnter={handleMouseEnter}
-            onClick={handleLinkClick}
-          />
+          <Link href="/" passHref className={styles.back_link}>
+            <FontAwesomeIcon icon={faArrowLeft} />
+          </Link>
           <header className={styles.header}>
             <div className={styles.title_wrapper}>
               <Image

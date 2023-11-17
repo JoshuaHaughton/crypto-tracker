@@ -17,6 +17,7 @@ import { postMessageToCurrencyTransformerWorker } from "../../public/webWorkers/
 import { isEmpty, mergeWith } from "lodash";
 import { mapPopularCoinsToShallowDetailedAttributes } from "./dataFormat.utils";
 import { replaceArraysDeepMergeObjects } from "./global.utils";
+import { fetchAndPreloadCoinDetailsThunk } from "../thunks/fetchAndPreloadCoinDetailsThunk";
 
 // Validating/Updating Cache Data
 
@@ -195,34 +196,33 @@ export async function validateAndReinitializeCacheOnRouteChange(
     serverGlobalCacheVersion,
   );
 
-  const clientGlobalCacheVersion = Cookie.get("globalCacheVersion");
-  const hasNewPopularCoinsData =
-    serverGlobalCacheVersion > clientGlobalCacheVersion &&
-    !isEmpty(initialReduxState?.coins?.displayedPopularCoinsList);
-  // We don't update the GCV when getting new CoinDetails from the server,
-  // as the GCV is based on the last PopularCoins fetch
-  const hasNewCoinDetailsData = !isEmpty(
-    initialReduxState?.coins?.selectedCoinDetails,
-  );
-
-  if (!cachesAreValid) {
+  if (cachesAreValid) {
+    console.warn(
+      "Caches ARE valid! Cache NOT reset - validateAndReinitializeCacheOnRouteChange",
+    );
+  } else {
     console.warn(
       "Caches are not valid. Cache Reset - validateAndReinitializeCacheOnRouteChange",
     );
     // Clear all caches
     await clearAllCaches();
 
+    const clientGlobalCacheVersion = Cookie.get("globalCacheVersion");
+    const hasNewPopularCoinsData =
+      serverGlobalCacheVersion > clientGlobalCacheVersion &&
+      !isEmpty(initialReduxState?.coins?.displayedPopularCoinsList);
+
     if (hasNewPopularCoinsData) {
       console.warn(
-        "Using New PopularCoinsLists Data to initialize cache - validateAndReinitializeCacheOnRouteChange",
+        "Using the PopularCoinsLists Data from the server Data to initialize cache - validateAndReinitializeCacheOnRouteChange",
       );
       // Initialize cache with PopularCoinsData from the server
       await store.dispatch(
         initializePopularCoinsAndDetailsCache({ indexedDBCacheIsValid: false }),
       );
-      // Use the GCV from server on the client
+      // Synchronize client GCV with GCV from server
       updateGlobalCacheVersion(serverGlobalCacheVersion);
-    } else if (!cachesAreValid) {
+    } else {
       console.warn(
         "Fetching new PopularCoinsLists Data to initialize cache - validateAndReinitializeCacheOnRouteChange",
       );
@@ -234,19 +234,6 @@ export async function validateAndReinitializeCacheOnRouteChange(
       // Reset GCV completely since we just fetched
       updateGlobalCacheVersion();
     }
-  } else {
-    console.warn(
-      "Caches ARE valid! Cache NOT reset - validateAndReinitializeCacheOnRouteChange",
-    );
-  }
-
-  // Preload CoinDetail Data regardless of cache validity, if we are on that page with new data from the server
-  if (hasNewCoinDetailsData) {
-    // New CoinDetail Data
-    console.warn(
-      "Using New CoinDetail Data to preload the cache - validateAndReinitializeCacheOnRouteChange",
-    );
-    await preloadDetailsForCurrentCoinIfOnDetailsPage(store, initialReduxState);
   }
 }
 
@@ -468,6 +455,7 @@ export async function fetchAndInitializeCoinsCache({
       ? indexedDBCacheIsValid
       : await validateNecessaryCaches();
 
+  store.dispatch(appInfoActions.startPopularCoinsListsHydration());
   if (isCacheValid) {
     try {
       const popularCoinsListByCurrency = {};
@@ -518,6 +506,7 @@ export async function fetchAndInitializeCoinsCache({
       popularCoinsListCacheData = await getPopularCoinsCacheData(
         currentCurrency,
       );
+      updateGlobalCacheVersion();
       storeCurrencyRatesInIndexedDB(
         popularCoinsListCacheData.currency.currencyRates,
       );
@@ -525,6 +514,7 @@ export async function fetchAndInitializeCoinsCache({
   } else {
     console.log("cache NOT used for getPopularCoinsCacheData");
     popularCoinsListCacheData = await getPopularCoinsCacheData(currentCurrency);
+
     updateGlobalCacheVersion();
     storeCurrencyRatesInIndexedDB(
       popularCoinsListCacheData.currency.currencyRates,
@@ -717,41 +707,67 @@ export async function getCoinDetailsForCurrencyByIdFromBrowser(
 }
 
 /**
- * Hydrates coin-related data (PopularCoinsList, Shallow CoinDetails, & Preloaded CoinDetails)
- * from the optimal available source.
+ * Hydrates coin-related data based on the current route, prioritizing the most optimal data source.
  *
- * 1. Prioritizes using initial popularCoinsList data provided by the server.
- * 2. If the server data is unavailable, checks the IndexedDB cache.
- * 3. If the data isn't found in the cache either, fetches it via an API call.
- *
- * Once the PopularCoinsList data is obtained, it uses them to compute Shallow CoinDetails
- * and store them in Redux (Not IndexedDB). Finally, we check/use IndexedDB to fetch & hydrate
- * any avaliable preloaded coins from the cache.
+ * Process:
+ * 1. If on a CoinDetails page, first attempts to hydrate preloaded CoinDetails from cache. If the cache data doesn't exist, it fetches it from the API.
+ * 2. Then, regardless of the page, it hydrates the PopularCoinsList:
+ *    - Uses server-provided data if available.
+ *    - Otherwise, fetches from IndexedDB cache or via API.
+ * 3. Finally, if we didn't hydrate the preloaded CoinDetails in step 1, we do it here.
  *
  * @param {Object} store - The Redux store to update with the fetched data.
+ * @param {Object} router - The Next.js router.
  * @param {boolean} isCacheValid - Flag indicating the validity of the cache.
- * @param {string} [serverGlobalCacheVersion] - Optional. The server's global cache version. Shouldn't be provided by client cookies.
- * @returns {Promise<void>} - A promise indicating completion.
+ * @param {string} [serverGlobalCacheVersion] - Optional. The server's global cache version.
+ * @returns {Promise<void>} A promise indicating completion.
  */
-export async function hydrateCoinsCacheFromAvailableSources(
+export async function hydrateCoinDataBasedOnRoute(
   store,
+  router,
   isCacheValid,
   serverGlobalCacheVersion,
 ) {
-  console.log("hydrateCoinsCacheFromAvailableSources");
-  const popularCoinsList = store.getState().coins.displayedPopularCoinsList;
+  console.log("hydrateCoinDataBasedOnRoute");
+  console.log("router", router);
 
-  // Handle the case where no popularCoinsList data is available
-  if (!Array.isArray(popularCoinsList) || popularCoinsList.length === 0) {
+  // Get relevant state and initialize flags
+  const { coins } = store.getState();
+  const popularCoinsList = coins.displayedPopularCoinsList;
+  const selectedCoinDetails = coins.selectedCoinDetails;
+  const isOnCoinDetailsPage = router.query?.id != null;
+  const isOnPopularCoinsPage = router.pathname === "/spa/discover";
+  let shouldHydratePreloadedCoinsAtEnd = true;
+
+  // Handle the CoinDetails page
+  if (isOnCoinDetailsPage) {
+    await hydratePreloadedCoinsFromCacheIfAvailable(store.dispatch);
+    // Set to false so we only call this once
+    shouldHydratePreloadedCoinsAtEnd = false;
+
+    // Fetch and preload CoinDetails if not preloaded from cache
+    const coinDetailsArePreloaded =
+      selectedCoinDetails?.coinAttributes?.chartValues != null;
+    console.log("isOnCoinDetailsPage - hydrateCoinDataBasedOnRoute");
     console.log(
-      "We didn't start with PopularCoinsLists data from the server so we need to fetch it from the cache or API.",
+      "coinDetailsArePreloaded - hydrateCoinDataBasedOnRoute",
+      coinDetailsArePreloaded,
     );
-    await fetchAndInitializeCoinsCache({
-      store,
-      indexedDBCacheIsValid: isCacheValid,
-    });
-    store.dispatch(appInfoActions.finishPopularCoinsListsHydration());
-  } else {
+    console.log("router.query]", router.query);
+    if (!coinDetailsArePreloaded) {
+      fetchAndPreloadCoinDetailsThunk({
+        coinId: router.query?.id,
+        selectCoinAfterFetch: true,
+      });
+    }
+  }
+
+  // Handle the Popular Coins page
+  if (
+    isOnPopularCoinsPage &&
+    Array.isArray(popularCoinsList) &&
+    popularCoinsList.length > 0
+  ) {
     console.log(
       "We started with PopularCoinsLists data from the server. DON'T FETCH IT AGAIN, just initialize the cache with it.",
     );
@@ -761,10 +777,21 @@ export async function hydrateCoinsCacheFromAvailableSources(
       }),
     );
     updateGlobalCacheVersion(serverGlobalCacheVersion);
-    store.dispatch(appInfoActions.finishPopularCoinsListsHydration());
+  } else {
+    // Handle the case where no PopularCoinsList data is available
+    console.log(
+      "We didn't start with PopularCoinsLists data from the server so we need to fetch it from the cache or API.",
+    );
+    // Fetch and initialize Coins cache
+    await fetchAndInitializeCoinsCache({
+      store,
+      indexedDBCacheIsValid: isCacheValid,
+    });
   }
 
-  await hydratePreloadedCoinsFromCacheIfAvailable(store.dispatch);
+  if (shouldHydratePreloadedCoinsAtEnd) {
+    await hydratePreloadedCoinsFromCacheIfAvailable(store.dispatch);
+  }
 }
 
 /**

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Coin from "./Coin/Coin";
-import styles from "./PopularCoinsList.module.css";
+import styles from "./PopularCoinsList.module.scss";
 import { TextField } from "@mui/material";
 import { useSelector } from "react-redux";
 

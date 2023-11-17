@@ -1,5 +1,4 @@
-import styles from "./index.module.css";
-import { preparePopularCoinsListPageProps } from "../src/utils/api.server.utils";
+import styles from "./index.module.scss";
 
 export default function Home() {
   return (
@@ -9,11 +8,9 @@ export default function Home() {
   );
 }
 
-// TODO: getStaticProps?
-export async function getServerSideProps(context) {
-  const popularCoinsListPageProps = await preparePopularCoinsListPageProps(
-    context,
-  );
-
-  return popularCoinsListPageProps;
+export async function getStaticProps() {
+  return {
+    props: {},
+    revalidate: 3600, // Regenerate the page every hour (3600 seconds)
+  };
 }

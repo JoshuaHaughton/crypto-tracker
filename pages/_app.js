@@ -18,14 +18,17 @@ function MyApp({ Component, pageProps }) {
     pageProps.initialReduxState,
     pageProps.globalCacheVersion,
   );
+  console.log("o", router.query);
+  console.log("o", router.pathname);
 
   useAppInitialization(
     store,
+    router,
     pageProps.initialReduxState,
     pageProps.globalCacheVersion,
   );
 
-  const isSpaRoute = router.pathname.startsWith("/app");
+  const isSpaRoute = router.pathname.startsWith("/spa");
 
   const content = isSpaRoute ? (
     <SpaLayout>

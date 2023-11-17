@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import { createPortal } from "react-dom";
 import Backdrop from "./Backdrop";
-import classes from "./AuthModal/AuthModal.module.css";
+import classes from "./AuthModal/AuthModal.module.scss";
 import useModalFocus from "./useModalFocus";
 
 const Modal = (props) => {

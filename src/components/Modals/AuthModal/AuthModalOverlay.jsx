@@ -2,7 +2,7 @@
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
-import classes from "./AuthModal.module.css";
+import classes from "./AuthModal.module.scss";
 import useAuthModal from "./useAuthModal";
 
 const AuthModalOverlay = (props) => {

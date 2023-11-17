@@ -4,7 +4,7 @@ import { authActions } from "../../store/auth";
 import { clientAuth } from "../../config/firebaseClient";
 
 /**
- * Custom hook to synchronize Firebase authentication state with Redux store.
+ * Custom hook to synchronize the Redux store with Firebase authentication state.
  *
  * @param {Function} dispatch - The Redux `dispatch` function used to send actions to the store.
  */

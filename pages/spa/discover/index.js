@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import PopularCoinsList from "../../../src/components/PopularCoinsList";
 import Banner from "../../../src/components/UI/Banner/Banner";
 import Pagination from "../../../src/components/UI/Pagination";
-import styles from "./index.module.css";
+import styles from "./index.module.scss";
 
 export default function PopularCoins() {
   const popularCoinsListPageNumber = useSelector(

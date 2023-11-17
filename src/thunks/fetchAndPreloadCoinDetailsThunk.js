@@ -1,5 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { appInfoActions } from "../store/appInfo";
+import { coinsActions } from "../store/coins";
 import {
   deleteCoinDetailsByIdForCurrencyFromIndexedDb,
   preloadCoinDetails,
@@ -18,7 +19,7 @@ import { MAXIMUM_PRELOADED_COIN_COUNT } from "../global/constants";
 export const fetchAndPreloadCoinDetailsThunk = createAsyncThunk(
   "coins/fetchAndPreloadCoin",
   async (payload, { dispatch, getState }) => {
-    const { coinId } = payload;
+    const { coinId, selectCoinAfterFetch } = payload;
 
     const state = getState();
     const { coinsBeingPreloaded } = state.appInfo;
@@ -78,6 +79,14 @@ export const fetchAndPreloadCoinDetailsThunk = createAsyncThunk(
         currencyRates: removedCurrencyRates,
         ...dataWithoutCurrencyRates
       } = detailedData;
+
+      if (selectCoinAfterFetch) {
+        dispatch(
+          coinsActions.updateSelectedCoin({
+            coinDetails: dataWithoutCurrencyRates,
+          }),
+        );
+      }
 
       // Preload the coin details.
       await preloadCoinDetails(

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import styles from "./Carousel.module.css";
+import styles from "./Carousel.module.scss";
 import CarouselCoin from "./CarouselCoin";
 import AliceCarousel from "react-alice-carousel";
 import "react-alice-carousel/lib/alice-carousel.css";

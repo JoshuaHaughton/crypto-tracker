@@ -20,26 +20,26 @@ import { cloneDeep } from "lodash";
 const chartPeriodConfig = {
   day: {
     getLabels: (data) =>
-      data.map((item) => new Date(item[0]).toLocaleTimeString()),
-    getData: (values) => values.dayMarketValues,
+      data?.map((item) => new Date(item[0]).toLocaleTimeString()),
+    getData: (values) => values?.dayMarketValues,
     label: "Past day",
   },
   week: {
     getLabels: (data) =>
-      data.map((item) => new Date(item[0]).toLocaleDateString()),
-    getData: (values) => values.weekMarketValues,
+      data?.map((item) => new Date(item[0]).toLocaleDateString()),
+    getData: (values) => values?.weekMarketValues,
     label: "Past week",
   },
   month: {
     getLabels: (data) =>
-      data.map((item) => new Date(item[0]).toLocaleDateString()),
-    getData: (values) => values.monthMarketValues,
+      data?.map((item) => new Date(item[0]).toLocaleDateString()),
+    getData: (values) => values?.monthMarketValues,
     label: "Past month",
   },
   year: {
     getLabels: (data) =>
-      data.map((item) => new Date(item[0]).toLocaleDateString()),
-    getData: (values) => values.yearMarketValues,
+      data?.map((item) => new Date(item[0]).toLocaleDateString()),
+    getData: (values) => values?.yearMarketValues,
     label: "Past year",
   },
 };
@@ -58,18 +58,19 @@ function useChartData(coinDetails) {
   const [currentChartPeriod, setCurrentChartPeriod] = useState("day");
 
   useEffect(() => {
+    console.log("coinDetails", coinDetails);
     const { marketChartValues, marketValues } = coinDetails;
     // Chart.js mutates these values which causes an error
     const clonedMarketValues = cloneDeep(marketValues);
     const config = chartPeriodConfig[currentChartPeriod];
-    const labels = config.getLabels(marketChartValues[currentChartPeriod]);
+    const labels = config.getLabels(marketChartValues?.[currentChartPeriod]);
     const dataValues = config.getData(clonedMarketValues);
 
     setChartData({
       labels: labels,
       datasets: [
         {
-          label: `${coinDetails.coinAttributes.name} Price (${
+          label: `${coinDetails.coinAttributes?.name} Price (${
             config.label
           }) in ${currentCurrency.toUpperCase()}`,
           data: dataValues,

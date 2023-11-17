@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "./Navbar.module.css";
+import styles from "./Navbar.module.scss";
 import logo from "../../../public/Crypto.svg";
 import Image from "next/image";
 import HomeIcon from "@mui/icons-material/Home";
@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
 import { updateCurrency } from "../../thunks/updateCurrencyThunk";
 import { usePopularCoinsListPreloader } from "../../hooks/preloaders/usePopularCoinsListPreloader";
+import Link from "next/link";
 
 const vertical = "bottom";
 const horizontal = "center";
@@ -43,7 +44,6 @@ const Navbar = () => {
   const isBreakpoint555 = useSelector(
     (state) => state.mediaQuery.isBreakpoint555,
   );
-  const { handleLinkClick, handleLinkHover } = usePopularCoinsListPreloader();
 
   const handleCurrencyChange = (e) => {
     const currency = e.target.value.split(",")[0].toUpperCase();
@@ -55,22 +55,19 @@ const Navbar = () => {
     <>
       <nav className={styles.nav}>
         <div className={styles.container}>
-          <div
-            className={styles.logo_container}
-            onClick={handleLinkClick}
-            onMouseEnter={handleLinkHover}
-          >
-            <Image src={logo} alt="" layout="fill" className={styles.logo} />
-          </div>
+          <Link href="/" passHref className={styles.logo_container}>
+            <Image
+              src={logo}
+              alt="Logo"
+              layout="fill"
+              className={styles.logo}
+            />
+          </Link>
 
           <div className={styles.nav_list}>
-            <div
-              className={styles.link_wrapper}
-              onClick={handleLinkClick}
-              onMouseEnter={handleLinkHover}
-            >
+            <Link href="/" passHref className={styles.link_wrapper}>
               <HomeIcon /> {!isBreakpoint555 && `Home`}
-            </div>
+            </Link>
 
             <StyledSelect
               variant="outlined"

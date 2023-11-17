@@ -17,7 +17,7 @@
 }
 
 .nav:hover {
-  box-shadow: 0 2px 16px 8px rgb(0 0 0 / 40%)
+  box-shadow: 0 2px 16px 8px rgb(0 0 0 / 40%);
 }
 
 .container {
@@ -36,9 +36,7 @@
   justify-content: flex-start;
   color: white;
   width: 120px;
-  height: 100%;
-  /* width: 100%; */
-  /* padding: 12px 12px; */
+  height: 60px;
   position: relative;
 }
 
@@ -98,25 +96,29 @@
   background-color: #ff9500;
 }
 
-.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root > svg, .MuiMenuItem-root > svg {
+.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root > svg,
+.MuiMenuItem-root > svg {
   color: white !important;
 }
 
-.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected:hover, .Mui-selected:hover {
+.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected:hover,
+.Mui-selected:hover {
   background-color: #ff9500;
 }
 
-.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected, .Mui-selected {
+.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected,
+.Mui-selected {
   background-color: #ff950094 !important;
 }
 
-.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected:hover, .Mui-selected:hover {
+.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected:hover,
+.Mui-selected:hover {
   background-color: #ff9500d8;
 }
 
 .menu_item:hover {
   background-color: #ff9500;
-} 
+}
 
 .snackbar {
   background-color: green;
@@ -126,14 +128,13 @@
   align-items: center;
 }
 
-@media(max-width: 1200px) {
+@media (max-width: 1200px) {
   .container {
     width: 90%;
   }
 }
 
-@media(max-width: 555px) {
-
+@media (max-width: 555px) {
   .nav_list {
     justify-content: space-evenly;
   }
@@ -156,7 +157,7 @@
   }
 }
 
-@media(max-width: 445px) {
+@media (max-width: 445px) {
   .nav_list {
     width: 50%;
     justify-content: center;
@@ -173,10 +174,9 @@
   }
 }
 
-@media(max-width: 320px) {
+@media (max-width: 320px) {
   .nav_list {
     width: 80%;
     justify-content: center;
   }
-
 }

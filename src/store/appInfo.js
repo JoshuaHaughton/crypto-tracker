@@ -28,6 +28,7 @@ const appInfoSliceDefinition = {
       state.areCoinDetailsHydratedFromDB = true;
     },
     startPopularCoinsListsHydration: (state) => {
+      console.log("startPopularCoinsListsHydration");
       state.arePopularCoinsListsHydrated = false;
     },
     finishPopularCoinsListsHydration: (state) => {

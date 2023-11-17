@@ -1,6 +1,6 @@
 import React from "react";
 import Head from "next/head";
-import styles from "./Layout.module.css";
+import styles from "./Layout.module.scss";
 import Navbar from "../Navbar/Navbar";
 
 export const Layout = ({ children, title = "Crypto Tracker" }) => {
