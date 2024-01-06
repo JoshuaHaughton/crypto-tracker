@@ -1,47 +1,4 @@
-# Crypto Tracker
- A Nextjs app where users can search & find detailed information and chart data on their favourite cryptocurrencies. Users can also change the currency being displayed to CAD, USD, GBP, or AUD.
-
-View Live HERE: [Crypto Tracker](https://jh-crypto-tracker.vercel.app/)
-
-
-
-## Built With
-- HTML5
-- CSS3
-- JavaScript
-- React.js
-- Next.js
-- Redux/Redux Toolkit
-
-
-## Description / Features
-- Page layouts fully responsive on all devices
-- Use of React hooks
-- Use of Server-Side Rendering
-- Use of Custom Hooks for Input Validation
-- Trending Crypto Carousel on home page
-- Dynamcally search for cryptocurrencies by name
-- Filter through list of coins using the pagnation component
-- User can choose what currency the cryto will be displayed as (CAD, USD, GBP, AUD)
-- Final app and subsequent edits connected and deployed to Vercel
-
-
-
-
-## Images
-
-
-### Landing
-!['Landing page of website'](https://github.com/JoshuaHaughton/crypto-tracker/blob/main/public/Landing.png)
-
-### Coin Info
-!['Coin Details Page'](https://github.com/JoshuaHaughton/crypto-tracker/blob/main/public/CoinInfo.png)
-
-### Pagination Feature
-!['Pagination Component'](https://github.com/JoshuaHaughton/crypto-tracker/blob/main/public/Pagination.png)
-
-
-
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
 
@@ -51,15 +8,17 @@ First, run the development server:
 npm run dev
 # or
 yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
 ## Learn More
 
