@@ -1,70 +1,64 @@
-import { configureStore, EnhancedStore } from "@reduxjs/toolkit";
-import currencyReducer, {
-  CurrencyState,
-  initialCurrencyState,
-} from "./currency";
-import coinsReducer, { CoinsState, initialCoinsState } from "./coins";
-import appInfoReducer, { AppInfoState, initialAppInfoState } from "./appInfo";
-import mediaQueryReducer, {
-  MediaQueryState,
-  initialMediaQueryState,
-} from "./mediaQuery";
-import modalsReducer, { ModalsState, initialModalsState } from "./modals";
-import { merge } from "lodash";
-import Cookie from "js-cookie";
+import { configureStore, Store, combineReducers } from "@reduxjs/toolkit";
+import { useDispatch, TypedUseSelectorHook, useSelector } from "react-redux";
+import currencyReducer from "./currency/currencySlice";
+import coinsReducer from "./coins/coinsSlice";
+import appInfoReducer from "./appInfo/appInfoSlice";
+import mediaQueryReducer from "./mediaQuery/mediaQuerySlice";
+import modalsReducer from "./modals/modalsSlice";
+
+// Correctly combining all slice reducers into a single root reducer.
+const rootReducer = combineReducers({
+  currency: currencyReducer,
+  coins: coinsReducer,
+  appInfo: appInfoReducer,
+  mediaQuery: mediaQueryReducer,
+  modals: modalsReducer,
+});
+
+// Defining the TRootState type based on the rootReducer's returned state.
+export type TRootState = ReturnType<typeof rootReducer>;
+// Infer the types for AppStore and AppDispatch from the store itself
+export type TAppStore = ReturnType<typeof makeStore>;
+export type TAppDispatch = TAppStore["dispatch"];
 
 /**
- * Interface for the combined initial state of the Redux store.
- */
-interface InitialStates {
-  currency: CurrencyState;
-  coins: CoinsState;
-  appInfo: AppInfoState;
-  mediaQuery: MediaQueryState;
-  modals: ModalsState;
-}
-
-// Initial states for each reducer
-const initialStates: InitialStates = {
-  currency: initialCurrencyState,
-  coins: initialCoinsState,
-  appInfo: initialAppInfoState,
-  mediaQuery: initialMediaQueryState,
-  modals: initialModalsState,
-};
-
-/**
- * Initializes the Redux store with the given initial state.
+ * Creates and configures a new Redux store instance.
  *
- * @param initialState - The initial state for the Redux store.
- * @returns The initialized Redux store.
+ * Utilizes Redux Toolkit's `configureStore` to combine specified reducers into a root reducer and allows
+ * initializing the store with preloaded state slices. This is particularly useful for server-side rendering (SSR),
+ * ensuring a unique store instance for each request.
+ *
+ * The `initialStates` parameter provides the capability to initialize specific state slices with custom values.
+ * This feature is beneficial for state hydration in SSR or initializing states from external sources like
+ * localStorage. The provided states partially overwrite the default initial states defined in the reducers.
+ *
+ * @param initialStates An optional object with initial states for specific slices. Keys correspond to state slice names,
+ *                      and values are the desired initial states for those slices, merging with reducer-defined defaults.
+ * @returns A configured Redux store instance with combined reducers and potential preloaded states.
  */
-export const initializeStore = (
-  initialState: Partial<InitialStates> = {},
-): EnhancedStore => {
-  const preloadedState = merge({}, initialStates, initialState);
-
-  return configureStore({
-    reducer: {
-      currency: currencyReducer,
-      coins: coinsReducer,
-      appInfo: appInfoReducer,
-      mediaQuery: mediaQueryReducer,
-      modals: modalsReducer,
-    },
-    preloadedState,
+export const makeStore = (
+  initialStates: Partial<TRootState> = {},
+): Store<TRootState> => {
+  const store = configureStore({
+    reducer: rootReducer,
+    preloadedState: initialStates,
   });
+
+  return store;
 };
 
 /**
- * Creates a new Redux store instance per request.
+ * Custom useDispatch hook typed with TAppDispatch.
+ * Ensures type safety when dispatching actions in the application.
  *
- * @returns A new Redux store instance.
+ * @returns The dispatch function for the Redux store.
  */
-export const makeStore = (): EnhancedStore => {
-  return initializeStore();
-};
+export const useAppDispatch = () => useDispatch<TAppDispatch>();
 
-// TypeScript types for RootState and AppDispatch
-export type RootState = ReturnType<typeof initializeStore.getState>;
-export type AppDispatch = ReturnType<typeof initializeStore.dispatch>;
+/**
+ * Custom useSelector hook typed with TRootState.
+ * Ensures type safety when selecting parts of the state from the Redux store.
+ *
+ * @type TypedUseSelectorHook<TRootState>
+ */
+export const useAppSelector: TypedUseSelectorHook<TRootState> = useSelector;

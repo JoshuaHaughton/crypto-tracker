@@ -10,12 +10,16 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.0.1",
+    "js-cookie": "^3.0.5",
+    "lodash": "^4.17.21",
     "next": "^14",
     "react": "^18",
     "react-dom": "^18",
     "react-redux": "^9.0.4"
   },
   "devDependencies": {
+    "@types/js-cookie": "^3.0.6",
+    "@types/lodash": "^4.14.202",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
