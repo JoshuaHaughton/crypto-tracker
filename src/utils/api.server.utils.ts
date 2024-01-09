@@ -41,9 +41,9 @@ export async function prepareCoinDetailsPageProps(context) {
     const coinDetails = await fetchCoinDetailsData(id, currentCurrency);
     const {
       coinAttributes,
-      marketChartValues,
-      marketValues,
-      chartValues,
+      timeSeriesPriceData,
+      priceTrendData,
+      priceChartDataset,
       currencyRates,
     } = coinDetails;
 
@@ -51,16 +51,16 @@ export async function prepareCoinDetailsPageProps(context) {
       coins: {
         selectedCoinDetails: {
           coinAttributes,
-          marketChartValues,
-          marketValues,
-          chartValues,
+          timeSeriesPriceData,
+          priceTrendData,
+          priceChartDataset,
         },
         selectedCoinDetailsByCurrency: {
           [currentCurrency]: {
             coinAttributes,
-            marketChartValues,
-            marketValues,
-            chartValues,
+            timeSeriesPriceData,
+            priceTrendData,
+            priceChartDataset,
           },
         },
       },

@@ -1,19 +1,39 @@
-import { isValid } from "./global.utils";
+import { TCurrencyString } from "@/lib/constants";
+import { ICurrencyRates, TCurrencyExchangeRates } from "@/types/currencyTypes";
+import {
+  ICoinDetails,
+  ICoinDetailAttributes,
+  IPriceChartDataset,
+  IPeriodicPriceChangePercentages,
+  ITimeSeriesPriceData,
+  IPriceTrendData,
+  IPeriodicPriceChanges,
+  ICoinOverview,
+} from "@/types/coinTypes";
+import {
+  IHistoricalDataApiResponse,
+  IAssetDataApiResponse,
+} from "@/types/apiResponseTypes";
+import { CRYPTO_COMPARE_WEBSITE } from "@/lib/constants/apiConstants";
 
 // Formatting CoinDetails after retrieval from the API
 
 /**
- * Extracts and formats market chart values.
- *
- * @param {Object} dayData - Data for the day.
- * @param {Object} weekData - Data for the week.
- * @param {Object} monthData - Data for the month.
- * @param {Object} yearData - Data for the year.
- * @returns {Object} An object containing formatted market chart values.
+ * Extracts and formats time-series price data from historical data.
+ * @param h24Data - Data representing price movements over the past 24 hours.
+ * @param weekData - Data representing price movements over the past week.
+ * @param monthData - Data representing price movements over the past month.
+ * @param yearData - Data representing price movements over the past year.
+ * @returns An object containing time-series data of prices at different intervals.
  */
-function extractMarketChartValues(dayData, weekData, monthData, yearData) {
+function formatTimeSeriesPriceData(
+  h24Data: IHistoricalDataApiResponse,
+  weekData: IHistoricalDataApiResponse,
+  monthData: IHistoricalDataApiResponse,
+  yearData: IHistoricalDataApiResponse,
+): ITimeSeriesPriceData {
   return {
-    day: dayData.Data.Data.map((data) => [data.time, data.close]),
+    h24: h24Data.Data.Data.map((data) => [data.time, data.close]),
     week: weekData.Data.Data.map((data) => [data.time, data.close]),
     month: monthData.Data.Data.map((data) => [data.time, data.close]),
     year: yearData.Data.Data.map((data) => [data.time, data.close]),
@@ -22,16 +42,20 @@ function extractMarketChartValues(dayData, weekData, monthData, yearData) {
 
 /**
  * Extracts market values from the provided data.
- *
- * @param {Object} dayData - Data for the day.
- * @param {Object} weekData - Data for the week.
- * @param {Object} monthData - Data for the month.
- * @param {Object} yearData - Data for the year.
- * @returns {Object} An object containing market values.
+ * @param h24Data - Data for the past 24 hours.
+ * @param weekData - Data for the past week.
+ * @param monthData - Data for the past month.
+ * @param yearData - Data for the past 365 days.
+ * @returns An object containing market values.
  */
-function extractMarketValues(dayData, weekData, monthData, yearData) {
+function formatPriceTrendData(
+  h24Data: IHistoricalDataApiResponse,
+  weekData: IHistoricalDataApiResponse,
+  monthData: IHistoricalDataApiResponse,
+  yearData: IHistoricalDataApiResponse,
+): IPriceTrendData {
   return {
-    dayMarketValues: dayData.Data.Data.map((data) => data.close),
+    h24MarketValues: h24Data.Data.Data.map((data) => data.close),
     weekMarketValues: weekData.Data.Data.map((data) => data.close),
     monthMarketValues: monthData.Data.Data.map((data) => data.close),
     yearMarketValues: yearData.Data.Data.map((data) => data.close),
@@ -39,28 +63,27 @@ function extractMarketValues(dayData, weekData, monthData, yearData) {
 }
 
 /**
- * Extracts and formats chart values.
- *
- * @param {Object} marketChartValues - The market chart values.
- * @param {Object} marketValues - The market values.
- * @param {string} coinName - The name of the coin.
- * @param {string} targetCurrency - The target currency.
- * @returns {Object} An object containing formatted chart values.
+ * Prepares a dataset for charting based on time-series and trend data.
+ * @param timeSeriesPriceData - The time-series data of market prices.
+ * @param priceTrendData - The trend data showing market price movements.
+ * @param coinName - The name of the coin.
+ * @param targetCurrency - The currency in which prices are represented.
+ * @returns A dataset suitable for rendering a price chart.
  */
-function extractChartValues(
-  marketChartValues,
-  marketValues,
-  coinName,
-  targetCurrency,
-) {
+function formatPriceChartDataset(
+  timeSeriesPriceData: ITimeSeriesPriceData,
+  priceTrendData: IPriceTrendData,
+  coinName: string,
+  targetCurrency: TCurrencyString,
+): IPriceChartDataset {
   return {
-    labels: marketChartValues?.day.map((data) =>
+    labels: timeSeriesPriceData.h24.map((data) =>
       new Date(data[0]).toLocaleTimeString(),
     ),
     datasets: [
       {
         label: `${coinName} Price (Past day) in ${targetCurrency.toUpperCase()}`,
-        data: marketValues.dayMarketValues,
+        data: priceTrendData.h24MarketValues,
         type: "line",
         pointRadius: 1.3,
         borderColor: "#ff9500",
@@ -70,130 +93,148 @@ function extractChartValues(
 }
 
 /**
- * Calculates price changes based on the provided yearly data.
- *
- * @param {Array<Object>} yearData - Array containing data for the year.
- * @returns {Object} An object containing calculated price changes.
+ * Computes price changes over various periods by using the provided yearly data.
+ * @param yearData - Historical data for the past year.
+ * @returns An object with calculated price changes over different time frames.
  */
-function calculatePriceChanges(yearData) {
+function calculatePriceChanges(
+  yearData: IHistoricalDataApiResponse,
+): IPeriodicPriceChanges {
   const data365 = yearData.Data.Data;
-  const data30 = data365.slice(-30);
-  const data7 = data365.slice(-7);
-  const data1 = data365.slice(-1);
+
+  // Define indices for clarity
+  const lastIndex = data365.length - 1;
+  const secondToLastIndex = lastIndex - 1;
+  const oneWeekAgoIndex = lastIndex - 7;
+  const oneMonthAgoIndex = lastIndex - 30;
 
   return {
-    priceChange1d: data1[0].close - data365[data365.length - 2].close,
-    priceChange7d: data7[data7.length - 1].close - data7[0].close,
-    priceChange30d: data30[data30.length - 1].close - data30[0].close,
-    priceChange365d: data365[data365.length - 1].close - data365[0].close,
+    priceChange24h: data365[lastIndex].close - data365[secondToLastIndex].close,
+    priceChange7d: data365[lastIndex].close - data365[oneWeekAgoIndex].close,
+    priceChange30d: data365[lastIndex].close - data365[oneMonthAgoIndex].close,
+    priceChange365d: data365[lastIndex].close - data365[0].close,
   };
 }
 
 /**
- * Calculates price change percentages based on price changes and year data.
- *
- * @param {Object} priceChanges - Object containing price changes.
- * @param {Array<Object>} yearData - Array containing data for the year.
- * @returns {Object} An object containing calculated price change percentages.
+ * Computes percentage changes in price over various periods.
+ * @param priceChanges - The computed price changes.
+ * @param yearData - Historical data for the past year.
+ * @returns An object with calculated percentage changes over different time frames.
  */
-function calculatePriceChangePercentages(priceChanges, yearData) {
+function calculatePriceChangePercentages(
+  priceChanges: IPeriodicPriceChanges,
+  yearData: IHistoricalDataApiResponse,
+): IPeriodicPriceChangePercentages {
   const data365 = yearData.Data.Data;
-  const data30 = data365.slice(-30);
-  const data7 = data365.slice(-7);
 
-  const priceChangePercentage1d =
-    (priceChanges.priceChange1d / data365[data365.length - 2].close) * 100;
-  const priceChangePercentage7d =
-    (priceChanges.priceChange7d / data7[0].close) * 100;
-  const priceChangePercentage30dRaw =
-    (priceChanges.priceChange30d / data30[0].close) * 100;
-  const priceChangePercentage365dRaw =
-    (priceChanges.priceChange365d / data365[0].close) * 100;
+  // Define indices for clarity
+  const lastIndex = data365.length - 1;
+  const secondToLastIndex = lastIndex - 1;
+  const oneWeekAgoIndex = lastIndex - 7;
+  const oneMonthAgoIndex = lastIndex - 30;
 
-  const priceChangePercentage30d = !isValid(priceChangePercentage30dRaw)
-    ? priceChangePercentage7d
-    : priceChangePercentage30dRaw;
-  const priceChangePercentage365d = !isValid(priceChangePercentage365dRaw)
-    ? priceChangePercentage30d
-    : priceChangePercentage365dRaw;
+  // Define base values for percentage calculations
+  const baseValue24h = data365[secondToLastIndex].close;
+  const baseValue7d = data365[oneWeekAgoIndex].close;
+  const baseValue30d = data365[oneMonthAgoIndex].close;
+  const baseValue365d = data365[0].close;
 
   return {
-    d1: priceChangePercentage1d,
-    d7: priceChangePercentage7d,
-    d30: priceChangePercentage30d,
-    d365: priceChangePercentage365d,
+    h24: calculatePercentageChange(priceChanges.priceChange24h, baseValue24h),
+    d7: calculatePercentageChange(priceChanges.priceChange7d, baseValue7d),
+    d30: calculatePercentageChange(priceChanges.priceChange30d, baseValue30d),
+    d365: calculatePercentageChange(
+      priceChanges.priceChange365d,
+      baseValue365d,
+    ),
   };
 }
 
 /**
- * Formats the coin details data fetched from the API s that it can be stored in Redux and caches.
+ * Calculates the percentage change based on the provided change value and base value.
  *
- * @param {Object} cryptoCompareData - The main data from the API.
- * @param {Object} assetData - Additional asset data.
- * @param {Object} dayData - Data for the day.
- * @param {Object} yearData - Data for the year.
- * @param {string} id - The ID for the Coin.
- * @param {string} targetCurrency - The target currency for the formatting.
- * @returns {Object} An object containing formatted coin details.
+ * @param change The change in value, which can be positive or negative.
+ * @param baseValue The base value from which the change occurred. Must be non-zero to avoid division by zero.
+ * @returns The percentage change calculated as (change / baseValue) * 100. If the base value is zero, it returns NaN to indicate an undefined or uncalculable result.
  */
-export function formatCoinDetailsData(
-  cryptoCompareData,
-  assetData,
-  dayData,
-  yearData,
-  id,
-  targetCurrency,
-) {
-  const coinData = cryptoCompareData.RAW[id.toUpperCase()][targetCurrency];
-  const assetDataDetails = assetData.Data;
+function calculatePercentageChange(change: number, baseValue: number): number {
+  if (baseValue === 0) {
+    // Handling the case where base value is zero to avoid division by zero
+    console.warn("Base value is zero. Percentage change is not calculable.");
+    return NaN;
+  }
+
+  return (change / baseValue) * 100;
+}
+
+/**
+ * Formats the coin details data fetched from the API for storage and presentation..
+ * @param id - The identifier of the coin.
+ * @param targetCurrency - The currency in which market data is represented.
+ * @param currencyExchangeRates - Exchange rates for converting values to different currencies.
+ * @param assetDataFromApi - Raw asset data fetched from the API.
+ * @param h24Data - Historical data for the past 24 hours.
+ * @param yearData - Historical data for the past year.
+ * @returns A structured representation of detailed coin data.
+ */
+export function formatCoinDetailsFromApiResponse(
+  id: string,
+  targetCurrency: TCurrencyString,
+  currencyExchangeRates: TCurrencyExchangeRates,
+  assetDataFromApi: IAssetDataApiResponse,
+  h24Data: IHistoricalDataApiResponse,
+  yearData: IHistoricalDataApiResponse,
+): ICoinDetails {
+  const assetDataDetails = assetDataFromApi.Data;
 
   // Derive 7-day and 30-day data from the 365-day data
-  const weekData = {
-    Data: {
-      Data: yearData.Data.Data.slice(-7),
-    },
+  const weekData: IHistoricalDataApiResponse = {
+    Data: { Data: yearData.Data.Data.slice(-7) },
   };
-  const monthData = {
-    Data: {
-      Data: yearData.Data.Data.slice(-30),
-    },
+  const monthData: IHistoricalDataApiResponse = {
+    Data: { Data: yearData.Data.Data.slice(-30) },
   };
 
-  const marketChartValues = extractMarketChartValues(
-    dayData,
+  const timeSeriesPriceData = formatTimeSeriesPriceData(
+    h24Data,
     weekData,
     monthData,
     yearData,
   );
-  const marketValues = extractMarketValues(
-    dayData,
+  const priceTrendData = formatPriceTrendData(
+    h24Data,
     weekData,
     monthData,
     yearData,
   );
-  const chartValues = extractChartValues(
-    marketChartValues,
-    marketValues,
+  const priceChartDataset = formatPriceChartDataset(
+    timeSeriesPriceData,
+    priceTrendData,
     assetDataDetails.NAME,
     targetCurrency,
   );
 
-  const priceChanges = calculatePriceChanges(yearData);
-  const priceChangePercentages = calculatePriceChangePercentages(
-    priceChanges,
-    yearData,
-  );
+  const priceChanges: IPeriodicPriceChanges = calculatePriceChanges(yearData);
+  const priceChangePercentages: IPeriodicPriceChangePercentages =
+    calculatePriceChangePercentages(priceChanges, yearData);
 
-  const coinAttributes = {
-    id,
-    symbol: coinData.FROMSYMBOL,
+  const coinAttributes: ICoinDetailAttributes = {
+    symbol: assetDataDetails.FROMSYMBOL,
     name: assetDataDetails.NAME,
     image: assetDataDetails.LOGO_URL,
     description: assetDataDetails.ASSET_DESCRIPTION_SUMMARY,
-    current_price: coinData.PRICE,
-    market_cap: coinData.MKTCAP,
-    price_change_1d: priceChanges.priceChange1d,
-    price_change_percentage_24h: priceChangePercentages.d1,
+    current_price: assetDataDetails.PRICE,
+    total_market_cap:
+      assetDataDetails.TOTAL_MKT_CAP_USD *
+      currencyExchangeRates.USD[targetCurrency],
+    market_cap_rank:
+      assetDataDetails.TOPLIST_BASE_RANK.SPOT_MOVING_24_HOUR_QUOTE_VOLUME_USD,
+    volume_24h:
+      assetDataDetails.SPOT_MOVING_24_HOUR_QUOTE_VOLUME_TOP_TIER_DIRECT_USD *
+      currencyExchangeRates.USD[targetCurrency],
+    price_change_24h: priceChanges.priceChange24h,
+    price_change_percentage_24h: priceChangePercentages.h24,
     price_change_7d: priceChanges.priceChange7d,
     price_change_percentage_7d: priceChangePercentages.d7,
     price_change_30d: priceChanges.priceChange30d,
@@ -203,53 +244,74 @@ export function formatCoinDetailsData(
   };
 
   return {
+    id,
+    currency: targetCurrency,
     coinAttributes,
-    marketChartValues,
-    marketValues,
-    chartValues,
-    // currencyRates is computed in the main function
+    timeSeriesPriceData,
+    priceTrendData,
+    priceChartDataset,
+  };
+}
+
+// Formatting Coin Overview (Popular Coins)
+
+/**
+ * Converts raw coin data into a more usable format.
+ * @param entry - The raw data entry from the API response.
+ * @param index - The index of the entry, used to determine market cap rank.
+ * @param targetCurrency - The target currency for price conversion.
+ * @returns The formatted coin overview.
+ */
+export function formatCoinOverviewCoin(
+  entry: any,
+  index: number,
+  targetCurrency: TCurrencyString,
+): ICoinOverview {
+  const coinInfo = entry.CoinInfo;
+  const metrics = entry.RAW[targetCurrency];
+
+  // Constructing and returning a formatted overview of the coin
+  return {
+    symbol: coinInfo.Name,
+    name: coinInfo.FullName,
+    image: `${CRYPTO_COMPARE_WEBSITE}${coinInfo.ImageUrl}`,
+    current_price: metrics.PRICE,
+    total_market_cap: metrics.MKTCAP,
+    market_cap_rank: index + 1,
+    volume_24h: metrics.TOTALVOLUME24HTO,
+    price_change_percentage_24h: metrics.CHANGEPCT24HOUR,
   };
 }
 
 // Formatting Currency rates after retrieval from the API
 
 /**
- * Converts the exchange data from the API into a structured format for easier currency conversions.
- *
- * The function takes in raw exchange data and processes it to provide conversion rates between
- * different currency pairs. The resulting object provides a way to get conversion rates between
- * any two supported currencies.
- *
- * @param {Object} exchangeData - The raw exchange data from the API.
- * @returns {Object} An object representing conversion rates between supported currency pairs.
+ * Extracts and formats currency conversion rates for all currencies using the given exchange data.
+ * @param exchangeData - The raw exchange data from the API.
+ * @returns An object containing formatted currency rates.
  */
-export function formatCurrencyRates(exchangeData) {
-  // Extracting conversion rates for CAD
-  const cadRates = {
-    CAD: 1,
-    USD: exchangeData.RAW.CAD.USD.PRICE,
-    AUD: exchangeData.RAW.CAD.AUD.PRICE,
-    GBP: exchangeData.RAW.CAD.GBP.PRICE,
-  };
+export function formatCurrencyRates(
+  exchangeData: ICurrencyRates,
+): TCurrencyExchangeRates {
+  // Using the default conversion rates for CAD
+  const cadRates: ICurrencyRates = exchangeData;
 
-  // Extracting conversion rates for USD using CAD as the base
-  const usdRates = {
+  // Extracting conversion rates for other currencies using CAD as the base
+  const usdRates: ICurrencyRates = {
     CAD: 1 / cadRates.USD,
     USD: 1,
     AUD: cadRates.AUD / cadRates.USD,
     GBP: cadRates.GBP / cadRates.USD,
   };
 
-  // Extracting conversion rates for AUD using CAD as the base
-  const audRates = {
+  const audRates: ICurrencyRates = {
     CAD: 1 / cadRates.AUD,
     USD: cadRates.USD / cadRates.AUD,
     AUD: 1,
     GBP: cadRates.GBP / cadRates.AUD,
   };
 
-  // Extracting conversion rates for GBP using CAD as the base
-  const gbpRates = {
+  const gbpRates: ICurrencyRates = {
     CAD: 1 / cadRates.GBP,
     USD: cadRates.USD / cadRates.GBP,
     AUD: cadRates.AUD / cadRates.GBP,
@@ -262,22 +324,4 @@ export function formatCurrencyRates(exchangeData) {
     AUD: audRates,
     GBP: gbpRates,
   };
-}
-
-/**
- * Extracts and maps attributes from the PopularCoins lists to be used as the shallow CoinDetails for each coin prior to preloading. THis allows us to maintain consistent valus that appear in the list, as well as the details page.
- *
- * @param {Array} popularCoinsList - The list of popular coins with basic attributes.
- * @returns {Object} An object where each key is a coin's id and the value is an object with a single key `coinAttributes` that points to the coin's data.
- */
-export function mapPopularCoinsToShallowDetailedAttributes(popularCoinsList) {
-  // Ensure the input is an array and has data
-  if (!Array.isArray(popularCoinsList) || popularCoinsList.length === 0) {
-    return {};
-  }
-
-  return popularCoinsList.reduce((acc, coin) => {
-    acc[coin.id] = { coinAttributes: coin };
-    return acc;
-  }, {});
 }

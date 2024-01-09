@@ -551,7 +551,7 @@ export async function preloadDetailsForCurrentCoinIfOnDetailsPage(
     localStorage?.getItem("preloadedCoins") || "[]",
   );
   const coinIsAlreadyPreloaded =
-    selectedCoinDetails?.chartValues != null &&
+    selectedCoinDetails?.priceChartDataset != null &&
     preloadedCoinIds.includes(selectedCoinDetails.coinAttributes?.id);
 
   if (
@@ -747,7 +747,7 @@ export async function hydrateCoinDataBasedOnRoute(
 
     // Fetch and preload CoinDetails if not preloaded from cache
     const coinDetailsArePreloaded =
-      selectedCoinDetails?.coinAttributes?.chartValues != null;
+      selectedCoinDetails?.coinAttributes?.priceChartDataset != null;
     console.log("isOnCoinDetailsPage - hydrateCoinDataBasedOnRoute");
     console.log(
       "coinDetailsArePreloaded - hydrateCoinDataBasedOnRoute",

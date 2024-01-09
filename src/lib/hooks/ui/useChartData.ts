@@ -54,16 +54,16 @@ function useChartData(coinDetails) {
   const currentCurrency = useSelector(
     (state) => state.currency.currentCurrency,
   );
-  const [chartData, setChartData] = useState(coinDetails.chartValues);
+  const [chartData, setChartData] = useState(coinDetails.priceChartDataset);
   const [currentChartPeriod, setCurrentChartPeriod] = useState("day");
 
   useEffect(() => {
     console.log("coinDetails", coinDetails);
-    const { marketChartValues, marketValues } = coinDetails;
+    const { timeSeriesPriceData, priceTrendData } = coinDetails;
     // Chart.js mutates these values which causes an error
-    const clonedMarketValues = cloneDeep(marketValues);
+    const clonedMarketValues = cloneDeep(priceTrendData);
     const config = chartPeriodConfig[currentChartPeriod];
-    const labels = config.getLabels(marketChartValues?.[currentChartPeriod]);
+    const labels = config.getLabels(timeSeriesPriceData?.[currentChartPeriod]);
     const dataValues = config.getData(clonedMarketValues);
 
     setChartData({

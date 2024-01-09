@@ -91,8 +91,8 @@ export const updateCurrency = createAsyncThunk(
     if (!isEmpty(selectedCoinDetails)) {
       const coinId = selectedCoinDetails.coinAttributes.id.toUpperCase();
       const fullPreloadExists =
-        cachedCoinDetailsByCurrency[updatedCurrency]?.[coinId]?.chartValues !=
-        null;
+        cachedCoinDetailsByCurrency[updatedCurrency]?.[coinId]
+          ?.priceChartDataset != null;
       const cache = fullPreloadExists
         ? cachedCoinDetailsByCurrency[updatedCurrency]?.[coinId]
         : null;

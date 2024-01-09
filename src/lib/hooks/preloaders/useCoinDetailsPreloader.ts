@@ -22,7 +22,7 @@ export function useCoinDetailsPreloader(id) {
   const coinCachedDetails = useSelector(
     (state) => state.coins.cachedCoinDetailsByCurrency[currentCurrency][id],
   );
-  const isPreloaded = !isEmpty(coinCachedDetails?.chartValues);
+  const isPreloaded = !isEmpty(coinCachedDetails?.priceChartDataset);
   const isPreloadedRef = useRef(isPreloaded);
 
   useEffect(() => {
