@@ -5,6 +5,7 @@ import {
   SYMBOLS_BY_CURRENCIES,
   INITIAL_CURRENCY,
 } from "../../constants";
+import { TCurrencyExchangeRates } from "@/types/currencyTypes";
 
 /**
  * Interface representing the state structure for the currency slice.
@@ -13,7 +14,7 @@ import {
 export interface ICurrencyState {
   currentCurrency: TCurrencyString;
   currentSymbol: TCurrencySymbol;
-  currencyRates: Record<TCurrencyString, number | null>;
+  currencyRates: TCurrencyExchangeRates | null;
 }
 
 /**
@@ -23,12 +24,7 @@ export interface ICurrencyState {
 export const initialCurrencyState: ICurrencyState = {
   currentCurrency: INITIAL_CURRENCY,
   currentSymbol: SYMBOLS_BY_CURRENCIES[INITIAL_CURRENCY],
-  currencyRates: {
-    CAD: null,
-    USD: null,
-    GBP: null,
-    AUD: null,
-  },
+  currencyRates: null,
 };
 
 /**

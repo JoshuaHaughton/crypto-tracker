@@ -1,53 +1,50 @@
-import { batch } from "react-redux";
-import { appInfoActions } from "../store/appInfo";
-import { coinsActions } from "../store/coins";
-import { currencyActions } from "../store/currency";
-import { mediaQueryActions } from "../store/mediaQuery";
-import { authActions } from "../store/auth";
-import { modalsActions } from "../store/modals";
+import { TAppStore } from "@/lib/store";
+import { coinsActions } from "@/lib/store/coins/coinsSlice";
+import { currencyActions } from "@/lib/store/currency/currencySlice";
+import { ICoinOverview, ICoinDetails } from "@/types/coinTypes";
+import { TCurrencyExchangeRates } from "@/types/currencyTypes";
+
+interface IStoreInitializationOptions {
+  popularCoins?: ICoinOverview[];
+  coinDetails?: ICoinDetails;
+  carouselCoins?: ICoinOverview[];
+  currencyExchangeRates?: TCurrencyExchangeRates;
+}
 
 /**
- * Maps slice names to their respective actions for updating.
- */
-export const sliceActionMap = {
-  currency: currencyActions.updateSlice,
-  coins: coinsActions.updateSlice,
-  appInfo: appInfoActions.updateSlice,
-  mediaQuery: mediaQueryActions.updateSlice,
-  auth: authActions.updateSlice,
-  modals: modalsActions.updateSlice,
-};
-
-/**
- * Dispatches actions to update each individual slice based on provided state.
+ * Initializes the Redux store with provided data.
+ * Depending on the data type provided, it dispatches specific actions to update the store's state.
+ * This allows for a clean and maintainable way to handle different initialization scenarios.
  *
- * @param {Object} reduxStore - The redux store.
- * @param {Object} storeUpdates - The updated state to merge into the existing state.
+ * @param store - The Redux store instance to be initialized.
+ * @param initOptions - An object containing various pieces of initial data to be set in the store.
  */
-export function updateStoreData(reduxStore, storeUpdates) {
-  console.log("existing reduxStore - updateStoreData", reduxStore.getState());
-  console.log("storeUpdates - updateStoreData", storeUpdates);
+export function initializeStore(
+  store: TAppStore,
+  initOptions: IStoreInitializationOptions,
+): void {
+  // Destructure initOptions
+  const { popularCoins, coinDetails, carouselCoins, currencyExchangeRates } =
+    initOptions;
 
-  if (
-    typeof storeUpdates !== "object" ||
-    storeUpdates === null ||
-    Object.keys(storeUpdates).length === 0
-  ) {
-    console.warn(
-      "storeUpdates is either not an object, null, or empty. Skipping updates.",
-    );
-    return;
+  // Dispatch actions based on the presence of each option
+  if (popularCoins) {
+    store.dispatch(coinsActions.setPopularCoins({ coinList: popularCoins }));
   }
 
-  batch(() => {
-    Object.keys(storeUpdates).forEach((sliceName) => {
-      const updateData = storeUpdates[sliceName];
-      if (updateData != null) {
-        const updateSliceAction = sliceActionMap[sliceName];
-        if (updateSliceAction) {
-          reduxStore.dispatch(updateSliceAction(updateData));
-        }
-      }
-    });
-  });
+  if (coinDetails) {
+    store.dispatch(coinsActions.setSelectedCoinDetails({ coinDetails }));
+  }
+
+  if (carouselCoins) {
+    store.dispatch(coinsActions.setCarouselCoins({ coinList: carouselCoins }));
+  }
+
+  if (currencyExchangeRates) {
+    store.dispatch(
+      currencyActions.setCurrencyRates({
+        currencyRates: currencyExchangeRates,
+      }),
+    );
+  }
 }

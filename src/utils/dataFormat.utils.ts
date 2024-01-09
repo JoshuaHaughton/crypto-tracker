@@ -1,5 +1,5 @@
 import { TCurrencyString } from "@/lib/constants";
-import { ICurrencyRates, TCurrencyExchangeRates } from "@/types/currencyTypes";
+import { TCurrencyRates, TCurrencyExchangeRates } from "@/types/currencyTypes";
 import {
   ICoinDetails,
   ICoinDetailAttributes,
@@ -291,27 +291,27 @@ export function formatCoinOverviewCoin(
  * @returns An object containing formatted currency rates.
  */
 export function formatCurrencyRates(
-  exchangeData: ICurrencyRates,
+  exchangeData: TCurrencyRates,
 ): TCurrencyExchangeRates {
   // Using the default conversion rates for CAD
-  const cadRates: ICurrencyRates = exchangeData;
+  const cadRates: TCurrencyRates = exchangeData;
 
   // Extracting conversion rates for other currencies using CAD as the base
-  const usdRates: ICurrencyRates = {
+  const usdRates: TCurrencyRates = {
     CAD: 1 / cadRates.USD,
     USD: 1,
     AUD: cadRates.AUD / cadRates.USD,
     GBP: cadRates.GBP / cadRates.USD,
   };
 
-  const audRates: ICurrencyRates = {
+  const audRates: TCurrencyRates = {
     CAD: 1 / cadRates.AUD,
     USD: cadRates.USD / cadRates.AUD,
     AUD: 1,
     GBP: cadRates.GBP / cadRates.AUD,
   };
 
-  const gbpRates: ICurrencyRates = {
+  const gbpRates: TCurrencyRates = {
     CAD: 1 / cadRates.GBP,
     USD: cadRates.USD / cadRates.GBP,
     AUD: cadRates.AUD / cadRates.GBP,

@@ -9,7 +9,7 @@ import {
   ALL_CURRENCIES,
 } from "../lib/constants";
 import { API_ENDPOINTS } from "../lib/constants/apiConstants";
-import { ICurrencyRates, TCurrencyExchangeRates } from "@/types/currencyTypes";
+import { TCurrencyRates, TCurrencyExchangeRates } from "@/types/currencyTypes";
 import {
   IAssetDataApiResponse,
   IFormattedCoinDetailsAPIResponse,
@@ -68,7 +68,7 @@ export async function fetchCoinDetailsData(
         fetch(url, cryptoCompareFetchOptions).then((res) => res.json()),
       ),
     )) as [
-      ICurrencyRates,
+      TCurrencyRates,
       IAssetDataApiResponse,
       IHistoricalDataApiResponse,
       IHistoricalDataApiResponse,
@@ -90,14 +90,14 @@ export async function fetchCoinDetailsData(
     }
 
     // Extract the currency rates
-    const currencyRates: TCurrencyExchangeRates =
+    const currencyExchangeRates: TCurrencyExchangeRates =
       formatCurrencyRates(exchangeRateResponse);
 
     // Format the fetched data
     const formattedCoinDetails: ICoinDetails = formatCoinDetailsFromApiResponse(
       id,
       targetCurrency,
-      currencyRates,
+      currencyExchangeRates,
       assetDetailsResponse,
       historicalResponse24h,
       historicalResponse365d,
@@ -106,7 +106,7 @@ export async function fetchCoinDetailsData(
     // Format the response
     const formattedResponse: IFormattedCoinDetailsAPIResponse = {
       coinDetails: formattedCoinDetails,
-      currencyRates,
+      currencyExchangeRates,
     };
 
     // Logging successful data fetch

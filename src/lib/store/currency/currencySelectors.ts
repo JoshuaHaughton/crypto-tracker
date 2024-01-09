@@ -30,34 +30,51 @@ export const selectCurrencyRates = (state: TRootState) =>
   state.currency.currencyRates;
 
 /**
- * Memoized selector for a specific currency rate.
+ * Memoized selector for a specific currency conversion rate.
  * Uses `createSelector` for efficient memoization to prevent redundant recalculations,
  * especially useful when accessing specific currency rates frequently.
+ *
  * @param state - The current state of the application.
- * @param currency - The currency to identify the specific rate.
- * @returns The rate for the specified currency.
+ * @param fromCurrency - The currency from which the conversion starts.
+ * @param toCurrency - The target currency for conversion.
+ * @returns The conversion rate for the specified currency pair, or null if not found.
  */
 export const selectCurrencyRate = createSelector(
-  [selectCurrencyRates, (_: TRootState, currency: TCurrencyString) => currency],
-  (currencyRates, currency) => currencyRates[currency] || null,
+  [
+    selectCurrencyRates,
+    (_: TRootState, fromCurrency: TCurrencyString) => fromCurrency,
+    (_: TRootState, __: TCurrencyString, toCurrency: TCurrencyString) =>
+      toCurrency,
+  ],
+  (currencyRates, fromCurrency, toCurrency) => {
+    return currencyRates?.[fromCurrency]?.[toCurrency] ?? null;
+  },
 );
 
 /**
  * Enhanced memoized selector to calculate a value conversion based on the current currency rate.
  * Utilizes `createSelector` for efficient memoization to prevent redundant recalculations,
  * which is crucial for performance when dealing with dynamic currency rate changes.
- * @param state - The current state of the application.
+ *
+ * @param fromCurrency - The currency from which the conversion starts.
+ * @param toCurrency - The target currency for conversion.
  * @param value - The value to be converted.
- * @returns The converted value based on the current currency rate.
+ * @returns The converted value based on the specified currency rate.
  */
 export const selectConvertedValue = createSelector(
   [
-    selectCurrentCurrency,
     selectCurrencyRates,
-    (_: TRootState, value: number) => value,
+    (_: TRootState, fromCurrency: TCurrencyString) => fromCurrency,
+    (_: TRootState, __: TCurrencyString, toCurrency: TCurrencyString) =>
+      toCurrency,
+    (_: TRootState, __: TCurrencyString, ___: TCurrencyString, value: number) =>
+      value,
   ],
-  (currentCurrency, currencyRates, value) => {
-    const rate = currencyRates[currentCurrency];
-    return rate ? value * rate : value;
+  (currencyRates, fromCurrency, toCurrency, value) => {
+    // Ensure rate is a number, default to 1 if not found
+    const rate = currencyRates?.[fromCurrency]?.[toCurrency] ?? 1;
+
+    // Perform conversion
+    return value * rate;
   },
 );

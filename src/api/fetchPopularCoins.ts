@@ -3,7 +3,7 @@ import {
   INITIAL_CURRENCY,
   TCurrencyString,
 } from "@/lib/constants";
-import { ICurrencyRates } from "@/types/currencyTypes";
+import { TCurrencyRates } from "@/types/currencyTypes";
 import {
   formatCoinOverviewCoin,
   formatCurrencyRates,
@@ -43,7 +43,7 @@ export async function fetchPopularCoinsData(
     // Fetch data concurrently using Promise.all and type the responses
     const responses = (await Promise.all(
       urls.map((url) => fetch(url, fetchOptions).then((res) => res.json())),
-    )) as [ICurrencyRates, ITopMarketCapApiResponse];
+    )) as [TCurrencyRates, ITopMarketCapApiResponse];
 
     // Destructure the responses for readability
     const [exchangeData, top100Data] = responses;
@@ -64,10 +64,10 @@ export async function fetchPopularCoinsData(
       formatCoinOverviewCoin(entry, index, targetCurrency),
     );
     const trendingCarouselCoins = popularCoinsList.slice(0, 10);
-    const currencyRates = formatCurrencyRates(exchangeData);
+    const currencyExchangeRates = formatCurrencyRates(exchangeData);
 
     const formattedData = {
-      currencyRates,
+      currencyExchangeRates,
       popularCoinsList,
       trendingCarouselCoins,
     };

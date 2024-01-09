@@ -1,5 +1,5 @@
 import { MiddlewareAPI, Middleware } from "@reduxjs/toolkit";
-import { TRootState } from ".."; // Adjust the import path as necessary
+import { TRootState } from "..";
 
 /**
  * Logger middleware for Redux.

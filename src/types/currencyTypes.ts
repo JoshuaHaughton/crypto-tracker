@@ -1,7 +1,7 @@
 import { TCurrencyString } from "@/lib/constants";
 
-export type TCurrencyExchangeRates = Record<TCurrencyString, ICurrencyRates>;
+export type TCurrencyExchangeRates = Record<TCurrencyString, TCurrencyRates>;
 
-export type ICurrencyRates = {
+export type TCurrencyRates = {
   [Currency in TCurrencyString]: number;
 };

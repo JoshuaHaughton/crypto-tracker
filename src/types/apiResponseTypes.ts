@@ -29,7 +29,7 @@ interface ITop100MarketCapCoinFromAPI {
 }
 
 export interface IFormattedPopularCoinsApiResponse {
-  currencyRates: TCurrencyExchangeRates;
+  currencyExchangeRates: TCurrencyExchangeRates;
   popularCoinsList: ICoinOverview[];
   trendingCarouselCoins: ICoinOverview[];
 }
@@ -38,7 +38,7 @@ export interface IFormattedPopularCoinsApiResponse {
 
 export interface IFormattedCoinDetailsAPIResponse {
   coinDetails: ICoinDetails;
-  currencyRates: TCurrencyExchangeRates;
+  currencyExchangeRates: TCurrencyExchangeRates;
 }
 
 export interface IAssetDataApiResponse {
