@@ -20,7 +20,7 @@ import {
  * @returns Promise resolving to an object containing currency rates, popular coins list, and trending carousel coins.
  */
 export async function fetchPopularCoinsData(
-  targetCurrency: TCurrencyString = INITIAL_CURRENCY,
+  targetCurrency: TCurrencyString,
 ): Promise<IFormattedPopularCoinsApiResponse> {
   console.warn("fetchPopularCoinsData");
 
@@ -38,15 +38,24 @@ export async function fetchPopularCoinsData(
   }?fsym=${targetCurrency}&tsyms=${ALL_CURRENCIES.join(",")}`;
   const top100MarketCapCoinsURL = `${API_ENDPOINTS.TOP_100_MARKET_CAP_OVERVIEW}?limit=100&tsym=${targetCurrency}`;
 
-  const urls = [currencyExchangeURL, top100MarketCapCoinsURL];
+  // Modify the fetch call for the currency exchange URL to use caching. Unlike Crypto Prices, these values don't change often
+  const exchangeRatePromise = fetch(currencyExchangeURL, {
+    ...fetchOptions,
+    next: { revalidate: 600 }, // Revalidates every 10 mins
+  }).then((res) => res.json());
+
+  // Fetch the top 100 market cap coins dynamically every time
+  const top100MarketCapCoinsPromise = fetch(top100MarketCapCoinsURL, {
+    ...fetchOptions,
+    cache: "no-store", // Ensures fresh data on each request
+  }).then((res) => res.json());
+
   try {
     // Fetch data concurrently using Promise.all and type the responses
-    const responses = (await Promise.all(
-      urls.map((url) => fetch(url, fetchOptions).then((res) => res.json())),
-    )) as [TCurrencyRates, ITopMarketCapApiResponse];
-
-    // Destructure the responses for readability
-    const [exchangeData, top100Data] = responses;
+    const [exchangeData, top100Data] = (await Promise.all([
+      exchangeRatePromise,
+      top100MarketCapCoinsPromise,
+    ])) as [TCurrencyRates, ITopMarketCapApiResponse];
 
     // Validate the responses
     if (!exchangeData || !top100Data) {
@@ -59,12 +68,11 @@ export async function fetchPopularCoinsData(
     }
 
     // Processing and formatting the fetched data
-
+    const currencyExchangeRates = formatCurrencyRates(exchangeData);
     const popularCoinsList = top100Data.Data.map((entry, index) =>
       formatCoinOverviewCoin(entry, index, targetCurrency),
     );
     const trendingCarouselCoins = popularCoinsList.slice(0, 10);
-    const currencyExchangeRates = formatCurrencyRates(exchangeData);
 
     const formattedData = {
       currencyExchangeRates,

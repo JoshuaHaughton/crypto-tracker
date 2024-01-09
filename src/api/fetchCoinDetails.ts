@@ -49,12 +49,25 @@ export async function fetchCoinDetailsData(
   const historical24hURL = `${API_ENDPOINTS.HISTORICAL_HOUR}?fsym=${id}&tsym=${targetCurrency}&limit=24`;
   const historical365dURL = `${API_ENDPOINTS.HISTORICAL_DAY}?fsym=${id}&tsym=${targetCurrency}&limit=365`;
 
-  const urls = [
-    currencyExchangeURL,
+  // Modify the fetch call for the currency exchange URL to use caching. Unlike Crypto Prices, these values don't change often
+  const exchangeRatePromise = fetch(currencyExchangeURL, {
+    ...cryptoCompareFetchOptions,
+    next: { revalidate: 600 }, // Revalidates every 10 mins
+  }).then((res) => res.json());
+
+  // URLs for the requests without caching
+  const dynamicRequests = [
     assetDetailsURL,
     historical24hURL,
     historical365dURL,
   ];
+
+  // Create an array of promises for the other URLs
+  const otherPromises = dynamicRequests.map((url) =>
+    fetch(url, { ...cryptoCompareFetchOptions, cache: "no-store" }).then(
+      (res) => res.json(),
+    ),
+  );
 
   try {
     // Fetch data concurrently using Promise.all and type the responses
@@ -63,11 +76,7 @@ export async function fetchCoinDetailsData(
       assetDetailsResponse,
       historicalResponse24h,
       historicalResponse365d,
-    ] = (await Promise.all(
-      urls.map((url) =>
-        fetch(url, cryptoCompareFetchOptions).then((res) => res.json()),
-      ),
-    )) as [
+    ] = (await Promise.all([exchangeRatePromise, ...otherPromises])) as [
       TCurrencyRates,
       IAssetDataApiResponse,
       IHistoricalDataApiResponse,
