@@ -14,12 +14,18 @@
     "@fortawesome/free-solid-svg-icons": "^6.4.2",
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@reduxjs/toolkit": "^2.0.1",
+    "@tanstack/react-query": "4",
+    "@trpc/client": "^10.45.0",
+    "@trpc/next": "^10.45.0",
+    "@trpc/react-query": "^10.45.0",
+    "@trpc/server": "^10.45.0",
     "js-cookie": "^3.0.5",
     "lodash": "^4.17.21",
     "next": "^14",
     "react": "^18",
     "react-dom": "^18",
-    "react-redux": "^9.0.4"
+    "react-redux": "^9.0.4",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@types/js-cookie": "^3.0.6",
