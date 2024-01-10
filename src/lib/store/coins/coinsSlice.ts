@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { ALL_CURRENCIES, TCurrencyString } from "../../constants";
+import { ALL_CURRENCIES, TCurrencyString } from "../../constants/globalConstants";
 import { ICoinDetails, ICoinOverview } from "../../../types/coinTypes";
 
 /**

@@ -1,4 +1,4 @@
-import { TCurrencyString } from "@/lib/constants";
+import { TCurrencyString } from "@/lib/constants/globalConstants";
 
 // Popular Coins
 export interface ICoinOverview {

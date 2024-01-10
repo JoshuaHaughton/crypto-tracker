@@ -4,6 +4,8 @@ import styles from "./Carousel.module.scss";
 import CarouselCoin from "./CarouselCoin";
 import AliceCarousel from "react-alice-carousel";
 import "react-alice-carousel/lib/alice-carousel.css";
+import { selectCarouselCoins } from "@/lib/store/coins/coinsSelectors";
+import { selectCurrentSymbol } from "@/lib/store/currency/currencySelectors";
 
 const responsiveBreakpoints = {
   0: {
@@ -25,11 +27,9 @@ const responsiveBreakpoints = {
 
 const Carousel = () => {
   const [isMounted, setIsMounted] = useState(false);
-  const currentSymbol = useSelector((state) => state.currency.symbol);
-  const carouselCoins = useSelector(
-    (state) => state.coins.trendingCarouselCoins,
-  );
-  const formattedCarouselCoins = carouselCoins.map((coin) => (
+  const currentSymbol = useSelector(selectCurrentSymbol);
+  const carouselCoins = useSelector(selectCarouselCoins);
+  const formattedCarouselCoins = carouselCoins?.map((coin) => (
     <CarouselCoin key={coin.id} coin={coin} currentSymbol={currentSymbol} />
   ));
 

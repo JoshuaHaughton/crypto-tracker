@@ -1,4 +1,4 @@
-import { TCurrencyString } from "@/lib/constants";
+import { TCurrencyString } from "@/lib/constants/globalConstants";
 import { TCurrencyRates, TCurrencyExchangeRates } from "@/types/currencyTypes";
 import {
   ICoinDetails,
@@ -260,15 +260,16 @@ export function formatCoinDetailsFromApiResponse(
  * @param entry - The raw data entry from the API response.
  * @param index - The index of the entry, used to determine market cap rank.
  * @param targetCurrency - The target currency for price conversion.
- * @returns The formatted coin overview.
+ * @returns The formatted coin overview, or null if the coin isn't formattable.
  */
 export function formatCoinOverviewCoin(
   entry: any,
   index: number,
   targetCurrency: TCurrencyString,
-): ICoinOverview {
+): ICoinOverview | null {
   const coinInfo = entry.CoinInfo;
-  const metrics = entry.RAW[targetCurrency];
+  const metrics = entry.RAW?.[targetCurrency];
+  if (!metrics) return null;
 
   // Constructing and returning a formatted overview of the coin
   return {
@@ -324,4 +325,23 @@ export function formatCurrencyRates(
     AUD: audRates,
     GBP: gbpRates,
   };
+}
+
+/**
+ * Extracts and maps PopularCoins to be used as the shallow base for CoinDetails for each coin.
+ *
+ * @param {Array} popularCoinsList - The list of popular coins with basic attributes.
+ * @returns {Object} - An object where each key is the coin's id and the value is the coin's detailed attributes.
+ */
+export function mapPopularCoinsToShallowDetailedAttributes(popularCoinsList) {
+  // Ensure the input is an array and has data
+  if (!Array.isArray(popularCoinsList) || popularCoinsList.length === 0) {
+    return {};
+  }
+
+  // Reduce the popularCoinsList to an object with coin ids as keys
+  return popularCoinsList.reduce((acc, coin) => {
+    acc[coin.id] = { coinAttributes: coin };
+    return acc;
+  }, {});
 }

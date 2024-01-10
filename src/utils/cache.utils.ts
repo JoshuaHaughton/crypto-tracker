@@ -1,23 +1,21 @@
 import db from "./database";
 import Cookie from "js-cookie";
-import {
-  ALL_CURRENCIES,
-  COINDETAILS_TABLENAME,
-  POPULARCOINSLISTS_TABLENAME,
-  CURRENCYRATES_TABLENAME,
-  FIVE_MINUTES_IN_MS,
-  GLOBALCACHEINFO_TABLENAME,
-} from "../global/constants";
 import { getPopularCoinsCacheData } from "./api.client.utils";
 import { initializePopularCoinsAndDetailsCache } from "../thunks/initializeCoinCacheThunk";
-import { updateStoreData } from "./reduxStore.utils";
-import { coinsActions } from "../store/coins";
-import { appInfoActions } from "../store/appInfo";
 import { postMessageToCurrencyTransformerWorker } from "../../public/webWorkers/currencyTransformer/manager";
 import { isEmpty, mergeWith } from "lodash";
-import { mapPopularCoinsToShallowDetailedAttributes } from "./dataFormat.utils";
 import { replaceArraysDeepMergeObjects } from "./global.utils";
 import { fetchAndPreloadCoinDetailsThunk } from "../thunks/fetchAndPreloadCoinDetailsThunk";
+import {
+  ALL_CURRENCIES,
+  POPULARCOINSLISTS_TABLENAME,
+  CURRENCYRATES_TABLENAME,
+  COINDETAILS_TABLENAME,
+  FIVE_MINUTES_IN_MS,
+  GLOBALCACHEINFO_TABLENAME,
+} from "@/lib/constants/globalConstants";
+import { coinsActions } from "@/lib/store/coins/coinsSlice";
+import { appInfoActions } from "@/lib/store/appInfo/appInfoSlice";
 
 // Validating/Updating Cache Data
 
@@ -472,15 +470,15 @@ export async function fetchAndInitializeCoinsCache({
         }),
       );
 
-      allCurrenciesData.forEach(({ currency, coinData }) => {
-        popularCoinsListByCurrency[currency] = coinData;
-        cachedCoinDetailsByCurrency[currency] =
-          mapPopularCoinsToShallowDetailedAttributes(coinData);
-        if (isCoinCurrentlySelected) {
-          const coinId = selectedCoinDetails.coinAttributes.id;
-          delete cachedCoinDetailsByCurrency[currency][coinId];
-        }
-      });
+      // allCurrenciesData.forEach(({ currency, coinData }) => {
+      //   popularCoinsListByCurrency[currency] = coinData;
+      //   cachedCoinDetailsByCurrency[currency] =
+      //     mapPopularCoinsToShallowDetailedAttributes(coinData);
+      //   if (isCoinCurrentlySelected) {
+      //     const coinId = selectedCoinDetails.coinAttributes.id;
+      //     delete cachedCoinDetailsByCurrency[currency][coinId];
+      //   }
+      // });
 
       const currencyRatesCacheData = await fetchDataForCurrenciesFromIndexedDB(
         CURRENCYRATES_TABLENAME,
@@ -506,7 +504,7 @@ export async function fetchAndInitializeCoinsCache({
       popularCoinsListCacheData = await getPopularCoinsCacheData(
         currentCurrency,
       );
-      updateGlobalCacheVersion();
+      // updateGlobalCacheVersion();
       storeCurrencyRatesInIndexedDB(
         popularCoinsListCacheData.currency.currencyRates,
       );
@@ -520,13 +518,6 @@ export async function fetchAndInitializeCoinsCache({
       popularCoinsListCacheData.currency.currencyRates,
     );
   }
-
-  updateStoreData(store, popularCoinsListCacheData);
-  await store.dispatch(
-    initializePopularCoinsAndDetailsCache({
-      indexedDBCacheIsValid: isCacheValid,
-    }),
-  );
 }
 
 /**

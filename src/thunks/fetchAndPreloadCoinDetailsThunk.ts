@@ -1,12 +1,12 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { appInfoActions } from "../store/appInfo";
-import { coinsActions } from "../store/coins";
 import {
   deleteCoinDetailsByIdForCurrencyFromIndexedDb,
   preloadCoinDetails,
 } from "../utils/cache.utils";
-import { fetchCoinDetailsData } from "../utils/api.client.utils";
-import { MAXIMUM_PRELOADED_COIN_COUNT } from "../global/constants";
+import { appInfoActions } from "@/lib/store/appInfo/appInfoSlice";
+import { coinsActions } from "@/lib/store/coins/coinsSlice";
+import { fetchCoinDetailsData } from "@/utils/api.server.utils";
+import { MAXIMUM_PRELOADED_COIN_COUNT } from "@/lib/constants/globalConstants";
 
 /**
  * Fetches coin details and preloads them using Redux Thunk.

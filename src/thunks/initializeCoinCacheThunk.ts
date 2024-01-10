@@ -3,16 +3,13 @@ import {
   storeCurrencyRatesInIndexedDB,
   validateCacheDataForTable,
 } from "../utils/cache.utils";
-import { coinsActions } from "../store/coins";
 import db from "../utils/database";
-import {
-  COINDETAILS_TABLENAME,
-  POPULARCOINSLISTS_TABLENAME,
-} from "../global/constants";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { postMessageToCurrencyTransformerWorker } from "../../public/webWorkers/currencyTransformer/manager";
 import { mapPopularCoinsToShallowDetailedAttributes } from "../utils/dataFormat.utils";
-import { appInfoActions } from "../store/appInfo";
+import { coinsActions } from "@/lib/store/coins/coinsSlice";
+import { appInfoActions } from "@/lib/store/appInfo/appInfoSlice";
+import { POPULARCOINSLISTS_TABLENAME } from "@/lib/constants/globalConstants";
 
 /**
  * Async thunk to manage caching of both PopularCoinsList, and the shallow details data for multiple currencies.

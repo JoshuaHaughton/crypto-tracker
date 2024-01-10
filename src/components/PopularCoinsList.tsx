@@ -42,7 +42,7 @@ const PopularCoinsList = () => {
   );
   const [search, setSearch] = useState("");
   const [shownCoins, setShownCoins] = useState(
-    displayedPopularCoinsList.slice(
+    displayedPopularCoinsList?.slice(
       (popularCoinsListPageNumber - 1) * PageSize,
       (popularCoinsListPageNumber - 1) * PageSize + PageSize,
     ),
@@ -52,14 +52,14 @@ const PopularCoinsList = () => {
     const firstPageIndex = (popularCoinsListPageNumber - 1) * PageSize;
     const lastPageIndex = firstPageIndex + PageSize;
 
-    if (displayedPopularCoinsList.length < 1) {
+    if (displayedPopularCoinsList?.length < 1) {
       setShownCoins([]);
       return [];
     } else {
       setShownCoins(
-        displayedPopularCoinsList.slice(firstPageIndex, lastPageIndex),
+        displayedPopularCoinsList?.slice(firstPageIndex, lastPageIndex),
       );
-      return displayedPopularCoinsList.slice(firstPageIndex, lastPageIndex);
+      return displayedPopularCoinsList?.slice(firstPageIndex, lastPageIndex);
     }
   }, [popularCoinsListPageNumber, displayedPopularCoinsList]);
 

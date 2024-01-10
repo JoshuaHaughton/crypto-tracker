@@ -1,9 +1,9 @@
 import CoinDetailsPage from "@/components/pages/CoinDetailsPage/CoinDetailsPage";
 import { useRouter } from "next/router";
 import { cookies } from "next/headers";
-import { fetchCoinDetailsData } from "@/api/fetchCoinDetails";
 import { StoreProvider } from "@/lib/store/storeProvider";
-import { INITIAL_CURRENCY, TCurrencyString } from "@/lib/constants";
+import { INITIAL_CURRENCY, TCurrencyString } from "@/lib/constants/globalConstants";
+import { fetchCoinDetailsData } from "@/utils/api.server.utils";
 
 export default async function CoinPage() {
   const router = useRouter();

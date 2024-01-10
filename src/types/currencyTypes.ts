@@ -1,4 +1,4 @@
-import { TCurrencyString } from "@/lib/constants";
+import { TCurrencyString } from "@/lib/constants/globalConstants";
 
 export type TCurrencyExchangeRates = Record<TCurrencyString, TCurrencyRates>;
 

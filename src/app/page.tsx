@@ -1,8 +1,11 @@
 import HomePage from "@/components/pages/HomePage/HomePage";
 import { cookies } from "next/headers";
 import { StoreProvider } from "@/lib/store/storeProvider";
-import { fetchPopularCoinsData } from "@/api/fetchPopularCoins";
-import { TCurrencyString, INITIAL_CURRENCY } from "@/lib/constants";
+import { fetchPopularCoinsData } from "@/utils/api.server.utils";
+import {
+  TCurrencyString,
+  INITIAL_CURRENCY,
+} from "@/lib/constants/globalConstants";
 
 export default async function Page() {
   // Retrieve the currency preference from cookies
@@ -13,6 +16,7 @@ export default async function Page() {
 
   // Fetch popular coins data on the server so we can use it to initialize the Redux store
   const popularCoinsData = await fetchPopularCoinsData(currencyPreference);
+  console.log("DATA LOADED");
 
   return (
     <StoreProvider

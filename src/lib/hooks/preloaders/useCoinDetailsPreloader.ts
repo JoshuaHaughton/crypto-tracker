@@ -2,10 +2,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Cookie from "js-cookie";
-import { useRouter } from "next/router";
-import { coinsActions } from "../../store/coins";
-import { fetchAndPreloadCoinDetailsThunk } from "../../thunks/fetchAndPreloadCoinDetailsThunk";
+import { useRouter } from "next/navigation";
+import { coinsActions } from "@/lib/store/coins/coinsSlice";
 import { isEmpty } from "lodash";
+import { fetchAndPreloadCoinDetailsThunk } from "@/thunks/fetchAndPreloadCoinDetailsThunk";
 
 /**
  * A custom hook to preload coin details for a given coin ID.
@@ -20,7 +20,7 @@ export function useCoinDetailsPreloader(id) {
     (state) => state.currency.currentCurrency,
   );
   const coinCachedDetails = useSelector(
-    (state) => state.coins.cachedCoinDetailsByCurrency[currentCurrency][id],
+    (state) => state.coins.cachedCoinDetailsByCurrency?.[currentCurrency][id],
   );
   const isPreloaded = !isEmpty(coinCachedDetails?.priceChartDataset);
   const isPreloadedRef = useRef(isPreloaded);

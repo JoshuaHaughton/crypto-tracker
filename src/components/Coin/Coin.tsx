@@ -1,6 +1,6 @@
 import Image from "next/image";
 import styles from "./Coin.module.scss";
-import { useCoinDetailsPreloader } from "../../hooks/preloaders/useCoinDetailsPreloader";
+import { useCoinDetailsPreloader } from "@/lib/hooks/preloaders/useCoinDetailsPreloader";
 
 const Coin = ({
   name,

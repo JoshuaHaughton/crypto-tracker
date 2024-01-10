@@ -4,7 +4,7 @@ import {
   TCurrencyString,
   SYMBOLS_BY_CURRENCIES,
   INITIAL_CURRENCY,
-} from "../../constants";
+} from "../../constants/globalConstants";
 import { TCurrencyExchangeRates } from "@/types/currencyTypes";
 
 /**

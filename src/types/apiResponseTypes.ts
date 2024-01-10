@@ -1,4 +1,4 @@
-import { TCurrencyString } from "@/lib/constants";
+import { TCurrencyString } from "@/lib/constants/globalConstants";
 import { ICoinDetails, ICoinOverview } from "./coinTypes";
 import { TCurrencyExchangeRates } from "./currencyTypes";
 

@@ -1,8 +1,8 @@
 import React from "react";
-import { usePagination } from "../../hooks/ui/usePagination";
 import styles from "./pagination.module.scss";
 import { useDispatch, useSelector } from "react-redux";
-import { appInfoActions } from "../../store/appInfo";
+import { usePagination } from "@/lib/hooks/ui/usePagination";
+import { appInfoActions } from "@/lib/store/appInfo/appInfoSlice";
 
 const siblingCount = 1;
 const totalCount = 100;
