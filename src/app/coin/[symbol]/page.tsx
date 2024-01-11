@@ -1,14 +1,20 @@
 import CoinDetailsPage from "@/components/pages/CoinDetailsPage/CoinDetailsPage";
-import { useRouter } from "next/router";
 import { cookies } from "next/headers";
 import { StoreProvider } from "@/lib/store/storeProvider";
-import { INITIAL_CURRENCY, TCurrencyString } from "@/lib/constants/globalConstants";
+import {
+  INITIAL_CURRENCY,
+  TCurrencyString,
+} from "@/lib/constants/globalConstants";
 import { fetchCoinDetailsData } from "@/utils/api.server.utils";
 
-export default async function CoinPage() {
-  const router = useRouter();
-  // 'symbol' should always be present and a string.
-  const symbol = router.query.symbol as string;
+// Define an interface for the expected structure of `params`
+interface CoinPageParams {
+  symbol: string;
+}
+
+export default async function CoinPage({ params }: { params: CoinPageParams }) {
+  // Extract the 'symbol' parameter from `params`
+  const { symbol } = params;
 
   // Retrieve the currency preference from cookies
   const cookieStore = cookies();

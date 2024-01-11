@@ -2,6 +2,6 @@
 import dynamic from 'next/dynamic';
 
 export const HistoryChartDynamic = dynamic(
-  () => import('./HistoryChart.jsx').then((mod) => mod.HistoryChart),
+  () => import('./HistoryChart.jssx').then((mod) => mod.HistoryChart),
   { ssr: false }
 )

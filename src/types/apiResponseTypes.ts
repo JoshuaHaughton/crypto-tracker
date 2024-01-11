@@ -47,10 +47,10 @@ export interface IAssetDataApiResponse {
 
 interface IAssetDetails {
   NAME: string;
+  SYMBOL: string;
   LOGO_URL: string;
   ASSET_DESCRIPTION_SUMMARY: string;
-  FROMSYMBOL: string;
-  PRICE: number;
+  PRICE_USD: number;
   TOTAL_MKT_CAP_USD: number;
   SPOT_MOVING_24_HOUR_QUOTE_VOLUME_TOP_TIER_DIRECT_USD: number;
   TOPLIST_BASE_RANK: {

@@ -18,11 +18,11 @@ import { cloneDeep } from "lodash";
  * chartPeriodConfig.week.getData(values); // Returns week market values.
  */
 const chartPeriodConfig = {
-  day: {
+  h24: {
     getLabels: (data) =>
       data?.map((item) => new Date(item[0]).toLocaleTimeString()),
-    getData: (values) => values?.dayMarketValues,
-    label: "Past day",
+    getData: (values) => values?.h24MarketValues,
+    label: "Past 24 hours",
   },
   week: {
     getLabels: (data) =>
@@ -55,7 +55,7 @@ function useChartData(coinDetails) {
     (state) => state.currency.currentCurrency,
   );
   const [chartData, setChartData] = useState(coinDetails.priceChartDataset);
-  const [currentChartPeriod, setCurrentChartPeriod] = useState("day");
+  const [currentChartPeriod, setCurrentChartPeriod] = useState("h24");
 
   useEffect(() => {
     console.log("coinDetails", coinDetails);

@@ -29,6 +29,8 @@ const Carousel = () => {
   const [isMounted, setIsMounted] = useState(false);
   const currentSymbol = useSelector(selectCurrentSymbol);
   const carouselCoins = useSelector(selectCarouselCoins);
+  console.log('carousel mounted')
+  console.log('carousel coins', carouselCoins)
   const formattedCarouselCoins = carouselCoins?.map((coin) => (
     <CarouselCoin key={coin.id} coin={coin} currentSymbol={currentSymbol} />
   ));

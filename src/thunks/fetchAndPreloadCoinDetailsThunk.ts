@@ -8,18 +8,25 @@ import { coinsActions } from "@/lib/store/coins/coinsSlice";
 import { fetchCoinDetailsData } from "@/utils/api.server.utils";
 import { MAXIMUM_PRELOADED_COIN_COUNT } from "@/lib/constants/globalConstants";
 
+// Define the type for the thunk's argument
+interface FetchCoinDetailsPayload {
+  coinId: string;
+  selectCoinAfterFetch?: boolean;
+}
+
 /**
  * Fetches coin details and preloads them using Redux Thunk.
  * The action ensures that the coin isn't already being fetched, checks the cache,
  * fetches and preloads the coin details.
  *
- * @param {Object} payload - The payload containing necessary details.
+ * @param {FetchCoinDetailsPayload} payload - The payload containing necessary details.
  * @returns {Promise<void>}
  */
 export const fetchAndPreloadCoinDetailsThunk = createAsyncThunk(
   "coins/fetchAndPreloadCoin",
-  async (payload, { dispatch, getState }) => {
+  async (payload: FetchCoinDetailsPayload, { dispatch, getState }) => {
     const { coinId, selectCoinAfterFetch } = payload;
+    console.error("PAYLOAD", payload);
 
     const state = getState();
     const { coinsBeingPreloaded } = state.appInfo;
@@ -75,15 +82,12 @@ export const fetchAndPreloadCoinDetailsThunk = createAsyncThunk(
       if (detailedData == null) return;
 
       // Extract the initial rates from the detailed data.
-      const {
-        currencyRates: removedCurrencyRates,
-        ...dataWithoutCurrencyRates
-      } = detailedData;
+      const { coinDetails } = detailedData;
 
       if (selectCoinAfterFetch) {
         dispatch(
-          coinsActions.updateSelectedCoin({
-            coinDetails: dataWithoutCurrencyRates,
+          coinsActions.setSelectedCoinDetails({
+            coinDetails,
           }),
         );
       }
@@ -91,7 +95,7 @@ export const fetchAndPreloadCoinDetailsThunk = createAsyncThunk(
       // Preload the coin details.
       await preloadCoinDetails(
         dispatch,
-        dataWithoutCurrencyRates,
+        coinDetails,
         currentCurrency,
         currencyRates,
       );

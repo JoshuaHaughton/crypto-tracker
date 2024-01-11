@@ -589,7 +589,8 @@ export async function preloadCoinDetails(
   currentCurrency,
   currencyRates,
 ) {
-  const coinId = coinDetails.coinAttributes.id;
+  console.log(coinDetails);
+  const coinId = coinDetails.coinAttributes.symbol;
   console.warn(`Preloading details for coin ${coinId}`, coinDetails);
 
   try {
@@ -603,27 +604,10 @@ export async function preloadCoinDetails(
       },
     });
 
-    await saveTableDataForCurrencyInIndexedDB(
-      COINDETAILS_TABLENAME,
-      currentCurrency,
-      coinDetails,
-    );
-
-    // Confirm that the data is saved in IndexedDB
-    const savedData = await getCoinDetailsForCurrencyByIdFromBrowser(
-      currentCurrency,
-      coinId,
-    );
-
-    if (!savedData || savedData.coinAttributes.id !== coinId) {
-      console.error(`Failed to confirm save in IndexedDB for coin ${coinId}`);
-      return;
-    }
-
     dispatch(
-      coinsActions.mergeCachedCoinDetailsForCurrency({
+      coinsActions.setOrUpdatePreloadedCoinDetails({
         currency: currentCurrency,
-        coinData: coinDetails,
+        coinDetails,
       }),
     );
 

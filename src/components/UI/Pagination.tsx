@@ -3,6 +3,7 @@ import styles from "./pagination.module.scss";
 import { useDispatch, useSelector } from "react-redux";
 import { usePagination } from "@/lib/hooks/ui/usePagination";
 import { appInfoActions } from "@/lib/store/appInfo/appInfoSlice";
+import { selectPopularCoinsPageNumber } from "@/lib/store/appInfo/appInfoSelectors";
 
 const siblingCount = 1;
 const totalCount = 100;
@@ -10,9 +11,7 @@ const pageSize = 10;
 
 const Pagination = () => {
   const dispatch = useDispatch();
-  const popularCoinsListPageNumber = useSelector(
-    (state) => state.appInfo.popularCoinsListPageNumber,
-  );
+  const popularCoinsListPageNumber = useSelector(selectPopularCoinsPageNumber);
 
   const paginationRange = usePagination({
     currentPage: popularCoinsListPageNumber,
@@ -28,16 +27,16 @@ const Pagination = () => {
 
   const onNext = () => {
     dispatch(
-      appInfoActions.updatePopularCoinsListPageNumber({
-        popularCoinsListPageNumber: popularCoinsListPageNumber + 1,
+      appInfoActions.setPopularCoinsListPageNumber({
+        popularCoinsPageNumber: popularCoinsListPageNumber + 1,
       }),
     );
   };
 
   const onPrevious = () => {
     dispatch(
-      appInfoActions.updatePopularCoinsListPageNumber({
-        popularCoinsListPageNumber: popularCoinsListPageNumber - 1,
+      appInfoActions.setPopularCoinsListPageNumber({
+        popularCoinsPageNumber: popularCoinsListPageNumber - 1,
       }),
     );
   };
@@ -79,8 +78,8 @@ const Pagination = () => {
             }
             onClick={() =>
               dispatch(
-                appInfoActions.updatePopularCoinsListPageNumber({
-                  popularCoinsListPageNumber: pageNumber,
+                appInfoActions.setPopularCoinsListPageNumber({
+                  popularCoinsPageNumber: pageNumber,
                 }),
               )
             }

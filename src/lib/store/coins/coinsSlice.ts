@@ -1,6 +1,10 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { ALL_CURRENCIES, TCurrencyString } from "../../constants/globalConstants";
+import {
+  ALL_CURRENCIES,
+  TCurrencyString,
+} from "../../constants/globalConstants";
 import { ICoinDetails, ICoinOverview } from "../../../types/coinTypes";
+import { isNull, isUndefined, mergeWith } from "lodash";
 
 /**
  * Represents the state of the coins slice, including lists of popular and carousel coins,
@@ -222,6 +226,41 @@ const coinsSlice = createSlice({
       const { coinDetails, currency } = action.payload;
       state.preloadedCoinDetailsByCurrency[currency][coinDetails.id] =
         coinDetails;
+    },
+    /**
+     * Sets or updates preloaded coin details for a specific currency.
+     * If the coin details do not exist, they are set.
+     * If they do exist, updates only null or undefined properties in existing details.
+     * @param state - The current state of the coins slice.
+     * @param action - The action payload containing the coin details and currency.
+     */
+    setOrUpdatePreloadedCoinDetails(
+      state: ICoinsState,
+      action: PayloadAction<SetPreloadedCoinDetailsPayload>,
+    ) {
+      const { coinDetails, currency } = action.payload;
+      const existingDetails =
+        state.preloadedCoinDetailsByCurrency[currency][coinDetails.id];
+
+      if (!existingDetails) {
+        // Set new coin details if they do not exist
+        state.preloadedCoinDetailsByCurrency[currency][coinDetails.id] =
+          coinDetails;
+      } else {
+        // Custom merge function that only updates null or undefined properties
+        const customizer = (
+          objValue: ICoinDetails | undefined,
+          srcValue: ICoinDetails,
+        ) => {
+          return isUndefined(objValue) || isNull(objValue)
+            ? srcValue
+            : objValue;
+        };
+
+        // Merge existing details with new details
+        state.preloadedCoinDetailsByCurrency[currency][coinDetails.id] =
+          mergeWith({}, existingDetails, coinDetails, customizer);
+      }
     },
   },
 });

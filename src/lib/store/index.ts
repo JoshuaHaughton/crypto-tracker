@@ -1,4 +1,10 @@
-import { configureStore, Store, combineReducers } from "@reduxjs/toolkit";
+import {
+  configureStore,
+  Store,
+  combineReducers,
+  ThunkDispatch,
+  UnknownAction,
+} from "@reduxjs/toolkit";
 import { useDispatch, TypedUseSelectorHook, useSelector } from "react-redux";
 import currencyReducer from "./currency/currencySlice";
 import coinsReducer from "./coins/coinsSlice";
@@ -33,7 +39,8 @@ export type TAppStore = ReturnType<typeof makeStore>;
 /**
  * The dispatch type for the Redux store.
  */
-export type TAppDispatch = TAppStore["dispatch"];
+export type TAppDispatch = TAppStore["dispatch"] &
+  ThunkDispatch<TRootState, any, UnknownAction>;
 
 /**
  * Creates and configures a new Redux store instance.

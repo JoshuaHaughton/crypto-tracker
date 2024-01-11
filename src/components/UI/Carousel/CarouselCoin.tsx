@@ -4,7 +4,7 @@ import styles from "./Carousel.module.scss";
 import { useCoinDetailsPreloader } from "@/lib/hooks/preloaders/useCoinDetailsPreloader";
 
 const CarouselCoin = ({ coin, currentSymbol }) => {
-  const { id } = coin;
+  const id = coin.symbol;
   const { handleMouseEnter, handleCoinClick } = useCoinDetailsPreloader(id);
 
   let profit = coin.price_change_percentage_24h >= 0;

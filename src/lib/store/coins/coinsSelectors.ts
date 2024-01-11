@@ -1,7 +1,7 @@
 import { TCurrencyString } from "@/lib/constants/globalConstants";
 import { createSelector } from "@reduxjs/toolkit";
 import { TRootState } from "..";
-import coinsSlice from "./coinsSlice";
+import { ICoinDetails } from "@/types/coinTypes";
 
 /**
  * Selector for popular coins.
@@ -40,34 +40,63 @@ export const selectPreloadedCoinDetails = (state: TRootState) =>
   state.coins.preloadedCoinDetailsByCurrency;
 
 /**
- * Enhanced memoized selector to get preloaded coin details by a specific currency.
- * Uses `createSelector` to memoize results, optimizing performance by avoiding unnecessary recalculations when the specific currency's coin details remain unchanged.
+ * Enhanced memoized selector to get preloaded coin details by the current currency.
+ * Uses `createSelector` to memoize results, optimizing performance by avoiding unnecessary recalculations.
+ * Automatically retrieves the current currency from the state.
+ *
  * @param state - The current state of the application.
- * @param currency - The currency to filter the coin details by.
- * @returns An object of coin details for the specified currency.
+ * @returns An object of coin details for the current currency.
  */
-export const selectPreloadedCoinDetailsByCurrency = createSelector(
+export const selectPreloadedCoinDetailsByCurrentCurrency = createSelector(
   [
-    (state: TRootState, currency: TCurrencyString) =>
-      state.coins.preloadedCoinDetailsByCurrency[currency],
+    (state: TRootState) => state.coins.preloadedCoinDetailsByCurrency,
+    (state: TRootState) => state.currency.currentCurrency,
   ],
-  (coinDetailsByCurrency) => coinDetailsByCurrency || {},
+  (
+    preloadedCoinDetailsByCurrency,
+    currentCurrency,
+  ): Record<string, ICoinDetails> | {} =>
+    preloadedCoinDetailsByCurrency[currentCurrency] || {},
 );
 
 /**
- * Memoized selector for a specific coin's details by currency.
- * Utilizes `createSelector` for efficient memoization to prevent redundant recalculations,
- * especially useful when dealing with multiple currencies and their associated details.
+ * Memoized selector to get preloaded coin details by the current currency and coin ID.
+ * Utilizes `createSelector` for efficient memoization to prevent redundant recalculations.
+ * Automatically retrieves the current currency from the state.
  *
  * @param state - The current state of the application.
- * @param currency - The currency to identify the specific coin details.
- * @returns Coin details associated with the specified currency or null if not available.
+ * @param id - The unique identifier of the coin.
+ * @returns The details of the specified coin within the current currency, or undefined if not found.
  */
-export const selectSelectedCoinDetailsByCurrency = createSelector(
+export const selectPreloadedCoinDetailsByCurrentCurrencyAndId = createSelector(
+  [
+    (state: TRootState) => state.coins.preloadedCoinDetailsByCurrency,
+    (state: TRootState) => state.currency.currentCurrency,
+    (_: TRootState, id: string) => id,
+  ],
+  (
+    preloadedCoinDetailsByCurrency,
+    currentCurrency,
+    id,
+  ): ICoinDetails | undefined => {
+    const coinDetails = preloadedCoinDetailsByCurrency[currentCurrency];
+    return coinDetails ? coinDetails[id] : undefined;
+  },
+);
+
+/**
+ * Memoized selector for a specific coin's details by the current currency.
+ * Utilizes `createSelector` for efficient memoization to prevent redundant recalculations.
+ * Automatically retrieves the current currency from the state.
+ *
+ * @param state - The current state of the application.
+ * @returns Coin details associated with the current currency or null if not available.
+ */
+export const selectSelectedCoinDetailsByCurrentCurrency = createSelector(
   [
     (state: TRootState) => state.coins.cachedSelectedCoinDetailsByCurrency,
-    (_: TRootState, currency: TCurrencyString) => currency,
+    (state: TRootState) => state.currency.currentCurrency,
   ],
-  (cachedSelectedCoinDetailsByCurrency, currency) =>
-    cachedSelectedCoinDetailsByCurrency[currency] || null,
+  (cachedSelectedCoinDetailsByCurrency, currentCurrency) =>
+    cachedSelectedCoinDetailsByCurrency[currentCurrency] || null,
 );

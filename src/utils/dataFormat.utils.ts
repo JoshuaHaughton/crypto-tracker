@@ -215,16 +215,19 @@ export function formatCoinDetailsFromApiResponse(
     targetCurrency,
   );
 
+  console.log("assetDataDetails", assetDataDetails);
+
   const priceChanges: IPeriodicPriceChanges = calculatePriceChanges(yearData);
   const priceChangePercentages: IPeriodicPriceChangePercentages =
     calculatePriceChangePercentages(priceChanges, yearData);
 
   const coinAttributes: ICoinDetailAttributes = {
-    symbol: assetDataDetails.FROMSYMBOL,
     name: assetDataDetails.NAME,
+    symbol: assetDataDetails.SYMBOL,
     image: assetDataDetails.LOGO_URL,
     description: assetDataDetails.ASSET_DESCRIPTION_SUMMARY,
-    current_price: assetDataDetails.PRICE,
+    current_price:
+      assetDataDetails.PRICE_USD * currencyExchangeRates.USD[targetCurrency],
     total_market_cap:
       assetDataDetails.TOTAL_MKT_CAP_USD *
       currencyExchangeRates.USD[targetCurrency],

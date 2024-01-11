@@ -3,6 +3,17 @@ import Coin from "./Coin/Coin";
 import styles from "./PopularCoinsList.module.scss";
 import { TextField } from "@mui/material";
 import { useSelector } from "react-redux";
+import { selectPopularCoins } from "@/lib/store/coins/coinsSelectors";
+import { selectPopularCoinsPageNumber } from "@/lib/store/appInfo/appInfoSelectors";
+import {
+  selectIsBreakpoint1250,
+  selectIsBreakpoint380,
+  selectIsBreakpoint680,
+} from "@/lib/store/mediaQuery/mediaQuerySelectors";
+import {
+  selectCurrentCurrency,
+  selectCurrentSymbol,
+} from "@/lib/store/currency/currencySelectors";
 
 const bigNumberFormatter = (num) => {
   if (num > 999 && num < 1000000) {
@@ -21,25 +32,13 @@ const bigNumberFormatter = (num) => {
 const PageSize = 10;
 
 const PopularCoinsList = () => {
-  const isBreakpoint380 = useSelector(
-    (state) => state.mediaQuery.isBreakpoint380,
-  );
-  const isBreakpoint680 = useSelector(
-    (state) => state.mediaQuery.isBreakpoint680,
-  );
-  const isBreakpoint1250 = useSelector(
-    (state) => state.mediaQuery.isBreakpoint1250,
-  );
-  const displayedPopularCoinsList = useSelector(
-    (state) => state.coins.displayedPopularCoinsList,
-  );
-  const popularCoinsListPageNumber = useSelector(
-    (state) => state.appInfo.popularCoinsListPageNumber,
-  );
-  const currentSymbol = useSelector((state) => state.currency.symbol);
-  const currentCurrency = useSelector(
-    (state) => state.currency.currentCurrency,
-  );
+  const isBreakpoint380 = useSelector(selectIsBreakpoint380);
+  const isBreakpoint680 = useSelector(selectIsBreakpoint680);
+  const isBreakpoint1250 = useSelector(selectIsBreakpoint1250);
+  const displayedPopularCoinsList = useSelector(selectPopularCoins);
+  const popularCoinsListPageNumber = useSelector(selectPopularCoinsPageNumber);
+  const currentSymbol = useSelector(selectCurrentSymbol);
+
   const [search, setSearch] = useState("");
   const [shownCoins, setShownCoins] = useState(
     displayedPopularCoinsList?.slice(
@@ -62,6 +61,9 @@ const PopularCoinsList = () => {
       return displayedPopularCoinsList?.slice(firstPageIndex, lastPageIndex);
     }
   }, [popularCoinsListPageNumber, displayedPopularCoinsList]);
+
+  console.log("ye", shownCoins);
+  console.log("displayedPopularCoinsList", displayedPopularCoinsList);
 
   const handleChange = (e) => {
     e.preventDefault();
@@ -144,19 +146,19 @@ const PopularCoinsList = () => {
 
         if (!isBreakpoint680) {
           if (isBreakpoint1250) {
-            transformedVolume = bigNumberFormatter(coin.total_volume);
-            transformedMarketCap = bigNumberFormatter(coin.market_cap);
+            transformedVolume = bigNumberFormatter(coin.volume_24h);
+            transformedMarketCap = bigNumberFormatter(coin.total_market_cap);
           } else {
-            transformedVolume = coin.total_volume.toLocaleString();
-            transformedMarketCap = coin.market_cap.toLocaleString();
+            transformedVolume = coin.volume_24h.toLocaleString();
+            transformedMarketCap = coin.total_market_cap.toLocaleString();
           }
         }
 
         return (
           <Coin
-            key={coin.id}
+            key={coin.symbol}
             name={coin.name}
-            id={coin.id}
+            id={coin.symbol}
             price={coin.current_price}
             symbol={coin.symbol}
             marketcap={transformedMarketCap}

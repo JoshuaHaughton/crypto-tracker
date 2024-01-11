@@ -1,4 +1,4 @@
-import { ICoinDetails } from "@/types/coinTypes";
+import { ICoinDetails, ICoinOverview } from "@/types/coinTypes";
 import {
   formatCoinDetailsFromApiResponse,
   formatCoinOverviewCoin,
@@ -76,7 +76,7 @@ export async function fetchPopularCoinsData(
     const currencyExchangeRates = formatCurrencyRates(exchangeData);
     const popularCoinsList = top100Data.Data.map((entry, index) =>
       formatCoinOverviewCoin(entry, index, targetCurrency),
-    ).filter(Boolean);
+    ).filter(Boolean) as ICoinOverview[];
     const trendingCarouselCoins = popularCoinsList.slice(0, 10);
 
     const formattedData = {
@@ -123,7 +123,7 @@ export async function fetchCoinDetailsData(
   }?fsym=${targetCurrency}&tsyms=${ALL_CURRENCIES.join(",")}`;
   const assetDetailsURL = `${
     API_ENDPOINTS.ASSET_DETAILS_BY_SYMBOL
-  }?asset_symbol=${id.toUpperCase()}`;
+  }?asset_symbol=${id.toUpperCase()}&tysm=${targetCurrency}`;
   const historical24hURL = `${API_ENDPOINTS.HISTORICAL_HOUR}?fsym=${id}&tsym=${targetCurrency}&limit=24`;
   const historical365dURL = `${API_ENDPOINTS.HISTORICAL_DAY}?fsym=${id}&tsym=${targetCurrency}&limit=365`;
 

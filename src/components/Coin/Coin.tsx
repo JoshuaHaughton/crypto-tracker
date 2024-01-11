@@ -13,7 +13,7 @@ const Coin = ({
   id,
   coinSymbol,
 }) => {
-  const { handleMouseEnter, handleCoinClick } = useCoinDetailsPreloader(id);
+  const { handleMouseEnter, handleCoinClick } = useCoinDetailsPreloader(symbol);
 
   return (
     <div
