@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Cookie from "js-cookie";
 import { useRouter } from "next/navigation";
 import { coinsActions } from "@/lib/store/coins/coinsSlice";
@@ -34,7 +34,7 @@ export function useCoinDetailsPreloader(symbol: string): {
     useState(false);
 
   // Handler for mouse enter event on a coin
-  const handleMouseEnter = async () => {
+  const handleMouseEnter = useCallback(async () => {
     console.log("hover", symbol);
     console.log("isPreloaded?", isPreloaded);
 
@@ -53,17 +53,19 @@ export function useCoinDetailsPreloader(symbol: string): {
         coinId: symbol,
       }),
     );
-  };
+  }, [symbol, dispatch, router, isPreloadedRef]);
 
   // Handler for click event on a coin
-  const handleCoinClick = () => {
+  const handleCoinClick = useCallback(() => {
     console.log("click");
     console.log("isPreloadedRef", isPreloadedRef.current);
     // If coin details are preloaded, navigate to the coin's details page immediately
     if (isPreloadedRef.current && coinCachedDetails) {
       console.log("PRELOADED DATA BEING USED", coinCachedDetails);
       dispatch(
-        coinsActions.setSelectedCoinDetails({ coinDetails: coinCachedDetails }),
+        coinsActions.setSelectedCoinDetails({
+          coinDetails: coinCachedDetails,
+        }),
       );
       Cookie.set("usePreloadedData", "true");
       router.push(`/coin/${symbol}`);
@@ -78,7 +80,7 @@ export function useCoinDetailsPreloader(symbol: string): {
       setWaitingForSpecificPreload(true);
       console.log("Waiting for specific preload to complete...");
     }
-  };
+  }, [symbol, dispatch, router, coinCachedDetails, isPreloadedRef]);
 
   // useEffect to handle navigation only after waiting for specific preload
   useEffect(() => {

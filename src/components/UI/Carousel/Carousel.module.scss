@@ -1,23 +1,37 @@
-.carousel {
-  height: 50%;
-  min-height: 216.5px;
+.embla {
+  overflow: hidden;
+}
+
+.embla__container {
   display: flex;
-  align-items: center;
+}
+
+.embla__slide {
+  contain: layout;
+  min-width: 0;
+  display: flex;
   justify-content: center;
-}
+  align-items: center;
+  // Default flex-basis for small screens
+  flex: 0 0 100%;
 
-.carousel_item {
-  display: flex !important;
-  flex-direction: column !important;
-  justify-content: center !important;
-  align-items: center !important;
-  overflow: show;
-}
+  // Medium screens
+  @media (min-width: 360px) {
+    flex: 0 0 50%;
+  }
 
-.green {
-  color: #13c783;
-}
+  // Large screens
+  @media (min-width: 512px) {
+    flex: 0 0 33.33%;
+  }
 
-.red {
-  color: #f00606;
+  // Extra large screens
+  @media (min-width: 750px) {
+    flex: 0 0 25%;
+  }
+
+  // Ultra large screens
+  @media (min-width: 1000px) {
+    flex: 0 0 20%;
+  }
 }
