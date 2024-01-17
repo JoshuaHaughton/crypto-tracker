@@ -8,7 +8,7 @@ export interface ITopMarketCapApiResponse {
   Data: ITop100MarketCapCoinFromAPI[];
 }
 
-interface ITop100MarketCapCoinFromAPI {
+export interface ITop100MarketCapCoinFromAPI {
   CoinInfo: {
     Name: string;
     FullName: string;

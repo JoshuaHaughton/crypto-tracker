@@ -13,6 +13,7 @@ import {
 import {
   IHistoricalDataApiResponse,
   IAssetDataApiResponse,
+  ITop100MarketCapCoinFromAPI,
 } from "@/types/apiResponseTypes";
 import { CRYPTO_COMPARE_WEBSITE } from "@/lib/constants/apiConstants";
 
@@ -266,7 +267,7 @@ export function formatCoinDetailsFromApiResponse(
  * @returns The formatted coin overview, or null if the coin isn't formattable.
  */
 export function formatCoinOverviewCoin(
-  entry: any,
+  entry: ITop100MarketCapCoinFromAPI,
   index: number,
   targetCurrency: TCurrencyString,
 ): ICoinOverview | null {
@@ -336,7 +337,9 @@ export function formatCurrencyRates(
  * @param {Array} popularCoinsList - The list of popular coins with basic attributes.
  * @returns {Object} - An object where each key is the coin's id and the value is the coin's detailed attributes.
  */
-export function mapPopularCoinsToShallowDetailedAttributes(popularCoinsList) {
+export function mapPopularCoinsToShallowDetailedAttributes(
+  popularCoinsList: any,
+) {
   // Ensure the input is an array and has data
   if (!Array.isArray(popularCoinsList) || popularCoinsList.length === 0) {
     return {};

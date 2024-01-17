@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import Coin from "./Coin/Coin";
+import Coin from "./Coin/PopularCoinListItem";
 import styles from "./PopularCoinsList.module.scss";
 import { TextField } from "@mui/material";
 import { useSelector } from "react-redux";
@@ -14,6 +14,8 @@ import {
   selectCurrentCurrency,
   selectCurrentSymbol,
 } from "@/lib/store/currency/currencySelectors";
+import { DataTable } from "./PopularCoinsTable";
+import { columns } from "./PopularCoinsTable/columns";
 
 const bigNumberFormatter = (num) => {
   if (num > 999 && num < 1000000) {
@@ -113,7 +115,61 @@ const PopularCoinsList = () => {
         className={styles.input}
         onChange={handleChange}
       />
-      <header className={styles.header}>
+      {/* <DataTable columns={columns} data={shownCoins} /> */}
+      <table className={styles.table}>
+        <thead>
+          <tr>
+            <th className={styles.nameHeader}>Name</th>
+            {!isBreakpoint380 && <th className={styles.priceHeader}>Price</th>}
+            {!isBreakpoint680 && (
+              <th className={styles.volumeHeader}>24hr Volume</th>
+            )}
+            {!isBreakpoint380 && (
+              <th className={styles.dayChangeHeader}>24hr Change</th>
+            )}
+            {!isBreakpoint680 && (
+              <th className={styles.marketCapHeader}>Market Cap</th>
+            )}
+          </tr>
+        </thead>
+        <tbody>
+          {shownCoins?.map((coin, index) => {
+            const marketCapRank =
+              (popularCoinsListPageNumber - 1) * PageSize + index + 1;
+            let transformedMarketCap = null;
+            let transformedVolume = null;
+
+            if (!isBreakpoint680) {
+              if (isBreakpoint1250) {
+                transformedVolume = bigNumberFormatter(coin.volume_24h);
+                transformedMarketCap = bigNumberFormatter(
+                  coin.total_market_cap,
+                );
+              } else {
+                transformedVolume = coin.volume_24h.toLocaleString();
+                transformedMarketCap = coin.total_market_cap.toLocaleString();
+              }
+            }
+
+            return (
+              <Coin
+                key={coin.symbol}
+                name={coin.name}
+                symbol={coin.symbol}
+                image={coin.image}
+                current_price={coin.current_price}
+                total_market_cap={transformedMarketCap}
+                market_cap_rank={marketCapRank}
+                volume_24h={transformedVolume}
+                price_change_percentage_24h={coin.price_change_percentage_24h}
+                currentCurrencySymbol={currentSymbol}
+              />
+            );
+          })}
+        </tbody>
+      </table>
+
+      {/* <header className={styles.header}>
         <div className={styles.name_header}>
           <p>Name</p>
         </div>
@@ -168,7 +224,7 @@ const PopularCoinsList = () => {
             coinSymbol={currentSymbol}
           />
         );
-      })}
+      })} */}
     </div>
   );
 };

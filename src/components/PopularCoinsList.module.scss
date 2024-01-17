@@ -1,120 +1,104 @@
 .container {
   width: 90%;
   max-width: 1200px;
-}
-
-.input {
-  /* background-color: #000; */
-  width: 100%;
-}
-
-.input > div {
-  color: #ff9500;
-}
-
-.input > div > input:hover {
-  transition: border 300ms ease;
-}
-
-
-.header {
-  width: 100%;
-  display: flex;
-  /* justify-content: center; */ 
-  height: 64px;
-  background-color: #ff9500;
-  border-radius: 2px;
   margin-top: 18px;
 }
 
-.header > div {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  border: 1px solid #ff9500;
 
-.header > div > p {
-  margin: 0;
-  height: fit-content;
-  text-align: center;
-}
+  thead {
+    height: 64px;
+    background-color: #ff9500;
 
-.header > div:nth-child(1) > p {
-  text-align: left;
-}
+    tr > th:first-child {
+      border-top-left-radius: 6px;
+      // border-bottom-left-radius: 6px;
+    }
 
-.name_header {
-  width: 25%;
-  /* max-width: 25%; */
-}
-
-.name_header > p {
-  width: 80%;
-  padding-left: 24px;
-}
-
-.price_header {
-  width: 16.25%;
-}
-
-.volume_header {
-  width: 21.25%;
-}
-
-.dayChange_header {
-  width: 16.25%;
-}
-
-.marketCap_header {
-  width: 21.25%;
-}
-
-@media(max-width: 990px) {
-  .name_header {
-    width: 30%;
-    /* max-width: 30%; */
-  }
-  .price_header {
-    width: 17.5%;
-  }
-  
-  .volume_header {
-    width: 17.5%;
-  }
-  
-  .dayChange_header {
-    width: 17.5%;
-  }
-  
-  .marketCap_header {
-    width: 17.5%;
-  }
-}
-
-@media(max-width: 680px) {
-  .header > div {
-    margin: 0 auto;
+    tr > th:last-child {
+      border-top-right-radius: 6px;
+      // border-bottom-right-radius: 6px;
+    }
   }
 
-  .name_header {
-    width: 45%;
-    /* max-width: 50%; */
-    margin: 0 !important;
-  }
-}
+  // th {
+  //   height: 64px;
+  //   background-color: #ff9500;
+  // }
 
-@media(max-width:380px) {
-  .header {
-    justify-content: center;
+  .nameHeader {
+    width: 25%;
+    text-align: left;
+    padding-left: 24px;
   }
 
-  .header > div > p {
-    margin: 0;
-    padding: 0;
-    text-align: center !important;
-  }
-  .name_header {
+  .priceHeader {
+    width: 16.25%;
     text-align: center;
-    margin: 0;
+  }
+
+  .volumeHeader {
+    width: 21.25%;
+    text-align: center;
+  }
+
+  .dayChangeHeader {
+    width: 16.25%;
+    text-align: center;
+  }
+
+  .marketCapHeader {
+    width: 21.25%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 990px) {
+  .nameHeader {
+    width: 30%;
+  }
+  .priceHeader,
+  .volumeHeader,
+  .dayChangeHeader,
+  .marketCapHeader {
+    width: 17.5%;
+  }
+}
+
+@media (max-width: 680px) {
+  .table thead th {
+    &:first-child {
+      width: 45%;
+    }
+    &:nth-child(2) {
+      display: none;
+    } // Hiding Price header
+    &:nth-child(3) {
+      display: none;
+    } // Hiding 24hr Volume header
+    &:nth-child(4) {
+      display: none;
+    } // Hiding 24hr Change header
+    &:nth-child(5) {
+      display: none;
+    } // Hiding Market Cap header
+  }
+}
+
+@media (max-width: 380px) {
+  .table thead th {
+    // Mobile view adjustments (if needed)
+    display: none; // Example: hiding all headers except the first
+    &:first-child {
+      display: flex;
+      width: 100%;
+      justify-content: center;
+      text-align: center;
+    }
   }
 }
