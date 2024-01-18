@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import Coin from "./Coin/PopularCoinListItem";
+import PopularCoinListItem from "./PopularCoinListItem/PopularCoinListItem";
 import styles from "./PopularCoinsList.module.scss";
 import { TextField } from "@mui/material";
 import { useSelector } from "react-redux";
@@ -152,7 +152,7 @@ const PopularCoinsList = () => {
             }
 
             return (
-              <Coin
+              <PopularCoinListItem
                 key={coin.symbol}
                 name={coin.name}
                 symbol={coin.symbol}

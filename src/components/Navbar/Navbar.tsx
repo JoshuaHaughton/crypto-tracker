@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import styles from "./Navbar.module.scss";
 import logo from "../../../public/Crypto.svg";
@@ -11,7 +12,7 @@ import { outlinedInputClasses } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
 import { updateCurrency } from "../../thunks/updateCurrencyThunk";
-import { usePopularCoinsListPreloader } from "../../hooks/preloaders/usePopularCoinsListPreloader";
+// import { usePopularCoinsListPreloader } from "../../hooks/preloaders/usePopularCoinsListPreloader";
 import Link from "next/link";
 
 const vertical = "bottom";

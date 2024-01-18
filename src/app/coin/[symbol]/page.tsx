@@ -16,22 +16,37 @@ export default async function CoinPage({ params }: { params: CoinPageParams }) {
   // Extract the 'symbol' parameter from `params`
   const { symbol } = params;
 
-  // Retrieve the currency preference from cookies
-  const cookieStore = cookies();
-  const currencyPreference =
-    (cookieStore.get("currencyPreference")?.value as TCurrencyString) ||
-    INITIAL_CURRENCY;
+  // Default values for client-side rendering
+  let currencyExchangeRates;
+  let coinDetails;
 
-  // Fetch coin details using the symbol and currency preference
-  const coinDetailsData = await fetchCoinDetailsData(
-    symbol,
-    currencyPreference,
-  );
+  // Check if running on the server
+  if (typeof window === "undefined") {
+    console.log("SERVER SIDE RENDERING");
+    // Retrieve the currency preference from cookies
+    const cookieStore = cookies();
+    const currencyPreference =
+      (cookieStore.get("currencyPreference")?.value as TCurrencyString) ||
+      INITIAL_CURRENCY;
+
+    // Fetch coin details using the symbol and currency preference
+    const coinDetailsData = await fetchCoinDetailsData(
+      symbol,
+      currencyPreference,
+    );
+
+    // Set the fetched data for server-side rendering
+    currencyExchangeRates = coinDetailsData?.currencyExchangeRates;
+    coinDetails = coinDetailsData?.coinDetails;
+    console.log("DATA LOADED");
+  } else {
+    console.log("CLIENT SIDE RENDERING");
+  }
 
   return (
     <StoreProvider
-      currencyExchangeRates={coinDetailsData?.currencyExchangeRates}
-      coinDetails={coinDetailsData?.coinDetails}
+      currencyExchangeRates={currencyExchangeRates}
+      coinDetails={coinDetails}
     >
       <CoinDetailsPage />
     </StoreProvider>

@@ -16,7 +16,7 @@ const CoinDetails = () => {
   const currentSymbol = useSelector(selectCurrentSymbol);
   const coinDetails = useSelector(selectSelectedCoinDetails);
   const coinAttributes = coinDetails?.coinAttributes;
-  console.log("COINDETAILS ON PAGE", coinDetails);
+  // console.log("COINDETAILS ON PAGE", coinDetails);
 
   const { chartData, currentChartPeriod, setCurrentChartPeriod } =
     useChartData(coinDetails);

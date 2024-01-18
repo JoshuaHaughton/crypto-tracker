@@ -9,11 +9,12 @@
   border-collapse: collapse;
   border-top-left-radius: 6px;
   border-top-right-radius: 6px;
-  border: 1px solid #ff9500;
+  background-color: var(--card-bg);
+  // border: 1px solid var(--primary);
 
   thead {
     height: 64px;
-    background-color: #ff9500;
+    background-color: var(--primary);
 
     tr > th:first-child {
       border-top-left-radius: 6px;
@@ -28,7 +29,7 @@
 
   // th {
   //   height: 64px;
-  //   background-color: #ff9500;
+  //   background-color: var(--primary);
   // }
 
   .nameHeader {

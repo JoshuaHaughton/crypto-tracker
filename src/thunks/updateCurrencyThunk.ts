@@ -1,11 +1,11 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { coinsActions } from "../store/coins";
-import { currencyActions } from "../store/currency";
+import { coinsActions } from "@/lib/store/coins/coinsSlice";
+import { currencyActions } from "@/lib/store/currency/currencySlice";
 import { postMessageToCurrencyTransformerWorker } from "../../public/webWorkers/currencyTransformer/manager";
 import Cookies from "js-cookie";
-import { CURRENT_CURRENCY_COOKIE_EXPIRY_TIME } from "../global/constants";
 import { isEmpty } from "lodash";
 import { storeCurrentCurrencyInIndexedDB } from "../utils/cache.utils";
+import { CURRENT_CURRENCY_COOKIE_EXPIRY_TIME } from "@/lib/constants/globalConstants";
 
 /**
  * Thunk to update currency.

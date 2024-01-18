@@ -8,21 +8,37 @@ import {
 } from "@/lib/constants/globalConstants";
 
 export default async function Page() {
-  // Retrieve the currency preference from cookies
-  const cookieStore = cookies();
-  const currencyPreference =
-    (cookieStore.get("currencyPreference")?.value as TCurrencyString) ||
-    INITIAL_CURRENCY;
+  // Default values for client-side rendering
+  let currencyExchangeRates;
+  let popularCoins;
+  let carouselCoins;
+  const isSPANavigation = typeof window !== "undefined";
 
-  // Fetch popular coins data on the server so we can use it to initialize the Redux store
-  const popularCoinsData = await fetchPopularCoinsData(currencyPreference);
-  console.log("DATA LOADED");
+  // Check if running on the server
+  if (isSPANavigation) {
+    console.log("CLIENT SIDE RENDERING");
+  } else {
+    console.log("SERVER SIDE RENDERING");
+    // Retrieve the currency preference from cookies
+    const cookieStore = cookies();
+    const currencyPreference =
+      (cookieStore.get("currencyPreference")?.value as TCurrencyString) ||
+      INITIAL_CURRENCY;
+
+    // Fetch popular coins data on the server so we can use it to initialize the Redux store
+    const popularCoinsData = await fetchPopularCoinsData(currencyPreference);
+    // Set the fetched data for server-side rendering
+    currencyExchangeRates = popularCoinsData.currencyExchangeRates;
+    popularCoins = popularCoinsData.popularCoinsList;
+    carouselCoins = popularCoinsData.trendingCarouselCoins;
+    console.log("DATA LOADED");
+  }
 
   return (
     <StoreProvider
-      currencyExchangeRates={popularCoinsData.currencyExchangeRates}
-      popularCoins={popularCoinsData.popularCoinsList}
-      carouselCoins={popularCoinsData.trendingCarouselCoins}
+      currencyExchangeRates={currencyExchangeRates}
+      popularCoins={popularCoins}
+      carouselCoins={carouselCoins}
     >
       <HomePage />
     </StoreProvider>

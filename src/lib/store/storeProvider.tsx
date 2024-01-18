@@ -39,16 +39,16 @@ export const StoreProvider: React.FC<{
   if (!storeRef.current) {
     // Creates a new Redux store instance
     storeRef.current = makeStore();
-
-    // Initialize the store with data provided as props
-    // This is primarily for server-side rendering to hydrate the Redux store with initial data
-    initializeStore(storeRef.current, {
-      popularCoins,
-      coinDetails,
-      carouselCoins,
-      currencyExchangeRates,
-    });
   }
+
+  // Initialize the store with data fetched from the server as props, if provided.
+  // This is primarily for server-side rendering to hydrate the Redux store with initial data. SPA Navigations won't trigger server calls
+  initializeStore(storeRef.current, {
+    popularCoins,
+    coinDetails,
+    carouselCoins,
+    currencyExchangeRates,
+  });
 
   // Wrap the application with the Redux Provider and pass the store reference
   // This enables Redux state management across the application

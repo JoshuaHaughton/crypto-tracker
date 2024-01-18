@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700&family=Rubik:wght@400;600;700&display=swap");
 // move typography imports to html head
-@import "./variables";
-@import "./breakpoints";
+@import "./partials/variables";
+@import "./partials/breakpoints";
 
 :root {
   // Colors

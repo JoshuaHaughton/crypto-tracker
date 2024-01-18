@@ -1,12 +1,13 @@
 .itemRow {
   height: 80px;
-  border-bottom: 1px solid #2e2e2e;
+  border-bottom: 1px solid var(--border-color);
   width: 100%;
   // max-width: 85%;
   padding: 0rem 2rem;
 
   &:hover {
     background: #171718;
+    cursor: pointer;
   }
 
   & > p {

@@ -8,7 +8,7 @@ interface IDisplayedCoinOverview extends ICoinOverview {
   currentCurrencySymbol: TCurrencySymbol;
 }
 
-const Coin = ({
+const PopularCoinListItem = ({
   name,
   symbol,
   image,
@@ -65,4 +65,4 @@ const Coin = ({
   );
 };
 
-export default Coin;
+export default PopularCoinListItem;
