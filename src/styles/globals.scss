@@ -1,0 +1,284 @@
+@import url("https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700&family=Rubik:wght@400;600;700&display=swap");
+// move typography imports to html head
+@import "./variables";
+@import "./breakpoints";
+
+:root {
+  // Colors
+  --primary: var(--colors-primary);
+  --primary-fg: var(--colors-primary-foreground);
+  --secondary: var(--colors-secondary);
+  --secondary-fg: var(--colors-secondary-foreground);
+  --background: var(--colors-background);
+  --foreground: var(--colors-foreground);
+  --card-bg: var(--colors-card);
+  --card-fg: var(--colors-card-foreground);
+  --popover-bg: var(--colors-popover);
+  --popover-fg: var(--colors-popover-foreground);
+  --muted: var(--colors-muted);
+  --muted-fg: var(--colors-muted-foreground);
+  --accent: var(--colors-accent);
+  --accent-fg: var(--colors-accent-foreground);
+  --destructive: var(--colors-destructive);
+  --destructive-fg: var(--colors-destructive-foreground);
+  --border-color: var(--colors-border);
+  --input-bg: var(--colors-input);
+  --ring-color: var(--colors-ring);
+
+  // Font colors
+  --font-text-primary: var(--colors-font-text-primary);
+  --font-text-secondary: var(--colors-font-text-secondary);
+  --link-hover: var(--colors-link-hover);
+  --link-active: var(--colors-link-active);
+
+  // Typography
+  --primary-font-family: var(--typography-families-primary);
+  --secondary-font-family: var(--typography-families-secondary);
+  --font-size-xs: var(--typography-sizes-xsmall);
+  --font-size-sm: var(--typography-sizes-small);
+  --font-size-md: var(--typography-sizes-medium);
+  --font-size-lg: var(--typography-sizes-large);
+  --font-size-xl: var(--typography-sizes-extra-large);
+
+  // Spacing
+  --radius: var(--spacing-radius);
+  --padding: var(--spacing-padding);
+  --margin: var(--spacing-margin);
+}
+
+// Dark mode specific styles
+.dark-mode {
+  // Colors
+  --primary: var(--colors-primary-dark);
+  --primary-fg: var(--colors-primary-foreground-dark);
+  --secondary: var(--colors-secondary-dark);
+  --secondary-fg: var(--colors-secondary-foreground-dark);
+  --background: var(--colors-background-dark);
+  --foreground: var(--colors-foreground-dark);
+  --card-bg: var(--colors-card-dark);
+  --card-fg: var(--colors-card-foreground-dark);
+  --popover-bg: var(--colors-popover-dark);
+  --popover-fg: var(--colors-popover-foreground-dark);
+  --muted: var(--colors-muted-dark);
+  --muted-fg: var(--colors-muted-foreground-dark);
+  --accent: var(--colors-accent-dark);
+  --accent-fg: var(--colors-accent-foreground-dark);
+  --destructive: var(--colors-destructive-dark);
+  --destructive-fg: var(--colors-destructive-foreground-dark);
+  --border-color: var(--colors-border-dark);
+  --input-bg: var(--colors-input-dark);
+  --ring-color: var(--colors-ring-dark);
+
+  // Font colors
+  --font-text-primary: var(--colors-font-text-primary-dark);
+  --font-text-secondary: var(--colors-font-text-secondary-dark);
+  --link-hover: var(--colors-link-hover-dark);
+  --link-active: var(--colors-link-active-dark);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    // Colors
+    --primary: var(--colors-primary-dark);
+    --primary-fg: var(--colors-primary-foreground-dark);
+    --secondary: var(--colors-secondary-dark);
+    --secondary-fg: var(--colors-secondary-foreground-dark);
+    --background: var(--colors-background-dark);
+    --foreground: var(--colors-foreground-dark);
+    --card-bg: var(--colors-card-dark);
+    --card-fg: var(--colors-card-foreground-dark);
+    --popover-bg: var(--colors-popover-dark);
+    --popover-fg: var(--colors-popover-foreground-dark);
+    --muted: var(--colors-muted-dark);
+    --muted-fg: var(--colors-muted-foreground-dark);
+    --accent: var(--colors-accent-dark);
+    --accent-fg: var(--colors-accent-foreground-dark);
+    --destructive: var(--colors-destructive-dark);
+    --destructive-fg: var(--colors-destructive-foreground-dark);
+    --border-color: var(--colors-border-dark);
+    --input-bg: var(--colors-input-dark);
+    --ring-color: var(--colors-ring-dark);
+
+    // Font colors
+    --font-text-primary: var(--colors-font-text-primary-dark);
+    --font-text-secondary: var(--colors-font-text-secondary-dark);
+    --link-hover: var(--colors-link-hover-dark);
+    --link-active: var(--colors-link-active-dark);
+  }
+}
+
+* {
+  border-color: var(--border-color);
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+}
+
+/* Specific dark mode adjustments based on class */
+.dark-mode html {
+  color-scheme: dark;
+}
+
+/* Currency Select Dropdown */
+
+.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input {
+  padding: 8px 15px;
+}
+
+.css-hfutr2-MuiSvgIcon-root-MuiSelect-icon {
+  color: white !important;
+}
+
+.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root:hover {
+  background-color: #ff9500;
+}
+
+.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root > svg {
+  color: white !important;
+}
+
+.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected:hover {
+  background-color: #ff9500;
+}
+
+.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected,
+.css-1km1ehz.Mui-selected {
+  background-color: #ff950094 !important;
+}
+
+.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected:hover,
+.css-1km1ehz.Mui-selected:hover {
+  background-color: #ff9500d8;
+}
+
+.css-1636szt {
+  color: white !important;
+}
+
+/* Nprogress bar css */
+#nprogress {
+  --primary-color: #ff9500;
+  pointer-events: none;
+}
+
+#nprogress .bar {
+  background: var(--primary-color);
+  position: fixed;
+  z-index: 1031;
+  /* top: 74px; */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  transition: all 300ms ease;
+}
+
+/* Fancy blur effect */
+#nprogress .peg {
+  display: block;
+  position: absolute;
+  right: 0px;
+  width: 100px;
+  height: 100%;
+  box-shadow: 0 0 10px var(--primary-color), 0 0 5px var(--primary-color);
+  opacity: 1;
+
+  -webkit-transform: rotate(3deg) translate(0px, -4px);
+  -ms-transform: rotate(3deg) translate(0px, -4px);
+  transform: rotate(3deg) translate(0px, -4px);
+}
+
+/* Remove these to get rid of the spinner */
+#nprogress .spinner {
+  display: block;
+  position: fixed;
+  z-index: 1031;
+  top: 15px;
+  right: 15px;
+  transition: all 300ms ease;
+}
+
+#nprogress .spinner-icon {
+  width: 18px;
+  height: 18px;
+  box-sizing: border-box;
+  border: solid 2px transparent;
+  border-top-color: var(--primary-color);
+  border-left-color: var(--primary-color);
+  border-radius: 50%;
+
+  -webkit-animation: nprogress-spinner 400ms linear infinite;
+  animation: nprogress-spinner 400ms linear infinite;
+}
+
+.nprogress-custom-parent {
+  overflow: hidden;
+  position: relative;
+}
+
+.nprogress-custom-parent #nprogress .spinner,
+.nprogress-custom-parent #nprogress .bar {
+  position: absolute;
+}
+
+@-webkit-keyframes nprogress-spinner {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+@keyframes nprogress-spinner {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.errorClass,
+.MuiSnackbar-anchorOriginBottomCenter,
+.MuiSnackbar-root {
+  background-color: green;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (max-width: 320px) {
+  .css-hfutr2-MuiSvgIcon-root-MuiSelect-icon {
+    display: none !important;
+  }
+}

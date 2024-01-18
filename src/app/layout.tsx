@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.scss";
+import "../styles/globals.scss";
 import { Revalidate } from "next/dist/server/lib/revalidate";
 import { AppConfigDynamic } from "next/dist/build/utils";
 

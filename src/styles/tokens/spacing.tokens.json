@@ -1,0 +1,13 @@
+{
+  "spacing": {
+    "radius": {
+      "value": "0.5rem"
+    },
+    "padding": {
+      "value": "1rem"
+    },
+    "margin": {
+      "value": "1rem"
+    }
+  }
+}

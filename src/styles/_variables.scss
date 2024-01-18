@@ -1,55 +1,64 @@
-@import url("https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700&family=Rubik:wght@400;600;700&display=swap");
+:root {
+// Colors
+  --colors-primary: 222.2 47.4% 11.2%;
+  --colors-primary-dark: 210 40% 98%;
+  --colors-primary-foreground: 210 40% 98%;
+  --colors-primary-foreground-dark: 222.2 47.4% 11.2%;
+  --colors-secondary: 210 40% 96.1%;
+  --colors-secondary-dark: 217.2 32.6% 17.5%;
+  --colors-secondary-foreground: 222.2 47.4% 11.2%;
+  --colors-secondary-foreground-dark: 210 40% 98%;
+  --colors-accent: 210 40% 96.1%;
+  --colors-accent-dark: 217.2 32.6% 17.5%;
+  --colors-accent-foreground: 222.2 47.4% 11.2%;
+  --colors-accent-foreground-dark: 210 40% 98%;
+  --colors-background: 0 0% 100%;
+  --colors-background-dark: 222.2 84% 4.9%;
+  --colors-foreground: 222.2 84% 4.9%;
+  --colors-foreground-dark: 210 40% 98%;
+  --colors-font-text-primary: #333333;
+  --colors-font-text-primary-dark: #f8f9fa;
+  --colors-font-text-secondary: #555555;
+  --colors-font-text-secondary-dark: #cccccc;
+  --colors-link-hover: #535bf2;
+  --colors-link-hover-dark: #cccccc;
+  --colors-link-active: #4b4fe2;
+  --colors-link-active-dark: #3a3fe2;
+  --colors-card: 0 0% 100%;
+  --colors-card-dark: 222.2 84% 4.9%;
+  --colors-card-foreground: 222.2 84% 4.9%;
+  --colors-card-foreground-dark: 210 40% 98%;
+  --colors-popover: 0 0% 100%;
+  --colors-popover-dark: 222.2 84% 4.9%;
+  --colors-popover-foreground: 222.2 84% 4.9%;
+  --colors-popover-foreground-dark: 210 40% 98%;
+  --colors-muted: 210 40% 96.1%;
+  --colors-muted-dark: 217.2 32.6% 17.5%;
+  --colors-muted-foreground: 215.4 16.3% 46.9%;
+  --colors-muted-foreground-dark: 215 20.2% 65.1%;
+  --colors-destructive: 0 84.2% 60.2%;
+  --colors-destructive-dark: 0 62.8% 30.6%;
+  --colors-destructive-foreground: 210 40% 98%;
+  --colors-destructive-foreground-dark: 210 40% 98%;
+  --colors-border: 214.3 31.8% 91.4%;
+  --colors-border-dark: 217.2 32.6% 17.5%;
+  --colors-input: 214.3 31.8% 91.4%;
+  --colors-input-dark: 217.2 32.6% 17.5%;
+  --colors-ring: 222.2 84% 4.9%;
+  --colors-ring-dark: 212.7 26.8% 83.9%;
 
-/* Fonts */
-$primaryFont: "Rubik", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-  Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue",
-  serif;
-$secondaryFont: "Heebo", system-ui, -apple-system, "Georgia", "Times New Roman",
-  "Times", sans-serif;
+// Spacing
+  --spacing-radius: 0.5rem;
+  --spacing-padding: 1rem;
+  --spacing-margin: 1rem;
 
-/* Font Sizes */
-$xsmall: 0.75rem; /* 12px */
-$small: 1rem; /* 16px */
-$medium: 1.5rem; /* 24px */
-$large: 2rem; /* 32px */
-$extraLarge: 5rem; /* 80px */
+// Typography
+  --typography-families-primary: Rubik, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', serif;
+  --typography-families-secondary: Heebo, system-ui, -apple-system, 'Georgia', 'Times New Roman', 'Times', sans-serif;
+  --typography-sizes-xsmall: 0.75rem;
+  --typography-sizes-small: 1rem;
+  --typography-sizes-medium: 1.5rem;
+  --typography-sizes-large: 2rem;
+  --typography-sizes-extra-large: 5rem;
 
-/* Colors - Light Theme Defaults */
-/* The light theme is set as the default theme. 
-     These variables define the default appearance of the website. */
-$textPrimaryColor: #333;
-$textSecondaryColor: #555;
-$primaryColor: #007bff;
-$secondaryColor: #6c757d;
-$tertiaryColor: #28a745;
-$accentColor: #17a2b8;
-$linkHoverColor: #535bf2;
-$linkActiveColor: #4b4fe2;
-
-$lightBodyBackgroundColor: #ffffff;
-$darkBodyBackgroundColor: #1a1b1d;
-
-/* Dark Theme Colors */
-$textPrimaryColor-Dark: #f8f9fa;
-$textSecondaryColor-Dark: #ccc;
-$lightBodyBackgroundColor-Dark: #343a40;
-$darkBodyBackgroundColor-Dark: #1a1b1d;
-$linkColor-Dark: #f8f9fa;
-$linkHoverColor-Dark: #ccc;
-$linkActiveColor-Dark: #3a3fe2;
-$buttonActiveBorderColor-Dark: #3a3fe2;
-
-/* Breakpoints */
-$mobile: 480px;
-$tablet: 768px;
-$desktop: 1024px;
-$largeDesktop: 1280px;
-
-/* Conditional Breakpoints */
-$conditionalBreakpointDefault: 0; /* 0 = false, 1 = true */
-
-/* Default Button Styling */
-$buttonPadding: 0.6em 1.2em;
-$buttonBorderRadius: 8px;
-$buttonFontWeight: 500;
-$buttonActiveBorderColor: #4b4fe2;
+}

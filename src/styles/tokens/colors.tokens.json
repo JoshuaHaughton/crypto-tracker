@@ -1,0 +1,98 @@
+{
+  "colors": {
+    "primary": {
+      "value": "222.2 47.4% 11.2%",
+      "darkValue": "210 40% 98%"
+    },
+    "primaryForeground": {
+      "value": "210 40% 98%",
+      "darkValue": "222.2 47.4% 11.2%"
+    },
+    "secondary": {
+      "value": "210 40% 96.1%",
+      "darkValue": "217.2 32.6% 17.5%"
+    },
+    "secondaryForeground": {
+      "value": "222.2 47.4% 11.2%",
+      "darkValue": "210 40% 98%"
+    },
+    "accent": {
+      "value": "210 40% 96.1%",
+      "darkValue": "217.2 32.6% 17.5%"
+    },
+    "accentForeground": {
+      "value": "222.2 47.4% 11.2%",
+      "darkValue": "210 40% 98%"
+    },
+    "background": {
+      "value": "0 0% 100%",
+      "darkValue": "222.2 84% 4.9%"
+    },
+    "foreground": {
+      "value": "222.2 84% 4.9%",
+      "darkValue": "210 40% 98%"
+    },
+    "font": {
+      "textPrimary": {
+        "value": "#333333",
+        "darkValue": "#f8f9fa"
+      },
+      "textSecondary": {
+        "value": "#555555",
+        "darkValue": "#cccccc"
+      }
+    },
+    "linkHover": {
+      "value": "#535bf2",
+      "darkValue": "#cccccc"
+    },
+    "linkActive": {
+      "value": "#4b4fe2",
+      "darkValue": "#3a3fe2"
+    },
+    "card": {
+      "value": "0 0% 100%",
+      "darkValue": "222.2 84% 4.9%"
+    },
+    "cardForeground": {
+      "value": "222.2 84% 4.9%",
+      "darkValue": "210 40% 98%"
+    },
+    "popover": {
+      "value": "0 0% 100%",
+      "darkValue": "222.2 84% 4.9%"
+    },
+    "popoverForeground": {
+      "value": "222.2 84% 4.9%",
+      "darkValue": "210 40% 98%"
+    },
+    "muted": {
+      "value": "210 40% 96.1%",
+      "darkValue": "217.2 32.6% 17.5%"
+    },
+    "mutedForeground": {
+      "value": "215.4 16.3% 46.9%",
+      "darkValue": "215 20.2% 65.1%"
+    },
+    "destructive": {
+      "value": "0 84.2% 60.2%",
+      "darkValue": "0 62.8% 30.6%"
+    },
+    "destructiveForeground": {
+      "value": "210 40% 98%",
+      "darkValue": "210 40% 98%"
+    },
+    "border": {
+      "value": "214.3 31.8% 91.4%",
+      "darkValue": "217.2 32.6% 17.5%"
+    },
+    "input": {
+      "value": "214.3 31.8% 91.4%",
+      "darkValue": "217.2 32.6% 17.5%"
+    },
+    "ring": {
+      "value": "222.2 84% 4.9%",
+      "darkValue": "212.7 26.8% 83.9%"
+    }
+  }
+}

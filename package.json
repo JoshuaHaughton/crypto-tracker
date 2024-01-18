@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "build-style-dict": "style-dictionary build --config ./style-dictionary.config.js"
   },
   "dependencies": {
     "@emotion/react": "^11.11.1",
@@ -40,6 +41,7 @@
     "eslint": "^8",
     "eslint-config-next": "^14",
     "sass": "^1.69.7",
+    "style-dictionary": "^3.9.1",
     "typescript": "^5"
   }
 }

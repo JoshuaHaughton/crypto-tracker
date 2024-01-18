@@ -1,0 +1,29 @@
+{
+  "typography": {
+    "families": {
+      "primary": {
+        "value": "Rubik, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', serif"
+      },
+      "secondary": {
+        "value": "Heebo, system-ui, -apple-system, 'Georgia', 'Times New Roman', 'Times', sans-serif"
+      }
+    },
+    "sizes": {
+      "xsmall": {
+        "value": "0.75rem"
+      },
+      "small": {
+        "value": "1rem"
+      },
+      "medium": {
+        "value": "1.5rem"
+      },
+      "large": {
+        "value": "2rem"
+      },
+      "extraLarge": {
+        "value": "5rem"
+      }
+    }
+  }
+}
