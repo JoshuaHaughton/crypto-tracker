@@ -77,12 +77,22 @@ export async function fetchPopularCoinsData(
     const popularCoinsList = top100Data.Data.map((entry, index) =>
       formatCoinOverviewCoin(entry, index, targetCurrency),
     ).filter(Boolean) as ICoinOverview[];
-    const trendingCarouselCoins = popularCoinsList.slice(0, 10);
+
+    // Selecting a random subset of 10 coin symbols
+    const carouselSymbolList: string[] = [];
+
+    while (carouselSymbolList.length < 10 && popularCoinsList.length >= 10) {
+      const randomIndex = Math.floor(Math.random() * popularCoinsList.length);
+      const coinSymbol = popularCoinsList[randomIndex].symbol;
+      if (!carouselSymbolList.includes(coinSymbol)) {
+        carouselSymbolList.push(coinSymbol);
+      }
+    }
 
     const formattedData = {
       currencyExchangeRates,
       popularCoinsList,
-      trendingCarouselCoins,
+      carouselSymbolList,
     };
 
     console.warn("fetchPopularCoinsData successful!");

@@ -1,7 +1,7 @@
 import { TCurrencyString } from "@/lib/constants/globalConstants";
 import { createSelector } from "@reduxjs/toolkit";
 import { TRootState } from "..";
-import { ICoinDetails } from "@/types/coinTypes";
+import { ICoinDetails, ICoinOverview } from "@/types/coinTypes";
 
 /**
  * Selector for popular coins.
@@ -13,13 +13,26 @@ export const selectPopularCoins = (state: TRootState) =>
   state.coins.popularCoins;
 
 /**
- * Selector for carousel coins.
- * Does not use `createSelector` for memoization as it directly fetches a straightforward state segment without the need for derived or computed data.
+ * Memoized selector for carousel coins.
+ * Utilizes `createSelector` for efficient memoization to prevent redundant recalculations.
+ * Retrieves an array of carousel coin overviews based on the symbols in the carouselCoins array.
+ *
+ * This selector first gets the list of carousel coin symbols from the state,
+ * then maps each symbol to its corresponding coin overview in the popularCoinsMap.
+ * This ensures the most current details are used for each coin in the carousel.
+ *
  * @param state - The current state of the application.
  * @returns An array of carousel coin overviews.
  */
-export const selectCarouselCoins = (state: TRootState) =>
-  state.coins.carouselCoins;
+export const selectCarouselCoins = createSelector(
+  [
+    (state: TRootState) => state.coins.carouselSymbolList,
+    (state: TRootState) => state.coins.popularCoinsMap,
+  ],
+  (carouselCoinSymbols, popularCoinsMap): ICoinOverview[] => {
+    return carouselCoinSymbols.map((symbol) => popularCoinsMap[symbol]);
+  },
+);
 
 /**
  * Selector for selected coin details.

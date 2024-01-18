@@ -31,7 +31,7 @@ export interface ITop100MarketCapCoinFromAPI {
 export interface IFormattedPopularCoinsApiResponse {
   currencyExchangeRates: TCurrencyExchangeRates;
   popularCoinsList: ICoinOverview[];
-  trendingCarouselCoins: ICoinOverview[];
+  carouselSymbolList: string[];
 }
 
 // Coin Details

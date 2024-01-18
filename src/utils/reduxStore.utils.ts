@@ -7,7 +7,7 @@ import { TCurrencyExchangeRates } from "@/types/currencyTypes";
 interface IStoreInitializationOptions {
   popularCoins?: ICoinOverview[];
   coinDetails?: ICoinDetails;
-  carouselCoins?: ICoinOverview[];
+  carouselSymbolList?: string[];
   currencyExchangeRates?: TCurrencyExchangeRates;
 }
 
@@ -24,8 +24,12 @@ export function initializeStore(
   initOptions: IStoreInitializationOptions,
 ): void {
   // Destructure initOptions
-  const { popularCoins, coinDetails, carouselCoins, currencyExchangeRates } =
-    initOptions;
+  const {
+    popularCoins,
+    coinDetails,
+    carouselSymbolList,
+    currencyExchangeRates,
+  } = initOptions;
 
   // Dispatch actions based on the presence of each option
   if (popularCoins) {
@@ -36,8 +40,12 @@ export function initializeStore(
     store.dispatch(coinsActions.setSelectedCoinDetails({ coinDetails }));
   }
 
-  if (carouselCoins) {
-    store.dispatch(coinsActions.setCarouselCoins({ coinList: carouselCoins }));
+  if (carouselSymbolList) {
+    store.dispatch(
+      coinsActions.setCarouselSymbolList({
+        carouselSymbols: carouselSymbolList,
+      }),
+    );
   }
 
   if (currencyExchangeRates) {

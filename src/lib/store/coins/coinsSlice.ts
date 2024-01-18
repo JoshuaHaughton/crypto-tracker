@@ -13,11 +13,11 @@ import { isNull, isUndefined, mergeWith } from "lodash";
 export interface ICoinsState {
   // Popular Coins List
   popularCoins: ICoinOverview[];
+  popularCoinsMap: Record<string, ICoinOverview>;
   cachedPopularCoinsByCurrency: Record<TCurrencyString, ICoinOverview[]>;
 
   // Carousel Coins
-  carouselCoins: ICoinOverview[];
-  cachedCarouselCoinsByCurrency: Record<TCurrencyString, ICoinOverview[]>;
+  carouselSymbolList: string[];
 
   // Selected Coin Details
   selectedCoinDetails: ICoinDetails | null;
@@ -38,6 +38,7 @@ export interface ICoinsState {
  */
 export const initialCoinsState: ICoinsState = {
   popularCoins: [],
+  popularCoinsMap: {},
   cachedPopularCoinsByCurrency: {
     CAD: [],
     USD: [],
@@ -45,13 +46,7 @@ export const initialCoinsState: ICoinsState = {
     AUD: [],
   },
 
-  carouselCoins: [],
-  cachedCarouselCoinsByCurrency: {
-    CAD: [],
-    USD: [],
-    GBP: [],
-    AUD: [],
-  },
+  carouselSymbolList: [],
 
   selectedCoinDetails: null,
   cachedSelectedCoinDetailsByCurrency: {
@@ -69,18 +64,25 @@ export const initialCoinsState: ICoinsState = {
 };
 
 /**
- * Payload structure for setting the list of popular or carousel coins.
+ * Payload structure for setting the list of popular coins.
  */
 export interface SetCoinListPayload {
   coinList: ICoinOverview[];
 }
 
 /**
- * Payload structure for setting the cached list of popular or carousel coins
+ * Payload structure for setting the cached list of popular coins
  * based on a specific currency.
  */
 export interface SetCachedCoinListPayload extends SetCoinListPayload {
   currency: TCurrencyString;
+}
+
+/**
+ * Payload structure for setting the list of carousel coins.
+ */
+export interface SetCarouselSymbolsPayload {
+  carouselSymbols: string[];
 }
 
 /**
@@ -129,6 +131,10 @@ const coinsSlice = createSlice({
       const { coinList } = action.payload;
 
       state.popularCoins = coinList;
+      state.popularCoinsMap = coinList.reduce((acc, coin) => {
+        acc[coin.symbol] = coin;
+        return acc;
+      }, {} as Record<string, ICoinOverview>);
     },
 
     /**
@@ -150,27 +156,13 @@ const coinsSlice = createSlice({
      * @param state - The current state of the coins slice.
      * @param action - The action payload containing the list of coins.
      */
-    setCarouselCoins(
+    setCarouselSymbolList(
       state: ICoinsState,
-      action: PayloadAction<SetCoinListPayload>,
+      action: PayloadAction<SetCarouselSymbolsPayload>,
     ) {
-      const { coinList } = action.payload;
+      const { carouselSymbols } = action.payload;
 
-      state.carouselCoins = coinList;
-    },
-
-    /**
-     * Sets the cached list of carousel coins for a specific currency.
-     * @param state - The current state of the coins slice.
-     * @param action - The action payload containing the list of coins and currency.
-     */
-    setCachedCarouselCoins(
-      state: ICoinsState,
-      action: PayloadAction<SetCachedCoinListPayload>,
-    ) {
-      const { currency, coinList } = action.payload;
-
-      state.cachedCarouselCoinsByCurrency[currency] = coinList;
+      state.carouselSymbolList = carouselSymbols;
     },
 
     /**

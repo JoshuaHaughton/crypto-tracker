@@ -11,7 +11,7 @@ export default async function Page() {
   // Default values for client-side rendering
   let currencyExchangeRates;
   let popularCoins;
-  let carouselCoins;
+  let carouselSymbolList;
   const isSPANavigation = typeof window !== "undefined";
 
   // Check if running on the server
@@ -30,7 +30,7 @@ export default async function Page() {
     // Set the fetched data for server-side rendering
     currencyExchangeRates = popularCoinsData.currencyExchangeRates;
     popularCoins = popularCoinsData.popularCoinsList;
-    carouselCoins = popularCoinsData.trendingCarouselCoins;
+    carouselSymbolList = popularCoinsData.carouselSymbolList;
     console.log("DATA LOADED");
   }
 
@@ -38,7 +38,7 @@ export default async function Page() {
     <StoreProvider
       currencyExchangeRates={currencyExchangeRates}
       popularCoins={popularCoins}
-      carouselCoins={carouselCoins}
+      carouselSymbolList={carouselSymbolList}
     >
       <HomePage />
     </StoreProvider>

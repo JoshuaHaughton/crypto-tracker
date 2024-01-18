@@ -14,7 +14,7 @@ import { initializeStore } from "@/utils/reduxStore.utils";
  * @param children - The child components of the application that require access to the Redux store.
  * @param popularCoins - The initial set of data for popular coins. This data is used to populate the corresponding slice of the Redux store.
  * @param coinDetails - The initial data for a specific coin's details. This is used to update the store with detailed information about a particular coin.
- * @param carouselCoins - The initial data for carousel coins. This data is used to update the carousel section in the Redux store.
+ * @param carouselSymbolList - The order for carousel coins sotred by an array of symbols. This data is used to update the carousel display.
  * @param currencyExchangeRates - The initial currency exchange rates. This data is used to populate the currency-related information in the Redux store.
  * @returns A React component that wraps its children with a Redux store provider, ensuring that the entire SPA has consistent and pre-initialized state.
  */
@@ -23,13 +23,13 @@ export const StoreProvider: React.FC<{
   children: React.ReactNode;
   currencyExchangeRates?: TCurrencyExchangeRates;
   popularCoins?: ICoinOverview[];
-  carouselCoins?: ICoinOverview[];
+  carouselSymbolList?: string[];
   coinDetails?: ICoinDetails;
 }> = ({
   children,
   popularCoins,
   coinDetails,
-  carouselCoins,
+  carouselSymbolList,
   currencyExchangeRates,
 }) => {
   // useRef to persist the store reference across re-renders and navigation events
@@ -46,7 +46,7 @@ export const StoreProvider: React.FC<{
   initializeStore(storeRef.current, {
     popularCoins,
     coinDetails,
-    carouselCoins,
+    carouselSymbolList,
     currencyExchangeRates,
   });
 
