@@ -1,5 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { coinsActions } from "@/lib/store/coins/coinsSlice";
+import { ICoinDetails } from "@/types/coinTypes";
 import { currencyActions } from "@/lib/store/currency/currencySlice";
 import { postMessageToCurrencyTransformerWorker } from "../../public/webWorkers/currencyTransformer/manager";
 import Cookies from "js-cookie";
@@ -10,7 +11,7 @@ import { CURRENT_CURRENCY_COOKIE_EXPIRY_TIME } from "@/lib/constants/globalConst
 /**
  * Thunk to update currency.
  * @param {Object} payload - The payload containing the currency data.
- * @param {string} payload.currency - The updated currency value.
+ * @param {string} payload.updatedCurrency - The updated currency value.
  * @returns {Promise<void>} - Resolves after all actions are dispatched.
  *
  * Uses a web worker to perform the currency transformation for a list of coins.
@@ -21,13 +22,13 @@ export const updateCurrency = createAsyncThunk(
   async (payload, { dispatch, getState }) => {
     console.log("updateCurrencyThunk active", payload);
 
-    const { currency: updatedCurrency } = payload;
+    const { updatedCurrency } = payload;
     const {
       coins: {
-        displayedPopularCoinsList,
-        popularCoinsListByCurrency,
+        popularCoins,
+        cachedPopularCoinsByCurrency,
         selectedCoinDetails,
-        cachedCoinDetailsByCurrency,
+        cachedSelectedCoinDetailsByCurrency,
       },
       currency: { currentCurrency, currencyRates },
     } = getState();
@@ -39,26 +40,27 @@ export const updateCurrency = createAsyncThunk(
 
     // Save the currency to indexedDB for serviceWorker access (serviceWorker API can't currently access cookies)
     // We use the service worker to bust the Vercel cache in production
-    storeCurrentCurrencyInIndexedDB(updatedCurrency);
+    // storeCurrentCurrencyInIndexedDB(updatedCurrency);
 
     const updateCurrencyAndCache = (type, coins, cache) => {
       if (cache && !isEmpty(cache)) {
         console.log(`CACHE USED - ${type.toUpperCase()}`);
         dispatch(
           type === "CoinDetails"
-            ? coinsActions.updateSelectedCoin({ coinDetails: cache })
-            : coinsActions.updateCoins({
-                displayedPopularCoinsList: cache,
-                trendingCarouselCoins: cache.slice(0, 10),
+            ? coinsActions.setSelectedCoinDetails({ coinDetails: cache })
+            : coinsActions.setPopularCoins({
+                coinList: cache,
               }),
         );
         // Update the currency state after all coins have been updated
-        dispatch(currencyActions.changeCurrency(payload));
+        dispatch(
+          currencyActions.setDisplayedCurrency({ currency: updatedCurrency }),
+        );
       } else {
         // We update the currency after the transformations when not using the cache iside of the transformerworker so that we call it as soon as it's ready
         console.log(`CACHE NOT USED - ${type.toUpperCase()}`);
         console.log(`CACHE NOT USED - DATA`, coins);
-        // Only transform the requested currency first to save time. Then, we cache the rest
+        // Only transform the requested currency first to save time. Then, we cache the rest in the background
         postMessageToCurrencyTransformerWorker({
           type: `transform${type}Currency`,
           data: {
@@ -91,10 +93,10 @@ export const updateCurrency = createAsyncThunk(
     if (!isEmpty(selectedCoinDetails)) {
       const coinId = selectedCoinDetails.coinAttributes.id.toUpperCase();
       const fullPreloadExists =
-        cachedCoinDetailsByCurrency[updatedCurrency]?.[coinId]
+        cachedSelectedCoinDetailsByCurrency[updatedCurrency]?.[coinId]
           ?.priceChartDataset != null;
       const cache = fullPreloadExists
-        ? cachedCoinDetailsByCurrency[updatedCurrency]?.[coinId]
+        ? cachedSelectedCoinDetailsByCurrency[updatedCurrency]?.[coinId]
         : null;
       updateCurrencyAndCache("CoinDetails", selectedCoinDetails, cache);
     }
@@ -102,8 +104,8 @@ export const updateCurrency = createAsyncThunk(
     // Handle coin list transformations
     updateCurrencyAndCache(
       "PopularCoinsList",
-      displayedPopularCoinsList,
-      popularCoinsListByCurrency[updatedCurrency],
+      popularCoins,
+      cachedPopularCoinsByCurrency[updatedCurrency],
     );
   },
 );

@@ -25,7 +25,6 @@ export const useAppInitialization = (
 ) => {
   const hasInitialized = useRef(false);
 
-  useFirebaseAuth(store.dispatch);
   useServiceWorker();
   useWebWorker(store.dispatch);
   useRouteEvents(store, initialReduxState, serverGlobalCacheVersion);

@@ -1,18 +1,20 @@
-import { handleCurrencyTransformerMessage } from "./utils";
+import { Dispatch } from "@reduxjs/toolkit";
+import { handleTransformedCurrencyResponse } from "./utils";
+import { CTWRequestMessage } from "./types";
 
 /**
  * A reference to the currency transformer worker.
  * @type {Worker}
  */
-let currencyTransformerWorker;
+let currencyTransformerWorker: Worker | undefined;
 
 /**
  * Initializes the currency transformer worker.
  * If the worker is already initialized, we'll use that one.
  *
- * @param {Function} dispatch - Redux dispatch function.
+ * @param {Dispatch} dispatch - Redux dispatch function.
  */
-export function initializeCurrencyTransformerWorker(dispatch) {
+export function initializeCurrencyTransformerWorker(dispatch: Dispatch) {
   // Return if there is an existing worker.
   if (currencyTransformerWorker != null) return;
 
@@ -20,21 +22,24 @@ export function initializeCurrencyTransformerWorker(dispatch) {
   if (typeof window === "undefined") return;
 
   currencyTransformerWorker = new Worker(
-    "/webWorkers/currencyTransformer/worker.js",
+    new URL("./worker.ts", import.meta.url),
   );
   console.log("currencyTransformerWorker created");
+
   currencyTransformerWorker.onmessage = (event) =>
-    handleCurrencyTransformerMessage(event, dispatch);
+    handleTransformedCurrencyResponse(event, dispatch);
 }
 
 /**
  * Posts a message to the currencyTransformerWorker to initiate the currency transformation process.
  *
- * @param {Object} messageData - Data to post to the worker.
+ * @param {CTWRequestMessage} message - Data to post to the worker.
  */
-export function postMessageToCurrencyTransformerWorker(messageData) {
+export function postMessageToCurrencyTransformerWorker(
+  message: CTWRequestMessage,
+) {
   if (currencyTransformerWorker) {
-    currencyTransformerWorker.postMessage(messageData);
+    currencyTransformerWorker.postMessage(message);
   }
 }
 

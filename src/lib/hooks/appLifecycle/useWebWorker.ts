@@ -2,19 +2,23 @@ import { useEffect } from "react";
 import {
   initializeCurrencyTransformerWorker,
   terminateCurrencyTransformerWorker,
-} from "../../../public/webWorkers/currencyTransformer/manager";
+} from "../../../../public/webWorkers/currencyTransformer/manager";
+import { Dispatch } from "@reduxjs/toolkit";
 
 /**
- * Custom hook to manage web worker initialization and termination.
+ * Custom hook to manage the initialization and termination of the currency transformer web worker.
  *
- * @param {Function} dispatch - Redux dispatch function.
+ * This hook ensures that the web worker is initialized when a component mounts and
+ * properly terminated when the component unmounts, managing the worker's lifecycle.
+ *
+ * @param dispatch - The Redux dispatch function used for dispatching actions from within the worker.
  */
-export const useWebWorker = (dispatch) => {
+export const useWebWorker = (dispatch: Dispatch): void => {
   useEffect(() => {
-    // Initialize web worker
+    // Initialize the web worker
     initializeCurrencyTransformerWorker(dispatch);
 
-    // Terminate the web worker on unmount
+    // Cleanup function to terminate the web worker on unmount
     return () => {
       terminateCurrencyTransformerWorker();
     };

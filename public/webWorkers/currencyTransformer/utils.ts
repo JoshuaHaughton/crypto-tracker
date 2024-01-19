@@ -1,217 +1,113 @@
-import {
-  COINDETAILS_TABLENAME,
-  POPULARCOINSLISTS_TABLENAME,
-} from "@/lib/constants/globalConstants";
-import { batch } from "react-redux";
-import { saveTableDataForCurrencyInIndexedDB } from "../../../src/utils/cache.utils";
+import { TCurrencyString } from "@/lib/constants/globalConstants";
 import { coinsActions } from "@/lib/store/coins/coinsSlice";
 import { currencyActions } from "@/lib/store/currency/currencySlice";
-
-export const TRANSFORM_COIN_DETAILS_CURRENCY = "transformCoinDetailsCurrency";
-export const TRANSFORM_ALL_COIN_DETAILS_CURRENCIES =
-  "transformAllCoinDetailsCurrencies";
-export const TRANSFORM_POPULAR_COINS_LIST_CURRENCY =
-  "transformPopularCoinsListCurrency";
-export const TRANSFORM_ALL_POPULAR_COINS_LIST_CURRENCIES =
-  "transformAllPopularCoinsListCurrencies";
+import { Dispatch } from "@reduxjs/toolkit";
+import { ICoinDetails, ICoinOverview } from "@/types/coinTypes";
+import { CTWResponseType } from "./types";
 
 /**
- * Handles the storage of transformed coin details for a specific currency. To be used when the cache isn't available, and a tranformation needs to be done on the fly - which is why we need to dispatch the currencyCHange right after the transformation completes. It then stores the transformed data in Redux and saves it to the browser's IndexedDB.
+ * Handles the storage of transformed coin details for a specific currency. To be used when the cache isn't available,
+ * and a tranformation needs to be done on the fly - which is why we need to dispatch the currencyChange right after the transformation completes.
+ * It then stores the transformed data in Redux.
  *
- * This function is typically used in the context of the currency transformer worker's
- * message event, specifically for the "transformCoinDetailsCurrency" message type.
- *
- * @async
- * @param {Object} transformedData - Transformed Data received from the worker.
- * @param {Object} toCurrency - The currency to update to.
- * @param {Function} dispatch - Redux dispatch function.
+ * @param {ICoinDetails} transformedData - Transformed Data received from the worker.
+ * @param {TCurrencyString} toCurrency - The currency to update to.
+ * @param {Dispatch} dispatch - Redux dispatch function.
  */
-async function handleTransformedCoinDetailsForCurrency(
-  transformedData,
-  toCurrency,
-  dispatch,
+function handleTransformedCoinDetailsForCurrency(
+  transformedData: ICoinDetails,
+  toCurrency: TCurrencyString,
+  dispatch: Dispatch,
 ) {
   // Store transformed coin data in Redux
   dispatch(
-    coinsActions.updateSelectedCoin({
+    coinsActions.setSelectedCoinDetails({
       coinDetails: transformedData,
     }),
   );
   dispatch(
-    coinsActions.mergeCachedCoinDetailsForCurrency({
+    coinsActions.setOrUpdatePreloadedCoinDetails({
       currency: toCurrency,
-      coinData: transformedData,
+      coinDetails: transformedData,
     }),
   );
-  dispatch(currencyActions.changeCurrency({ currency: toCurrency }));
-
-  // Wait for all storage operations to complete
-  try {
-    await saveTableDataForCurrencyInIndexedDB(
-      COINDETAILS_TABLENAME,
-      toCurrency,
-      transformedData,
-    );
-  } catch (err) {
-    console.error("Error during IndexedDB storage:", err);
-  }
+  dispatch(currencyActions.setDisplayedCurrency({ currency: toCurrency }));
 }
 
 /**
  * Handles the storage of transformed coin details for multiple currencies.
- * Stores the transformed data for each currency in Redux and saves it to the browser's IndexedDB.
+ * Stores the transformed data for each currency in Redux.
  *
- * This function is typically used in the context of the currency transformer worker's
- * message event, specifically for the "transformAllCoinDetailsCurrencies" message type.
- *
- * @function
- * @async
- * @param {Object} transformedData - The transformed coin details data, indexed by currency.
- * @param {Function} dispatch - The Redux dispatch function.
+ * @param {ICoinDetails} transformedData - The transformed coin details data, indexed by currency.
+ * @param {Dispatch} dispatch - The Redux dispatch function.
  */
-async function handleTransformedCoinDetailsForMultipleCurrencies(
-  transformedData,
-  dispatch,
+function handleTransformedCoinDetailsForMultipleCurrencies(
+  transformedData: Record<TCurrencyString, ICoinDetails>,
+  dispatch: Dispatch,
 ) {
-  const storagePromises = [];
-
   for (const currency in transformedData) {
     // Store transformed coin data in Redux
     dispatch(
-      coinsActions.mergeCachedCoinDetailsForCurrency({
-        currency,
-        coinData: transformedData[currency],
+      coinsActions.setOrUpdatePreloadedCoinDetails({
+        currency: currency as TCurrencyString,
+        coinDetails: transformedData[currency as TCurrencyString],
       }),
     );
-
-    // Prepare transformed data for cache
-    storagePromises.push(
-      saveTableDataForCurrencyInIndexedDB(
-        COINDETAILS_TABLENAME,
-        currency,
-        transformedData[currency],
-      ),
-    );
-  }
-
-  // Wait for all storage operations to complete
-  try {
-    await Promise.all(storagePromises);
-  } catch (err) {
-    console.error("Error during IndexedDB storage:", err);
   }
 }
 
 /**
  * Handles the storage of transformed popular coins list for a specific currency. To be used when the cache isn't available, and a tranformation needs to be done on the fly - which is why we need to dispatch the currencyCHange right after the
- * transformation completes. It then Stores the transformed list in Redux, saves a subsection for trending carousel coins,
- * and saves the entire list to the browser's IndexedDB.
+ * transformation completes. It then Stores the transformed list in Redux, & saves a subsection for trending carousel coins.
  *
- * This function is typically used in the context of the currency transformer worker's
- * message event, specifically for the "transformPopularCoinsListCurrency" message type.
- *
- * @function
- * @async
- * @param {Array} transformedData - The already transformed popular coins list data.
- * @param {string} toCurrency - The currency to update to.
- * @param {Function} dispatch - The Redux dispatch function.
+ * @param {ICoinOverview} transformedData - The already transformed popular coins list data.
+ * @param {TCurrencyString} toCurrency - The currency to update to.
+ * @param {Dispatch} dispatch - The Redux dispatch function.
  */
-async function handleTransformedPopularCoinsForCurrency(
-  transformedData,
-  toCurrency,
-  dispatch,
+function handleTransformedPopularCoinsForCurrency(
+  transformedData: ICoinOverview[],
+  toCurrency: TCurrencyString,
+  dispatch: Dispatch,
 ) {
-  batch(() => {
-    // Store transformed coin data in Redux
-    dispatch(
-      coinsActions.updateCoins({
-        displayedPopularCoinsList: transformedData[POPULARCOINSLISTS_TABLENAME],
-        trendingCarouselCoins: transformedData[
-          POPULARCOINSLISTS_TABLENAME
-        ].slice(0, 10),
-      }),
-    );
-    dispatch(
-      coinsActions.setPopularCoinsListForCurrency({
-        currency: toCurrency,
-        coinData: transformedData[POPULARCOINSLISTS_TABLENAME],
-      }),
-    );
-    dispatch(
-      coinsActions.setCachedCoinDetailsByCurrency({
-        currency: toCurrency,
-        coinData: transformedData[COINDETAILS_TABLENAME],
-      }),
-    );
-    dispatch(currencyActions.changeCurrency({ currency: toCurrency }));
-  });
-
-  // Wait for all storage operations to complete
-  try {
-    void saveTableDataForCurrencyInIndexedDB(
-      POPULARCOINSLISTS_TABLENAME,
-      toCurrency,
-      transformedData[POPULARCOINSLISTS_TABLENAME],
-    );
-  } catch (err) {
-    console.error("Error during IndexedDB storage:", err);
-  }
+  // Store transformed coin data in Redux
+  dispatch(
+    coinsActions.setPopularCoins({
+      coinList: transformedData,
+    }),
+  );
+  dispatch(
+    coinsActions.setCachedPopularCoins({
+      currency: toCurrency,
+      coinList: transformedData,
+    }),
+  );
+  dispatch(currencyActions.setDisplayedCurrency({ currency: toCurrency }));
 }
 
 /**
  * Handles the storage of transformed popular coins lists for multiple currencies.
- * Stores the transformed lists for each currency in Redux and saves them to the browser's IndexedDB.
+ * Stores the transformed lists for each currency in Redux.
  *
- * This function is typically used in the context of the currency transformer worker's
- * message event, specifically for the "transformAllPopularCoinsListCurrencies" message type.
- *
- * @function
- * @async
  * @param {Object} transformedData - The already transformed popular coins lists data, indexed by currency.
  * @param {Function} dispatch - The Redux dispatch function.
  */
-async function handleTransformedPopularCoinsForMultipleCurrencies(
-  transformedData,
-  dispatch,
+function handleTransformedPopularCoinsForMultipleCurrencies(
+  transformedData: Record<TCurrencyString, ICoinOverview[]>,
+  dispatch: Dispatch,
 ) {
-  const storagePromises = [];
   console.log(
     "handleTransformedPopularCoinsForMultipleCurrencies",
     transformedData,
   );
 
-  for (const currency in transformedData[POPULARCOINSLISTS_TABLENAME]) {
+  for (const currency in transformedData) {
     // Store transformed PopularCoins data in Redux
     dispatch(
-      coinsActions.setPopularCoinsListForCurrency({
-        currency,
-        coinData: transformedData[POPULARCOINSLISTS_TABLENAME][currency],
+      coinsActions.setCachedPopularCoins({
+        currency: currency as TCurrencyString,
+        coinList: transformedData[currency as TCurrencyString],
       }),
     );
-
-    // Store Shallow CoinDetails data in Redux
-    dispatch(
-      coinsActions.setCachedCoinDetailsByCurrency({
-        currency,
-        coinData: transformedData[COINDETAILS_TABLENAME][currency],
-      }),
-    );
-
-    // Prepare transformed data for cache
-    storagePromises.push(
-      saveTableDataForCurrencyInIndexedDB(
-        POPULARCOINSLISTS_TABLENAME,
-        currency,
-        transformedData[POPULARCOINSLISTS_TABLENAME][currency],
-      ),
-    );
-  }
-
-  // Wait for all storage operations to complete
-  try {
-    await Promise.all(storagePromises);
-  } catch (err) {
-    console.error("Error during IndexedDB storage:", err);
   }
 }
 
@@ -227,46 +123,49 @@ async function handleTransformedPopularCoinsForMultipleCurrencies(
  * ensuring that transformed data is properly stored and managed.
  *
  * @param {MessageEvent} event - The onmessage event object.
- * @param {Function} dispatch - The Redux dispatch function.
+ * @param {Dispatch} dispatch - The Redux dispatch function.
  */
-export async function handleCurrencyTransformerMessage(event, dispatch) {
-  const { transformedData, type, toCurrency } = event.data;
-  console.log(`currencyTransformerWorker message received - ${type}`);
+export function handleTransformedCurrencyResponse(
+  event: MessageEvent,
+  dispatch: Dispatch,
+) {
+  const { responseType, transformedData, toCurrency } = event.data;
+  console.log(`currencyTransformerWorker message received - ${responseType}`);
 
-  switch (type) {
-    case TRANSFORM_COIN_DETAILS_CURRENCY:
-      await handleTransformedCoinDetailsForCurrency(
+  switch (responseType) {
+    case CTWResponseType.TRANSFORMED_COIN_DETAILS:
+      handleTransformedCoinDetailsForCurrency(
         transformedData,
         toCurrency,
         dispatch,
       );
       break;
 
-    case TRANSFORM_ALL_COIN_DETAILS_CURRENCIES:
-      await handleTransformedCoinDetailsForMultipleCurrencies(
+    case CTWResponseType.TRANSFORMED_ALL_COIN_DETAILS:
+      handleTransformedCoinDetailsForMultipleCurrencies(
         transformedData,
         dispatch,
       );
       break;
 
-    case TRANSFORM_POPULAR_COINS_LIST_CURRENCY:
-      await handleTransformedPopularCoinsForCurrency(
+    case CTWResponseType.TRANSFORMED_POPULAR_COINS_LIST:
+      handleTransformedPopularCoinsForCurrency(
         transformedData,
         toCurrency,
         dispatch,
       );
       break;
 
-    case TRANSFORM_ALL_POPULAR_COINS_LIST_CURRENCIES:
-      await handleTransformedPopularCoinsForMultipleCurrencies(
+    case CTWResponseType.TRANSFORMED_ALL_POPULAR_COINS_LIST:
+      handleTransformedPopularCoinsForMultipleCurrencies(
         transformedData,
         dispatch,
       );
       break;
 
     default:
-      console.warn(`Unknown message type received: ${type}`);
+      console.warn(`Unknown message type received: ${responseType}`);
   }
 
-  console.log(`currencyTransformerWorker job complete! - ${type}`);
+  console.log(`currencyTransformerWorker job complete! - ${responseType}`);
 }

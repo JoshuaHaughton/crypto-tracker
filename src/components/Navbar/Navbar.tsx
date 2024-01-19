@@ -14,6 +14,12 @@ import { useState } from "react";
 import { updateCurrency } from "../../thunks/updateCurrencyThunk";
 // import { usePopularCoinsListPreloader } from "../../hooks/preloaders/usePopularCoinsListPreloader";
 import Link from "next/link";
+import {
+  selectCurrentCurrency,
+  selectCurrentSymbol,
+} from "@/lib/store/currency/currencySelectors";
+import { selectIsBreakpoint555 } from "@/lib/store/mediaQuery/mediaQuerySelectors";
+import { currencyActions } from "@/lib/store/currency/currencySlice";
 
 const vertical = "bottom";
 const horizontal = "center";
@@ -38,18 +44,15 @@ const StyledSelect = styled(Select)(`
 const Navbar = () => {
   const dispatch = useDispatch();
   const [openNotificationBar, setOpenNotificationBar] = useState(false);
-  const currentCurrency = useSelector(
-    (state) => state.currency.currentCurrency,
-  );
-  const currentSymbol = useSelector((state) => state.currency.symbol);
-  const isBreakpoint555 = useSelector(
-    (state) => state.mediaQuery.isBreakpoint555,
-  );
+  const currentCurrency = useSelector(selectCurrentCurrency);
+  const currentSymbol = useSelector(selectCurrentSymbol);
+  const isBreakpoint555 = useSelector(selectIsBreakpoint555);
+  console.log("currentCurrency", currentCurrency);
 
   const handleCurrencyChange = (e) => {
     const currency = e.target.value.split(",")[0].toUpperCase();
 
-    dispatch(updateCurrency({ currency }));
+    dispatch(currencyActions.setCurrencyRates);
   };
 
   return (

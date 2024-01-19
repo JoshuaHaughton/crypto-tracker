@@ -39,6 +39,18 @@ export interface ICoinsState {
 export const initialCoinsState: ICoinsState = {
   popularCoins: [],
   popularCoinsMap: {},
+  /**
+   * Cached popular coins by currency.
+   *
+   * - Will be storing a (modest) maximum of 2500 ICoinOverview objects, approximately 1.25MB (500 bytes per coin).
+   * - This size is well within the general memory limits for Redux stores; desktop web applications usually
+   *   operate well under 250-500 MB, while mobile applications should ideally stay below 50-150 MB.
+   * - Efficient state management is key:
+   *   1. Minimize unnecessary component re-renders with selective state subscriptions.
+   *   2. Use normalized state shapes for more efficient updates.
+   *   3. Optimize performance with memoized selectors for computed data.
+   * - The goal is balancing large dataset management with responsive and smooth UI interactions.
+   */
   cachedPopularCoinsByCurrency: {
     CAD: [],
     USD: [],
