@@ -7,6 +7,7 @@ export interface IAppInfoState {
   popularCoinsPageNumber: number;
   coinsBeingPreloaded: Record<string, boolean>;
   coinsBeingPreloadedOrder: string[];
+  arePopularCoinsBeingPreloaded: boolean;
 }
 
 /**
@@ -30,6 +31,7 @@ export const initialAppInfoState: IAppInfoState = {
   popularCoinsPageNumber: 1,
   coinsBeingPreloaded: {},
   coinsBeingPreloadedOrder: [],
+  arePopularCoinsBeingPreloaded: false,
 };
 
 const appInfoSlice = createSlice({
@@ -95,6 +97,22 @@ const appInfoSlice = createSlice({
     resetCoinsBeingPreloaded(state: IAppInfoState) {
       state.coinsBeingPreloaded = {};
       state.coinsBeingPreloadedOrder = [];
+    },
+
+    /**
+     * Starts the preloading process for popular coins.
+     * @param state - The current state of appInfo.
+     */
+    startPopularCoinsPreloading(state: IAppInfoState) {
+      state.arePopularCoinsBeingPreloaded = true;
+    },
+
+    /**
+     * Stops the preloading process for popular coins.
+     * @param state - The current state of appInfo.
+     */
+    stopPopularCoinsPreloading(state: IAppInfoState) {
+      state.arePopularCoinsBeingPreloaded = false;
     },
   },
 });

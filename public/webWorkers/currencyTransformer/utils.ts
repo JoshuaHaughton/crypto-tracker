@@ -3,7 +3,15 @@ import { coinsActions } from "@/lib/store/coins/coinsSlice";
 import { currencyActions } from "@/lib/store/currency/currencySlice";
 import { Dispatch } from "@reduxjs/toolkit";
 import { ICoinDetails, ICoinOverview } from "@/types/coinTypes";
-import { CTWResponseType } from "./types";
+import {
+  CTWCallbacksMap,
+  CTWResponseMessageEvent,
+  CTWResponseType,
+  TransformedAllCoinDetails,
+  TransformedAllPopularCoinsList,
+  TransformedCoinDetails,
+  TransformedPopularCoinsList,
+} from "./types";
 
 /**
  * Handles the storage of transformed coin details for a specific currency. To be used when the cache isn't available,
@@ -31,7 +39,8 @@ function handleTransformedCoinDetailsForCurrency(
       coinDetails: transformedData,
     }),
   );
-  dispatch(currencyActions.setDisplayedCurrency({ currency: toCurrency }));
+  // move callbacks like this into the callback,,,callback (econd param)
+  // dispatch(currencyActions.setDisplayedCurrency({ currency: toCurrency }));
 }
 
 /**
@@ -81,7 +90,7 @@ function handleTransformedPopularCoinsForCurrency(
       coinList: transformedData,
     }),
   );
-  dispatch(currencyActions.setDisplayedCurrency({ currency: toCurrency }));
+  // dispatch(currencyActions.setDisplayedCurrency({ currency: toCurrency }));
 }
 
 /**
@@ -114,58 +123,94 @@ function handleTransformedPopularCoinsForMultipleCurrencies(
 /**
  * Handles the onmessage event of the currencyTransformerWorker.
  *
- * This function is triggered when the currencyTransformerWorker has completed
- * a currency transformation task. Depending on the type of transformation,
- * the appropriate utility function is called to handle the storage
- * of the transformed data in both Redux and the browser's IndexedDB.
+ * This function is activated when the currencyTransformerWorker completes
+ * a currency transformation task. Based on the type of transformation, it invokes the appropriate
+ * utility function to store the transformed data in both Redux and IndexedDB.
  *
- * This function acts as a central hub in the lifecycle of the currency transformer,
- * ensuring that transformed data is properly stored and managed.
+ * Additionally, this function manages the execution of any callback functions associated with the worker task.
+ * These callbacks, stored in `callbacksMap`, are executed immediately after the worker's task is completed,
+ * allowing for timely and context-specific updates to the application state or UI.
  *
- * @param {MessageEvent} event - The onmessage event object.
- * @param {Dispatch} dispatch - The Redux dispatch function.
+ * @param {CTWResponseMessageEvent} event - The onmessage event object from the worker.
+ * @param {Dispatch} dispatch - Redux dispatch function for updating application state.
+ * @param {CTWCallbacksMap} callbacksMap - A map of callback functions to be executed after the worker's task completion.
  */
 export function handleTransformedCurrencyResponse(
-  event: MessageEvent,
+  event: CTWResponseMessageEvent,
   dispatch: Dispatch,
+  callbacksMap: CTWCallbacksMap,
 ) {
-  const { responseType, transformedData, toCurrency } = event.data;
+  const { responseType, callbackId } = event.data;
   console.log(`currencyTransformerWorker message received - ${responseType}`);
 
   switch (responseType) {
-    case CTWResponseType.TRANSFORMED_COIN_DETAILS:
+    case CTWResponseType.TRANSFORMED_COIN_DETAILS: {
+      const { transformedData, toCurrency } =
+        event.data as TransformedCoinDetails;
       handleTransformedCoinDetailsForCurrency(
         transformedData,
         toCurrency,
         dispatch,
       );
       break;
-
-    case CTWResponseType.TRANSFORMED_ALL_COIN_DETAILS:
+    }
+    case CTWResponseType.TRANSFORMED_ALL_COIN_DETAILS: {
+      const { transformedData } = event.data as TransformedAllCoinDetails;
       handleTransformedCoinDetailsForMultipleCurrencies(
         transformedData,
         dispatch,
       );
       break;
-
-    case CTWResponseType.TRANSFORMED_POPULAR_COINS_LIST:
+    }
+    case CTWResponseType.TRANSFORMED_POPULAR_COINS_LIST: {
+      const { transformedData, toCurrency } =
+        event.data as TransformedPopularCoinsList;
       handleTransformedPopularCoinsForCurrency(
         transformedData,
         toCurrency,
         dispatch,
       );
       break;
-
-    case CTWResponseType.TRANSFORMED_ALL_POPULAR_COINS_LIST:
+    }
+    case CTWResponseType.TRANSFORMED_ALL_POPULAR_COINS_LIST: {
+      const { transformedData } = event.data as TransformedAllPopularCoinsList;
       handleTransformedPopularCoinsForMultipleCurrencies(
         transformedData,
         dispatch,
       );
       break;
-
+    }
     default:
       console.warn(`Unknown message type received: ${responseType}`);
   }
 
+  // Execute the callback if a callbackId is provided
+  if (callbackId && callbacksMap.has(callbackId)) {
+    const callback = callbacksMap.get(callbackId);
+    if (callback) {
+      console.warn("calling currencyTransformerWorker callback", callbackId);
+      callback();
+      // Delete it after it's been called to free up memory
+      callbacksMap.delete(callbackId);
+    }
+  }
+
   console.log(`currencyTransformerWorker job complete! - ${responseType}`);
+}
+
+/**
+ * Generates a unique identifier string for callback functions.
+ * This function combines the current timestamp with a random number to ensure a high probability of uniqueness.
+ * The generated ID is used to map callbacks to specific worker tasks in `callbacksMap`.
+ *
+ * The uniqueness is achieved by:
+ * - Using `Date.now()` to get a timestamp, ensuring temporal uniqueness.
+ * - Appending a random string generated from `Math.random()`, enhancing overall uniqueness.
+ *
+ * This approach provides a simple yet effective way to generate unique IDs without additional dependencies.
+ *
+ * @returns {string} A unique identifier string.
+ */
+export function generateUniqueCallbackId(): string {
+  return Date.now().toString(36) + Math.random().toString(36).substring(2);
 }

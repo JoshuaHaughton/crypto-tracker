@@ -5,6 +5,11 @@ import { Revalidate } from "next/dist/server/lib/revalidate";
 import { AppConfigDynamic } from "next/dist/build/utils";
 import Navbar from "@/components/Navbar/Navbar";
 import { StoreProvider } from "@/lib/store/storeProvider";
+import { usePathname, useRouter } from "next/navigation";
+import { useAppInitialization } from "@/lib/hooks/appLifecycle/useAppInitialization";
+import { makeStore } from "@/lib/store";
+import { useMemo } from "react";
+import { AppInitializer } from "./appInitializer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,10 +28,17 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  if (typeof window !== "undefined") {
+    console.log("App.js rendered in Browser,");
+  }
+
+  const store = useMemo(() => makeStore(), []);
+
   return (
     <html lang="en">
       <body className={inter.className}>
-        <StoreProvider>
+        <StoreProvider store={store}>
+          <AppInitializer />
           <Navbar />
           {children}
         </StoreProvider>

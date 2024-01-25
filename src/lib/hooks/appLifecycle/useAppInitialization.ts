@@ -1,54 +1,36 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useRef } from "react";
-import {
-  hydrateCoinDataBasedOnRoute,
-  validateNecessaryCachesAndClearAllIfInvalid,
-} from "../../utils/cache.utils";
 import { useWebWorker } from "./useWebWorker";
-import { useServiceWorker } from "./useServiceWorker";
-import { useRouteEvents } from "./useRouteEvents";
-import { useFirebaseAuth } from "./useFirebaseAuth";
+import { useAppDispatch } from "@/lib/store";
+import { useRouter, useSearchParams } from "next/navigation";
+import { hydrateCoinDataBasedOnRoute } from "@/thunks/hydrateCoinDataBasedOnRoute";
 
 /**
  * Custom hook to handle data initialization on the initial load of the app.
- *
- * @param {Object} store - The Redux store.
- * @param {Object} router - The Next.js router.
- * @param {Object} initialReduxState - The Initial Redux state.
- * @param {string} serverGlobalCacheVersion - The global cache version from the server (optional, and should not be provided by the client cookie).
  */
-export const useAppInitialization = (
-  store,
-  router,
-  initialReduxState,
-  serverGlobalCacheVersion,
-) => {
+export const useAppInitialization = () => {
   const hasInitialized = useRef(false);
+  const dispatch = useAppDispatch();
+  const searchParams = useSearchParams();
 
-  useServiceWorker();
-  useWebWorker(store.dispatch);
-  useRouteEvents(store, initialReduxState, serverGlobalCacheVersion);
+  const symbol = searchParams.get("symbol");
+  console.log("Symbol from URL:", symbol);
 
+  // useServiceWorker();
+  useWebWorker(dispatch);
+  // useRouteEvents(store, initialReduxState, serverGlobalCacheVersion);
+
+  // Initialize coin data from server on initial load depending on the current route
   useEffect(() => {
-    if (!router.isReady || hasInitialized.current) return;
+    if (hasInitialized.current) return;
 
     const initializeData = async () => {
-      const areNecessaryCachesValid =
-        await validateNecessaryCachesAndClearAllIfInvalid(
-          serverGlobalCacheVersion,
-        );
-
-      await hydrateCoinDataBasedOnRoute(
-        store,
-        router,
-        areNecessaryCachesValid,
-        serverGlobalCacheVersion,
-      );
+      dispatch(hydrateCoinDataBasedOnRoute(symbol));
     };
 
     void initializeData();
 
     // Update the ref to prevent re-initialization on subsequent renders
     hasInitialized.current = true;
-  }, [router.isReady]);
+  }, []);
 };

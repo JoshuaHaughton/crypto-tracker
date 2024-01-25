@@ -13,9 +13,16 @@ import {
   COINDETAILS_TABLENAME,
   FIVE_MINUTES_IN_MS,
   GLOBALCACHEINFO_TABLENAME,
+  TCurrencyString,
 } from "@/lib/constants/globalConstants";
 import { coinsActions } from "@/lib/store/coins/coinsSlice";
 import { appInfoActions } from "@/lib/store/appInfo/appInfoSlice";
+import { TAppStore } from "@/lib/store";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { Dispatch } from "@reduxjs/toolkit";
+import { TCurrencyExchangeRates } from "@/types/currencyTypes";
+import { ICoinDetails } from "@/types/coinTypes";
+import { fetchPopularCoinsData } from "./api.server.utils";
 
 // Validating/Updating Cache Data
 
@@ -431,93 +438,27 @@ export function storeCurrencyRatesInIndexedDB(currencyRates) {
  *
  * - Updates the Redux store with the appropriate data (either from the cache or the API).
  *
- * @param {Object} options - The options object.
- * @param {Object} options.store - The Redux store to update with the fetched data.
- * @param {boolean} [options.indexedDBCacheIsValid] - Optional. If provided, it directly indicates whether the IndexedDB cache is valid or not, bypassing any IndexedDB validity check. If left undefined, the function will check the validity from IndexedDB.
+ * @param {Object} store - The Redux store to update with the fetched data.
  * @returns {Promise<void>} - A promise that resolves when the store is updated and the cache is reinitialized.
  */
-export async function fetchAndInitializeCoinsCache({
-  store,
-  indexedDBCacheIsValid,
-}) {
+export async function fetchAndInitializeCoinsCache(store) {
   console.log("fetchAndInitializeCoinsCache");
 
-  let popularCoinsListCacheData;
+  let popularCoinsListData;
   const state = store.getState();
   const currentCurrency = state.currency.currentCurrency;
   const selectedCoinDetails = state.coins.selectedCoinDetails;
   const isCoinCurrentlySelected = !isEmpty(selectedCoinDetails);
 
-  const isCacheValid =
-    indexedDBCacheIsValid != null
-      ? indexedDBCacheIsValid
-      : await validateNecessaryCaches();
+  store.dispatch(appInfoActions.startPopularCoinsPreloading());
 
-  store.dispatch(appInfoActions.startPopularCoinsListsHydration());
-  if (isCacheValid) {
-    try {
-      const popularCoinsListByCurrency = {};
-      const cachedCoinDetailsByCurrency = {};
+  console.log("cache NOT used for getPopularCoinsCacheData");
+  popularCoinsListData = await fetchPopularCoinsData(currentCurrency);
 
-      // Fetch popular coins data concurrently for all currencies
-      const allCurrenciesData = await Promise.all(
-        ALL_CURRENCIES.map(async (currency) => {
-          const { coinData } = await fetchDataFromIndexedDB(
-            POPULARCOINSLISTS_TABLENAME,
-            currency,
-          );
-          return { currency, coinData };
-        }),
-      );
+  store.dispatch(appInfoActions.stopPopularCoinsPreloading());
 
-      // allCurrenciesData.forEach(({ currency, coinData }) => {
-      //   popularCoinsListByCurrency[currency] = coinData;
-      //   cachedCoinDetailsByCurrency[currency] =
-      //     mapPopularCoinsToShallowDetailedAttributes(coinData);
-      //   if (isCoinCurrentlySelected) {
-      //     const coinId = selectedCoinDetails.coinAttributes.id;
-      //     delete cachedCoinDetailsByCurrency[currency][coinId];
-      //   }
-      // });
-
-      const currencyRatesCacheData = await fetchDataForCurrenciesFromIndexedDB(
-        CURRENCYRATES_TABLENAME,
-      );
-
-      popularCoinsListCacheData = {
-        coins: {
-          displayedPopularCoinsList:
-            popularCoinsListByCurrency[currentCurrency],
-          trendingCarouselCoins: popularCoinsListByCurrency[
-            currentCurrency
-          ]?.slice(0, 10),
-          popularCoinsListByCurrency,
-          cachedCoinDetailsByCurrency,
-        },
-        currency: {
-          currencyRates: currencyRatesCacheData,
-        },
-      };
-      console.log("cache USED for getPopularCoinsCacheData");
-    } catch (error) {
-      console.error("Error fetching from cache:", error);
-      popularCoinsListCacheData = await getPopularCoinsCacheData(
-        currentCurrency,
-      );
-      // updateGlobalCacheVersion();
-      storeCurrencyRatesInIndexedDB(
-        popularCoinsListCacheData.currency.currencyRates,
-      );
-    }
-  } else {
-    console.log("cache NOT used for getPopularCoinsCacheData");
-    popularCoinsListCacheData = await getPopularCoinsCacheData(currentCurrency);
-
-    updateGlobalCacheVersion();
-    storeCurrencyRatesInIndexedDB(
-      popularCoinsListCacheData.currency.currencyRates,
-    );
-  }
+  // updateGlobalVersion();
+  storeCurrencyRatesInIndexedDB(popularCoinsListData.currency.currencyRates);
 }
 
 /**
@@ -570,61 +511,51 @@ export async function preloadDetailsForCurrentCoinIfOnDetailsPage(
   }
 }
 
+interface IPreloadFetchedCoinDetailsOptions {
+  dispatch: Dispatch;
+  coinDetails: ICoinDetails;
+  currentCurrency: TCurrencyString;
+  currencyExchangeRates: TCurrencyExchangeRates;
+}
+
 /**
- * Preloads coin details by:
- * - Sending a message to the currency transformer worker to transform details for all currencies.
- * - Updating the Redux state with the fetched data for the current currency.
- * - Saving the data for the current currency to IndexedDB.
- * - Updating a cookie that tracks preloaded coins.
+ * Initializes the preloading of freshly fetched coin details.
+ * It synchronously updates the Redux store with the CoinDetails for the current currency, & asynchronously transforms coin details for all other currencies using a web worker.
  *
- * @param {Object} dispatch - The dispatch method from the Redux store.
- * @param {Object} coinDetails - The details of the coin to preload.
- * @param {string} currentCurrency - The current currency.
- * @param {Object} currencyRates - Currency conversion rates.
- * @returns {Promise<void>}
+ * @param {IPreloadFetchedCoinDetailsOptions} options - The options for preloading fetched coin details.
  */
-export async function preloadCoinDetails(
-  dispatch,
-  coinDetails,
-  currentCurrency,
-  currencyRates,
-) {
-  console.log(coinDetails);
-  const coinId = coinDetails.coinAttributes.symbol;
+export function preloadFetchedCoinDetails(
+  options: IPreloadFetchedCoinDetailsOptions,
+): void {
+  const { dispatch, coinDetails, currentCurrency, currencyExchangeRates } =
+    options;
+  const coinId = coinDetails.id;
+
   console.warn(`Preloading details for coin ${coinId}`, coinDetails);
 
-  try {
-    postMessageToCurrencyTransformerWorker({
-      type: "transformAllCoinDetailsCurrencies",
-      data: {
-        coinToTransform: coinDetails,
-        fromCurrency: currentCurrency.toUpperCase(),
-        currencyRates,
-        currenciesToExclude: [currentCurrency.toUpperCase()],
-      },
-    });
+  // Posts a message to the web worker for transforming the coin details across multiple currencies. Once complete,
+  // the worker will handle dispatching the data to Redux state.
+  // This efficiently handles data processing in the background to avoid UI blocking.
+  postMessageToCurrencyTransformerWorker({
+    requestType: CTWRequestType.TRANSFORM_ALL_COIN_DETAILS_CURRENCIES,
+    requestData: {
+      coinToTransform: coinDetails,
+      fromCurrency: currentCurrency,
+      currenciesToExclude: [currentCurrency],
+      currencyExchangeRates,
+    },
+  });
 
-    dispatch(
-      coinsActions.setOrUpdatePreloadedCoinDetails({
-        currency: currentCurrency,
-        coinDetails,
-      }),
-    );
-
-    let currentPreloadedCoinIds = JSON.parse(
-      localStorage?.getItem("preloadedCoins") || "[]",
-    );
-
-    if (!currentPreloadedCoinIds.includes(coinId)) {
-      currentPreloadedCoinIds.push(coinId);
-      localStorage?.setItem(
-        "preloadedCoins",
-        JSON.stringify(currentPreloadedCoinIds),
-      );
-    }
-  } catch (error) {
-    console.error(`Error during preload operation for coin ${coinId}:`, error);
-  }
+  // Updates preloaded coin details in Redux store, ensuring UI consistency.
+  // Utilizes shallow data from popular coins list to maintain uniformity in images and prices.
+  // Overwrites null properties with existing data, or sets new details as needed.
+  // Balances immediate display from shallow data with detailed fetched information.
+  dispatch(
+    coinsActions.setOrUpdatePreloadedCoinDetails({
+      currency: currentCurrency,
+      coinDetails,
+    }),
+  );
 }
 
 // Retrieving Data from Cache
@@ -691,45 +622,37 @@ export async function getCoinDetailsForCurrencyByIdFromBrowser(
  *    - Otherwise, fetches from IndexedDB cache or via API.
  * 3. Finally, if we didn't hydrate the preloaded CoinDetails in step 1, we do it here.
  *
- * @param {Object} store - The Redux store to update with the fetched data.
- * @param {Object} router - The Next.js router.
- * @param {boolean} isCacheValid - Flag indicating the validity of the cache.
- * @param {string} [serverGlobalCacheVersion] - Optional. The server's global cache version.
+ * @param {TAppStore} store - The Redux store to update with the fetched data.
+ * @param {AppRouterInstance} router - The Next.js router.
  * @returns {Promise<void>} A promise indicating completion.
  */
 export async function hydrateCoinDataBasedOnRoute(
-  store,
-  router,
-  isCacheValid,
-  serverGlobalCacheVersion,
+  store: TAppStore,
+  router: AppRouterInstance,
 ) {
   console.log("hydrateCoinDataBasedOnRoute");
   console.log("router", router);
 
   // Get relevant state and initialize flags
-  const { coins } = store.getState();
-  const popularCoinsList = coins.displayedPopularCoinsList;
+  const { coins, appInfo } = store.getState();
+  const popularCoinsList = coins.popularCoins;
   const selectedCoinDetails = coins.selectedCoinDetails;
+  const coinIsBeingPreloaded =
+    appInfo.coinsBeingPreloaded[selectedCoinDetails.symbol];
   const isOnCoinDetailsPage = router.query?.id != null;
-  const isOnPopularCoinsPage = router.pathname === "/spa/discover";
-  let shouldHydratePreloadedCoinsAtEnd = true;
 
-  // Handle the CoinDetails page
+  // Handle the CoinDetails
   if (isOnCoinDetailsPage) {
-    await hydratePreloadedCoinsFromCacheIfAvailable(store.dispatch);
-    // Set to false so we only call this once
-    shouldHydratePreloadedCoinsAtEnd = false;
-
-    // Fetch and preload CoinDetails if not preloaded from cache
+    // Fetch and preload CoinDetails if they don't exist for some reason
     const coinDetailsArePreloaded =
       selectedCoinDetails?.coinAttributes?.priceChartDataset != null;
     console.log("isOnCoinDetailsPage - hydrateCoinDataBasedOnRoute");
-    console.log(
-      "coinDetailsArePreloaded - hydrateCoinDataBasedOnRoute",
-      coinDetailsArePreloaded,
-    );
-    console.log("router.query]", router.query);
-    if (!coinDetailsArePreloaded) {
+
+    if (!coinDetailsArePreloaded && !coinIsBeingPreloaded) {
+      console.warn(
+        "CoinDetails don't exist on initial load of CoinDetails page!!!?",
+      );
+      console.warn("(Fetching)");
       fetchAndPreloadCoinDetailsThunk({
         coinId: router.query?.id,
         selectCoinAfterFetch: true,
@@ -737,21 +660,16 @@ export async function hydrateCoinDataBasedOnRoute(
     }
   }
 
-  // Handle the Popular Coins page
-  if (
-    isOnPopularCoinsPage &&
-    Array.isArray(popularCoinsList) &&
-    popularCoinsList.length > 0
-  ) {
+  // Handle the Popular Coins
+  const popularCoinsAlreadyExist =
+    Array.isArray(popularCoinsList) && popularCoinsList.length > 0;
+
+  if (popularCoinsAlreadyExist) {
     console.log(
       "We started with PopularCoinsLists data from the server. DON'T FETCH IT AGAIN, just initialize the cache with it.",
     );
-    await store.dispatch(
-      initializePopularCoinsAndDetailsCache({
-        indexedDBCacheIsValid: isCacheValid,
-      }),
-    );
-    updateGlobalCacheVersion(serverGlobalCacheVersion);
+    await store.dispatch(initializePopularCoinsAndDetailsCache());
+    // updateGlobalCacheVersion(serverGlobalCacheVersion);
   } else {
     // Handle the case where no PopularCoinsList data is available
     console.log(
@@ -760,12 +678,7 @@ export async function hydrateCoinDataBasedOnRoute(
     // Fetch and initialize Coins cache
     await fetchAndInitializeCoinsCache({
       store,
-      indexedDBCacheIsValid: isCacheValid,
     });
-  }
-
-  if (shouldHydratePreloadedCoinsAtEnd) {
-    await hydratePreloadedCoinsFromCacheIfAvailable(store.dispatch);
   }
 }
 

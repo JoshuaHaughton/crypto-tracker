@@ -471,16 +471,16 @@ interface IPriceChartDataset {
   }[];
 }
 
-interface IPeriodicPriceChanges {
-  priceChange24h: number;
-  priceChange7d: number;
-  priceChange30d: number;
-  priceChange365d: number;
-}
+// interface IPeriodicPriceChanges {
+//   priceChange24h: number;
+//   priceChange7d: number;
+//   priceChange30d: number;
+//   priceChange365d: number;
+// }
 
-interface IPeriodicPriceChangePercentages {
-  h24: number;
-  d7: number;
-  d30: number;
-  d365: number;
-}
+// interface IPeriodicPriceChangePercentages {
+//   h24: number;
+//   d7: number;
+//   d30: number;
+//   d365: number;
+// }

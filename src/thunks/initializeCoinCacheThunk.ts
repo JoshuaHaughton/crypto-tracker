@@ -29,48 +29,47 @@ import { POPULARCOINSLISTS_TABLENAME } from "@/lib/constants/globalConstants";
  * - Note: Requires the popularCoinsList to be fully populated in state before iniitiation.
  *
  * @param {Object} options - Options object.
- * @param {boolean} [options.indexedDBCacheIsValid] - A flag indicating whether the cache is valid or not. If provided, will bypass the indexedDB validity check.
  * @returns {Function} Thunk action.
  */
 export const initializePopularCoinsAndDetailsCache = createAsyncThunk(
   "coins/initializePopularCoinsAndDetailsCache",
   async (options = {}, { dispatch, getState }) => {
     const state = getState();
-    const { indexedDBCacheIsValid } = options;
-    const popularCoinsList = state.coins.displayedPopularCoinsList;
-    dispatch(appInfoActions.startPopularCoinsListsHydration());
+    const popularCoinsList = state.coins.popularCoins;
+    dispatch(appInfoActions.startPopularCoinsPreloading());
     // Used as the shallow details for coins so we can have consistent pricing throughout the app instead of fetching data that is slightly different from the API
     const shallowCoinDetails =
       mapPopularCoinsToShallowDetailedAttributes(popularCoinsList);
-    const currencyRates = state.currency.currencyRates;
+    const currencyExchangeRates = state.currency.currencyRates;
     const currentCurrency = state.currency.currentCurrency;
     console.log("initializePopularCoinsAndDetailsCache thunk active", state);
 
-    const isCacheValid =
-      indexedDBCacheIsValid != null
-        ? indexedDBCacheIsValid
-        : await validateCacheDataForTable(POPULARCOINSLISTS_TABLENAME);
+    // const isCacheValid =
+    //   indexedDBCacheIsValid != null
+    //     ? indexedDBCacheIsValid
+    //     : await validateCacheDataForTable(POPULARCOINSLISTS_TABLENAME);
 
     // If data isn't in the cache, or the cache isn't valid, send the initial data to the web worker
     // for currency transformation. After that, we save it to the cache
     if (!isCacheValid) {
-      if (indexedDBCacheIsValid === false) {
-        console.log(
-          "SKIPPED POPULARCOINSLISTS CACHE (Skipped extra validateCacheDataForTable call) - initializePopularCoinsAndDetailsCache",
-        );
-      } else {
-        console.log(
-          "INVALID POPULARCOINSLISTS CACHE - initializePopularCoinsAndDetailsCache",
-        );
-      }
+      // if (indexedDBCacheIsValid === false) {
+      //   console.log(
+      //     "SKIPPED POPULARCOINSLISTS CACHE (Skipped extra validateCacheDataForTable call) - initializePopularCoinsAndDetailsCache",
+      //   );
+      // } else {
+      //   console.log(
+      //     "INVALID POPULARCOINSLISTS CACHE - initializePopularCoinsAndDetailsCache",
+      //   );
+      // }
 
       if (typeof window !== "undefined") {
         postMessageToCurrencyTransformerWorker({
-          type: "transformAllPopularCoinsListCurrencies",
-          data: {
+          requestType:
+            CTWRequestType.TRANSFORM_ALL_POPULAR_COINS_LIST_CURRENCIES,
+          requestData: {
             coinsToTransform: popularCoinsList,
             fromCurrency: currentCurrency.toUpperCase(),
-            currencyRates: currencyRates,
+            currencyExchangeRates,
             // We start off with the initial coins for the current currency, so we can exclude it to avoid
             // an unnecessary computation
             currenciesToExclude: [currentCurrency],
@@ -106,39 +105,8 @@ export const initializePopularCoinsAndDetailsCache = createAsyncThunk(
 
         return storeCurrencyRatesInIndexedDB(currencyRates);
       }
-    } else {
-      console.log(
-        "VALID COIN LISTS CACHE - initializePopularCoinsAndDetailsCache thunk",
-      );
-
-      return db[POPULARCOINSLISTS_TABLENAME].each((data) => {
-        if (data.currency !== currentCurrency.toUpperCase() && data?.coinData) {
-          dispatch(
-            coinsActions.setPopularCoinsListForCurrency({
-              currency: data.currency,
-              coinData: data.coinData,
-            }),
-          );
-          dispatch(
-            coinsActions.setCachedCoinDetailsByCurrency({
-              currency: data.currency,
-              coinData: mapPopularCoinsToShallowDetailedAttributes(
-                data.coinData,
-              ),
-            }),
-          );
-        }
-      })
-        .catch((err) =>
-          console.error("Error fetching data from IndexedDB:", err),
-        )
-        .finally(() =>
-          console.log(
-            "REDUX CACHE INITIALIZED - initializePopularCoinsAndDetailsCache thunk",
-          ),
-        );
     }
 
-    dispatch(appInfoActions.finishPopularCoinsListsHydration());
+    dispatch(appInfoActions.stopPopularCoinsPreloading());
   },
 );
