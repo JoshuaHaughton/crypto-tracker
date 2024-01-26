@@ -1,16 +1,15 @@
 import { TCurrencyString } from "@/lib/constants/globalConstants";
 import { coinsActions } from "@/lib/store/coins/coinsSlice";
-import { currencyActions } from "@/lib/store/currency/currencySlice";
 import { Dispatch } from "@reduxjs/toolkit";
-import { ICoinDetails, ICoinOverview } from "@/types/coinTypes";
 import {
   CTWCallbacksMap,
   CTWResponseMessageEvent,
   CTWResponseType,
-  TransformedAllCoinDetails,
-  TransformedAllPopularCoinsList,
-  TransformedCoinDetails,
-  TransformedPopularCoinsList,
+  CTWCoinDetailsResponseData,
+  CTWAllCoinDetailsResponseData,
+  CTWPopularCoinsListResponseData,
+  CTWAllPopularCoinsListsResponseData,
+  CTWCallbackResponse,
 } from "./types";
 
 /**
@@ -22,24 +21,26 @@ import {
  * @param {TCurrencyString} toCurrency - The currency to update to.
  * @param {Dispatch} dispatch - Redux dispatch function.
  */
-function handleTransformedCoinDetailsForCurrency(
-  transformedData: ICoinDetails,
+function handleCTWTransformedCoinDetailsForCurrency(
+  transformedData: CTWCoinDetailsResponseData["transformedData"],
   toCurrency: TCurrencyString,
   dispatch: Dispatch,
 ) {
-  // Store transformed coin data in Redux
   dispatch(
-    coinsActions.setSelectedCoinDetails({
-      coinDetails: transformedData,
-    }),
-  );
-  dispatch(
-    coinsActions.setOrUpdatePreloadedCoinDetails({
+    coinsActions.setPreloadedCoinDetailsUsingPopularCoinsBase({
       currency: toCurrency,
       coinDetails: transformedData,
     }),
   );
-  // move callbacks like this into the callback,,,callback (econd param)
+  // move callbacks like this into the callback,,,callback (second param)
+
+  // Store transformed coin data in Redux
+  // dispatch(
+  //   coinsActions.setSelectedCoinDetails({
+  //     coinDetails: transformedData,
+  //   }),
+  // );
+
   // dispatch(currencyActions.setDisplayedCurrency({ currency: toCurrency }));
 }
 
@@ -50,14 +51,14 @@ function handleTransformedCoinDetailsForCurrency(
  * @param {ICoinDetails} transformedData - The transformed coin details data, indexed by currency.
  * @param {Dispatch} dispatch - The Redux dispatch function.
  */
-function handleTransformedCoinDetailsForMultipleCurrencies(
-  transformedData: Record<TCurrencyString, ICoinDetails>,
+function handleCTWTransformedCoinDetailsForMultipleCurrencies(
+  transformedData: CTWAllCoinDetailsResponseData["transformedData"],
   dispatch: Dispatch,
 ) {
   for (const currency in transformedData) {
     // Store transformed coin data in Redux
     dispatch(
-      coinsActions.setOrUpdatePreloadedCoinDetails({
+      coinsActions.setPreloadedCoinDetailsUsingPopularCoinsBase({
         currency: currency as TCurrencyString,
         coinDetails: transformedData[currency as TCurrencyString],
       }),
@@ -74,23 +75,25 @@ function handleTransformedCoinDetailsForMultipleCurrencies(
  * @param {Dispatch} dispatch - The Redux dispatch function.
  */
 function handleTransformedPopularCoinsForCurrency(
-  transformedData: ICoinOverview[],
+  transformedData: CTWPopularCoinsListResponseData["transformedData"],
   toCurrency: TCurrencyString,
   dispatch: Dispatch,
 ) {
-  // Store transformed coin data in Redux
   dispatch(
-    coinsActions.setPopularCoins({
-      coinList: transformedData,
-    }),
-  );
-  dispatch(
-    coinsActions.setCachedPopularCoins({
+    coinsActions.setCachedPopularCoinsMap({
       currency: toCurrency,
       coinList: transformedData,
     }),
   );
+  // move callbacks like this into the callback,,,callback (econd param)
   // dispatch(currencyActions.setDisplayedCurrency({ currency: toCurrency }));
+
+  // Not sure if we should save this until after (using the callback) because it would dispatch the other currencies first.
+  // dispatch(
+  //   coinsActions.setPopularCoins({
+  //     coinList: transformedData,
+  //   }),
+  // );
 }
 
 /**
@@ -101,7 +104,7 @@ function handleTransformedPopularCoinsForCurrency(
  * @param {Function} dispatch - The Redux dispatch function.
  */
 function handleTransformedPopularCoinsForMultipleCurrencies(
-  transformedData: Record<TCurrencyString, ICoinOverview[]>,
+  transformedData: CTWAllPopularCoinsListsResponseData["transformedData"],
   dispatch: Dispatch,
 ) {
   console.log(
@@ -112,7 +115,7 @@ function handleTransformedPopularCoinsForMultipleCurrencies(
   for (const currency in transformedData) {
     // Store transformed PopularCoins data in Redux
     dispatch(
-      coinsActions.setCachedPopularCoins({
+      coinsActions.setCachedPopularCoinsMap({
         currency: currency as TCurrencyString,
         coinList: transformedData[currency as TCurrencyString],
       }),
@@ -140,31 +143,31 @@ export function handleTransformedCurrencyResponse(
   dispatch: Dispatch,
   callbacksMap: CTWCallbacksMap,
 ) {
-  const { responseType, callbackId } = event.data;
+  const { responseType, onCompleteCallbackId } = event.data;
   console.log(`currencyTransformerWorker message received - ${responseType}`);
 
   switch (responseType) {
-    case CTWResponseType.TRANSFORMED_COIN_DETAILS: {
+    case CTWResponseType.COIN_DETAILS_SINGLE_CURRENCY: {
       const { transformedData, toCurrency } =
-        event.data as TransformedCoinDetails;
-      handleTransformedCoinDetailsForCurrency(
+        event.data as CTWCoinDetailsResponseData;
+      handleCTWTransformedCoinDetailsForCurrency(
         transformedData,
         toCurrency,
         dispatch,
       );
       break;
     }
-    case CTWResponseType.TRANSFORMED_ALL_COIN_DETAILS: {
-      const { transformedData } = event.data as TransformedAllCoinDetails;
-      handleTransformedCoinDetailsForMultipleCurrencies(
+    case CTWResponseType.COIN_DETAILS_ALL_CURRENCIES: {
+      const { transformedData } = event.data as CTWAllCoinDetailsResponseData;
+      handleCTWTransformedCoinDetailsForMultipleCurrencies(
         transformedData,
         dispatch,
       );
       break;
     }
-    case CTWResponseType.TRANSFORMED_POPULAR_COINS_LIST: {
+    case CTWResponseType.POPULAR_COINS_SINGLE_CURRENCY: {
       const { transformedData, toCurrency } =
-        event.data as TransformedPopularCoinsList;
+        event.data as CTWPopularCoinsListResponseData;
       handleTransformedPopularCoinsForCurrency(
         transformedData,
         toCurrency,
@@ -172,8 +175,9 @@ export function handleTransformedCurrencyResponse(
       );
       break;
     }
-    case CTWResponseType.TRANSFORMED_ALL_POPULAR_COINS_LIST: {
-      const { transformedData } = event.data as TransformedAllPopularCoinsList;
+    case CTWResponseType.POPULAR_COINS_ALL_CURRENCIES: {
+      const { transformedData } =
+        event.data as CTWAllPopularCoinsListsResponseData;
       handleTransformedPopularCoinsForMultipleCurrencies(
         transformedData,
         dispatch,
@@ -184,14 +188,31 @@ export function handleTransformedCurrencyResponse(
       console.warn(`Unknown message type received: ${responseType}`);
   }
 
-  // Execute the callback if a callbackId is provided
-  if (callbackId && callbacksMap.has(callbackId)) {
-    const callback = callbacksMap.get(callbackId);
-    if (callback) {
-      console.warn("calling currencyTransformerWorker callback", callbackId);
-      callback();
-      // Delete it after it's been called to free up memory
-      callbacksMap.delete(callbackId);
+  // Execute the callback if an onCompleteCallbackId is provided
+  if (onCompleteCallbackId) {
+    if (callbacksMap.has(onCompleteCallbackId)) {
+      const callback = callbacksMap.get(onCompleteCallbackId);
+      if (callback) {
+        console.warn(
+          "calling currencyTransformerWorker callback",
+          onCompleteCallbackId,
+        );
+        // Create a response object that includes both responseType and transformedData
+        const callbackResponse: CTWCallbackResponse = {
+          responseType: responseType,
+          transformedData: event.data.transformedData,
+        };
+
+        // Invoke the callback with the response object
+        callback(callbackResponse);
+        // Delete the callback after it's been called to free up memory
+        callbacksMap.delete(onCompleteCallbackId);
+      }
+    } else {
+      // Throw an error if onCompleteCallbackId is provided but not found in the map
+      throw new Error(
+        `Callback with ID ${onCompleteCallbackId} not found in callbacksMap.`,
+      );
     }
   }
 
@@ -211,6 +232,6 @@ export function handleTransformedCurrencyResponse(
  *
  * @returns {string} A unique identifier string.
  */
-export function generateUniqueCallbackId(): string {
+export function generateUniqueOnCompleteCallbackId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substring(2);
 }

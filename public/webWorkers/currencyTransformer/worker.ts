@@ -1,4 +1,6 @@
-const ALL_CURRENCIES = ["CAD", "USD", "AUD", "GBP"];
+import { initialCoinsState } from "@/lib/store/coins/coinsSlice";
+
+const ALL_CURRENCIES = ["CAD", "USD", "AUD", "GBP"] as const;
 
 /**
  * Converts a value from one currency to another using the given currency rates.
@@ -249,131 +251,118 @@ const transformCurrencyForCoinDetails = (
 /**
  * Web Worker event listener for message events related to currency transformation tasks.
  *
- * This Web Worker is responsible for performing currency conversions on various datasets.
- * It operates off the main thread to ensure that currency conversions, which can be
- * computationally intensive, do not block the main thread and cause UI issues.
+ * Responsibilities:
+ * - This worker performs currency conversions on various datasets off the main thread.
+ *   This approach ensures that these potentially computationally intensive operations
+ *   do not interfere with the main thread, avoiding UI freezes or lags.
  *
- * The worker expects messages with a specific structure and responds with the appropriate
- * transformed data. This is part of the Currency Transformer lifecycle, where:
- * 1. The main thread sends a message to the worker with data to be transformed.
- * 2. The worker receives the message, performs the transformation, and posts the result back.
- * 3. The main thread then processes the transformed result accordingly.
+ * Lifecycle in the Currency Transformer Context:
+ * 1. The main thread sends a message to this worker with data that needs to be transformed.
+ * 2. Upon receiving the message, this worker carries out the necessary transformations.
+ * 3. After completing the task, the worker sends the transformed data back to the main thread.
  *
- * Note: This file shouldn't have any imports because Web Workers in many environments
- * have restrictions on using ES modules. All necessary functions or variables should
- * be defined within the worker or passed in the message data.
+ * Callback Handling:
+ * - Each message can optionally include an 'onCompleteCallbackId'.
+ * - This ID is associated with a specific callback function stored in the 'callbacksMap' on the main thread.
+ * - When the worker posts the result back, it includes this 'callbackId'.
+ * - The main thread uses this ID to retrieve and execute the corresponding callback function.
+ * - This mechanism allows asynchronous, yet specific post-processing actions tied to the worker's task completion.
+ *
+ * Restrictions:
+ * - This file contains no imports due to limitations in many Web Worker environments regarding ES modules.
+ * - Therefore, all necessary functions or variables are defined within this worker or passed in the message data.
  *
  * @listens message
- * @param {MessageEvent} event - The message event containing data for transformation.
+ * @param {CTWInternalRequestMessageEvent} event - The message event containing data for transformation.
  */
-onmessage = (event: MessageEvent) => {
-  const { requestType, requestData } = event.data;
+onmessage = (event: CTWInternalRequestMessageEvent) => {
+  const { requestType, requestData, onCompleteCallbackId } = event.data;
 
   switch (requestType) {
-    case CTWRequestType.TRANSFORM_COIN_DETAILS_CURRENCY:
+    case CTWMessageRequestType.COIN_DETAILS_SINGLE_CURRENCY:
+      const coinDetailsData = requestData as CTWCoinDetailsRequestData;
       const transformedCoinDetails = transformCurrencyForCoinDetails(
-        requestData.coinToTransform,
-        requestData.fromCurrency,
-        requestData.toCurrency,
-        requestData.currencyExchangeRates,
+        coinDetailsData.coinToTransform,
+        coinDetailsData.fromCurrency,
+        coinDetailsData.toCurrency,
+        coinDetailsData.currencyExchangeRates,
       );
       postMessage({
-        responseType: CTWResponseType.TRANSFORMED_COIN_DETAILS,
+        responseType: CTWResponseType.COIN_DETAILS_SINGLE_CURRENCY,
         transformedData: transformedCoinDetails,
-        toCurrency: requestData.toCurrency,
+        toCurrency: coinDetailsData.toCurrency,
+        onCompleteCallbackId,
       });
       break;
 
-    case CTWRequestType.TRANSFORM_ALL_COIN_DETAILS_CURRENCIES:
+    case CTWMessageRequestType.COIN_DETAILS_ALL_CURRENCIES:
       // Extract the necessary data for the transformation
-      const {
-        coinToTransform,
-        fromCurrency: coinFromCurrency,
-        currencyExchangeRates: coinCurrencyExchangeRates,
-        currenciesToExclude: coinCurrenciesToExclude,
-      } = requestData;
+      const allCoinDetailsData = requestData as CTWAllCoinDetailsRequestData;
+      const allCoinDetailsTransformedData =
+        {} as CTWAllCoinDetailsResponseData["transformedData"];
 
-      let coinTargetCurrencies = ALL_CURRENCIES;
-
-      if (coinCurrenciesToExclude?.length > 0) {
-        // Filter out the excluded currency from the list of all currencies if it exists
-        coinTargetCurrencies = coinTargetCurrencies.filter(
-          (currency) => !coinCurrenciesToExclude.includes(currency),
-        );
-      }
-
-      // Create an object to store the transformed data for each target currency
-      const coinDetailsTransformedData: Record<TCurrencyString, ICoinDetails> =
-        {};
-
-      coinTargetCurrencies.forEach((targetCurrency) => {
-        coinDetailsTransformedData[targetCurrency] =
+      ALL_CURRENCIES.filter(
+        (currency) =>
+          !allCoinDetailsData.currenciesToExclude?.includes(currency),
+      ).forEach((targetCurrency) => {
+        allCoinDetailsTransformedData[targetCurrency] =
           transformCurrencyForCoinDetails(
-            coinToTransform,
-            coinFromCurrency,
+            allCoinDetailsData.coinToTransform,
+            allCoinDetailsData.fromCurrency,
             targetCurrency,
-            coinCurrencyExchangeRates,
+            allCoinDetailsData.currencyExchangeRates,
           );
       });
 
       postMessage({
-        responseType: CTWResponseType.TRANSFORMED_ALL_COIN_DETAILS,
-        transformedData: coinDetailsTransformedData,
+        responseType: CTWResponseType.COIN_DETAILS_ALL_CURRENCIES,
+        transformedData: allCoinDetailsTransformedData,
+        onCompleteCallbackId,
       });
       break;
 
-    case CTWRequestType.TRANSFORM_POPULAR_COINS_LIST_CURRENCY:
+    case CTWMessageRequestType.POPULAR_COINS_SINGLE_CURRENCY:
+      const popularCoinsListData =
+        requestData as CTWPopularCoinsListRequestData;
       const transformedPopularCoinsList = transformCurrencyForPopularCoinsList(
-        requestData.coinsToTransform,
-        requestData.fromCurrency,
-        requestData.toCurrency,
-        requestData.currencyExchangeRates,
+        popularCoinsListData.coinsToTransform,
+        popularCoinsListData.fromCurrency,
+        popularCoinsListData.toCurrency,
+        popularCoinsListData.currencyExchangeRates,
       );
 
       postMessage({
-        responseType: CTWResponseType.TRANSFORMED_POPULAR_COINS_LIST,
+        responseType: CTWResponseType.POPULAR_COINS_SINGLE_CURRENCY,
         transformedData: transformedPopularCoinsList,
-        toCurrency: requestData.toCurrency,
+        toCurrency: popularCoinsListData.toCurrency,
+        onCompleteCallbackId,
       });
       break;
 
-    case CTWRequestType.TRANSFORM_ALL_POPULAR_COINS_LIST_CURRENCIES:
+    case CTWMessageRequestType.POPULAR_COINS_ALL_CURRENCIES:
       // Extract the necessary data for the transformation
-      const {
-        coinsToTransform,
-        fromCurrency,
-        currenciesToExclude,
-        currencyExchangeRates,
-      } = requestData;
+      const allPopularCoinsListData =
+        requestData as CTWAllPopularCoinsListsRequestData;
+      const allPopularCoinsListTransformedData =
+        {} as CTWAllPopularCoinsListsResponseData["transformedData"];
 
-      let targetCurrencies = ALL_CURRENCIES;
-
-      if (currenciesToExclude?.length > 0) {
-        // Filter out the excluded currencies from the list of all currencies if it exists
-        targetCurrencies = targetCurrencies.filter(
-          (currency) => !currenciesToExclude.includes(currency),
-        );
-      }
-
-      // Create an object to store the transformed data for each target currency
-      const popularCoinsListTransformedData: Record<
-        TCurrencyString,
-        ICoinOverview[]
-      > = {};
-
-      targetCurrencies.forEach((targetCurrency) => {
-        popularCoinsListTransformedData[targetCurrency] =
+      ALL_CURRENCIES.filter(
+        (currency) =>
+          !allPopularCoinsListData.currenciesToExclude?.includes(currency),
+      ).forEach((targetCurrency) => {
+        allPopularCoinsListTransformedData[targetCurrency] =
           transformCurrencyForPopularCoinsList(
-            coinsToTransform,
-            fromCurrency,
+            allPopularCoinsListData.coinsToTransform,
+            allPopularCoinsListData.fromCurrency,
             targetCurrency,
-            currencyExchangeRates,
+            allPopularCoinsListData.currencyExchangeRates,
           );
       });
 
       postMessage({
-        responseType: CTWResponseType.TRANSFORMED_ALL_POPULAR_COINS_LIST,
-        transformedData: popularCoinsListTransformedData,
+        responseType: CTWResponseType.POPULAR_COINS_ALL_CURRENCIES,
+        transformedData: allPopularCoinsListTransformedData,
+        onCompleteCallbackId,
       });
       break;
 
@@ -382,22 +371,6 @@ onmessage = (event: MessageEvent) => {
       console.warn(`Unexpected message type received: ${requestType}`);
   }
 };
-
-// Transform Request types
-enum CTWRequestType {
-  TRANSFORM_COIN_DETAILS_CURRENCY = "transformCoinDetailsCurrency",
-  TRANSFORM_ALL_COIN_DETAILS_CURRENCIES = "transformAllCoinDetailsCurrencies",
-  TRANSFORM_POPULAR_COINS_LIST_CURRENCY = "transformPopularCoinsListCurrency",
-  TRANSFORM_ALL_POPULAR_COINS_LIST_CURRENCIES = "transformAllPopularCoinsListCurrencies",
-}
-
-// Transform Response Types
-enum CTWResponseType {
-  TRANSFORMED_COIN_DETAILS = "TRANSFORMED_COIN_DETAILS",
-  TRANSFORMED_ALL_COIN_DETAILS = "TRANSFORMED_ALL_COIN_DETAILS",
-  TRANSFORMED_POPULAR_COINS_LIST = "TRANSFORMED_POPULAR_COINS_LIST",
-  TRANSFORMED_ALL_POPULAR_COINS_LIST = "TRANSFORMED_ALL_POPULAR_COINS_LIST",
-}
 
 // Other Types taht can't be imported
 
@@ -484,3 +457,143 @@ interface IPriceChartDataset {
 //   d30: number;
 //   d365: number;
 // }
+
+type CTWCallbackResponse = {
+  responseType: CTWResponseType;
+  transformedData: CTWTransformedDataType;
+};
+
+type CTWCallBack = (response: CTWCallbackResponse) => void;
+
+type CTWCallbacksMap = Map<string, CTWCallBack>;
+
+// REQUEST TYPES
+interface CTWRequestMessage {
+  requestType: CTWMessageRequestType;
+  requestData: CTWMessageRequestData;
+  onComplete?: CTWCallBack;
+}
+
+/**
+ * CTWInternalRequestMessage extends CTWRequestMessage but replaces the onComplete property
+ * with onCompleteCallbackId. This ID is used internally to track and handle the callback function
+ * associated with the worker's response, ensuring the correct function is executed upon task completion.
+ */
+interface CTWInternalRequestMessage
+  extends Omit<CTWRequestMessage, "onComplete"> {
+  onCompleteCallbackId?: string;
+}
+
+enum CTWMessageRequestType {
+  COIN_DETAILS_SINGLE_CURRENCY = "transformCoinDetailsCurrency",
+  COIN_DETAILS_ALL_CURRENCIES = "transformAllCoinDetailsCurrencies",
+  POPULAR_COINS_SINGLE_CURRENCY = "transformPopularCoinsListCurrency",
+  POPULAR_COINS_ALL_CURRENCIES = "transformAllPopularCoinsListCurrencies",
+}
+
+// Types for the data object based on each REQUEST case
+interface CTWCoinDetailsRequestData {
+  coinToTransform: any;
+  fromCurrency: TCurrencyString;
+  toCurrency: TCurrencyString;
+  currencyExchangeRates: Record<
+    TCurrencyString,
+    Record<TCurrencyString, number>
+  >;
+}
+
+interface CTWAllCoinDetailsRequestData {
+  coinToTransform: any;
+  fromCurrency: TCurrencyString;
+  currencyExchangeRates: Record<
+    TCurrencyString,
+    Record<TCurrencyString, number>
+  >;
+  currenciesToExclude?: TCurrencyString[];
+}
+
+interface CTWPopularCoinsListRequestData {
+  coinsToTransform: any[];
+  fromCurrency: TCurrencyString;
+  toCurrency: TCurrencyString;
+  currencyExchangeRates: Record<
+    TCurrencyString,
+    Record<TCurrencyString, number>
+  >;
+}
+
+interface CTWAllPopularCoinsListsRequestData {
+  coinsToTransform: any[];
+  fromCurrency: TCurrencyString;
+  currenciesToExclude?: TCurrencyString[];
+  currencyExchangeRates: Record<
+    TCurrencyString,
+    Record<TCurrencyString, number>
+  >;
+}
+
+type CTWMessageRequestData =
+  | CTWCoinDetailsRequestData
+  | CTWAllCoinDetailsRequestData
+  | CTWPopularCoinsListRequestData
+  | CTWAllPopularCoinsListsRequestData;
+
+// Extend the MessageEvent interface to include the custom data structure
+interface CTWInternalRequestMessageEvent extends MessageEvent {
+  data: CTWInternalRequestMessage;
+}
+
+// RESPONSE TYPES
+
+enum CTWResponseType {
+  COIN_DETAILS_SINGLE_CURRENCY = "TRANSFORMED_COIN_DETAILS",
+  COIN_DETAILS_ALL_CURRENCIES = "TRANSFORMED_ALL_COIN_DETAILS",
+  POPULAR_COINS_SINGLE_CURRENCY = "TRANSFORMED_POPULAR_COINS_LIST",
+  POPULAR_COINS_ALL_CURRENCIES = "TRANSFORMED_ALL_POPULAR_COINS_LIST",
+}
+
+// Base interface for common properties of response data
+interface CTWBaseResponseData {
+  onCompleteCallbackId?: string;
+}
+
+// Specific interfaces now extend the base interface with specific types for transformedData
+interface CTWCoinDetailsResponseData extends CTWBaseResponseData {
+  responseType: CTWResponseType.COIN_DETAILS_SINGLE_CURRENCY;
+  transformedData: ICoinDetails;
+  toCurrency: TCurrencyString; // Mandatory for this type
+}
+
+interface CTWAllCoinDetailsResponseData extends CTWBaseResponseData {
+  responseType: CTWResponseType.COIN_DETAILS_ALL_CURRENCIES;
+  transformedData: Record<TCurrencyString, ICoinDetails>;
+}
+
+interface CTWPopularCoinsListResponseData extends CTWBaseResponseData {
+  responseType: CTWResponseType.POPULAR_COINS_SINGLE_CURRENCY;
+  transformedData: ICoinOverview[];
+  toCurrency: TCurrencyString; // Mandatory for this type
+}
+
+interface CTWAllPopularCoinsListsResponseData extends CTWBaseResponseData {
+  responseType: CTWResponseType.POPULAR_COINS_ALL_CURRENCIES;
+  transformedData: Record<TCurrencyString, ICoinOverview[]>;
+}
+
+// Union type for the transformed data sent from the worker
+type CTWResponseMessageData =
+  | CTWCoinDetailsResponseData
+  | CTWAllCoinDetailsResponseData
+  | CTWPopularCoinsListResponseData
+  | CTWAllPopularCoinsListsResponseData;
+
+type CTWTransformedDataType = CTWResponseMessageData extends {
+  transformedData: infer T;
+}
+  ? T
+  : never;
+
+// Extend the MessageEvent interface to include the custom data structure
+interface CTWResponseMessageEvent extends MessageEvent {
+  data: CTWResponseMessageData;
+}

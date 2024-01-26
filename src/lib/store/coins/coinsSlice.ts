@@ -5,6 +5,7 @@ import {
 } from "../../constants/globalConstants";
 import { ICoinDetails, ICoinOverview } from "../../../types/coinTypes";
 import { isNull, isUndefined, mergeWith } from "lodash";
+import { mergeCoinDetailsWithCoinOverview } from "@/utils/dataFormat.utils";
 
 /**
  * Represents the state of the coins slice, including lists of popular and carousel coins,
@@ -14,7 +15,27 @@ export interface ICoinsState {
   // Popular Coins List
   popularCoins: ICoinOverview[];
   popularCoinsMap: Record<string, ICoinOverview>;
-  cachedPopularCoinsByCurrency: Record<TCurrencyString, ICoinOverview[]>;
+  /**
+   * Cached popular coin maps by currency.
+   *
+   * - Will be storing coin data as a map for each currency, keyed by the coin symbol.
+   * - This structure is optimized for efficient lookups with O(1) time complexity, enhancing performance.
+   * - Memory usage is optimized by eliminating redundant storage and data duplicity which is common
+   *   with multiple data structures like arrays and maps for the same data set.
+   *
+   * - Considering an average of 2500 ICoinOverview objects (approximately 1.25MB (500 bytes per coin)), the storage requirement is well
+   *   within the general memory limits for Redux stores. Desktop web applications usually operate
+   *   under 250-500 MB, while mobile applications should ideally stay below 50-150 MB.
+   *
+   * - Object.values(map) can be used for iteration, making it efficient for both individual coin access
+   *   and list operations, thus providing flexibility for various use-case scenarios.
+   * - This approach aligns with modern practices for state management in Redux, focusing on
+   *   performance optimization and effective memory usage.
+   */
+  cachedPopularCoinMapsByCurrency: Record<
+    TCurrencyString,
+    Record<string, ICoinOverview>
+  >;
 
   // Carousel Coins
   carouselSymbolList: string[];
@@ -39,23 +60,11 @@ export interface ICoinsState {
 export const initialCoinsState: ICoinsState = {
   popularCoins: [],
   popularCoinsMap: {},
-  /**
-   * Cached popular coins by currency.
-   *
-   * - Will be storing a (modest) maximum of 2500 ICoinOverview objects, approximately 1.25MB (500 bytes per coin).
-   * - This size is well within the general memory limits for Redux stores; desktop web applications usually
-   *   operate well under 250-500 MB, while mobile applications should ideally stay below 50-150 MB.
-   * - Efficient state management is key:
-   *   1. Minimize unnecessary component re-renders with selective state subscriptions.
-   *   2. Use normalized state shapes for more efficient updates.
-   *   3. Optimize performance with memoized selectors for computed data.
-   * - The goal is balancing large dataset management with responsive and smooth UI interactions.
-   */
-  cachedPopularCoinsByCurrency: {
-    CAD: [],
-    USD: [],
-    GBP: [],
-    AUD: [],
+  cachedPopularCoinMapsByCurrency: {
+    CAD: {},
+    USD: {},
+    GBP: {},
+    AUD: {},
   },
 
   carouselSymbolList: [],
@@ -150,17 +159,24 @@ const coinsSlice = createSlice({
     },
 
     /**
-     * Sets the cached list of popular coins for a specific currency.
+     * Sets the cached map of popular coins for a specific currency.
      * @param state - The current state of the coins slice.
      * @param action - The action payload containing the list of coins and currency.
      */
-    setCachedPopularCoins(
+    setCachedPopularCoinsMap(
       state: ICoinsState,
       action: PayloadAction<SetCachedCoinListPayload>,
     ) {
       const { currency, coinList } = action.payload;
 
-      state.cachedPopularCoinsByCurrency[currency] = coinList;
+      // Populate the map for quick individual coin data access
+      state.cachedPopularCoinMapsByCurrency[currency] = coinList.reduce(
+        (acc, coin) => {
+          acc[coin.symbol] = coin;
+          return acc;
+        },
+        {} as Record<string, ICoinOverview>,
+      );
     },
 
     /**
@@ -203,27 +219,27 @@ const coinsSlice = createSlice({
 
       state.cachedSelectedCoinDetailsByCurrency[currency] = coinDetails;
     },
-    /**
-     * Adds or updates preloaded coin details across all currencies.
-     * @param state - The current state of the coins slice.
-     * @param action - The action payload containing the coin details.
-     */
-    setPreloadedCoinDetailsAllCurrencies(
-      state,
-      action: PayloadAction<SetPreloadedCoinDetailsAllCurrenciesPayload>,
-    ) {
-      const { coinDetails } = action.payload;
-      ALL_CURRENCIES.forEach((currency) => {
-        state.preloadedCoinDetailsByCurrency[currency][coinDetails.id] =
-          coinDetails;
-      });
-    },
+    // /**
+    //  * Adds or updates preloaded coin details across all currencies.
+    //  * @param state - The current state of the coins slice.
+    //  * @param action - The action payload containing the coin details.
+    //  */
+    // setPreloadedCoinDetailsAllCurrencies(
+    //   state,
+    //   action: PayloadAction<SetPreloadedCoinDetailsAllCurrenciesPayload>,
+    // ) {
+    //   const { coinDetails } = action.payload;
+    //   ALL_CURRENCIES.forEach((currency) => {
+    //     state.preloadedCoinDetailsByCurrency[currency][coinDetails.id] =
+    //       coinDetails;
+    //   });
+    // },
     /**
      * Adds or updates preloaded coin details for a specific currency.
      * @param state - The current state of the coins slice.
      * @param action - The action payload containing the coin details and currency.
      */
-    setPreloadedCoinDetailForCurrency(
+    setPreloadedCoinForCurrency(
       state,
       action: PayloadAction<SetPreloadedCoinDetailsPayload>,
     ) {
@@ -232,39 +248,46 @@ const coinsSlice = createSlice({
         coinDetails;
     },
     /**
-     * Sets or updates preloaded coin details for a specific currency.
-     * If the coin details do not exist, they are set.
-     * If they do exist, updates only null or undefined properties in existing details.
+     * Preloads a coin's details for a specific currency using CoinOverview details from the cachedPopularCoinMapsByCurrency as a base.
+     *
+     * @remarks
+     * This action leverages the cachedPopularCoinMapsByCurrency to provide base coin details (shallow details)
+     * and merges them with additional coin details. It's designed for scenarios where complete coin details
+     * need to be constructed or updated, starting with the basic overview available in the coin map.
+     *
+     * - The merge operation ensures that any existing additional details are retained unless they are null or undefined.
+     * - This approach allows for the efficient construction of complete coin details while minimizing data duplication.
+     * - The process is memory-efficient, as it avoids the need to store separate complete details for each coin when
+     *   the base information can be reused from the existing map structure.
+     *
      * @param state - The current state of the coins slice.
-     * @param action - The action payload containing the coin details and currency.
+     * @param action - The action payload containing the coin symbol and additional details.
      */
-    setOrUpdatePreloadedCoinDetails(
+    setPreloadedCoinDetailsUsingPopularCoinsBase(
       state: ICoinsState,
       action: PayloadAction<SetPreloadedCoinDetailsPayload>,
     ) {
-      const { coinDetails, currency } = action.payload;
-      const existingDetails =
-        state.preloadedCoinDetailsByCurrency[currency][coinDetails.id];
+      const { currency, coinDetails } = action.payload;
+      const symbol = coinDetails.coinAttributes.symbol;
 
-      if (!existingDetails) {
-        // Set new coin details if they do not exist
-        state.preloadedCoinDetailsByCurrency[currency][coinDetails.id] =
-          coinDetails;
+      // Retrieve shallow coin details from the map
+      const shallowDetails =
+        state.cachedPopularCoinMapsByCurrency[currency]?.[symbol];
+
+      let mergedDetails: ICoinDetails;
+
+      if (shallowDetails != null) {
+        mergedDetails = mergeCoinDetailsWithCoinOverview(
+          shallowDetails,
+          coinDetails,
+          currency,
+        );
       } else {
-        // Custom merge function that only updates null or undefined properties
-        const customizer = (
-          objValue: ICoinDetails | undefined,
-          srcValue: ICoinDetails,
-        ) => {
-          return isUndefined(objValue) || isNull(objValue)
-            ? srcValue
-            : objValue;
-        };
-
-        // Merge existing details with new details
-        state.preloadedCoinDetailsByCurrency[currency][coinDetails.id] =
-          mergeWith({}, existingDetails, coinDetails, customizer);
+        mergedDetails = coinDetails;
       }
+
+      // Update the preloaded coin details in the state
+      state.preloadedCoinDetailsByCurrency[currency][symbol] = mergedDetails;
     },
   },
 });

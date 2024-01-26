@@ -26,7 +26,7 @@ export const updateCurrency = createAsyncThunk(
     const {
       coins: {
         popularCoins,
-        cachedPopularCoinsByCurrency,
+        cachedPopularCoinMapsByCurrency,
         selectedCoinDetails,
         cachedSelectedCoinDetailsByCurrency,
       },
@@ -102,10 +102,9 @@ export const updateCurrency = createAsyncThunk(
     }
 
     // Handle coin list transformations
-    updateCurrencyAndCache(
-      "PopularCoinsList",
-      popularCoins,
-      cachedPopularCoinsByCurrency[updatedCurrency],
+    const coinListArray = Object.values(
+      cachedPopularCoinMapsByCurrency[updatedCurrency],
     );
+    updateCurrencyAndCache("PopularCoinsList", popularCoins, coinListArray);
   },
 );

@@ -30,7 +30,7 @@ export const hydrateCoinDataBasedOnRoute =
     const coinDetailsArePreloaded =
       selectedCoinDetails?.priceChartDataset != null;
 
-    // Handling Coin Details Page
+    // Handle loading Coin Details on CoinDetails Page if they aren't loading/loaded
     if (isOnCoinDetailsPage) {
       console.log("isOnCoinDetailsPage - hydrateCoinDataBasedOnRoute");
       if (!coinDetailsArePreloaded && !coinIsBeingPreloaded) {

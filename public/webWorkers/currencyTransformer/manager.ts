@@ -1,9 +1,9 @@
 import { Dispatch } from "@reduxjs/toolkit";
 import {
-  generateUniqueCallbackId,
+  generateUniqueOnCompleteCallbackId,
   handleTransformedCurrencyResponse,
 } from "./utils";
-import { CTWRequestMessageData, CTWCallbacksMap, TCallBack } from "./types";
+import { CTWRequestMessage, CTWCallbacksMap } from "./types";
 
 /**
  * A map to store callback functions associated with specific worker tasks.
@@ -49,22 +49,26 @@ export function initializeCurrencyTransformerWorker(dispatch: Dispatch) {
  * Optionally accepts a callback function, which will be invoked once the worker task associated
  * with the message is completed. This allows for immediate and context-specific reactions to the worker's task completion.
  *
- * @param {CTWRequestMessageData} message - Data to post to the worker.
- * @param {TCallBack} [callback] - Optional callback function to execute after the worker task is completed.
+ * @param {CTWRequestMessage} message - Data to post to the worker.
  */
 export function postMessageToCurrencyTransformerWorker(
-  message: CTWRequestMessageData,
-  callback?: TCallBack,
+  message: CTWRequestMessage,
 ) {
   if (!currencyTransformerWorker) return;
+  const { requestData, requestType, onComplete } = message;
 
-  const callbackId = callback != null ? generateUniqueCallbackId() : undefined;
+  const onCompleteCallbackId =
+    onComplete != null ? generateUniqueOnCompleteCallbackId() : undefined;
 
-  if (callbackId && callback != null) {
-    callbacksMap.set(callbackId, callback);
+  if (onCompleteCallbackId && onComplete != null) {
+    callbacksMap.set(onCompleteCallbackId, onComplete);
   }
 
-  currencyTransformerWorker.postMessage({ ...message, callbackId });
+  currencyTransformerWorker.postMessage({
+    requestData,
+    requestType,
+    onCompleteCallbackId,
+  });
 }
 
 /**

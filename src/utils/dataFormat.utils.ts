@@ -16,6 +16,7 @@ import {
   ITop100MarketCapCoinFromAPI,
 } from "@/types/apiResponseTypes";
 import { CRYPTO_COMPARE_WEBSITE } from "@/lib/constants/apiConstants";
+import { isNull, isUndefined, mergeWith } from "lodash";
 
 // Formatting CoinDetails after retrieval from the API
 
@@ -350,4 +351,50 @@ export function mapPopularCoinsToShallowDetailedAttributes(
     acc[coin.id] = { coinAttributes: coin };
     return acc;
   }, {});
+}
+
+/**
+ * Customizer function for lodash's mergeWith that tells mergewith to overwrite undefined & null values on the target object using the source.
+ *
+ * @remarks
+ * This function is used as a customizer in lodash's mergeWith function. It ensures that
+ * only null or undefined properties in the source object are overwritten by the corresponding
+ * values from the destination object.
+ *
+ * @param objValue - The value from the source object.
+ * @param srcValue - The value from the destination object.
+ * @returns The value to be used in the merged object.
+ */
+export function overwriteUndefinedAndNullValues(
+  objValue: any,
+  srcValue: any,
+): any {
+  return isUndefined(objValue) || isNull(objValue) ? srcValue : objValue;
+}
+
+/**
+ * Merges shallow coin details with additional details.
+ *
+ * @remarks
+ * This utility function is designed to merge shallow coin details, typically obtained from
+ * a cached map, with additional detailed data. It uses a custom merging strategy to
+ * overwrite only null or undefined properties in the shallow object with values from
+ * the additional details object.
+ *
+ * @param shallowDetails - The shallow details of a coin.
+ * @param additionalDetails - Additional detailed data to merge into the shallow details.
+ * @param currentCurrency - The currency in which the coin details are presented.
+ * @returns The merged coin details.
+ */
+export function mergeCoinDetailsWithCoinOverview(
+  shallowDetails: ICoinOverview,
+  additionalDetails: ICoinDetails,
+  currentCurrency: TCurrencyString,
+): ICoinDetails {
+  return mergeWith(
+    {},
+    { ...shallowDetails, id: shallowDetails.symbol, currency: currentCurrency },
+    additionalDetails,
+    overwriteUndefinedAndNullValues,
+  );
 }
