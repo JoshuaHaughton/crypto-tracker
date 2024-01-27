@@ -1,54 +1,65 @@
-import { createAsyncThunk } from "@reduxjs/toolkit";
 import { TAppDispatch, TRootState } from "@/lib/store";
 import { coinsActions } from "@/lib/store/coins/coinsSlice";
+import { appInfoActions } from "@/lib/store/appInfo/appInfoSlice";
 import { ICoinDetails } from "@/types/coinTypes";
 import { postMessageToCurrencyTransformerWorker } from "../../public/webWorkers/currencyTransformer/manager";
 import { CTWMessageRequestType } from "../../public/webWorkers/currencyTransformer/types";
 
 /**
- * Thunk action to preload a coin's details using CoinOverview details from the coin slice
- * and currency exchange rates from the currency slice.
- * After preloading for the current currency, asynchronously starts the preloading process
- * for all other currencies using the currency transformer web worker.
+ * Action to preload a coin's details. This action posts a message to the currency transformer web worker
+ * to start preloading the coin details for all available currencies. It also updates the Redux state
+ * to track the preloading process.
  *
- * @param params - The parameters for preloading coin details.
- * @returns A thunk action that updates the preloaded coin details.
+ * @param params - Parameters including coin details, preloading status, and coin ID.
+ * @returns A redux-thunk action.
  */
-export const preloadCoinDetails = createAsyncThunk<
-  void,
-  ICoinDetails,
-  {
-    state: TRootState;
-    dispatch: TAppDispatch;
-  }
->(
-  "coins/preloadCoinDetails",
-  async (preloadedDetails, { getState, dispatch }) => {
+export const preloadCoinDetails = (coinDetails: ICoinDetails) => {
+  return (dispatch: TAppDispatch, getState: () => TRootState) => {
+    const coinSymbol = coinDetails.coinAttributes.symbol;
     const state = getState();
     const { currentCurrency, currencyRates } = state.currency;
+    const { coinsBeingPreloaded } = state.appInfo;
+    const preloadingProcessHasBegun = coinsBeingPreloaded[coinSymbol];
 
-    // Check if currencyRates is null and return early if so
-    if (currencyRates == null) {
-      console.error("Error: currencyRates. Please reload the app");
+    // Checking if currency exchange rates are available
+    if (!currencyRates) {
+      console.error(
+        "Currency rates not available for preloading coin details:",
+        coinSymbol,
+      );
       return;
     }
 
-    // Immediately set the preloaded coinDetails for the current currency using the data that we have
+    // Begin the preloading process if it wasn't initiated by a prior step like an API call
+    // (i.e. if the data was loaded on the server but we want to preload it in the client)
+    if (!preloadingProcessHasBegun) {
+      console.log(`Begin preloading process for coin: ${coinSymbol}`);
+      dispatch(appInfoActions.addCoinBeingPreloaded({ coinId: coinSymbol }));
+    }
+
+    // Preload coin details for the current currency
     dispatch(
       coinsActions.setPreloadedCoinDetailsUsingPopularCoinsBase({
-        coinDetails: preloadedDetails,
+        coinDetails,
         currency: currentCurrency,
       }),
     );
 
-    // Asynchronously start preloading for other currencies using the web worker to transform the existing data's currencies
+    // Asynchronously start preloading for other currencies using the web worker
     postMessageToCurrencyTransformerWorker({
       requestType: CTWMessageRequestType.COIN_DETAILS_ALL_CURRENCIES,
       requestData: {
-        coinToTransform: preloadedDetails,
+        coinToTransform: coinDetails,
         fromCurrency: currentCurrency,
         currencyExchangeRates: currencyRates,
       },
+      onComplete: () => {
+        // Dispatch action to remove coin from preloading list upon completion
+        dispatch(
+          appInfoActions.removeCoinBeingPreloaded({ coinId: coinSymbol }),
+        );
+        console.log(`Preloading completed for coin: ${coinSymbol}`);
+      },
     });
-  },
-);
+  };
+};

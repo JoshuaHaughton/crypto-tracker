@@ -1,5 +1,5 @@
 export const CRYPTO_COMPARE_WEBSITE = "https://cryptocompare.com";
-const BASE_URL_CRYPTO_COMPARE = "https://min-api.cryptocompare.com/data";
+export const BASE_URL_CRYPTO_COMPARE = "https://min-api.cryptocompare.com/data";
 const BASE_URL_CRYPTO_ASSET_DATA =
   "https://data-api.cryptocompare.com/asset/v1/data";
 

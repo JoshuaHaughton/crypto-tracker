@@ -5,7 +5,7 @@ import {
   INITIAL_CURRENCY,
   TCurrencyString,
 } from "@/lib/constants/globalConstants";
-import { fetchCoinDetailsData } from "@/utils/api.server.utils";
+import { fetchAndFormatCoinDetailsData } from "@/utils/api.server.utils";
 
 // Define an interface for the expected structure of `params`
 interface CoinPageParams {
@@ -30,7 +30,7 @@ export default async function CoinPage({ params }: { params: CoinPageParams }) {
       INITIAL_CURRENCY;
 
     // Fetch coin details using the symbol and currency preference
-    const coinDetailsData = await fetchCoinDetailsData(
+    const coinDetailsData = await fetchAndFormatCoinDetailsData(
       symbol,
       currencyPreference,
     );

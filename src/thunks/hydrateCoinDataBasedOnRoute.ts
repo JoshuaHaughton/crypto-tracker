@@ -1,44 +1,45 @@
-// src/thunks/hydrateCoinDataBasedOnRoute.ts
-import { ThunkAction } from "@reduxjs/toolkit";
-import { useRouter } from "next/navigation";
+import { createAsyncThunk } from "@reduxjs/toolkit";
 import { TRootState } from "@/lib/store";
 import { fetchAndInitializeCoinsCache } from "@/utils/cache.utils";
-import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { fetchAndPreloadCoinDetailsThunk } from "./fetchAndPreloadCoinDetailsThunk";
 import { initializePopularCoinsAndDetailsCache } from "./initializeCoinCacheThunk";
 
 /**
- * A Redux thunk for hydrating coin-related data based on the current route.
- * This function checks the current page, fetches necessary data,
- * and dispatches actions to update the Redux store.
+ * Redux thunk action for hydrating coin-related data based on the current route.
+ * It checks if the user is on a coin details page and fetches necessary data accordingly.
+ * It also ensures that the popular coins list is loaded and initializes the cache if needed.
  *
- * @param symbol - The symbol parameters of the current page.
- * @returns A thunk action that performs the hydration process.
+ * @param symbol - The coin symbol from the current route. Null if not on a coin details page.
+ * @returns Asynchronous thunk action.
  */
-export const hydrateCoinDataBasedOnRoute =
-  (symbol: string | null): ThunkAction<void, TRootState, unknown, any> =>
-  async (dispatch, getState) => {
-    console.log("hydrateCoinDataBasedOnRoute");
+export const hydrateCoinDataBasedOnRoute = createAsyncThunk<
+  void,
+  string | null,
+  { state: TRootState }
+>(
+  "coins/hydrateCoinDataBasedOnRoute",
+  async (symbol, { dispatch, getState }) => {
+    console.log("hydrateCoinDataBasedOnRoute - Start");
 
+    // Extract necessary states
     const { coins, appInfo } = getState();
-
     const isOnCoinDetailsPage = symbol != null;
     const selectedCoinDetails = coins.selectedCoinDetails;
-    const coinIsBeingPreloaded = isOnCoinDetailsPage
-      ? appInfo.coinsBeingPreloaded[symbol] != null
-      : null;
+    const coinIsBeingPreloaded =
+      isOnCoinDetailsPage && appInfo.coinsBeingPreloaded[symbol];
     const coinDetailsArePreloaded =
       selectedCoinDetails?.priceChartDataset != null;
 
-    // Handle loading Coin Details on CoinDetails Page if they aren't loading/loaded
+    // Handle coin details loading for the coin details page
     if (isOnCoinDetailsPage) {
-      console.log("isOnCoinDetailsPage - hydrateCoinDataBasedOnRoute");
+      console.log("hydrateCoinDataBasedOnRoute - On Coin Details Page");
       if (!coinDetailsArePreloaded && !coinIsBeingPreloaded) {
         console.warn(
-          "CoinDetails don't exist on initial load of CoinDetails page!!!?",
+          "Coin Details not preloaded - Initiating fetch and preload.",
         );
-        console.warn("(Fetching)");
-        dispatch(
+        
+        // Dispatch thunk to fetch and preload coin details
+        await dispatch(
           fetchAndPreloadCoinDetailsThunk({
             coinId: symbol,
             selectCoinAfterFetch: true,
@@ -47,20 +48,22 @@ export const hydrateCoinDataBasedOnRoute =
       }
     }
 
-    // Handling Popular Coins
+    // Check for the existence of the popular coins list in the state
     const popularCoinsList = coins.popularCoins;
     const popularCoinsAlreadyExist =
       Array.isArray(popularCoinsList) && popularCoinsList.length > 0;
 
+    // Fetch or initialize the popular coins list based on its existence in the state
     if (!popularCoinsAlreadyExist) {
-      console.log(
-        "We didn't start with PopularCoinsLists data from the server so we need to fetch it from the cache or API.",
-      );
-      dispatch(fetchAndInitializeCoinsCache());
+      console.log("Popular Coins List not found - Fetching from cache or API.");
+      // Dispatch thunk to fetch and initialize coins cache
+      await dispatch(fetchAndInitializeCoinsCache());
     } else {
-      console.log(
-        "We started with PopularCoinsLists data from the server. DON'T FETCH IT AGAIN, just initialize the cache with it.",
-      );
+      console.log("Popular Coins List found - Initializing cache.");
+      // Dispatch action to initialize cache with existing popular coins list
       dispatch(initializePopularCoinsAndDetailsCache());
     }
-  };
+
+    console.log("hydrateCoinDataBasedOnRoute - End");
+  },
+);

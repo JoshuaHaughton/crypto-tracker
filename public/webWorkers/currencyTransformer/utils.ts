@@ -27,7 +27,7 @@ function handleCTWTransformedCoinDetailsForCurrency(
   dispatch: Dispatch,
 ) {
   dispatch(
-    coinsActions.setPreloadedCoinDetailsUsingPopularCoinsBase({
+    coinsActions.setOrUpdatePreloadedCoinDetails({
       currency: toCurrency,
       coinDetails: transformedData,
     }),
@@ -58,7 +58,7 @@ function handleCTWTransformedCoinDetailsForMultipleCurrencies(
   for (const currency in transformedData) {
     // Store transformed coin data in Redux
     dispatch(
-      coinsActions.setPreloadedCoinDetailsUsingPopularCoinsBase({
+      coinsActions.setOrUpdatePreloadedCoinDetails({
         currency: currency as TCurrencyString,
         coinDetails: transformedData[currency as TCurrencyString],
       }),

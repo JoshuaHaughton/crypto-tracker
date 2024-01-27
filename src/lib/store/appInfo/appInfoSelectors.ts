@@ -25,18 +25,26 @@ export const selectCoinsBeingPreloaded = (state: TRootState) =>
 export const selectCoinsBeingPreloadedOrder = (state: TRootState) =>
   state.appInfo.coinsBeingPreloadedOrder;
 
-/**
- * Enhanced memoized selector for the list of coins being preloaded with additional information.
- * Utilizes `createSelector` for efficient memoization to prevent redundant recalculations,
- * especially useful when dealing with lists of items that might change frequently.
- * @param state - The current state of the application.
- * @returns An array of objects containing coin IDs and their preload status.
- */
-export const selectDetailedCoinsBeingPreloaded = createSelector(
-  [selectCoinsBeingPreloaded, selectCoinsBeingPreloadedOrder],
-  (coinsBeingPreloaded, coinsBeingPreloadedOrder) =>
-    coinsBeingPreloadedOrder.map((coinId) => ({
-      id: coinId,
-      isPreloading: coinsBeingPreloaded[coinId],
-    })),
-);
+// Selector to check if a specific coin is being preloaded
+export const selectIsCoinBeingPreloaded = (
+  state: TRootState,
+  coinId: string,
+) => {
+  return state.appInfo.coinsBeingPreloaded[coinId] ?? false;
+};
+
+// /**
+//  * Enhanced memoized selector for the list of coins being preloaded with additional information.
+//  * Utilizes `createSelector` for efficient memoization to prevent redundant recalculations,
+//  * especially useful when dealing with lists of items that might change frequently.
+//  * @param state - The current state of the application.
+//  * @returns An array of objects containing coin IDs and their preload status.
+//  */
+// export const selectDetailedCoinsBeingPreloaded = createSelector(
+//   [selectCoinsBeingPreloaded, selectCoinsBeingPreloadedOrder],
+//   (coinsBeingPreloaded, coinsBeingPreloadedOrder) =>
+//     coinsBeingPreloadedOrder.map((coinId) => ({
+//       id: coinId,
+//       isPreloading: coinsBeingPreloaded[coinId],
+//     })),
+// );

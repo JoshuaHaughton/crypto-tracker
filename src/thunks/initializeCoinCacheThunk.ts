@@ -11,6 +11,9 @@ import { coinsActions } from "@/lib/store/coins/coinsSlice";
 import { appInfoActions } from "@/lib/store/appInfo/appInfoSlice";
 import { POPULARCOINSLISTS_TABLENAME } from "@/lib/constants/globalConstants";
 
+
+// THIS NEEDS TO SET ALL POPULAR COINS AS SHALOW C OINS
+
 /**
  * Async thunk to manage caching of both PopularCoinsList, and the shallow details data for multiple currencies.
  *
@@ -44,67 +47,54 @@ export const initializePopularCoinsAndDetailsCache = createAsyncThunk(
     const currentCurrency = state.currency.currentCurrency;
     console.log("initializePopularCoinsAndDetailsCache thunk active", state);
 
-    // const isCacheValid =
-    //   indexedDBCacheIsValid != null
-    //     ? indexedDBCacheIsValid
-    //     : await validateCacheDataForTable(POPULARCOINSLISTS_TABLENAME);
+    if (typeof window !== "undefined") {
+      postMessageToCurrencyTransformerWorker({
+        requestType: CTWRequestType.TRANSFORM_ALL_POPULAR_COINS_LIST_CURRENCIES,
+        requestData: {
+          coinsToTransform: popularCoinsList,
+          fromCurrency: currentCurrency.toUpperCase(),
+          currencyExchangeRates,
+          // We start off with the initial coins for the current currency, so we can exclude it to avoid
+          // an unnecessary computation
+          currenciesToExclude: [currentCurrency],
+        },
+      });
 
-    // If data isn't in the cache, or the cache isn't valid, send the initial data to the web worker
-    // for currency transformation. After that, we save it to the cache
-    if (!isCacheValid) {
-      // if (indexedDBCacheIsValid === false) {
-      //   console.log(
-      //     "SKIPPED POPULARCOINSLISTS CACHE (Skipped extra validateCacheDataForTable call) - initializePopularCoinsAndDetailsCache",
-      //   );
-      // } else {
-      //   console.log(
-      //     "INVALID POPULARCOINSLISTS CACHE - initializePopularCoinsAndDetailsCache",
-      //   );
-      // }
+      // Store initial PopularCoins data in Redux
+      dispatch(
+        coinsActions.setCachedPopularCoins({
+          currency: currentCurrency,
+          coinList: popularCoinsList,
+        }),
+      );
 
-      if (typeof window !== "undefined") {
-        postMessageToCurrencyTransformerWorker({
-          requestType:
-            CTWRequestType.TRANSFORM_ALL_POPULAR_COINS_LIST_CURRENCIES,
-          requestData: {
-            coinsToTransform: popularCoinsList,
-            fromCurrency: currentCurrency.toUpperCase(),
-            currencyExchangeRates,
-            // We start off with the initial coins for the current currency, so we can exclude it to avoid
-            // an unnecessary computation
-            currenciesToExclude: [currentCurrency],
-          },
-        });
+      // Store initial Shallow Coin Details data in Redux
+      // add an action that does this. should be for the coin details
+      dispatch(
+        coinsActions.setCachedPopularCoins({
+          currency: currentCurrency,
+          coinList: popularCoinsList,
+        }),
+      );
+      dispatch(
+        coinsActions.setCachedCoinDetailsByCurrency({
+          currency: currentCurrency.toUpperCase(),
+          coinData: shallowCoinDetails,
+        }),
+      );
 
-        // Store initial PopularCoins data in Redux
-        dispatch(
-          coinsActions.setPopularCoinsListForCurrency({
-            currency: currentCurrency.toUpperCase(),
-            coinData: popularCoinsList,
-          }),
-        );
+      // Store initial data in cache
+      await saveTableDataForCurrencyInIndexedDB(
+        POPULARCOINSLISTS_TABLENAME,
+        currentCurrency.toUpperCase(),
+        popularCoinsList,
+      ).then(() =>
+        console.log(
+          "POPULARCOINSLISTS CACHE INITIALIZED - initializePopularCoinsAndDetailsCache thunk",
+        ),
+      );
 
-        // Store initial Shallow Coin Details data in Redux
-        dispatch(
-          coinsActions.setCachedCoinDetailsByCurrency({
-            currency: currentCurrency.toUpperCase(),
-            coinData: shallowCoinDetails,
-          }),
-        );
-
-        // Store initial data in cache
-        await saveTableDataForCurrencyInIndexedDB(
-          POPULARCOINSLISTS_TABLENAME,
-          currentCurrency.toUpperCase(),
-          popularCoinsList,
-        ).then(() =>
-          console.log(
-            "POPULARCOINSLISTS CACHE INITIALIZED - initializePopularCoinsAndDetailsCache thunk",
-          ),
-        );
-
-        return storeCurrencyRatesInIndexedDB(currencyRates);
-      }
+      return storeCurrencyRatesInIndexedDB(currencyRates);
     }
 
     dispatch(appInfoActions.stopPopularCoinsPreloading());

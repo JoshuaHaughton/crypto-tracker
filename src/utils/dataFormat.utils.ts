@@ -14,6 +14,10 @@ import {
   IHistoricalDataApiResponse,
   IAssetDataApiResponse,
   ITop100MarketCapCoinFromAPI,
+  IFormattedPopularCoinsApiResponse,
+  IRawPopularCoinsApiResponse,
+  IFormattedCoinDetailsAPIResponse,
+  IRawCoinDetailsApiResponse,
 } from "@/types/apiResponseTypes";
 import { CRYPTO_COMPARE_WEBSITE } from "@/lib/constants/apiConstants";
 import { isNull, isUndefined, mergeWith } from "lodash";
@@ -172,7 +176,6 @@ function calculatePercentageChange(change: number, baseValue: number): number {
 
 /**
  * Formats the coin details data fetched from the API for storage and presentation..
- * @param id - The identifier of the coin.
  * @param targetCurrency - The currency in which market data is represented.
  * @param currencyExchangeRates - Exchange rates for converting values to different currencies.
  * @param assetDataFromApi - Raw asset data fetched from the API.
@@ -180,8 +183,7 @@ function calculatePercentageChange(change: number, baseValue: number): number {
  * @param yearData - Historical data for the past year.
  * @returns A structured representation of detailed coin data.
  */
-export function formatCoinDetailsFromApiResponse(
-  id: string,
+export function formatCoinDetailsFromApi(
   targetCurrency: TCurrencyString,
   currencyExchangeRates: TCurrencyExchangeRates,
   assetDataFromApi: IAssetDataApiResponse,
@@ -249,7 +251,7 @@ export function formatCoinDetailsFromApiResponse(
   };
 
   return {
-    id,
+    id: assetDataDetails.SYMBOL,
     currency: targetCurrency,
     coinAttributes,
     timeSeriesPriceData,
@@ -267,7 +269,7 @@ export function formatCoinDetailsFromApiResponse(
  * @param targetCurrency - The target currency for price conversion.
  * @returns The formatted coin overview, or null if the coin isn't formattable.
  */
-export function formatCoinOverviewCoin(
+export function formatCoinOverviewCoinFromApi(
   entry: ITop100MarketCapCoinFromAPI,
   index: number,
   targetCurrency: TCurrencyString,
@@ -373,28 +375,115 @@ export function overwriteUndefinedAndNullValues(
 }
 
 /**
- * Merges shallow coin details with additional details.
+ * Merges base coin details with additional details.
  *
  * @remarks
- * This utility function is designed to merge shallow coin details, typically obtained from
- * a cached map, with additional detailed data. It uses a custom merging strategy to
- * overwrite only null or undefined properties in the shallow object with values from
- * the additional details object.
+ * This function is designed for scenarios where more comprehensive coin details need to be
+ * constructed. It merges a base set of coin details (typically obtained from a cached map or
+ * a less detailed source) with additional, more specific data. The merging strategy employed
+ * ensures that only null or undefined properties in the base object are overwritten by
+ * corresponding values from the additional details. This approach allows for efficiently
+ * constructing a complete set of coin details while ensuring that existing data is not
+ * unnecessarily overwritten.
  *
- * @param shallowDetails - The shallow details of a coin.
+ * @param baseDetails - The base details of a coin.
  * @param additionalDetails - Additional detailed data to merge into the shallow details.
  * @param currentCurrency - The currency in which the coin details are presented.
  * @returns The merged coin details.
  */
-export function mergeCoinDetailsWithCoinOverview(
-  shallowDetails: ICoinOverview,
+export function mergeCoinDetails(
+  baseDetails: ICoinOverview | ICoinDetails,
   additionalDetails: ICoinDetails,
   currentCurrency: TCurrencyString,
 ): ICoinDetails {
   return mergeWith(
     {},
-    { ...shallowDetails, id: shallowDetails.symbol, currency: currentCurrency },
+    { ...baseDetails, currency: currentCurrency },
     additionalDetails,
     overwriteUndefinedAndNullValues,
   );
+}
+
+/**
+ * Selects a random subset of symbols from the popular coins list.
+ *
+ * @param {ICoinOverview[]} coins - Array of coin overview objects.
+ * @param {number} count - Number of symbols to select.
+ * @returns {string[]} Array of selected coin symbols.
+ */
+export function selectRandomPopularCoinsSubset(
+  coins: ICoinOverview[],
+  count: number,
+): string[] {
+  if (count > coins.length) {
+    throw new Error("Requested count exceeds the number of available coins");
+  }
+
+  const selectedSymbols = new Set<string>();
+  while (selectedSymbols.size < count) {
+    const randomIndex = Math.floor(Math.random() * coins.length);
+    selectedSymbols.add(coins[randomIndex].symbol);
+  }
+
+  return Array.from(selectedSymbols);
+}
+
+/**
+ * Formats the raw popular coins data into a more usable structure.
+ *
+ * @param {IRawPopularCoinsApiResponse} rawData - The raw API response data.
+ * @param {TCurrencyString} targetCurrency - The currency against which market data is compared.
+ * @returns {IFormattedPopularCoinsApiResponse} An object containing formatted currency rates, popular coins list, and carousel symbols.
+ */
+export function formatPopularCoinsApiResponse(
+  rawData: IRawPopularCoinsApiResponse,
+  targetCurrency: TCurrencyString,
+): IFormattedPopularCoinsApiResponse {
+  const { exchangeData, top100MarketCapData } = rawData;
+
+  // Format currency exchange rates
+  const currencyExchangeRates = formatCurrencyRates(exchangeData);
+
+  // Format popular coins list
+  const popularCoinsList = top100MarketCapData.Data.map((entry, index) =>
+    formatCoinOverviewCoinFromApi(entry, index, targetCurrency),
+  ).filter(Boolean) as ICoinOverview[];
+
+  // Selecting a random subset of 10 coin symbols
+  const carouselSymbolList = selectRandomPopularCoinsSubset(
+    popularCoinsList,
+    10,
+  );
+
+  return { currencyExchangeRates, popularCoinsList, carouselSymbolList };
+}
+
+/**
+ * Formats the raw coin details data into a structured and usable format.
+ *
+ * @param rawData - The raw API response data.
+ * @param targetCurrency - The target currency for conversions.
+ * @returns {IFormattedCoinDetailsAPIResponse} Formatted coin details including historical data.
+ */
+export function formatCoinDetailsApiResponse(
+  rawData: IRawCoinDetailsApiResponse,
+  targetCurrency: TCurrencyString,
+): IFormattedCoinDetailsAPIResponse {
+  const {
+    exchangeRateResponse,
+    assetDetailsResponse,
+    historicalResponse24h,
+    historicalResponse365d,
+  } = rawData;
+
+  const currencyExchangeRates = formatCurrencyRates(exchangeRateResponse);
+  const coinDetails: ICoinDetails = formatCoinDetailsFromApi(
+    targetCurrency,
+    currencyExchangeRates,
+    assetDetailsResponse,
+    historicalResponse24h,
+    historicalResponse365d,
+  );
+
+  return { coinDetails, currencyExchangeRates };
 }

@@ -1,6 +1,6 @@
 import { TCurrencyString } from "@/lib/constants/globalConstants";
 import { ICoinDetails, ICoinOverview } from "./coinTypes";
-import { TCurrencyExchangeRates } from "./currencyTypes";
+import { TCurrencyExchangeRates, TCurrencyRates } from "./currencyTypes";
 
 // Popular Coins
 
@@ -28,6 +28,11 @@ export interface ITop100MarketCapCoinFromAPI {
   };
 }
 
+export interface IRawPopularCoinsApiResponse {
+  exchangeData: TCurrencyRates;
+  top100MarketCapData: ITopMarketCapApiResponse;
+}
+
 export interface IFormattedPopularCoinsApiResponse {
   currencyExchangeRates: TCurrencyExchangeRates;
   popularCoinsList: ICoinOverview[];
@@ -35,6 +40,16 @@ export interface IFormattedPopularCoinsApiResponse {
 }
 
 // Coin Details
+
+/**
+ * Type for the raw response of the coin details API.
+ */
+export interface IRawCoinDetailsApiResponse {
+  exchangeRateResponse: TCurrencyRates;
+  assetDetailsResponse: IAssetDataApiResponse;
+  historicalResponse24h: IHistoricalDataApiResponse;
+  historicalResponse365d: IHistoricalDataApiResponse;
+}
 
 export interface IFormattedCoinDetailsAPIResponse {
   coinDetails: ICoinDetails;

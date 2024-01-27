@@ -5,7 +5,7 @@ import {
 } from "../../constants/globalConstants";
 import { ICoinDetails, ICoinOverview } from "../../../types/coinTypes";
 import { isNull, isUndefined, mergeWith } from "lodash";
-import { mergeCoinDetailsWithCoinOverview } from "@/utils/dataFormat.utils";
+import { mergeCoinDetails } from "@/utils/dataFormat.utils";
 
 /**
  * Represents the state of the coins slice, including lists of popular and carousel coins,
@@ -271,14 +271,14 @@ const coinsSlice = createSlice({
       const symbol = coinDetails.coinAttributes.symbol;
 
       // Retrieve shallow coin details from the map
-      const shallowDetails =
+      const popularCoinsBase =
         state.cachedPopularCoinMapsByCurrency[currency]?.[symbol];
 
       let mergedDetails: ICoinDetails;
 
-      if (shallowDetails != null) {
-        mergedDetails = mergeCoinDetailsWithCoinOverview(
-          shallowDetails,
+      if (popularCoinsBase != null) {
+        mergedDetails = mergeCoinDetails(
+          popularCoinsBase,
           coinDetails,
           currency,
         );
@@ -288,6 +288,52 @@ const coinsSlice = createSlice({
 
       // Update the preloaded coin details in the state
       state.preloadedCoinDetailsByCurrency[currency][symbol] = mergedDetails;
+    },
+    /**
+     * Updates or initializes coin details in the state.
+     *
+     * @remarks
+     * This function addresses three scenarios:
+     * 1. If detailed coin data doesn't exist for the specified currency, it checks for a popular coins base.
+     *    If the base exists, it uses these shallow details to initialize the detailed data.
+     * 2. If the popular coins base doesn't exist, it directly sets the provided detailed coin data.
+     * 3. If detailed data already exists, it enhances these details with additional information
+     *    while preserving any existing data not included in the new update.
+     *
+     * @param state - The current state of the coins slice.
+     * @param action - The action payload containing coin details and the target currency.
+     */
+    setOrUpdatePreloadedCoinDetails(
+      state: ICoinsState,
+      action: PayloadAction<SetPreloadedCoinDetailsPayload>,
+    ) {
+      const { coinDetails, currency } = action.payload;
+      const existingPreloadedDetails =
+        state.preloadedCoinDetailsByCurrency[currency][coinDetails.id];
+      const popularCoinsBase =
+        state.cachedPopularCoinMapsByCurrency[currency]?.[coinDetails.id];
+
+      let mergedDetails: ICoinDetails;
+
+      // If existing details are found, merge them; otherwise, use shallow details from popular coins
+      if (existingPreloadedDetails || popularCoinsBase) {
+        mergedDetails = mergeCoinDetails(
+          popularCoinsBase || existingPreloadedDetails,
+          coinDetails,
+          currency,
+        );
+        console.log(
+          `Merged details for coin ${coinDetails.id} in currency ${currency}.`,
+        );
+      } else {
+        // If neither existing nor shallow details are found, set new details directly
+        mergedDetails = coinDetails;
+        console.log(`Set new details for coin ${coinDetails.id} without base.`);
+      }
+
+      // Update the preloaded coin details in the state
+      state.preloadedCoinDetailsByCurrency[currency][coinDetails.id] =
+        mergedDetails;
     },
   },
 });
