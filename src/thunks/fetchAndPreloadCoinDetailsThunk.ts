@@ -1,97 +1,70 @@
-import { createAsyncThunk } from "@reduxjs/toolkit";
-import { preloadFetchedCoinDetails } from "../utils/cache.utils";
+import { Dispatch, createAsyncThunk } from "@reduxjs/toolkit";
 import { appInfoActions } from "@/lib/store/appInfo/appInfoSlice";
 import { coinsActions } from "@/lib/store/coins/coinsSlice";
-import { fetchCoinDetailsData } from "@/utils/api.server.utils";
 import { TRootState } from "@/lib/store";
-
-// Define the type for the thunk's argument
-interface FetchCoinDetailsPayload {
-  coinId: string;
+import { TCurrencyString } from "@/lib/constants/globalConstants";
+import { cryptoApiSlice } from "@/lib/reduxApi/apiSlice";
+import { preloadCoinDetails } from "./preloadCoinDetailsThunk";
+interface IFetchAndPreloadCoinDetailsParams {
+  symbol: string;
+  targetCurrency: TCurrencyString;
   selectCoinAfterFetch?: boolean;
 }
 
 /**
- * Asynchronous thunk action to fetch coin details and preload them into the Redux store.
- * It handles the complete lifecycle of the fetch request, including the dispatch of pending,
- * fulfilled, and rejected actions. This thunk ensures the coin isn't already being fetched,
- * checks the cache, and then fetches and preloads the coin details.
+ * Thunk action for asynchronously fetching and preloading coin details, with an option to select the coin afterwards.
  *
- * @param payload - The payload containing necessary details for fetching coin details.
- * @returns A promise that represents the state of the operation.
+ * @remarks
+ * This thunk ensures that redundant fetches are avoided if the coin is already being or has been preloaded.
+ * It dispatches actions to mark the coin as being fetched, fetches coin details, preloads them into the Redux store,
+ * and optionally selects the coin for detailed view.
+ *
+ * @param params - Object containing the symbol, target currency, and an optional flag to select the coin after fetch.
+ * @returns A promise representing the state of the operation.
  */
 export const fetchAndPreloadCoinDetailsThunk = createAsyncThunk<
   void,
-  FetchCoinDetailsPayload,
-  { state: TRootState }
->(
-  "coins/fetchAndPreloadCoin",
-  async (
-    payload: FetchCoinDetailsPayload,
-    { dispatch, getState },
-  ): Promise<void> => {
-    const state = getState();
-    const { coinId, selectCoinAfterFetch } = payload;
-    const { coinsBeingPreloaded } = state.appInfo;
-    const { currentCurrency, currencyRates } = state.currency;
-    const { preloadedCoinDetailsByCurrency } = state.coins;
-    const coinIsBeingFetched = coinsBeingPreloaded[coinId] != null;
-    const coinIsAlreadyPreloaded =
-      preloadedCoinDetailsByCurrency[currentCurrency][coinId] != null;
+  IFetchAndPreloadCoinDetailsParams,
+  { state: TRootState; dispatch: Dispatch }
+>("coins/fetchAndPreloadCoin", async (params, { dispatch, getState }) => {
+  const { symbol, targetCurrency, selectCoinAfterFetch } = params;
+  const state = getState();
+  const { coinsBeingPreloaded } = state.appInfo;
+  const coinIsBeingPreloaded = coinsBeingPreloaded[symbol];
+  const coinDetailsArePreloaded =
+    state.coins.preloadedCoinDetailsByCurrency[targetCurrency]?.[symbol] !=
+    null;
 
-    console.error("PAYLOAD", payload);
-    console.warn(
-      "coinsBeingPreloaded - fetchAndPreloadCoinDetailsThunk",
-      coinsBeingPreloaded,
+  // Avoid fetching if the coin is already being or has been preloaded
+  if (coinIsBeingPreloaded || coinDetailsArePreloaded) {
+    console.warn(`Coin ${symbol} is already being or has been preloaded.`);
+    return;
+  }
+
+  try {
+    // Mark the coin as being fetched
+    dispatch(appInfoActions.addCoinBeingPreloaded({ coinId: symbol }));
+
+    // Fetch coin details using RTK Query's endpoint
+    const response = await dispatch(
+      cryptoApiSlice.endpoints.fetchCoinDetailsData.initiate({
+        id: symbol,
+        targetCurrency,
+      }),
+    ).unwrap();
+
+    // Select the coin for detailed view if requested
+    if (selectCoinAfterFetch) {
+      dispatch(coinsActions.setSelectedCoinDetails({ coinDetails: response }));
+    }
+
+    // Preload the fetched coin details into the Redux store
+    dispatch(preloadCoinDetails({ coinDetails: response, coinId: symbol }));
+  } catch (error) {
+    console.error(
+      `Error fetching and preloading coin details for ${symbol}:`,
+      error,
     );
-
-    // Check if the coin is already being fetched.
-    if (coinIsBeingFetched) {
-      console.error(`Coin ${coinId} is already being fetched.`);
-      return;
-    }
-
-    // Check if the coin has already been preloaded.
-    if (coinIsAlreadyPreloaded) {
-      console.error(`Coin ${coinId} has already been preloaded.`);
-      return;
-    }
-
-    try {
-      // Mark the coin as being fetched to prevent duplicate fetches.
-      dispatch(appInfoActions.addCoinBeingPreloaded({ coinId }));
-
-      // Fetch the detailed data for the coin from the CryptoCompre API.
-      const detailedDataResponse = await fetchCoinDetailsData(
-        coinId,
-        currentCurrency,
-      );
-      if (detailedDataResponse == null) return;
-
-      const { coinDetails, currencyExchangeRates } = detailedDataResponse;
-
-      // Select this coin if we are going to the page for it
-      if (selectCoinAfterFetch) {
-        dispatch(
-          coinsActions.setSelectedCoinDetails({
-            coinDetails,
-          }),
-        );
-      }
-
-      // Save the coin details to the preloadedCoins redux cache for the current currency synchornously, as well as
-      // other currencies asynchronously by using a web worker for transformations
-      preloadFetchedCoinDetails({
-        dispatch,
-        coinDetails,
-        currentCurrency,
-        currencyExchangeRates,
-      });
-    } catch (error) {
-      console.error("Error preloading coin data:", error);
-    } finally {
-      // Mark the coin as no longer being fetched.
-      dispatch(appInfoActions.removeCoinBeingPreloaded({ coinId }));
-    }
-  },
-);
+    dispatch(appInfoActions.removeCoinBeingPreloaded({ coinId: symbol }));
+  }
+});

@@ -3,6 +3,7 @@ import { TRootState } from "@/lib/store";
 import { fetchAndInitializeCoinsCache } from "@/utils/cache.utils";
 import { fetchAndPreloadCoinDetailsThunk } from "./fetchAndPreloadCoinDetailsThunk";
 import { initializePopularCoinsAndDetailsCache } from "./initializeCoinCacheThunk";
+import { preloadCoinDetailsThunk } from "./preloadCoinDetailsThunk";
 
 /**
  * Redux thunk action for hydrating coin-related data based on the current route.
@@ -25,7 +26,7 @@ export const hydrateCoinDataBasedOnRoute = createAsyncThunk<
     const { coins, appInfo } = getState();
     const isOnCoinDetailsPage = symbol != null;
     const selectedCoinDetails = coins.selectedCoinDetails;
-    const coinIsBeingPreloaded =
+    const coinDetailsAreBeingPreloaded =
       isOnCoinDetailsPage && appInfo.coinsBeingPreloaded[symbol];
     const coinDetailsArePreloaded =
       selectedCoinDetails?.priceChartDataset != null;
@@ -33,15 +34,16 @@ export const hydrateCoinDataBasedOnRoute = createAsyncThunk<
     // Handle coin details loading for the coin details page
     if (isOnCoinDetailsPage) {
       console.log("hydrateCoinDataBasedOnRoute - On Coin Details Page");
-      if (!coinDetailsArePreloaded && !coinIsBeingPreloaded) {
+      if (!coinDetailsArePreloaded && !coinDetailsAreBeingPreloaded) {
         console.warn(
           "Coin Details not preloaded - Initiating fetch and preload.",
         );
-        
+
         // Dispatch thunk to fetch and preload coin details
         await dispatch(
-          fetchAndPreloadCoinDetailsThunk({
-            coinId: symbol,
+          preloadCoinDetailsThunk({
+            handleFetch: true,
+            symbolToFetch: symbol,
             selectCoinAfterFetch: true,
           }),
         );

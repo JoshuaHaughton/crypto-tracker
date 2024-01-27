@@ -2,14 +2,10 @@ import { useState, useEffect, useCallback } from "react";
 import Cookie from "js-cookie";
 import { useRouter } from "next/navigation";
 import { coinsActions } from "@/lib/store/coins/coinsSlice";
-import { isEmpty } from "lodash";
 import { selectPreloadedCoinDetailsByCurrentCurrencyAndId } from "@/lib/store/coins/coinsSelectors";
 import { useAppDispatch, useAppSelector } from "@/lib/store";
 import { selectIsCoinBeingPreloaded } from "@/lib/store/appInfo/appInfoSelectors";
-import { useFetchCoinDetailsDataQuery } from "@/lib/reduxApi/apiSlice";
-import { TCurrencyString } from "@/lib/constants/globalConstants";
-import { preloadCoinDetails } from "@/thunks/preloadCoinDetailsThunk";
-import { appInfoActions } from "@/lib/store/appInfo/appInfoSlice";
+import { preloadCoinDetailsThunk } from "@/thunks/preloadCoinDetailsThunk";
 
 /**
  * Custom hook to preload coin details on user interaction.
@@ -17,13 +13,9 @@ import { appInfoActions } from "@/lib/store/appInfo/appInfoSlice";
  * It handles preloading of coin details upon user interactions like mouse hover and click.
  *
  * @param symbol - The symbol of the coin for which details need to be preloaded.
- * @param targetCurrency - The target currency for conversion rates.
  * @returns An object containing handlers for mouse enter and coin click events.
  */
-export function useCoinDetailsPreloader(
-  symbol: string,
-  targetCurrency: TCurrencyString,
-) {
+export function useCoinDetailsPreloader(symbol: string) {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const existingPreloadedDetails = useAppSelector((state) =>
@@ -34,16 +26,6 @@ export function useCoinDetailsPreloader(
   );
   // State to manage the initiation of the fetching process
   const [isFetchingInitiated, setIsFetchingInitiated] = useState(false);
-
-  // RTK Query hook to fetch coin details. The 'skip' option is controlled by isFetchingInitiated and isBeingPreloaded flags.
-  const {
-    data: fetchedCoinDetailsData,
-    isError,
-    error,
-  } = useFetchCoinDetailsDataQuery(
-    { symbol, targetCurrency },
-    { skip: !isFetchingInitiated || isBeingPreloaded },
-  );
 
   // Callback to initiate the fetching process
   const initiateFetchIfNotPreloading = useCallback(() => {
@@ -56,33 +38,22 @@ export function useCoinDetailsPreloader(
     }
     // Trigger fetching and update the state to indicate the process has started
     if (!isFetchingInitiated) {
-      dispatch(appInfoActions.addCoinBeingPreloaded({ coinId: symbol }));
+      dispatch(
+        preloadCoinDetailsThunk({
+          handleFetch: true,
+          symbolToFetch: symbol,
+        }),
+      );
       setIsFetchingInitiated(true);
     }
   }, [dispatch, symbol, isBeingPreloaded, isFetchingInitiated]);
 
-  // Effect for handling successful data fetching
+  // Reset fetching state once the data is fetched and preloaded
   useEffect(() => {
-    // On successful fetch, trigger the preloading process and reset the fetching initiation flag
-    if (fetchedCoinDetailsData && isFetchingInitiated) {
-      // Dispatch the preloadCoinDetails thunk with the fetched data.
-      // Note: The thunk 'preloadCoinDetails' handles the removal of the coin from the
-      // 'coinsBeingPreloaded' state upon completion. This ensures that the state is
-      // updated accurately once the preloading process finishes, including any asynchronous
-      // operations handled within the thunk, like web worker communication.
-      dispatch(preloadCoinDetails(fetchedCoinDetailsData.coinDetails));
+    if (isFetchingInitiated && existingPreloadedDetails != null) {
       setIsFetchingInitiated(false);
     }
-  }, [dispatch, symbol, fetchedCoinDetailsData, isFetchingInitiated]);
-
-  // Error handling effect
-  useEffect(() => {
-    // Log errors and remove the coin from the preloading state in case of fetch errors
-    if (isError) {
-      console.error("Error fetching coin details for symbol:", symbol, error);
-      dispatch(appInfoActions.removeCoinBeingPreloaded({ coinId: symbol }));
-    }
-  }, [isError, error, dispatch, symbol]);
+  }, [isFetchingInitiated, existingPreloadedDetails]);
 
   // Handler for mouse enter event
   const handleMouseEnter = useCallback(() => {
@@ -94,9 +65,8 @@ export function useCoinDetailsPreloader(
   const handleCoinClick = useCallback(() => {
     // Log the click action for debugging purposes
     console.log(`Clicked on coin ${symbol}`);
-    const isAlreadyPreloaded = !isEmpty(
-      existingPreloadedDetails?.priceChartDataset,
-    );
+    const isAlreadyPreloaded =
+      existingPreloadedDetails?.priceChartDataset != null;
 
     if (isAlreadyPreloaded) {
       // If coin details are preloaded, log this information and set the selected coin details
