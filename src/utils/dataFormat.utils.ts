@@ -9,6 +9,8 @@ import {
   IPriceTrendData,
   IPeriodicPriceChanges,
   ICoinOverview,
+  TShallowCoinDetails,
+  TShallowOrFullCoinDetails,
 } from "@/types/coinTypes";
 import {
   IHistoricalDataApiResponse,
@@ -21,6 +23,8 @@ import {
 } from "@/types/apiResponseTypes";
 import { CRYPTO_COMPARE_WEBSITE } from "@/lib/constants/apiConstants";
 import { isNull, isUndefined, mergeWith } from "lodash";
+import { coinsActions } from "@/lib/store/coins/coinsSlice";
+import { Dispatch } from "@reduxjs/toolkit";
 
 // Formatting CoinDetails after retrieval from the API
 
@@ -335,24 +339,31 @@ export function formatCurrencyRates(
 }
 
 /**
- * Extracts and maps PopularCoins to be used as the shallow base for CoinDetails for each coin.
+ * Extracts and maps PopularCoins to be used as the shallow base for ShallowCoinDetails for each coin.
  *
- * @param {Array} popularCoinsList - The list of popular coins with basic attributes.
- * @returns {Object} - An object where each key is the coin's id and the value is the coin's detailed attributes.
+ * @param {ICoinOverview[]} popularCoinsList - The list of popular coins with basic attributes.
+ * @returns {Record<string, TShallowCoinDetails>} - An object where each key is the coin's symbol and the value is the coin's shallow detailed attributes.
  */
 export function mapPopularCoinsToShallowDetailedAttributes(
-  popularCoinsList: any,
-) {
-  // Ensure the input is an array and has data
+  popularCoinsList: ICoinOverview[],
+): Record<string, TShallowCoinDetails> {
+  // Check if the input is an array and has elements
   if (!Array.isArray(popularCoinsList) || popularCoinsList.length === 0) {
     return {};
   }
 
-  // Reduce the popularCoinsList to an object with coin ids as keys
-  return popularCoinsList.reduce((acc, coin) => {
-    acc[coin.id] = { coinAttributes: coin };
-    return acc;
-  }, {});
+  // Transform the list of popular coins into a map of shallow coin details
+  return popularCoinsList.reduce((accumulator, coin) => {
+    // Create a shallow TShallowCoinDetails object for each coin
+    const shallowCoinDetails: TShallowCoinDetails = {
+      id: coin.symbol, // Using the coin's symbol as the identifier
+      coinAttributes: coin, // Directly use ICoinOverview attributes
+    };
+
+    // Add the shallow details to the accumulator with the coin's symbol as the key
+    accumulator[coin.symbol] = shallowCoinDetails;
+    return accumulator;
+  }, {} as Record<string, TShallowCoinDetails>);
 }
 
 /**
@@ -486,4 +497,46 @@ export function formatCoinDetailsApiResponse(
   );
 
   return { coinDetails, currencyExchangeRates };
+}
+/**
+ * Transforms popular coins into shallow coin details for each currency and updates the Redux store with the result.
+ * This function can handle both a single set of popular coins data or a map of them.
+ *
+ * @param popularCoinsOrMap - Either a single array of popular coins data or a map of currencies to their respective popular coins data.
+ * @param dispatch - The Redux dispatch function.
+ * @param [currentCurrency] - The current currency context, required if popularCoinsOrMap is a single set of popular coins data.
+ */
+export function transformAndDispatchPopularCoinsToShallow(
+  dispatch: Dispatch,
+  popularCoinsOrMap: ICoinOverview[] | Record<TCurrencyString, ICoinOverview[]>,
+  currentCurrency?: TCurrencyString,
+): void {
+  // Check if the input is a map or a single set of data
+  if (!Array.isArray(popularCoinsOrMap) && currentCurrency === undefined) {
+    // Handle map of popular coins
+    Object.entries(popularCoinsOrMap).forEach(([currentCurrency, coins]) => {
+      const shallowCoinDetails =
+        mapPopularCoinsToShallowDetailedAttributes(coins);
+      dispatch(
+        coinsActions.setPreloadedCoinsMapForCurrency({
+          currency: currentCurrency as TCurrencyString,
+          coinDetailsMap: shallowCoinDetails,
+        }),
+      );
+    });
+  } else if (Array.isArray(popularCoinsOrMap) && currentCurrency) {
+    // Handle a single set of popular coins
+    const shallowCoinDetails =
+      mapPopularCoinsToShallowDetailedAttributes(popularCoinsOrMap);
+    dispatch(
+      coinsActions.setPreloadedCoinsMapForCurrency({
+        currency: currentCurrency,
+        coinDetailsMap: shallowCoinDetails,
+      }),
+    );
+  } else {
+    throw new Error(
+      "Invalid arguments passed to transformAndDispatchPopularCoinsToShallow",
+    );
+  }
 }

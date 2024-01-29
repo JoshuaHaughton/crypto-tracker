@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from "react";
-import Cookie from "js-cookie";
 import { useRouter } from "next/navigation";
 import { coinsActions } from "@/lib/store/coins/coinsSlice";
 import { selectPreloadedCoinDetailsByCurrentCurrencyAndId } from "@/lib/store/coins/coinsSelectors";
@@ -7,53 +6,90 @@ import { useAppDispatch, useAppSelector } from "@/lib/store";
 import { selectIsCoinBeingPreloaded } from "@/lib/store/appInfo/appInfoSelectors";
 import { preloadCoinDetailsThunk } from "@/thunks/preloadCoinDetailsThunk";
 
+interface IUseCoinDetailsPreloaderReturn {
+  handleMouseEnter: () => void;
+  handleCoinClick: () => void;
+  isLoading: boolean;
+}
+
 /**
  * Custom hook to preload coin details on user interaction.
- * This hook integrates RTK Query for data fetching and Redux for state management.
- * It handles preloading of coin details upon user interactions like mouse hover and click.
+ * This hook handles preloading of coin details upon interactions like mouse hover and click.
+ * It dispatches actions to fetch and preload coin details using Redux.
+ *
+ * - `isPreloadingDetailsForCurrentCurrency`: Local state to track if the fetching process has been initiated
+ *   from this instance of the hook. This is crucial to prevent multiple fetches from the same
+ *   component, as multiple hover/click events can occur consecutively. Local state provides a quick
+ *   response to these rapid interactions, which might not be effectively tracked by global state due to its broader scope.
+ *   This doesn't track the preloading process to the completion of the webworker logic - only to the completion of the preloading for
+ *   the current currency.
+ *
+ * - `isBeingPreloadedGlobally`: Global state from Redux, indicating if the coin is currently
+ *   being preloaded anywhere in the application. This ensures that we do not initiate a new
+ *   preload if it's already in progress elsewhere, promoting efficient data fetching and state management.
+ *   This will track the preloading process of the coin details to the completion of the webworker logic.
  *
  * @param symbol - The symbol of the coin for which details need to be preloaded.
- * @returns An object containing handlers for mouse enter and coin click events.
+ * @returns An object containing event handlers and loading state.
  */
-export function useCoinDetailsPreloader(symbol: string) {
+export function useCoinDetailsPreloader(
+  symbol: string,
+): IUseCoinDetailsPreloaderReturn {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const existingPreloadedDetails = useAppSelector((state) =>
     selectPreloadedCoinDetailsByCurrentCurrencyAndId(state, symbol),
   );
-  const isBeingPreloaded = useAppSelector((state) =>
+
+  // Global state from Redux to track if the coin is being preloaded anywhere in the app.
+  // Used to prevent duplicate preloading actions across components, and to maintain a uniform
+  // state across the app.
+  // This will track the preloading process of the coin details to the completion of the webworker logic.
+  const isBeingPreloadedGlobally = useAppSelector((state) =>
     selectIsCoinBeingPreloaded(state, symbol),
   );
-  // State to manage the initiation of the fetching process
-  const [isFetchingInitiated, setIsFetchingInitiated] = useState(false);
+
+  // Local state to manage fetch initiation from this hook instance.
+  // Prevents multiple fetches due to rapid user interactions like hover/click, & doesn't track the
+  // preloading process to the completion of the webworker logic - only to the completion of preloading for the current currency.
+  const [
+    isPreloadingDetailsForCurrentCurrency,
+    setIsPreloadingDetailsForCurrentCurrency,
+  ] = useState(false);
 
   // Callback to initiate the fetching process
   const initiateFetchIfNotPreloading = useCallback(() => {
     // Log and exit if the coin is already being preloaded
-    if (isBeingPreloaded) {
+    if (isBeingPreloadedGlobally || isPreloadingDetailsForCurrentCurrency) {
       console.warn(
         `Attempted to preload coin '${symbol}' which is already being preloaded.`,
       );
       return;
     }
     // Trigger fetching and update the state to indicate the process has started
-    if (!isFetchingInitiated) {
-      dispatch(
-        preloadCoinDetailsThunk({
-          handleFetch: true,
-          symbolToFetch: symbol,
-        }),
-      );
-      setIsFetchingInitiated(true);
-    }
-  }, [dispatch, symbol, isBeingPreloaded, isFetchingInitiated]);
+    dispatch(
+      preloadCoinDetailsThunk({
+        handleFetch: true,
+        symbolToFetch: symbol,
+      }),
+    );
+    setIsPreloadingDetailsForCurrentCurrency(true);
+  }, [
+    dispatch,
+    symbol,
+    isBeingPreloadedGlobally,
+    isPreloadingDetailsForCurrentCurrency,
+  ]);
 
   // Reset fetching state once the data is fetched and preloaded
   useEffect(() => {
-    if (isFetchingInitiated && existingPreloadedDetails != null) {
-      setIsFetchingInitiated(false);
+    if (
+      isPreloadingDetailsForCurrentCurrency &&
+      existingPreloadedDetails != null
+    ) {
+      setIsPreloadingDetailsForCurrentCurrency(false);
     }
-  }, [isFetchingInitiated, existingPreloadedDetails]);
+  }, [isPreloadingDetailsForCurrentCurrency, existingPreloadedDetails]);
 
   // Handler for mouse enter event
   const handleMouseEnter = useCallback(() => {
@@ -76,8 +112,7 @@ export function useCoinDetailsPreloader(symbol: string) {
           coinDetails: existingPreloadedDetails,
         }),
       );
-      Cookie.set("usePreloadedData", "true");
-    } else if (!isBeingPreloaded) {
+    } else if (!isBeingPreloadedGlobally) {
       // If the coin is not being preloaded yet, log this status and initiate preloading
       console.warn(`Coin '${symbol}' not preloaded yet. Initiating preload.`);
       initiateFetchIfNotPreloading();
@@ -95,10 +130,14 @@ export function useCoinDetailsPreloader(symbol: string) {
     symbol,
     router,
     existingPreloadedDetails,
-    isBeingPreloaded,
+    isBeingPreloadedGlobally,
   ]);
 
-  return { handleMouseEnter, handleCoinClick };
+  return {
+    handleMouseEnter,
+    handleCoinClick,
+    isLoading: isBeingPreloadedGlobally,
+  };
 }
 
 // /**

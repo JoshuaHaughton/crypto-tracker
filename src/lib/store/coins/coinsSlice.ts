@@ -3,7 +3,11 @@ import {
   ALL_CURRENCIES,
   TCurrencyString,
 } from "../../constants/globalConstants";
-import { ICoinDetails, ICoinOverview } from "../../../types/coinTypes";
+import {
+  ICoinDetails,
+  ICoinOverview,
+  TShallowOrFullCoinDetails,
+} from "../../../types/coinTypes";
 import { isNull, isUndefined, mergeWith } from "lodash";
 import { mergeCoinDetails } from "@/utils/dataFormat.utils";
 
@@ -41,16 +45,16 @@ export interface ICoinsState {
   carouselSymbolList: string[];
 
   // Selected Coin Details
-  selectedCoinDetails: ICoinDetails | null;
+  selectedCoinDetails: TShallowOrFullCoinDetails | null;
   cachedSelectedCoinDetailsByCurrency: Record<
     TCurrencyString,
-    ICoinDetails | null
+    TShallowOrFullCoinDetails | null
   >;
 
   // Preloaded Coin Details
   preloadedCoinDetailsByCurrency: Record<
     TCurrencyString,
-    Record<string, ICoinDetails>
+    Record<string, TShallowOrFullCoinDetails>
   >;
 }
 
@@ -134,6 +138,14 @@ export interface SetPreloadedCoinDetailsAllCurrenciesPayload {
 export interface SetPreloadedCoinDetailsPayload
   extends SetPreloadedCoinDetailsAllCurrenciesPayload {
   currency: TCurrencyString;
+}
+
+/**
+ * Payload structure for setting or updating the entire map of preloaded coin details for a specific currency.
+ */
+export interface SetPreloadedCoinsMapForCurrencyPayload {
+  currency: TCurrencyString;
+  coinDetailsMap: Record<string, TShallowOrFullCoinDetails>;
 }
 
 const coinsSlice = createSlice({
@@ -234,6 +246,22 @@ const coinsSlice = createSlice({
     //       coinDetails;
     //   });
     // },
+    /**
+     * Sets the entire map of preloaded coin details for a specific currency.
+     * This is used to update the state with a batch of coin details at once.
+     *
+     * @param state - The current state of the coins slice.
+     * @param action - The action payload containing the currency and the map of coin details.
+     */
+    setPreloadedCoinsMapForCurrency(
+      state: ICoinsState,
+      action: PayloadAction<SetPreloadedCoinsMapForCurrencyPayload>,
+    ) {
+      const { currency, coinDetailsMap } = action.payload;
+
+      // Update the preloaded coin details for the specified currency
+      state.preloadedCoinDetailsByCurrency[currency] = coinDetailsMap;
+    },
     /**
      * Adds or updates preloaded coin details for a specific currency.
      * @param state - The current state of the coins slice.

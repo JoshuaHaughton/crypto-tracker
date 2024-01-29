@@ -5,10 +5,10 @@ import {
   CTWCallbacksMap,
   CTWResponseMessageEvent,
   CTWResponseType,
-  CTWCoinDetailsResponseData,
-  CTWAllCoinDetailsResponseData,
-  CTWPopularCoinsListResponseData,
-  CTWAllPopularCoinsListsResponseData,
+  CTWCoinDetailsInternalResponseData,
+  CTWAllCoinDetailsInternalResponseData,
+  CTWPopularCoinsListInternalResponseData,
+  CTWAllPopularCoinsListsInternalResponseData,
   CTWCallbackResponse,
 } from "./types";
 
@@ -22,7 +22,7 @@ import {
  * @param {Dispatch} dispatch - Redux dispatch function.
  */
 function handleCTWTransformedCoinDetailsForCurrency(
-  transformedData: CTWCoinDetailsResponseData["transformedData"],
+  transformedData: CTWCoinDetailsInternalResponseData["transformedData"],
   toCurrency: TCurrencyString,
   dispatch: Dispatch,
 ) {
@@ -52,7 +52,7 @@ function handleCTWTransformedCoinDetailsForCurrency(
  * @param {Dispatch} dispatch - The Redux dispatch function.
  */
 function handleCTWTransformedCoinDetailsForMultipleCurrencies(
-  transformedData: CTWAllCoinDetailsResponseData["transformedData"],
+  transformedData: CTWAllCoinDetailsInternalResponseData["transformedData"],
   dispatch: Dispatch,
 ) {
   for (const currency in transformedData) {
@@ -75,7 +75,7 @@ function handleCTWTransformedCoinDetailsForMultipleCurrencies(
  * @param {Dispatch} dispatch - The Redux dispatch function.
  */
 function handleTransformedPopularCoinsForCurrency(
-  transformedData: CTWPopularCoinsListResponseData["transformedData"],
+  transformedData: CTWPopularCoinsListInternalResponseData["transformedData"],
   toCurrency: TCurrencyString,
   dispatch: Dispatch,
 ) {
@@ -104,7 +104,7 @@ function handleTransformedPopularCoinsForCurrency(
  * @param {Function} dispatch - The Redux dispatch function.
  */
 function handleTransformedPopularCoinsForMultipleCurrencies(
-  transformedData: CTWAllPopularCoinsListsResponseData["transformedData"],
+  transformedData: CTWAllPopularCoinsListsInternalResponseData["transformedData"],
   dispatch: Dispatch,
 ) {
   console.log(
@@ -149,7 +149,7 @@ export function handleTransformedCurrencyResponse(
   switch (responseType) {
     case CTWResponseType.COIN_DETAILS_SINGLE_CURRENCY: {
       const { transformedData, toCurrency } =
-        event.data as CTWCoinDetailsResponseData;
+        event.data as CTWCoinDetailsInternalResponseData;
       handleCTWTransformedCoinDetailsForCurrency(
         transformedData,
         toCurrency,
@@ -158,7 +158,8 @@ export function handleTransformedCurrencyResponse(
       break;
     }
     case CTWResponseType.COIN_DETAILS_ALL_CURRENCIES: {
-      const { transformedData } = event.data as CTWAllCoinDetailsResponseData;
+      const { transformedData } =
+        event.data as CTWAllCoinDetailsInternalResponseData;
       handleCTWTransformedCoinDetailsForMultipleCurrencies(
         transformedData,
         dispatch,
@@ -167,7 +168,7 @@ export function handleTransformedCurrencyResponse(
     }
     case CTWResponseType.POPULAR_COINS_SINGLE_CURRENCY: {
       const { transformedData, toCurrency } =
-        event.data as CTWPopularCoinsListResponseData;
+        event.data as CTWPopularCoinsListInternalResponseData;
       handleTransformedPopularCoinsForCurrency(
         transformedData,
         toCurrency,
@@ -177,7 +178,7 @@ export function handleTransformedCurrencyResponse(
     }
     case CTWResponseType.POPULAR_COINS_ALL_CURRENCIES: {
       const { transformedData } =
-        event.data as CTWAllPopularCoinsListsResponseData;
+        event.data as CTWAllPopularCoinsListsInternalResponseData;
       handleTransformedPopularCoinsForMultipleCurrencies(
         transformedData,
         dispatch,

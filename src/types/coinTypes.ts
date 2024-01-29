@@ -75,3 +75,18 @@ export interface IPeriodicPriceChangePercentages {
   d30: number;
   d365: number;
 }
+
+/**
+ * Represents the shallow details of a coin, typically derived from popular coins data.
+ * This includes a subset of the attributes available in the detailed coin information,
+ * focusing on the overview provided by popular coins.
+ */
+export type TShallowCoinDetails = Omit<
+  Partial<ICoinDetails>,
+  "coinAttributes"
+> & {
+  coinAttributes: ICoinOverview;
+};
+
+// Define the union type for either partially or fully populated coin details
+export type TShallowOrFullCoinDetails = ICoinDetails | TShallowCoinDetails;

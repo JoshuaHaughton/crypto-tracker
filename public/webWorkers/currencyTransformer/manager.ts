@@ -3,7 +3,12 @@ import {
   generateUniqueOnCompleteCallbackId,
   handleTransformedCurrencyResponse,
 } from "./utils";
-import { CTWRequestMessage, CTWCallbacksMap } from "./types";
+import {
+  CTWRequestMessage,
+  CTWCallbacksMap,
+  CTWMessageRequestType,
+  CTWCallback,
+} from "./types";
 
 /**
  * A map to store callback functions associated with specific worker tasks.
@@ -51,9 +56,9 @@ export function initializeCurrencyTransformerWorker(dispatch: Dispatch) {
  *
  * @param {CTWRequestMessage} message - Data to post to the worker.
  */
-export function postMessageToCurrencyTransformerWorker(
-  message: CTWRequestMessage,
-) {
+export function postMessageToCurrencyTransformerWorker<
+  T extends CTWMessageRequestType,
+>(message: CTWRequestMessage<T>) {
   if (!currencyTransformerWorker) return;
   const { requestData, requestType, onComplete } = message;
 
@@ -61,7 +66,7 @@ export function postMessageToCurrencyTransformerWorker(
     onComplete != null ? generateUniqueOnCompleteCallbackId() : undefined;
 
   if (onCompleteCallbackId && onComplete != null) {
-    callbacksMap.set(onCompleteCallbackId, onComplete);
+    callbacksMap.set(onCompleteCallbackId, onComplete as CTWCallback);
   }
 
   currencyTransformerWorker.postMessage({

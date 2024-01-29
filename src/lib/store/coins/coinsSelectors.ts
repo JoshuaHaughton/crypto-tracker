@@ -1,7 +1,11 @@
 import { TCurrencyString } from "@/lib/constants/globalConstants";
 import { createSelector } from "@reduxjs/toolkit";
 import { TRootState } from "..";
-import { ICoinDetails, ICoinOverview } from "@/types/coinTypes";
+import {
+  ICoinDetails,
+  ICoinOverview,
+  TShallowOrFullCoinDetails,
+} from "@/types/coinTypes";
 
 /**
  * Selector for popular coins.
@@ -91,9 +95,9 @@ export const selectPreloadedCoinDetailsByCurrentCurrencyAndId = createSelector(
     preloadedCoinDetailsByCurrency,
     currentCurrency,
     id,
-  ): ICoinDetails | undefined => {
-    const coinDetails = preloadedCoinDetailsByCurrency[currentCurrency];
-    return coinDetails ? coinDetails[id] : undefined;
+  ): TShallowOrFullCoinDetails | undefined => {
+    const coinDetails = preloadedCoinDetailsByCurrency[currentCurrency][id];
+    return coinDetails ? coinDetails : undefined;
   },
 );
 
