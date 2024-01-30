@@ -299,7 +299,7 @@ onmessage = (event: CTWInternalRequestMessageEvent) => {
       // Extract the necessary data for the transformation
       const allCoinDetailsData = requestData as CTWAllCoinDetailsRequestData;
       const allCoinDetailsTransformedData =
-        {} as CTWAllCoinDetailsResponseData["transformedData"];
+        {} as CTWAllCoinDetailsExternalResponseData["transformedData"];
 
       ALL_CURRENCIES.filter(
         (currency) =>
@@ -344,7 +344,7 @@ onmessage = (event: CTWInternalRequestMessageEvent) => {
       const allPopularCoinsListData =
         requestData as CTWAllPopularCoinsListsRequestData;
       const allPopularCoinsListTransformedData =
-        {} as CTWAllPopularCoinsListsResponseData["transformedData"];
+        {} as CTWAllPopularCoinsListsExternalResponseData["transformedData"];
 
       ALL_CURRENCIES.filter(
         (currency) =>
@@ -444,34 +444,39 @@ interface IPriceChartDataset {
   }[];
 }
 
-// interface IPeriodicPriceChanges {
-//   priceChange24h: number;
-//   priceChange7d: number;
-//   priceChange30d: number;
-//   priceChange365d: number;
-// }
+// Specific callback types for each response type
+type CTWCoinDetailsCallback = (
+  response: CTWCoinDetailsExternalResponseData,
+) => void;
+type CTWAllCoinDetailsCallback = (
+  response: CTWAllCoinDetailsExternalResponseData,
+) => void;
+type CTWPopularCoinsListCallback = (
+  response: CTWPopularCoinsListExternalResponseData,
+) => void;
+type CTWAllPopularCoinsListsCallback = (
+  response: CTWAllPopularCoinsListsExternalResponseData,
+) => void;
 
-// interface IPeriodicPriceChangePercentages {
-//   h24: number;
-//   d7: number;
-//   d30: number;
-//   d365: number;
-// }
-
-type CTWCallbackResponse = {
-  responseType: CTWResponseType;
-  transformedData: CTWTransformedDataType;
+type RequestTypeToRequestDataMap = {
+  [CTWMessageRequestType.COIN_DETAILS_SINGLE_CURRENCY]: CTWCoinDetailsRequestData;
+  [CTWMessageRequestType.COIN_DETAILS_ALL_CURRENCIES]: CTWAllCoinDetailsRequestData;
+  [CTWMessageRequestType.POPULAR_COINS_SINGLE_CURRENCY]: CTWPopularCoinsListRequestData;
+  [CTWMessageRequestType.POPULAR_COINS_ALL_CURRENCIES]: CTWAllPopularCoinsListsRequestData;
 };
 
-type CTWCallBack = (response: CTWCallbackResponse) => void;
-
-type CTWCallbacksMap = Map<string, CTWCallBack>;
+type RequestTypeToCallbackMap = {
+  [CTWMessageRequestType.COIN_DETAILS_SINGLE_CURRENCY]: CTWCoinDetailsCallback;
+  [CTWMessageRequestType.COIN_DETAILS_ALL_CURRENCIES]: CTWAllCoinDetailsCallback;
+  [CTWMessageRequestType.POPULAR_COINS_SINGLE_CURRENCY]: CTWPopularCoinsListCallback;
+  [CTWMessageRequestType.POPULAR_COINS_ALL_CURRENCIES]: CTWAllPopularCoinsListsCallback;
+};
 
 // REQUEST TYPES
-interface CTWRequestMessage {
-  requestType: CTWMessageRequestType;
-  requestData: CTWMessageRequestData;
-  onComplete?: CTWCallBack;
+interface CTWRequestMessage<T extends CTWMessageRequestType> {
+  requestType: T;
+  requestData: RequestTypeToRequestDataMap[T];
+  onComplete?: RequestTypeToCallbackMap[T];
 }
 
 /**
@@ -480,7 +485,7 @@ interface CTWRequestMessage {
  * associated with the worker's response, ensuring the correct function is executed upon task completion.
  */
 interface CTWInternalRequestMessage
-  extends Omit<CTWRequestMessage, "onComplete"> {
+  extends Omit<CTWRequestMessage<CTWMessageRequestType>, "onComplete"> {
   onCompleteCallbackId?: string;
 }
 
@@ -532,12 +537,6 @@ interface CTWAllPopularCoinsListsRequestData {
   >;
 }
 
-type CTWMessageRequestData =
-  | CTWCoinDetailsRequestData
-  | CTWAllCoinDetailsRequestData
-  | CTWPopularCoinsListRequestData
-  | CTWAllPopularCoinsListsRequestData;
-
 // Extend the MessageEvent interface to include the custom data structure
 interface CTWInternalRequestMessageEvent extends MessageEvent {
   data: CTWInternalRequestMessage;
@@ -552,48 +551,22 @@ enum CTWResponseType {
   POPULAR_COINS_ALL_CURRENCIES = "TRANSFORMED_ALL_POPULAR_COINS_LIST",
 }
 
-// Base interface for common properties of response data
-interface CTWBaseResponseData {
-  onCompleteCallbackId?: string;
-}
-
-// Specific interfaces now extend the base interface with specific types for transformedData
-interface CTWCoinDetailsResponseData extends CTWBaseResponseData {
+interface CTWCoinDetailsExternalResponseData {
   responseType: CTWResponseType.COIN_DETAILS_SINGLE_CURRENCY;
   transformedData: ICoinDetails;
-  toCurrency: TCurrencyString; // Mandatory for this type
 }
 
-interface CTWAllCoinDetailsResponseData extends CTWBaseResponseData {
+interface CTWAllCoinDetailsExternalResponseData {
   responseType: CTWResponseType.COIN_DETAILS_ALL_CURRENCIES;
   transformedData: Record<TCurrencyString, ICoinDetails>;
 }
 
-interface CTWPopularCoinsListResponseData extends CTWBaseResponseData {
+interface CTWPopularCoinsListExternalResponseData {
   responseType: CTWResponseType.POPULAR_COINS_SINGLE_CURRENCY;
   transformedData: ICoinOverview[];
-  toCurrency: TCurrencyString; // Mandatory for this type
 }
 
-interface CTWAllPopularCoinsListsResponseData extends CTWBaseResponseData {
+interface CTWAllPopularCoinsListsExternalResponseData {
   responseType: CTWResponseType.POPULAR_COINS_ALL_CURRENCIES;
   transformedData: Record<TCurrencyString, ICoinOverview[]>;
-}
-
-// Union type for the transformed data sent from the worker
-type CTWResponseMessageData =
-  | CTWCoinDetailsResponseData
-  | CTWAllCoinDetailsResponseData
-  | CTWPopularCoinsListResponseData
-  | CTWAllPopularCoinsListsResponseData;
-
-type CTWTransformedDataType = CTWResponseMessageData extends {
-  transformedData: infer T;
-}
-  ? T
-  : never;
-
-// Extend the MessageEvent interface to include the custom data structure
-interface CTWResponseMessageEvent extends MessageEvent {
-  data: CTWResponseMessageData;
 }

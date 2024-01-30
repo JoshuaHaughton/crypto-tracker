@@ -85,7 +85,7 @@ export type TShallowCoinDetails = Omit<
   Partial<ICoinDetails>,
   "coinAttributes"
 > & {
-  coinAttributes: ICoinOverview;
+  coinAttributes: ICoinOverview | ICoinDetailAttributes;
 };
 
 // Define the union type for either partially or fully populated coin details

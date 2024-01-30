@@ -9,6 +9,7 @@ import {
 import { selectIsCoinBeingPreloaded } from "@/lib/store/appInfo/appInfoSelectors";
 import { initializeCoinCache } from "@/thunks/initializeCoinCacheThunk";
 import { isEmpty } from "lodash";
+import { ICoinDetails } from "@/types/coinTypes";
 
 /**
  * Custom hook to hydrate coin-related data on the initial load based on the current route.
@@ -37,7 +38,7 @@ export const useHydrateCoinDataOnLoad = () => {
     () => {
       const isOnCoinDetailsPage = symbol != null;
       const coinDetailsAreFullyPreloaded =
-        selectedCoinDetails.priceChartDataset != null;
+        selectedCoinDetails?.priceChartDataset != null;
 
       // Handle coin details loading for the coin details page
       if (isOnCoinDetailsPage) {
@@ -68,7 +69,7 @@ export const useHydrateCoinDataOnLoad = () => {
           );
           dispatch(
             preloadCoinDetailsThunk({
-              coinDetailsToPreload: selectedCoinDetails,
+              coinDetailsToPreload: selectedCoinDetails as ICoinDetails, // The coinDetailsAreFullyPreloaded check ensures that we are using the full coin details and not a shallow version
             }),
           );
         }
