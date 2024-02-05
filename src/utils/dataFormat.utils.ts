@@ -456,17 +456,14 @@ export function formatPopularCoinsApiResponse(
   const currencyExchangeRates = formatCurrencyRates(exchangeData);
 
   // Format popular coins list
-  const popularCoinsList = top100MarketCapData.Data.map((entry, index) =>
+  const popularCoins = top100MarketCapData.Data.map((entry, index) =>
     formatCoinOverviewCoinFromApi(entry, index, targetCurrency),
   ).filter(Boolean) as ICoinOverview[];
 
   // Selecting a random subset of 10 coin symbols
-  const carouselSymbolList = selectRandomPopularCoinsSubset(
-    popularCoinsList,
-    10,
-  );
+  const carouselSymbolList = selectRandomPopularCoinsSubset(popularCoins, 10);
 
-  return { currencyExchangeRates, popularCoinsList, carouselSymbolList };
+  return { currencyExchangeRates, popularCoins, carouselSymbolList };
 }
 
 /**
@@ -539,4 +536,20 @@ export function transformAndDispatchPopularCoinsToShallow(
       "Invalid arguments passed to transformAndDispatchPopularCoinsToShallow",
     );
   }
+}
+
+/**
+ * Filters out properties with undefined values from an object.
+ * @param obj The object to filter.
+ * @returns A new object with all undefined properties removed.
+ */
+export function filterUndefinedProps<T extends Record<string, any>>(
+  obj: T,
+): Partial<T> {
+  return Object.entries(obj).reduce((acc: Partial<T>, [key, value]) => {
+    if (value !== undefined) {
+      acc[key as keyof T] = value;
+    }
+    return acc;
+  }, {} as Partial<T>);
 }

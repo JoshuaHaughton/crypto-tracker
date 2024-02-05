@@ -168,6 +168,13 @@ const coinsSlice = createSlice({
         acc[coin.symbol] = coin;
         return acc;
       }, {} as Record<string, ICoinOverview>);
+      console.log(
+        "map set",
+        coinList.reduce((acc, coin) => {
+          acc[coin.symbol] = coin;
+          return acc;
+        }, {} as Record<string, ICoinOverview>),
+      );
     },
 
     /**

@@ -35,7 +35,7 @@ export interface IRawPopularCoinsApiResponse {
 
 export interface IFormattedPopularCoinsApiResponse {
   currencyExchangeRates: TCurrencyExchangeRates;
-  popularCoinsList: ICoinOverview[];
+  popularCoins: ICoinOverview[];
   carouselSymbolList: string[];
 }
 

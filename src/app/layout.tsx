@@ -5,11 +5,9 @@ import { Revalidate } from "next/dist/server/lib/revalidate";
 import { AppConfigDynamic } from "next/dist/build/utils";
 import Navbar from "@/components/Navbar/Navbar";
 import { StoreProvider } from "@/lib/store/storeProvider";
-import { usePathname, useRouter } from "next/navigation";
-import { useAppInitialization } from "@/lib/hooks/appLifecycle/useAppInitialization";
-import { makeStore } from "@/lib/store";
-import { useMemo } from "react";
 import { AppInitializer } from "./appInitializer";
+import { cookies } from "next/headers";
+import { fetchInitialDataBasedOnRoute } from "@/utils/api.utils";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,21 +21,25 @@ export const dynamic: AppConfigDynamic = "force-dynamic";
 // Prevents caching of the page
 export const revalidate: Revalidate = 0;
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   if (typeof window !== "undefined") {
-    console.log("App.js rendered in Browser,");
+    console.log("App.js rendered in Browser,", children);
   }
 
-  const store = useMemo(() => makeStore(), []);
+  // Access cookies in server components
+  const cookieStore = cookies();
+
+  // Fetch initial data based on the route and cookie information
+  const initialData = await fetchInitialDataBasedOnRoute(cookieStore);
 
   return (
     <html lang="en">
       <body className={inter.className}>
-        <StoreProvider store={store}>
+        <StoreProvider initialData={initialData}>
           <AppInitializer />
           <Navbar />
           {children}

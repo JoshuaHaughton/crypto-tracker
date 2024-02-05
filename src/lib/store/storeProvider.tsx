@@ -1,66 +1,88 @@
 "use client";
-import { useEffect, useRef } from "react";
+
+import { useRef } from "react";
 import { Provider } from "react-redux";
 import { TAppStore, makeStore } from ".";
-import { ICoinDetails, ICoinOverview } from "@/types/coinTypes";
-import { TCurrencyExchangeRates, TCurrencyRates } from "@/types/currencyTypes";
-import { initializeStore } from "@/utils/reduxStore.utils";
+import { initialCoinsState } from "./coins/coinsSlice";
+import { initialCurrencyState } from "./currency/currencySlice";
+import {
+  IFormattedPopularCoinsApiResponse,
+  IFormattedCoinDetailsAPIResponse,
+} from "@/types/apiResponseTypes";
+import {
+  isPopularCoinsApiResponse,
+  isCoinDetailsApiResponse,
+} from "@/utils/api.utils";
+import { ICoinOverview } from "@/types/coinTypes";
+
+export type TInitialDataOptions =
+  | IFormattedPopularCoinsApiResponse
+  | IFormattedCoinDetailsAPIResponse
+  | null;
+
+interface IStoreProviderProps {
+  children: React.ReactNode;
+  initialData: TInitialDataOptions;
+}
 
 /**
- * `StoreProvider` is a higher-order component designed for providing a Redux store to the React component tree in a Next.js Single Page Application (SPA). This component is responsible for initializing the Redux store with server-side fetched data, allowing for an efficient hydration process when the application is first loaded. It's particularly effective in scenarios where initial data needs to be fetched on the server and then passed down to the client when using Nextjs 14 with the App Router. This setup allows the SPA to maintain state consistency across client-side navigations while benefiting from server-side rendering optimizations.
+ * The `StoreProvider` component is a HOC for initializing and providing a Redux store to the React component tree in a Next.js Single Page Application (SPA). This component facilitates the setup of the Redux store with initial state values derived from server-side data fetching. It plays a crucial role in ensuring state consistency across client-side navigations, especially in server-rendered SPA environments where initial data is crucial for the first render.
  *
- * The component accepts several optional parameters for initializing different parts of the Redux store. This includes data for popular coins, specific coin details, carousel coins, and currency exchange rates. Upon mounting, the StoreProvider uses these data to dispatch actions that populate the respective slices of the Redux store. This approach ensures that the initial render of the application on the client side has access to the pre-fetched data, thereby aligning with SPA best practices in a server-rendered environment.
+ * This component accepts several optional parameters to initialize different parts of the Redux store. The initialization parameters include data for popular coins, specific coin details, a carousel symbol list, and currency exchange rates. These parameters are used to set up the initial state of the Redux store, thus allowing the application to start with pre-fetched server data.
  *
- * @param {React.ReactNode} children - Child components needing access to the Redux store.
- * @param {TAppStore} [store] - An optional existing Redux store reference.
- * @param {ICoinOverview[]} [popularCoins] - Initial popular coins data for the store.
- * @param {ICoinDetails} [coinDetails] - Initial coin details for the store.
- * @param {string[]} [carouselSymbolList] - Initial carousel symbol list for the store.
- * @param {TCurrencyExchangeRates} [currencyExchangeRates] - Initial currency exchange rates for the store.
- * @returns {React.Component} Component wrapping children with a Redux Provider.
+ * @param {React.ReactNode} children - Child components that will have access to the Redux store.
+ * @param {TInitialDataOptions} [initialData] - Initial data for the store.
+ * @returns {React.Component} A component that wraps its children with a Redux Provider, supplying the configured store.
  */
-export const StoreProvider: React.FC<{
-  children: React.ReactNode;
-  store?: TAppStore;
-  popularCoins?: ICoinOverview[];
-  coinDetails?: ICoinDetails;
-  carouselSymbolList?: string[];
-  currencyExchangeRates?: TCurrencyExchangeRates;
-}> = ({
+export const StoreProvider: React.FC<IStoreProviderProps> = ({
   children,
-  store: externalStore,
-  popularCoins,
-  coinDetails,
-  carouselSymbolList,
-  currencyExchangeRates,
+  initialData,
 }) => {
-  // useRef to maintain a persistent store reference across re-renders and client-side navigations.
-  // If an external store is not provided, create a new one. This ensures the store is only created once.
   const storeRef = useRef<TAppStore>();
-  if (!storeRef.current) {
-    storeRef.current = externalStore || makeStore();
+  let initialState = {};
+
+  let coinsInitialState = { ...initialCoinsState };
+  let currencyInitialState = { ...initialCurrencyState };
+
+  if (isPopularCoinsApiResponse(initialData)) {
+    const { popularCoins, carouselSymbolList, currencyExchangeRates } =
+      initialData;
+    coinsInitialState = {
+      ...coinsInitialState,
+      popularCoins,
+      popularCoinsMap: popularCoins.reduce((acc, coin) => {
+        acc[coin.symbol] = coin;
+        return acc;
+      }, {} as Record<string, ICoinOverview>),
+      carouselSymbolList,
+    };
+    currencyInitialState = {
+      ...currencyInitialState,
+      //remember to add current currency here when cookie loic is ready
+      currencyRates: currencyExchangeRates,
+    };
+  } else if (isCoinDetailsApiResponse(initialData)) {
+    const { coinDetails, currencyExchangeRates } = initialData;
+    coinsInitialState = {
+      ...coinsInitialState,
+      selectedCoinDetails: coinDetails,
+    };
+    currencyInitialState = {
+      ...currencyInitialState,
+      //remember to add current currency here when cookie loic is ready
+      currencyRates: currencyExchangeRates,
+    };
   }
 
-  useEffect(() => {
-    // Initialize the store with provided data, if available
-    // This is primarily for server-side rendering to hydrate the Redux store with initial data. SPA Navigations won't trigger server calls
-    if (
-      storeRef.current &&
-      (popularCoins ||
-        coinDetails ||
-        carouselSymbolList ||
-        currencyExchangeRates)
-    ) {
-      initializeStore(storeRef.current, {
-        popularCoins,
-        coinDetails,
-        carouselSymbolList,
-        currencyExchangeRates,
-      });
-    }
-  }, [popularCoins, coinDetails, carouselSymbolList, currencyExchangeRates]);
+  initialState = {
+    coins: coinsInitialState,
+    currency: currencyInitialState,
+  };
 
-  // Wrap the application with the Redux Provider and pass the store reference
-  // This enables Redux state management across the application
+  // Create the store with initial states. This will only initialize provided slices.
+  if (!storeRef.current) {
+    storeRef.current = makeStore(initialState);
+  }
+
   return <Provider store={storeRef.current}>{children}</Provider>;
 };

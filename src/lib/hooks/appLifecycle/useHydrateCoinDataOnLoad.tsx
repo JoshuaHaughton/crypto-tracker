@@ -42,7 +42,7 @@ export const useHydrateCoinDataOnLoad = () => {
 
       // Handle coin details loading for the coin details page
       if (isOnCoinDetailsPage) {
-        console.log("hydrateCoinDataOnLoad - On Coin Details Page");
+        console.log("usehydrateCoinDataOnLoad - On Coin Details Page");
         const shouldFetchDetailsBeforePreload =
           !coinDetailsAreFullyPreloaded && !coinDetailsBeingPreloaded;
 
@@ -77,6 +77,7 @@ export const useHydrateCoinDataOnLoad = () => {
 
       // Check for the existence of the popular coins list
       const popularCoinsExist = !isEmpty(popularCoins);
+      console.log()
 
       // Determine the log based on the existence of popular coins
       const actionLogDescription = popularCoinsExist
