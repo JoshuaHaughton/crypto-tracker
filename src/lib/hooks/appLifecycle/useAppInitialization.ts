@@ -1,6 +1,5 @@
 import { useWebWorker } from "./useWebWorker";
 import { useAppDispatch } from "@/lib/store";
-import { useSearchParams } from "next/navigation";
 import { useHydrateCoinDataOnLoad } from "./useHydrateCoinDataOnLoad";
 
 /**
@@ -8,10 +7,6 @@ import { useHydrateCoinDataOnLoad } from "./useHydrateCoinDataOnLoad";
  */
 export const useAppInitialization = () => {
   const dispatch = useAppDispatch();
-  const searchParams = useSearchParams();
-
-  const symbol = searchParams.get("symbol");
-  console.log("Symbol from URL:", symbol);
 
   useWebWorker(dispatch);
   // useRouteEvents(store, initialReduxState, serverGlobalCacheVersion);

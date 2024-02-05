@@ -4,7 +4,6 @@ import { appInfoActions } from "@/lib/store/appInfo/appInfoSlice";
 import { ICoinDetails } from "@/types/coinTypes";
 import { postMessageToCurrencyTransformerWorker } from "../../public/webWorkers/currencyTransformer/manager";
 import { CTWMessageRequestType } from "../../public/webWorkers/currencyTransformer/types";
-import { TCurrencyString } from "@/lib/constants/globalConstants";
 import { cryptoApiSlice } from "@/lib/reduxApi/apiSlice";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 

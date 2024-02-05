@@ -1,5 +1,6 @@
 import { TCurrencyString } from "@/lib/constants/globalConstants";
 import { ICoinDetails, ICoinOverview } from "@/types/coinTypes";
+import { TCurrencyExchangeRates } from "@/types/currencyTypes";
 
 // Specific callback types for each response type
 export type CTWCoinDetailsCallback = (
@@ -79,10 +80,7 @@ export interface CTWCoinDetailsRequestData {
 export interface CTWAllCoinDetailsRequestData {
   coinToTransform: any;
   fromCurrency: TCurrencyString;
-  currencyExchangeRates: Record<
-    TCurrencyString,
-    Record<TCurrencyString, number>
-  >;
+  currencyExchangeRates: TCurrencyExchangeRates;
   currenciesToExclude?: TCurrencyString[];
 }
 

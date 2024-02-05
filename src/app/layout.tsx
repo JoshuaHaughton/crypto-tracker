@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "../styles/globals.scss";
+import Navbar from "@/components/Navbar/Navbar";
+import { Inter } from "next/font/google";
+import { Metadata } from "next";
 import { Revalidate } from "next/dist/server/lib/revalidate";
 import { AppConfigDynamic } from "next/dist/build/utils";
-import Navbar from "@/components/Navbar/Navbar";
 import { StoreProvider } from "@/lib/store/storeProvider";
 import { AppInitializer } from "./appInitializer";
 import { cookies } from "next/headers";
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 // Sets the rendering behavior of the page to be dynamic for every request.
 // 'force-dynamic' ensures that the page is always rendered on the server side initially
 export const dynamic: AppConfigDynamic = "force-dynamic";
-// Prevents caching of the page
+// Prevents caching of the page to ensure up to date crypto information
 export const revalidate: Revalidate = 0;
 
 export default async function RootLayout({

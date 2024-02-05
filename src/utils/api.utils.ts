@@ -18,8 +18,8 @@ import {
   IRawPopularCoinsApiResponse,
   ITopMarketCapApiResponse,
 } from "@/types/apiResponseTypes";
-import { TInitialDataOptions } from "@/lib/store/storeProvider";
 import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
+import { TInitialDataOptions, InitialDataType } from "@/types/apiRequestTypes";
 
 /**
  * Fetches raw data for the top 100 coins and currency exchange rates.
@@ -74,11 +74,11 @@ async function fetchRawPopularCoinsData(
  * This function first fetches the raw data and then formats it into a more usable structure.
  *
  * @param {TCurrencyString} targetCurrency - The currency against which the market data is compared.
- * @returns {Promise<IFormattedPopularCoinsApiResponse>} A Promise resolving to an object containing formatted data including currency rates, popular coins list, and carousel symbols.
+ * @returns {Promise<IFormattedPopularCoinsApiResponse| null>} A Promise resolving to an object containing formatted data including currency rates, popular coins list, and carousel symbols.
  */
 export async function fetchAndFormatPopularCoinsData(
   targetCurrency: TCurrencyString,
-): Promise<IFormattedPopularCoinsApiResponse> {
+): Promise<IFormattedPopularCoinsApiResponse | null> {
   console.log(
     "fetchAndFormatPopularCoinsData: Fetching and formatting popular coins data.",
   );
@@ -106,7 +106,7 @@ export async function fetchAndFormatPopularCoinsData(
     return formattedData;
   } catch (error) {
     console.error("Error in fetchAndFormatPopularCoinsData:", error);
-    throw error;
+    return null;
   }
 }
 
@@ -262,13 +262,24 @@ export async function fetchInitialDataBasedOnRoute(
   switch (initialRoute) {
     case "/":
       console.log("Fetching data for the home page");
-      return await fetchAndFormatPopularCoinsData(currencyPreference);
+      const popularCoinsData = await fetchAndFormatPopularCoinsData(
+        currencyPreference,
+      );
+      return popularCoinsData
+        ? { dataType: InitialDataType.POPULAR_COINS, data: popularCoinsData }
+        : null;
 
     case "/coin":
       console.log("Fetching data for a coin details page");
       // Extract symbol from the route
       const symbol = initialRoute.split("/")[2];
-      return await fetchAndFormatCoinDetailsData(symbol, currencyPreference);
+      const coinDetailsData = await fetchAndFormatCoinDetailsData(
+        symbol,
+        currencyPreference,
+      );
+      return coinDetailsData
+        ? { dataType: InitialDataType.COIN_DETAILS, data: coinDetailsData }
+        : null;
 
     default:
       console.log("Unknown route, no data fetched");

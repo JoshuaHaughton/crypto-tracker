@@ -5,20 +5,8 @@ import { Provider } from "react-redux";
 import { TAppStore, makeStore } from ".";
 import { initialCoinsState } from "./coins/coinsSlice";
 import { initialCurrencyState } from "./currency/currencySlice";
-import {
-  IFormattedPopularCoinsApiResponse,
-  IFormattedCoinDetailsAPIResponse,
-} from "@/types/apiResponseTypes";
-import {
-  isPopularCoinsApiResponse,
-  isCoinDetailsApiResponse,
-} from "@/utils/api.utils";
 import { ICoinOverview } from "@/types/coinTypes";
-
-export type TInitialDataOptions =
-  | IFormattedPopularCoinsApiResponse
-  | IFormattedCoinDetailsAPIResponse
-  | null;
+import { InitialDataType, TInitialDataOptions } from "@/types/apiRequestTypes";
 
 interface IStoreProviderProps {
   children: React.ReactNode;
@@ -30,9 +18,10 @@ interface IStoreProviderProps {
  *
  * This component accepts several optional parameters to initialize different parts of the Redux store. The initialization parameters include data for popular coins, specific coin details, a carousel symbol list, and currency exchange rates. These parameters are used to set up the initial state of the Redux store, thus allowing the application to start with pre-fetched server data.
  *
- * @param {React.ReactNode} children - Child components that will have access to the Redux store.
- * @param {TInitialDataOptions} [initialData] - Initial data for the store.
- * @returns {React.Component} A component that wraps its children with a Redux Provider, supplying the configured store.
+ * @param props - The props object for the StoreProvider.
+ * @param props.children - Child components that will have access to the Redux store.
+ * @param props.initialData - Optional initial data for the store, used for initializing specific state slices.
+ * @returns A component that wraps its children with a Redux Provider, supplying the configured store.
  */
 export const StoreProvider: React.FC<IStoreProviderProps> = ({
   children,
@@ -44,34 +33,48 @@ export const StoreProvider: React.FC<IStoreProviderProps> = ({
   let coinsInitialState = { ...initialCoinsState };
   let currencyInitialState = { ...initialCurrencyState };
 
-  if (isPopularCoinsApiResponse(initialData)) {
-    const { popularCoins, carouselSymbolList, currencyExchangeRates } =
-      initialData;
-    coinsInitialState = {
-      ...coinsInitialState,
-      popularCoins,
-      popularCoinsMap: popularCoins.reduce((acc, coin) => {
-        acc[coin.symbol] = coin;
-        return acc;
-      }, {} as Record<string, ICoinOverview>),
-      carouselSymbolList,
-    };
+  if (initialData) {
+    // Extracting the currency exchange rates outside the switch
+    // as it's common to both PopularCoins and CoinDetails cases
+    const { currencyExchangeRates } = initialData.data;
+    // Updating the currency initial state with currency exchange rates
     currencyInitialState = {
       ...currencyInitialState,
-      //remember to add current currency here when cookie loic is ready
       currencyRates: currencyExchangeRates,
     };
-  } else if (isCoinDetailsApiResponse(initialData)) {
-    const { coinDetails, currencyExchangeRates } = initialData;
-    coinsInitialState = {
-      ...coinsInitialState,
-      selectedCoinDetails: coinDetails,
-    };
-    currencyInitialState = {
-      ...currencyInitialState,
-      //remember to add current currency here when cookie loic is ready
-      currencyRates: currencyExchangeRates,
-    };
+
+    switch (initialData.dataType) {
+      case InitialDataType.POPULAR_COINS: {
+        // Destructuring the data specific to PopularCoins
+        const { popularCoins, carouselSymbolList } = initialData.data;
+
+        // Updating the coins initial state with data from PopularCoins
+        coinsInitialState = {
+          ...coinsInitialState,
+          popularCoins,
+          popularCoinsMap: popularCoins.reduce((acc, coin) => {
+            acc[coin.symbol] = coin;
+            return acc;
+          }, {} as Record<string, ICoinOverview>),
+          carouselSymbolList,
+        };
+
+        break;
+      }
+
+      case InitialDataType.COIN_DETAILS: {
+        // Destructuring the data specific to CoinDetails
+        const { coinDetails } = initialData.data;
+
+        // Updating the coins initial state with data from CoinDetails
+        coinsInitialState = {
+          ...coinsInitialState,
+          selectedCoinDetails: coinDetails,
+        };
+
+        break;
+      }
+    }
   }
 
   initialState = {

@@ -1,6 +1,6 @@
 "use client";
+
 import { useAppInitialization } from "@/lib/hooks/appLifecycle/useAppInitialization";
-import { TAppStore } from "@/lib/store";
 
 /**
  * A client-side component (`AppInitializer`) designed to be used within a server-rendered

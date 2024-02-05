@@ -16,11 +16,6 @@ import { ICoinDetails } from "@/types/coinTypes";
  * It checks if the user is on a coin details page and fetches necessary data accordingly.
  * It also ensures that the popular coins list is loaded and initializes the cache if needed.
  *
- * @remarks
- * This hook is used to fetch and preload coin details for the current route if the user
- * is on a coin details page. It also checks if the popular coins list is present in the state
- * and fetches or initializes it accordingly. This is crucial for ensuring that the app has
- * all the necessary data based on the current route, especially after a page refresh or direct navigation.
  */
 export const useHydrateCoinDataOnLoad = () => {
   console.log("hydrateCoinDataOnLoad - Start");
@@ -37,12 +32,13 @@ export const useHydrateCoinDataOnLoad = () => {
   useEffect(
     () => {
       const isOnCoinDetailsPage = symbol != null;
-      const coinDetailsAreFullyPreloaded =
-        selectedCoinDetails?.priceChartDataset != null;
 
       // Handle coin details loading for the coin details page
       if (isOnCoinDetailsPage) {
         console.log("usehydrateCoinDataOnLoad - On Coin Details Page");
+        const coinDetailsAreFullyPreloaded =
+          selectedCoinDetails?.priceChartDataset != null;
+
         const shouldFetchDetailsBeforePreload =
           !coinDetailsAreFullyPreloaded && !coinDetailsBeingPreloaded;
 
@@ -77,7 +73,6 @@ export const useHydrateCoinDataOnLoad = () => {
 
       // Check for the existence of the popular coins list
       const popularCoinsExist = !isEmpty(popularCoins);
-      console.log()
 
       // Determine the log based on the existence of popular coins
       const actionLogDescription = popularCoinsExist
@@ -90,6 +85,7 @@ export const useHydrateCoinDataOnLoad = () => {
 
       console.log("hydrateCoinDataOnLoad - End");
     },
+    // This should only run on the iniitial mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
