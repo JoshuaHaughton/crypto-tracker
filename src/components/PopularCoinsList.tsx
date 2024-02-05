@@ -10,12 +10,7 @@ import {
   selectIsBreakpoint380,
   selectIsBreakpoint680,
 } from "@/lib/store/mediaQuery/mediaQuerySelectors";
-import {
-  selectCurrentCurrency,
-  selectCurrentSymbol,
-} from "@/lib/store/currency/currencySelectors";
-import { DataTable } from "./PopularCoinsTable";
-import { columns } from "./PopularCoinsTable/columns";
+import { selectCurrentSymbol } from "@/lib/store/currency/currencySelectors";
 
 const bigNumberFormatter = (num) => {
   if (num > 999 && num < 1000000) {
@@ -64,7 +59,6 @@ const PopularCoinsList = () => {
     }
   }, [popularCoinsListPageNumber, displayedPopularCoinsList]);
 
-  console.log("ye", shownCoins);
   console.log("displayedPopularCoinsList", displayedPopularCoinsList);
 
   const handleChange = (e) => {
@@ -168,63 +162,6 @@ const PopularCoinsList = () => {
           })}
         </tbody>
       </table>
-
-      {/* <header className={styles.header}>
-        <div className={styles.name_header}>
-          <p>Name</p>
-        </div>
-        {!isBreakpoint380 && (
-          <div className={styles.price_header}>
-            <p>Price</p>
-          </div>
-        )}
-        {!isBreakpoint680 && (
-          <div className={styles.volume_header}>
-            <p>24hr Volume</p>
-          </div>
-        )}
-
-        {!isBreakpoint380 && (
-          <div className={styles.dayChange_header}>
-            <p>24hr Change</p>
-          </div>
-        )}
-
-        {!isBreakpoint680 && (
-          <div className={styles.marketCap_header}>
-            <p>Market Cap</p>
-          </div>
-        )}
-      </header>
-      {shownCoins?.map((coin) => {
-        let transformedMarketCap = null;
-        let transformedVolume = null;
-
-        if (!isBreakpoint680) {
-          if (isBreakpoint1250) {
-            transformedVolume = bigNumberFormatter(coin.volume_24h);
-            transformedMarketCap = bigNumberFormatter(coin.total_market_cap);
-          } else {
-            transformedVolume = coin.volume_24h.toLocaleString();
-            transformedMarketCap = coin.total_market_cap.toLocaleString();
-          }
-        }
-
-        return (
-          <Coin
-            key={coin.symbol}
-            name={coin.name}
-            id={coin.symbol}
-            price={coin.current_price}
-            symbol={coin.symbol}
-            marketcap={transformedMarketCap}
-            volume={transformedVolume}
-            image={coin.image}
-            priceChange={coin.price_change_percentage_24h}
-            coinSymbol={currentSymbol}
-          />
-        );
-      })} */}
     </div>
   );
 };

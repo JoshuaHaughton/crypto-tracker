@@ -1,17 +1,17 @@
-import React from "react";
-import Modal from "../Modal";
-import AuthModalOverlay from "./AuthModalOverlay";
+// import React from "react";
+// import Modal from "../Modal";
+// // import AuthModalOverlay from "./AuthModalOverlay";
 
-const AuthModal = (props) => {
-  return (
-    <Modal
-      closeModal={props.closeModal}
-      backdropRootId="backdrop-root"
-      overlayRootId="overlay-root"
-    >
-      <AuthModalOverlay {...props} />
-    </Modal>
-  );
-};
+// // const AuthModal = (props) => {
+// //   return (
+// //     <Modal
+// //       closeModal={props.closeModal}
+// //       backdropRootId="backdrop-root"
+// //       overlayRootId="overlay-root"
+// //     >
+// //       <AuthModalOverlay {...props} />
+// //     </Modal>
+// //   );
+// // };
 
-export default AuthModal;
+// // export default AuthModal;

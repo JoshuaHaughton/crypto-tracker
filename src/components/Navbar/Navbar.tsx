@@ -5,7 +5,7 @@ import logo from "../../../public/Crypto.svg";
 import Image from "next/image";
 import HomeIcon from "@mui/icons-material/Home";
 import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
 import Snackbar from "@mui/material/Snackbar";
 import styled from "@mui/system/styled";
 import { outlinedInputClasses } from "@mui/material";
@@ -49,10 +49,14 @@ const Navbar = () => {
   const isBreakpoint555 = useSelector(selectIsBreakpoint555);
   console.log("currentCurrency", currentCurrency);
 
-  const handleCurrencyChange = (e) => {
-    const currency = e.target.value.split(",")[0].toUpperCase();
+  const handleCurrencyChange = (e: SelectChangeEvent<unknown>) => {
+    // Cast the value to string since we're sure it's a string
+    const value = e.target.value as string;
 
-    dispatch(currencyActions.setCurrencyRates);
+    // Split and process the value
+    const currency = value.split(",")[0].toUpperCase();
+
+    // dispatch(updateCurrency());
   };
 
   return (
