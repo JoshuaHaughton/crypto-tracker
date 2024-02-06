@@ -11,22 +11,9 @@ import {
   selectIsBreakpoint680,
 } from "@/lib/store/mediaQuery/mediaQuerySelectors";
 import { selectCurrentSymbol } from "@/lib/store/currency/currencySelectors";
+import { bigNumberFormatter } from "@/utils/dataFormat.utils";
 
-const bigNumberFormatter = (num) => {
-  if (num > 999 && num < 1000000) {
-    return (num / 1000).toFixed(1) + "K"; // convert to K for numbers > 1000 < 1 million
-  } else if (num > 1000000 && num < 1000000000) {
-    return (num / 1000000).toFixed(1) + "M"; // convert to M for numbers > 1 million
-  } else if (num > 1000000000 && num < 1000000000000) {
-    return (num / 1000000000).toFixed(1) + "B"; // convert to B for numbers > 1 billion
-  } else if (num > 1000000000000) {
-    return (num / 1000000000000).toFixed(1) + "T"; // convert to T for numbers > 1 trillion
-  } else if (num <= 999) {
-    return num; // if value < 1000, nothing to do
-  }
-};
-
-const PageSize = 10;
+const POPULAR_COINS_PAGE_SIZE = 10;
 
 const PopularCoinsList = () => {
   const isBreakpoint380 = useSelector(selectIsBreakpoint380);
@@ -39,14 +26,16 @@ const PopularCoinsList = () => {
   const [search, setSearch] = useState("");
   const [shownCoins, setShownCoins] = useState(
     displayedPopularCoinsList?.slice(
-      (popularCoinsListPageNumber - 1) * PageSize,
-      (popularCoinsListPageNumber - 1) * PageSize + PageSize,
+      (popularCoinsListPageNumber - 1) * POPULAR_COINS_PAGE_SIZE,
+      (popularCoinsListPageNumber - 1) * POPULAR_COINS_PAGE_SIZE +
+        POPULAR_COINS_PAGE_SIZE,
     ),
   );
 
   const currentPageCoins = useMemo(() => {
-    const firstPageIndex = (popularCoinsListPageNumber - 1) * PageSize;
-    const lastPageIndex = firstPageIndex + PageSize;
+    const firstPageIndex =
+      (popularCoinsListPageNumber - 1) * POPULAR_COINS_PAGE_SIZE;
+    const lastPageIndex = firstPageIndex + POPULAR_COINS_PAGE_SIZE;
 
     if (displayedPopularCoinsList?.length < 1) {
       setShownCoins([]);
@@ -129,7 +118,9 @@ const PopularCoinsList = () => {
         <tbody>
           {shownCoins?.map((coin, index) => {
             const marketCapRank =
-              (popularCoinsListPageNumber - 1) * PageSize + index + 1;
+              (popularCoinsListPageNumber - 1) * POPULAR_COINS_PAGE_SIZE +
+              index +
+              1;
             let transformedMarketCap = null;
             let transformedVolume = null;
 

@@ -37,6 +37,18 @@ export interface ICoinDetailAttributes extends ICoinOverview {
 
 // Coin Details - Historical Data
 
+export enum EChartPeriodInterval {
+  H24 = "h24",
+  WEEK = "week",
+  MONTH = "month",
+  YEAR = "year",
+}
+
+/**
+ * Represents the different time periods for chart data.
+ */
+export type TChartPeriodKey = "h24" | "week" | "month" | "year";
+
 export interface ITimeSeriesPriceData {
   h24: Array<[number, number]>;
   week: Array<[number, number]>;

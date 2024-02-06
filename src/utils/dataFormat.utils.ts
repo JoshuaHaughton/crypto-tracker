@@ -10,7 +10,6 @@ import {
   IPeriodicPriceChanges,
   ICoinOverview,
   TShallowCoinDetails,
-  TShallowOrFullCoinDetails,
 } from "@/types/coinTypes";
 import {
   IHistoricalDataApiResponse,
@@ -25,6 +24,7 @@ import { CRYPTO_COMPARE_WEBSITE } from "@/lib/constants/apiConstants";
 import { isNull, isUndefined, mergeWith } from "lodash";
 import { coinsActions } from "@/lib/store/coins/coinsSlice";
 import { Dispatch } from "@reduxjs/toolkit";
+import { ENumericThresholds } from "@/types/globalTypes";
 
 // Formatting CoinDetails after retrieval from the API
 
@@ -553,3 +553,47 @@ export function filterUndefinedProps<T extends Record<string, any>>(
     return acc;
   }, {} as Partial<T>);
 }
+
+/**
+ * Formats a numeric value into a condensed string representation with suffixes.
+ *
+ * This function converts large numbers into a shorter format using the suffixes 'K' for thousands,
+ * 'M' for millions, 'B' for billions, and 'T' for trillions. It's optimized to handle numbers
+ * up to a trillion and ensures a single decimal point precision.
+ *
+ * @param num - The number to format.
+ * @returns The formatted string representation of the number.
+ *
+ * @example
+ * bigNumberFormatter(1234); // returns '1.2K'
+ * bigNumberFormatter(1234567); // returns '1.2M'
+ */
+export const bigNumberFormatter = (num: number): string => {
+  // Define thresholds for number ranges
+  const { THOUSAND, MILLION, BILLION, TRILLION } = ENumericThresholds;
+
+  // Check and format for the 'thousands' range
+  if (num >= THOUSAND && num < MILLION) {
+    return (num / THOUSAND).toFixed(1) + "K"; // Convert to 'K' format
+  }
+
+  // Check and format for the 'millions' range
+  else if (num >= MILLION && num < BILLION) {
+    return (num / MILLION).toFixed(1) + "M"; // Convert to 'M' format
+  }
+
+  // Check and format for the 'billions' range
+  else if (num >= BILLION && num < TRILLION) {
+    return (num / BILLION).toFixed(1) + "B"; // Convert to 'B' format
+  }
+
+  // Check and format for the 'trillions' range
+  else if (num >= TRILLION) {
+    return (num / TRILLION).toFixed(1) + "T"; // Convert to 'T' format
+  }
+
+  // Return the number as-is if it's less than 1000
+  else {
+    return num.toString(); // No formatting needed
+  }
+};

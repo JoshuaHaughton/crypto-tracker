@@ -1,0 +1,32 @@
+.chartInfoSkeleton {
+  // Adjust the dimensions as needed
+  width: 100%;
+  height: 200px;
+  background: #f6f7f8;
+  border-radius: 4px;
+  overflow: hidden;
+
+  .skeletonHeader {
+    height: 20px;
+    background: linear-gradient(to right, #eee 8%, #ddd 18%, #eee 33%);
+    background-size: 800px 104px;
+    animation: skeletonShimmer 1s linear infinite forwards;
+  }
+
+  .skeletonBody {
+    margin-top: 10px;
+    height: 150px;
+    background: linear-gradient(to right, #eee 8%, #ddd 18%, #eee 33%);
+    background-size: 800px 104px;
+    animation: skeletonShimmer 1s linear infinite forwards;
+  }
+}
+
+@keyframes skeletonShimmer {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}

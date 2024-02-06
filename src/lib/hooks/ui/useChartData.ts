@@ -1,23 +1,40 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { cloneDeep } from "lodash";
+import {
+  EChartPeriodInterval,
+  ICoinDetails,
+  IPriceChartDataset,
+  IPriceTrendData,
+} from "@/types/coinTypes";
+import { selectCurrentCurrency } from "@/lib/store/currency/currencySelectors";
+import { isFullCoinDetails } from "@/utils/global.utils";
 
 /**
- * Configuration object for chart periods.
+ * Defines the structure for a single chart period.
+ * Includes functions to extract labels and data from the given dataset,
+ * and a human-readable label for the chart period.
  *
- * @typedef {Object} ChartPeriod
- * @property {function(Array): Array<string>} getLabels - A function that takes in the data array and returns an array of formatted date labels.
- * @property {function(Object): Array<number>} getData - A function that retrieves the specific dataset based on the chart period.
- * @property {string} label - A human-readable label for the chart period.
- *
- * @type {Object<string, ChartPeriod>}
- *
- * @example
- *
- * chartPeriodConfig.day.getLabels(data); // Returns formatted time strings for 'day' period.
- * chartPeriodConfig.week.getData(values); // Returns week market values.
+ * @property {Function} getLabels - Function to generate labels for the chart from the dataset.
+ * @property {Function} getData - Function to extract the relevant data for the chart from the dataset.
+ * @property {string} label - Human-readable label for the chart period.
  */
-const chartPeriodConfig = {
+interface IChartPeriod {
+  getLabels: (data: Array<[number, number]>) => string[];
+  getData: (values: IPriceTrendData) => number[];
+  label: string;
+}
+
+/**
+ * Represents the configuration for different chart periods (e.g., 24h, week, month, year).
+ * Each chart period contains functions to get labels and data specific to that period,
+ * and a label for display purposes.
+ */
+type TChartPeriodConfig = {
+  [key in EChartPeriodInterval]: IChartPeriod;
+};
+
+const chartPeriodConfig: TChartPeriodConfig = {
   h24: {
     getLabels: (data) =>
       data?.map((item) => new Date(item[0]).toLocaleTimeString()),
@@ -45,33 +62,66 @@ const chartPeriodConfig = {
 };
 
 /**
+ * Type definition for the return value of useChartData hook.
+ */
+interface IChartDataState {
+  chartData: IPriceChartDataset | null;
+  currentChartPeriod: EChartPeriodInterval;
+  setCurrentChartPeriod: React.Dispatch<
+    React.SetStateAction<EChartPeriodInterval>
+  >;
+}
+
+/**
  * Custom hook to manage and update chart data.
  *
- * @param {Object} coinDetails - Details of the coin.
- * @returns {Object} Chart data.
+ * @param {ICoinDetails | null} coinDetails - Details of the coin, or null if not loaded.
+ * @returns {IChartDataState} Chart data and related state.
  */
-function useChartData(coinDetails) {
-  const currentCurrency = useSelector(
-    (state) => state.currency.currentCurrency,
+function useChartData(coinDetails: ICoinDetails | null): IChartDataState {
+  // Retrieve the current currency from the Redux store
+  const currentCurrency = useSelector(selectCurrentCurrency);
+
+  // State to manage the current chart period
+  const [currentChartPeriod, setCurrentChartPeriod] =
+    useState<EChartPeriodInterval>(EChartPeriodInterval.H24);
+
+  // Memoize the chart period configuration to avoid unnecessary recalculations
+  const currentChartConfig = useMemo(
+    () => chartPeriodConfig[currentChartPeriod],
+    [currentChartPeriod],
   );
-  const [chartData, setChartData] = useState(coinDetails.priceChartDataset);
-  const [currentChartPeriod, setCurrentChartPeriod] = useState("h24");
 
-  useEffect(() => {
-    console.log("coinDetails", coinDetails);
-    const { timeSeriesPriceData, priceTrendData } = coinDetails;
-    // Chart.js mutates these values which causes an error
-    const clonedMarketValues = cloneDeep(priceTrendData);
-    const config = chartPeriodConfig[currentChartPeriod];
-    const labels = config.getLabels(timeSeriesPriceData?.[currentChartPeriod]);
-    const dataValues = config.getData(clonedMarketValues);
+  // Memoize the labels and dataValues for the chart
+  const { labels, dataValues } = useMemo(() => {
+    // Return empty arrays if coinDetails are not fully loaded or are null
+    if (!coinDetails || !isFullCoinDetails(coinDetails)) {
+      return { labels: [], dataValues: [] };
+    }
 
-    setChartData({
+    // Clone market values to avoid mutation by Chart.js
+    const clonedMarketValues = cloneDeep(coinDetails.priceTrendData);
+
+    // Generate labels and data for the chart based on the current chart period
+    const generatedLabels = currentChartConfig.getLabels(
+      coinDetails.timeSeriesPriceData[currentChartPeriod],
+    );
+    const generatedDataValues = currentChartConfig.getData(clonedMarketValues);
+
+    return { labels: generatedLabels, dataValues: generatedDataValues };
+  }, [coinDetails, currentChartConfig, currentChartPeriod]);
+
+  // Create chart data object, memoized to avoid unnecessary recalculations
+  const chartData = useMemo(() => {
+    // Return null if labels or dataValues are empty
+    if (labels.length === 0 || dataValues.length === 0) return null;
+
+    return {
       labels: labels,
       datasets: [
         {
-          label: `${coinDetails.coinAttributes?.name} Price (${
-            config.label
+          label: `${coinDetails?.coinAttributes?.name} Price (${
+            currentChartConfig.label
           }) in ${currentCurrency.toUpperCase()}`,
           data: dataValues,
           type: "line",
@@ -79,8 +129,8 @@ function useChartData(coinDetails) {
           borderColor: "#ff9500",
         },
       ],
-    });
-  }, [coinDetails, currentCurrency, currentChartPeriod]);
+    };
+  }, [labels, dataValues, coinDetails, currentChartConfig, currentCurrency]);
 
   return { chartData, currentChartPeriod, setCurrentChartPeriod };
 }

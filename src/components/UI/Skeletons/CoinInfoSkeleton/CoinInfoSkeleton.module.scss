@@ -1,0 +1,33 @@
+.coinInfoSkeleton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background: #f6f7f8;
+  border-radius: 4px;
+
+  .skeletonImage {
+    width: 88px;
+    height: 88px;
+    background: #ddd;
+    border-radius: 50%;
+  }
+
+  .skeletonText {
+    margin-top: 10px;
+    width: 60%;
+    height: 10px;
+    background: linear-gradient(to right, #eee 8%, #ddd 18%, #eee 33%);
+    background-size: 800px 104px;
+    animation: skeletonShimmer 1s linear infinite forwards;
+  }
+}
+
+@keyframes skeletonShimmer {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}
