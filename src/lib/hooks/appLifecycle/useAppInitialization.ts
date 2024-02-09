@@ -1,6 +1,7 @@
 import { useWebWorker } from "./useWebWorker";
 import { useAppDispatch } from "@/lib/store";
 import { useHydrateCoinDataOnLoad } from "./useHydrateCoinDataOnLoad";
+import { useInitializeUFuzzy } from "../ui/useInitializeUFuzzy";
 
 /**
  * Custom hook to handle data initialization on the initial load of the app.
@@ -13,4 +14,5 @@ export const useAppInitialization = () => {
 
   // Initialize coin data from server on initial load depending on the current route
   useHydrateCoinDataOnLoad();
+  useInitializeUFuzzy();
 };

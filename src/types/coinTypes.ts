@@ -12,6 +12,15 @@ export interface ICoinOverview {
   price_change_percentage_24h: number;
 }
 
+/**
+ * Extends the ICoinOverview interface to include phonetic encoding for enhanced search capabilities.
+ * This interface is specifically designed for use in search operations where phonetic comparisons
+ * are necessary to improve search result relevance and accuracy.
+ */
+export interface ICoinOverviewSearchData extends ICoinOverview {
+  searchField: string; // Concatenated name and symbol for fuzzy searching.
+}
+
 // Coin Details
 
 export interface ICoinDetails {

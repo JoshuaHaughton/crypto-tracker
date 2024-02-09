@@ -12,8 +12,7 @@ import {
 } from "@/lib/store/mediaQuery/mediaQuerySelectors";
 import { selectCurrentSymbol } from "@/lib/store/currency/currencySelectors";
 import { bigNumberFormatter } from "@/utils/dataFormat.utils";
-
-const POPULAR_COINS_PAGE_SIZE = 10;
+import { POPULAR_COINS_PAGE_SIZE } from "@/lib/constants/globalConstants";
 
 const PopularCoinsList = () => {
   const isBreakpoint380 = useSelector(selectIsBreakpoint380);

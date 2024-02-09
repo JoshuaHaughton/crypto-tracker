@@ -21,15 +21,18 @@
     "@reduxjs/toolkit": "^2.0.1",
     "chart.js": "^4.4.0",
     "dexie": "3.2.4",
+    "double-metaphone": "^2.0.1",
     "embla-carousel-react": "^8.0.0-rc19",
     "faker": "^6.6.6",
+    "fuse.js": "^7.0.0",
     "js-cookie": "^3.0.5",
     "lodash": "^4.17.21",
     "next": "^14",
     "react": "^18",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18",
-    "react-redux": "^9.0.4"
+    "react-redux": "^9.0.4",
+    "trie-search": "^2.0.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.3.1",

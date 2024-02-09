@@ -55,3 +55,5 @@ export const isLocalDev = process.env.NODE_ENV !== "production";
 export const isLocalProd = process.env.NEXT_PUBLIC_IS_LOCAL === "true";
 export const isActualProd =
   process.env.NODE_ENV === "production" && !isLocalProd;
+
+export const POPULAR_COINS_PAGE_SIZE = 10;
