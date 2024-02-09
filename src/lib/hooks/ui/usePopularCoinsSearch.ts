@@ -1,6 +1,9 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import Fuse from "fuse.js";
-import { ICoinOverview } from "@/types/coinTypes";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { IPopularCoinSearchResult } from "@/types/coinTypes";
+import { useSelector, useDispatch } from "react-redux";
+import { setGlobalSearchResults } from "@/lib/store/search/searchSlice"; // Import the action to update search results in the store
+import { selectFuzzySearchInstance } from "@/lib/store/search/searchSelectors";
+import { selectPopularCoins } from "@/lib/store/coins/coinsSelectors";
 
 /**
  * Defines the structure for the search state within the popular coins search hook.
@@ -8,76 +11,97 @@ import { ICoinOverview } from "@/types/coinTypes";
  *
  * @interface IUsePopularCoinsSearchState
  * @property search - The current search query string.
- * @property searchResults - The search searchResults based on the current query.
  * @property setSearch - Function to update the search query string.
  */
 interface IUsePopularCoinsSearchState {
   search: string;
-  searchResults: ICoinOverview[];
   setSearch: React.Dispatch<React.SetStateAction<string>>;
 }
 
 /**
- * A custom hook designed for efficient searching within a list of popular coins using Fuse.js.
+ * Custom hook for searching within a list of popular coins.
+ * Utilizes the uFuzzy instance from the Redux store for performing the search.
  *
- * @param currentPageCoins - An array of coin objects that are searchable.
- * @returns The current search state, including the search query, search searchResults, and a setter for the query.
+ * @returns The search state, including the search term, results, and a setter for the search term.
  */
-export function usePopularCoinsSearch(
-  currentPageCoins: ICoinOverview[],
-): IUsePopularCoinsSearchState {
+export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
+  // State hooks for managing search term and results.
   const [search, setSearch] = useState<string>("");
-  const [searchResults, setSearchResults] =
-    useState<ICoinOverview[]>(currentPageCoins);
 
-  // Initialize Fuse.js and keep it updated with the latest coins list
-  const fuseRef = useRef(
-    new Fuse(currentPageCoins, {
-      keys: ["name", "symbol"],
-      includeScore: true,
-      threshold: 0.3,
-    }),
-  );
+  // Redux hooks for accessing the fuzzy search instance and dispatching actions.
+  const uFuzzyInstance = useSelector(selectFuzzySearchInstance);
+  const allPopularCoins = useSelector(selectPopularCoins);
+  const dispatch = useDispatch();
 
+  // Ref to track the initial mount of the component.
   const isInitialMount = useRef(true);
 
-  // Update Fuse.js instance only when currentPageCoins changes
-  useEffect(() => {
-    // Skip search on initial mount, but perform search on subsequent updates
-    if (!isInitialMount.current) {
-      fuseRef.current.setCollection(currentPageCoins);
-    }
-  }, [currentPageCoins]);
+  // Memoize the haystack to prevent recalculating it on every render
+  const haystack = useMemo(
+    () => allPopularCoins.map((coin) => `${coin.name} ${coin.symbol}`),
+    [allPopularCoins],
+  );
 
-  // Memoize function to perform search
+  // Callback hook to memoize the search function.
   const performSearch = useCallback(
     (query: string) => {
       if (!query.trim()) {
-        setSearchResults(currentPageCoins); // Show all coins or clear searchResults if preferred
+        // Dispatch action to update the Redux store with the initial set of coins if query is empty.
+        dispatch(setGlobalSearchResults([]));
         return;
       }
-      const searchsearchResults = fuseRef.current
-        .search(query)
-        .map((result) => result.item);
-      setSearchResults(searchsearchResults);
+
+      if (!uFuzzyInstance) {
+        // Handle the scenario where uFuzzyInstance is not available
+        console.warn("Fuzzy search instance is not available.");
+        return;
+      }
+
+      // The outOfOrder parameter in the uFuzzy search function enables the
+      // fuzzy search algorithm to match search terms in the input query
+      // even if they appear in a different order in the target strings.
+      const outOfOrder = true;
+      // Perform the search using the uFuzzy instance.
+      // Max 1000 results (Should only be 80-200 here)
+      const infoThreshold = 1000;
+
+      // Perform the search using the uFuzzy instance.
+      const [idxs, info] = uFuzzyInstance.search(
+        haystack,
+        query,
+        outOfOrder,
+        infoThreshold,
+      );
+
+      // Prepare search results with highlighting details
+      const results: IPopularCoinSearchResult[] = idxs.map((index) => {
+        const coin = allPopularCoins[index];
+        // Directly use ranges provided by uFuzzy for highlighting
+        const highlightDetails = info.ranges[index] || [];
+
+        return {
+          ...coin,
+          matchDetails: highlightDetails, // Directly usable by the HighlightedText component
+        };
+      });
+
+      // Update Redux state with the search results.
+      dispatch(setGlobalSearchResults(results));
     },
-    [currentPageCoins],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dispatch, haystack, uFuzzyInstance],
   );
 
-  useEffect(() => {
-    if (!isInitialMount.current) {
-      // Check if it's not the initial mount before performing the search
-      performSearch(search);
-    }
-  }, [performSearch, search]);
-
-  // Delay setting isInitialMount to false to ensure it correctly reflects the initial mount state across all effects
+  // Effect hook to perform search operations after the initial mount.
   useEffect(() => {
     if (isInitialMount.current) {
-      // Then, mark the initial mount as complete
+      // Mark initial mount as complete.
       isInitialMount.current = false;
+    } else {
+      performSearch(search);
     }
-  }, []);
+  }, [search, performSearch]);
 
-  return { search, setSearch, searchResults };
+  // Return the current search state.
+  return { search, setSearch };
 }

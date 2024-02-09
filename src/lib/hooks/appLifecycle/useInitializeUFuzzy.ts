@@ -1,4 +1,7 @@
+import { uFuzzyOptions } from "@/lib/constants/globalConstants";
+import { setFuzzySearchInstance } from "@/lib/store/search/searchSlice";
 import { useEffect } from "react";
+import { useDispatch } from "react-redux";
 
 /**
  * Dynamically loads the UFuzzy library script and ensures it's only loaded once.
@@ -9,6 +12,8 @@ import { useEffect } from "react";
  * scripts until they're needed.
  */
 export const useInitializeUFuzzy = () => {
+  const dispatch = useDispatch();
+
   useEffect(() => {
     // The ID used to identify the script tag in the DOM.
     const scriptId = "uFuzzy-script";
@@ -21,18 +26,31 @@ export const useInitializeUFuzzy = () => {
     // Create a new script element.
     const script = document.createElement("script");
     script.id = scriptId;
-    script.src = "/scripts/uFuzzy.iife.min.js"; // Adjust the path based on your public directory structure.
+    script.src =
+      "https://cdn.jsdelivr.net/npm/@leeoniya/ufuzzy@1.0.14/dist/uFuzzy.iife.min.js";
     script.async = true; // Initialize the script asynchronously to not block rendering.
+    script.onload = () => {
+      if (window.uFuzzy) {
+        // Initialize uFuzzy with custom options and dispatch the instance to the store
+        const uFuzzyInstance = window.uFuzzy(uFuzzyOptions);
+        dispatch(setFuzzySearchInstance(uFuzzyInstance));
+
+        // TypeScript may prevent direct deletion from `window` due to its strict type checking.
+        // Casting `window` to `any` bypasses these checks.
+        // This does not affect the reference held by the store, allowing continued use without global exposure.
+        delete (window as any).uFuzzy;
+      }
+    };
 
     // Append the script to the body to start loading it.
     document.body.appendChild(script);
 
-    // Optional: Remove the script from the DOM when the component using this hook unmounts.
+    // Remove the script from the DOM when the component using this hook unmounts.
     return () => {
       const existingScript = document.getElementById(scriptId);
       if (existingScript) {
         document.body.removeChild(existingScript);
       }
     };
-  }, []);
+  }, [dispatch]);
 };

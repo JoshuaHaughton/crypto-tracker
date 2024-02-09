@@ -3,14 +3,6 @@ import { usePopularCoinsSearch } from "./usePopularCoinsSearch";
 import useCurrentPageCoins from "./useCurrentPageCoins";
 
 /**
- * Interface defining the expected params for the state and setters returned by usePopularCoinsList hook.
- */
-interface IUsePopularCoinsListParams {
-  displayedPopularCoinsList: ICoinOverview[];
-  popularCoinsPageNumber: number;
-}
-
-/**
  * Interface defining the structure for the state and setters returned by usePopularCoinsList hook.
  */
 interface IUsePopularCoinsListState {
@@ -20,28 +12,18 @@ interface IUsePopularCoinsListState {
 }
 
 /**
- * A custom hook that integrates search and pagination functionality for displaying a list of popular coins.
+ * Integrates search and pagination for displaying popular coins using Redux for state management.
+ * It optimizes data flow and UI consistency by minimizing local state usage.
  *
- * @param displayedPopularCoinsList - The complete list of coins available for display.
- * @param popularCoinsListPageNumber - The current page number for pagination purposes.
- * @returns An object containing the search state, setter function for the search state, and the currently shown coins.
+ * @returns {IUsePopularCoinsListState} Includes the search state, setter function, and coins for the current page.
  */
-export function usePopularCoinsList({
-  displayedPopularCoinsList,
-  popularCoinsPageNumber,
-}: IUsePopularCoinsListParams): IUsePopularCoinsListState {
-  // Use the search hook to manage the search state and obtain filtered results based on the search query.
-  const { search, setSearch, searchResults } = usePopularCoinsSearch(
-    displayedPopularCoinsList,
-  );
+export function usePopularCoinsList(): IUsePopularCoinsListState {
+  // Manage search term via Redux, reducing local state management.
+  const { search, setSearch } = usePopularCoinsSearch();
 
-  // Use pagination hook on filtered search results or the full list if no search is made.
-  // This allows displaying a subset of coins based on the current page and search filter.
-  const { coinsForCurrentPage } = useCurrentPageCoins({
-    filteredCoins: searchResults,
-    popularCoinsPageNumber,
-  });
+  // Fetch current page coins based on Redux-stored search results, enhancing performance.
+  const { coinsForCurrentPage } = useCurrentPageCoins();
 
-  // Return the search query, a setter for updating the search query, and the list of coins to be shown based on the current pagination and search filter.
+  // Provides API for search term management and current page coins display.
   return { search, setSearch, coinsForCurrentPage };
 }

@@ -13,12 +13,25 @@ export interface ICoinOverview {
 }
 
 /**
- * Extends the ICoinOverview interface to include phonetic encoding for enhanced search capabilities.
- * This interface is specifically designed for use in search operations where phonetic comparisons
- * are necessary to improve search result relevance and accuracy.
+ * Type alias for storing match details used for highlighting search results.
+ * Each MatchDetail tuple represents a range within a string that matches a search query,
+ * where the first element is the starting index and the second element is the ending index of the match.
  */
-export interface ICoinOverviewSearchData extends ICoinOverview {
-  searchField: string; // Concatenated name and symbol for fuzzy searching.
+export type IMatchDetail = [start: number, end: number];
+
+/**
+ * Extends the ICoinOverview interface to include match details for search highlighting.
+ * This interface is tailored for rendering search results where specific segments
+ * of the coin's name or symbol need to be highlighted based on the search query match.
+ */
+export interface IPopularCoinSearchResult extends ICoinOverview {
+  /**
+   * An array of match detail objects indicating the segments of the coin's name
+   * or symbol that match the search query. These details are used to highlight matching
+   * segments in the UI. This property is required to ensure that every search result
+   * can be appropriately highlighted according to the search query.
+   */
+  matchDetails: IMatchDetail[];
 }
 
 // Coin Details
