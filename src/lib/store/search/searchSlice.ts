@@ -32,11 +32,13 @@ export interface FuzzySearchInstance {
   ) => string;
 }
 
+export type TUFuzzyConstructor = (opts?: any) => FuzzySearchInstance;
+
 /**
  * Defines the structure of the search slice state.
  */
 interface SearchState {
-  fuzzySearchInstance: FuzzySearchInstance | null;
+  isSearchInitialized: boolean;
   currentQuery: string;
   results: ICoinOverview[];
 }
@@ -45,7 +47,7 @@ interface SearchState {
  * Provides the initial state for the search slice.
  */
 const initialState: SearchState = {
-  fuzzySearchInstance: null,
+  isSearchInitialized: false,
   currentQuery: "",
   results: [],
 };
@@ -58,15 +60,14 @@ const searchSlice = createSlice({
   initialState,
   reducers: {
     /**
-     * Sets the fuzzy search instance.
-     * @param state - The current state of the search slice.
-     * @param action - The action payload containing the fuzzy search instance.
+     * Action to indicate that the search functionality is fully ready.
+     * This can be utilized to signal readiness after all dependent resources,
+     * like uFuzzy or other search dependencies, are initialized.
+     *
+     * @param state - The current state of appInfo.
      */
-    setFuzzySearchInstance(
-      state,
-      action: PayloadAction<FuzzySearchInstance | null>,
-    ) {
-      state.fuzzySearchInstance = action.payload;
+    setSearchIsInitialized(state) {
+      state.isSearchInitialized = true;
     },
 
     /**
@@ -94,7 +95,7 @@ const searchSlice = createSlice({
  * Exports the action creators.
  */
 export const {
-  setFuzzySearchInstance,
+  setSearchIsInitialized,
   setCurrentQuery,
   setGlobalSearchResults,
 } = searchSlice.actions;

@@ -47,7 +47,6 @@ const Navbar = () => {
   const currentCurrency = useSelector(selectCurrentCurrency);
   const currentSymbol = useSelector(selectCurrentSymbol);
   const isBreakpoint555 = useSelector(selectIsBreakpoint555);
-  console.log("currentCurrency", currentCurrency);
 
   const handleCurrencyChange = (e: SelectChangeEvent<unknown>) => {
     // Cast the value to string since we're sure it's a string

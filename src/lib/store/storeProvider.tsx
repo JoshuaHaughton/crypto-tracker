@@ -27,64 +27,62 @@ export const StoreProvider: React.FC<IStoreProviderProps> = ({
   children,
   initialData,
 }) => {
+  console.log("initializing store");
   const storeRef = useRef<TAppStore>();
-  let initialState = {};
 
-  let coinsInitialState = { ...initialCoinsState };
-  let currencyInitialState = { ...initialCurrencyState };
+  // Only initialize store and state if the store hasn't been created yet
+  if (!storeRef.current) {
+    let initialState = {};
 
-  if (initialData) {
-    // Extracting the currency exchange rates outside the switch
-    // as it's common to both PopularCoins and CoinDetails cases
-    const { currencyExchangeRates } = initialData.data;
-    // Updating the currency initial state with currency exchange rates
-    currencyInitialState = {
-      ...currencyInitialState,
-      currencyRates: currencyExchangeRates,
-    };
+    let coinsInitialState = { ...initialCoinsState };
+    let currencyInitialState = { ...initialCurrencyState };
 
-    switch (initialData.dataType) {
-      case InitialDataType.POPULAR_COINS: {
-        // Destructuring the data specific to PopularCoins
-        const { popularCoins, carouselSymbolList } = initialData.data;
+    if (initialData) {
+      // Extracting the currency exchange rates outside the switch
+      // as it's common to both PopularCoins and CoinDetails cases
+      const { currencyExchangeRates } = initialData.data;
+      // Updating the currency initial state with currency exchange rates
+      currencyInitialState.currencyRates = currencyExchangeRates;
 
-        // Updating the coins initial state with data from PopularCoins
-        coinsInitialState = {
-          ...coinsInitialState,
-          popularCoins,
-          popularCoinsMap: popularCoins.reduce((acc, coin) => {
-            acc[coin.symbol] = coin;
-            return acc;
-          }, {} as Record<string, ICoinOverview>),
-          carouselSymbolList,
-        };
+      switch (initialData.dataType) {
+        case InitialDataType.POPULAR_COINS: {
+          // Destructuring the data specific to PopularCoins
+          const { popularCoins, carouselSymbolList } = initialData.data;
 
-        break;
-      }
+          // Updating the coins initial state with data from PopularCoins
+          coinsInitialState.popularCoins = popularCoins;
+          coinsInitialState.popularCoinsMap = popularCoins.reduce(
+            (acc, coin) => {
+              acc[coin.symbol] = coin;
+              return acc;
+            },
+            {} as Record<string, ICoinOverview>,
+          );
+          coinsInitialState.carouselSymbolList = carouselSymbolList;
 
-      case InitialDataType.COIN_DETAILS: {
-        // Destructuring the data specific to CoinDetails
-        const { coinDetails } = initialData.data;
+          break;
+        }
 
-        // Updating the coins initial state with data from CoinDetails
-        coinsInitialState = {
-          ...coinsInitialState,
-          selectedCoinDetails: coinDetails,
-        };
+        case InitialDataType.COIN_DETAILS: {
+          // Destructuring the data specific to CoinDetails
+          const { coinDetails } = initialData.data;
 
-        break;
+          // Updating the coins initial state with data from CoinDetails
+          coinsInitialState.selectedCoinDetails = coinDetails;
+
+          break;
+        }
       }
     }
-  }
 
-  initialState = {
-    coins: coinsInitialState,
-    currency: currencyInitialState,
-  };
+    initialState = {
+      coins: coinsInitialState,
+      currency: currencyInitialState,
+    };
 
-  // Create the store with initial states. This will only initialize provided slices.
-  if (!storeRef.current) {
+    // Create the store with initial states. This will only initialize provided slices.
     storeRef.current = makeStore(initialState);
+    console.log("store initialized");
   }
 
   return <Provider store={storeRef.current}>{children}</Provider>;

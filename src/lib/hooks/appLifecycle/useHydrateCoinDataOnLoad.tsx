@@ -18,7 +18,7 @@ import { ICoinDetails } from "@/types/coinTypes";
  *
  */
 export const useHydrateCoinDataOnLoad = () => {
-  console.log("hydrateCoinDataOnLoad - Start");
+  console.log("useHydrateCoinDataOnLoad");
   const dispatch = useAppDispatch();
   const searchParams = useSearchParams();
   const symbol = searchParams.get("symbol");
@@ -31,11 +31,12 @@ export const useHydrateCoinDataOnLoad = () => {
 
   useEffect(
     () => {
+      console.log("useHydrateCoinDataOnLoad - Start");
       const isOnCoinDetailsPage = symbol != null;
 
       // Handle coin details loading for the coin details page
       if (isOnCoinDetailsPage) {
-        console.log("usehydrateCoinDataOnLoad - On Coin Details Page");
+        console.log("useHydrateCoinDataOnLoad - On Coin Details Page");
         const coinDetailsAreFullyPreloaded =
           selectedCoinDetails?.priceChartDataset != null;
 

@@ -2,8 +2,9 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { IPopularCoinSearchResult } from "@/types/coinTypes";
 import { useSelector, useDispatch } from "react-redux";
 import { setGlobalSearchResults } from "@/lib/store/search/searchSlice"; // Import the action to update search results in the store
-import { selectFuzzySearchInstance } from "@/lib/store/search/searchSelectors";
 import { selectPopularCoins } from "@/lib/store/coins/coinsSelectors";
+import UFuzzyManager from "@/utils/uFuzzyManager";
+import { selectIsSearchInitialized } from "@/lib/store/search/searchSelectors";
 
 /**
  * Defines the structure for the search state within the popular coins search hook.
@@ -29,7 +30,7 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
   const [search, setSearch] = useState<string>("");
 
   // Redux hooks for accessing the fuzzy search instance and dispatching actions.
-  const uFuzzyInstance = useSelector(selectFuzzySearchInstance);
+  const isSearchInitialized = useSelector(selectIsSearchInitialized);
   const allPopularCoins = useSelector(selectPopularCoins);
   const dispatch = useDispatch();
 
@@ -42,18 +43,27 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
     [allPopularCoins],
   );
 
+  // Memoize the uFuzzy instance retrieval based on the search initialization status
+  const uFuzzyInstance = useMemo(() => {
+    if (isSearchInitialized) {
+      console.warn("search has been iniitialized in search component");
+      return UFuzzyManager.getInstance();
+    }
+    return null;
+  }, [isSearchInitialized]);
+
   // Callback hook to memoize the search function.
   const performSearch = useCallback(
     (query: string) => {
-      if (!query.trim()) {
-        // Dispatch action to update the Redux store with the initial set of coins if query is empty.
-        dispatch(setGlobalSearchResults([]));
-        return;
-      }
-
       if (!uFuzzyInstance) {
         // Handle the scenario where uFuzzyInstance is not available
         console.warn("Fuzzy search instance is not available.");
+        return;
+      }
+
+      if (!query.trim()) {
+        // Dispatch action to update the Redux store with the initial set of coins if query is empty.
+        dispatch(setGlobalSearchResults([]));
         return;
       }
 

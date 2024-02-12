@@ -7,7 +7,13 @@ import { AppConfigDynamic } from "next/dist/build/utils";
 import { StoreProvider } from "@/lib/store/storeProvider";
 import { AppInitializer } from "./appInitializer";
 import { cookies } from "next/headers";
-import { fetchInitialDataBasedOnRoute } from "@/utils/api.utils";
+import { TInitialRoute, fetchInitialDataBasedOnRoute } from "@/utils/api.utils";
+import {
+  TCurrencyString,
+  INITIAL_CURRENCY,
+} from "@/lib/constants/globalConstants";
+import ExternalScriptLoader from "@/components/initializers/ExternalScriptLoader";
+import { FUZZY_SEARCH_SCRIPT } from "@/lib/constants/externalScripts";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -33,18 +39,31 @@ export default async function RootLayout({
   // Access cookies in server components
   const cookieStore = cookies();
 
-  // Fetch initial data based on the route and cookie information
-  const initialData = await fetchInitialDataBasedOnRoute(cookieStore);
+  // Retrieve currency preference from cookies or use default
+  const currencyPreference =
+    (cookieStore.get("currencyPreference")?.value as TCurrencyString) ||
+    INITIAL_CURRENCY;
+
+  // Retrieve the initial route from the cookie store
+  const initialRoute =
+    (cookieStore.get("initialRoute")?.value as TInitialRoute) || "/";
+
+  // Fetch initial data based on the route and currency information
+  const initialData = await fetchInitialDataBasedOnRoute({
+    initialRoute,
+    currencyPreference,
+  });
 
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <StoreProvider initialData={initialData}>
-          <AppInitializer />
+      <ExternalScriptLoader scriptConfig={FUZZY_SEARCH_SCRIPT} />
+      <StoreProvider initialData={initialData}>
+        <AppInitializer />
+        <body className={inter.className}>
           <Navbar />
           {children}
-        </StoreProvider>
-      </body>
+        </body>
+      </StoreProvider>
     </html>
   );
 }

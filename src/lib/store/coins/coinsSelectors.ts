@@ -17,6 +17,15 @@ export const selectPopularCoins = (state: TRootState) =>
   state.coins.popularCoins;
 
 /**
+ * Selector to get the total number of popular coins.
+ * This is useful for operations that require knowing the total count of items, such as pagination.
+ * @param state - The current state of the application.
+ * @returns The total number of popular coins as a number.
+ */
+export const selectPopularCoinsCount = (state: TRootState): number =>
+  state.coins.popularCoins.length;
+
+/**
  * Memoized selector for carousel coins.
  * Utilizes `createSelector` for efficient memoization to prevent redundant recalculations.
  * Retrieves an array of carousel coin overviews based on the symbols in the carouselCoins array.

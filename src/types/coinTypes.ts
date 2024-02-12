@@ -1,4 +1,7 @@
-import { TCurrencyString } from "@/lib/constants/globalConstants";
+import {
+  TCurrencyString,
+  TCurrencySymbol,
+} from "@/lib/constants/globalConstants";
 
 // Popular Coins
 export interface ICoinOverview {
@@ -10,6 +13,14 @@ export interface ICoinOverview {
   market_cap_rank: number;
   volume_24h: number;
   price_change_percentage_24h: number;
+}
+
+// We format larger numbers to make them cleaner to display
+export interface IDisplayedCoinOverview
+  extends Omit<ICoinOverview, "total_market_cap" | "volume_24h"> {
+  total_market_cap: string;
+  volume_24h: string;
+  currentCurrencySymbol: TCurrencySymbol;
 }
 
 /**

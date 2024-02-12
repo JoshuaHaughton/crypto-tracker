@@ -1,56 +1,43 @@
-import { uFuzzyOptions } from "@/lib/constants/globalConstants";
-import { setFuzzySearchInstance } from "@/lib/store/search/searchSlice";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
+import UFuzzyManager from "@/utils/uFuzzyManager";
+import { setSearchIsInitialized } from "@/lib/store/search/searchSlice";
 
 /**
- * Dynamically loads the UFuzzy library script and ensures it's only loaded once.
+ * Custom React hook that initializes the UFuzzy library for fuzzy searching.
+ * It checks if the UFuzzy library is already loaded and if not, it initializes the UFuzzyManager,
+ * which creates and manages a singleton instance of the UFuzzy library.
+ * Once initialized, it dispatches an action to update the Redux store to indicate that
+ * the search functionality is ready for use. This hook ensures that UFuzzy is only initialized once
+ * and is available globally via UFuzzyManager for the rest of the application.
  *
- * This hook creates a script element to load the UFuzzy library from the public/scripts directory.
- * It checks if the script is already loaded to prevent duplicate loads. This approach is useful
- * for loading external scripts on demand, improving page load performance by not loading
- * scripts until they're needed.
+ * Usage of this hook in a component ensures that the UFuzzy library is ready before attempting
+ * any fuzzy search operations. It leverages React's useEffect to run initialization logic on component mount,
+ * and Redux's useDispatch to communicate the readiness of the search functionality across the application.
  */
 export const useInitializeUFuzzy = () => {
+  console.log("useInitializeUFuzzy");
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // The ID used to identify the script tag in the DOM.
-    const scriptId = "uFuzzy-script";
-
-    // Check if the script is already loaded to avoid re-loading it.
-    if (document.getElementById(scriptId)) {
-      return;
+    console.log("useInitializeUFuzzy start");
+    // Checks if uFuzzy is available on the window object
+    if (window.uFuzzy != null) {
+      try {
+        // Initialize UFuzzyManager which handles the singleton pattern for uFuzzy instance
+        UFuzzyManager.initialize();
+        // Dispatch an action to Redux store indicating that the search functionality is initialized
+        dispatch(setSearchIsInitialized());
+        console.warn("uFuzzy initialized and search state set.");
+      } catch (error) {
+        console.error("Error initializing uFuzzy:", error);
+      }
+    } else {
+      if (UFuzzyManager.getInstance()) {
+        console.warn("UFuzzyManager instance is alerady set");
+      } else {
+        console.error("window.uFuzzy is not defined AND the instance isnt set");
+      }
     }
-
-    // Create a new script element.
-    const script = document.createElement("script");
-    script.id = scriptId;
-    script.src =
-      "https://cdn.jsdelivr.net/npm/@leeoniya/ufuzzy@1.0.14/dist/uFuzzy.iife.min.js";
-    script.async = true; // Initialize the script asynchronously to not block rendering.
-    script.onload = () => {
-      if (window.uFuzzy) {
-        // Initialize uFuzzy with custom options and dispatch the instance to the store
-        const uFuzzyInstance = window.uFuzzy(uFuzzyOptions);
-        dispatch(setFuzzySearchInstance(uFuzzyInstance));
-
-        // TypeScript may prevent direct deletion from `window` due to its strict type checking.
-        // Casting `window` to `any` bypasses these checks.
-        // This does not affect the reference held by the store, allowing continued use without global exposure.
-        delete (window as any).uFuzzy;
-      }
-    };
-
-    // Append the script to the body to start loading it.
-    document.body.appendChild(script);
-
-    // Remove the script from the DOM when the component using this hook unmounts.
-    return () => {
-      const existingScript = document.getElementById(scriptId);
-      if (existingScript) {
-        document.body.removeChild(existingScript);
-      }
-    };
   }, [dispatch]);
 };

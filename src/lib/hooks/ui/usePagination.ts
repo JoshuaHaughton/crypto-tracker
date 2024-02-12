@@ -1,24 +1,22 @@
+import { POPULAR_COINS_PAGE_SIZE } from "@/lib/constants/globalConstants";
+import { useAppSelector } from "@/lib/store";
+import { selectPopularCoinsPageNumber } from "@/lib/store/appInfo/appInfoSelectors";
+import { selectPopularCoinsCount } from "@/lib/store/coins/coinsSelectors";
 import { useMemo } from "react";
-let DOTS = 'DOTS'
-const range = (start, end) => {
-  let length = end - start + 1;
-  /*
-  	Create an array of certain length and set the elements within it from
-    start value to end value.
-  */
-  return Array.from({ length }, (_, idx) => idx + start);
-};
+import { range } from "lodash";
 
-export const usePagination = ({
-  totalCount,
-  pageSize,
-  siblingCount = 1,
-  currentPage
-}) => {
+let DOTS = "DOTS";
+
+export const usePagination = ({ siblingCount = 1 }) => {
+  const popularCoinsPageNumber = useAppSelector(selectPopularCoinsPageNumber);
+  const popularCoinsLength = useAppSelector(selectPopularCoinsCount);
+
   const paginationRange = useMemo(() => {
-    const totalPageCount = Math.ceil(totalCount / pageSize);
+    const totalPageCount = Math.ceil(
+      popularCoinsLength / POPULAR_COINS_PAGE_SIZE,
+    );
 
-    // Pages count is determined as siblingCount + firstPage + lastPage + currentPage + 2*DOTS
+    // Pages count is determined as siblingCount + firstPage + lastPage + popularCoinsPageNumber + 2*DOTS
     const totalPageNumbers = siblingCount + 5;
 
     /*
@@ -29,14 +27,14 @@ export const usePagination = ({
     if (totalPageNumbers >= totalPageCount) {
       return range(1, totalPageCount);
     }
-	
+
     /*
     	Calculate left and right sibling index and make sure they are within range 1 and totalPageCount
     */
-    const leftSiblingIndex = Math.max(currentPage - siblingCount, 1);
+    const leftSiblingIndex = Math.max(popularCoinsPageNumber - siblingCount, 1);
     const rightSiblingIndex = Math.min(
-      currentPage + siblingCount,
-      totalPageCount
+      popularCoinsPageNumber + siblingCount,
+      totalPageCount,
     );
 
     /*
@@ -62,15 +60,14 @@ export const usePagination = ({
     	Case 3: No right dots to show, but left dots to be shown
     */
     if (shouldShowLeftDots && !shouldShowRightDots) {
-      
       let rightItemCount = 3 + 2 * siblingCount;
       let rightRange = range(
         totalPageCount - rightItemCount + 1,
-        totalPageCount
+        totalPageCount,
       );
       return [firstPageIndex, DOTS, ...rightRange];
     }
-     
+
     /*
     	Case 4: Both left and right dots to be shown
     */
@@ -78,7 +75,7 @@ export const usePagination = ({
       let middleRange = range(leftSiblingIndex, rightSiblingIndex);
       return [firstPageIndex, DOTS, ...middleRange, DOTS, lastPageIndex];
     }
-  }, [totalCount, pageSize, siblingCount, currentPage]);
+  }, [popularCoinsLength, siblingCount, popularCoinsPageNumber]);
 
   return paginationRange;
 };

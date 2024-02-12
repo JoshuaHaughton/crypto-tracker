@@ -2,7 +2,6 @@
 
 import PopularCoinsList from "@/components/PopularCoinsList";
 import Banner from "@/components/UI/Banner/Banner";
-import Pagination from "@/components/UI/Pagination";
 import styles from "./HomePage.module.scss";
 import { selectPopularCoinsPageNumber } from "@/lib/store/appInfo/appInfoSelectors";
 import { useEffect } from "react";
@@ -22,7 +21,6 @@ export default function HomePage() {
       <Banner />
       <h2>Crypto Prices</h2>
       <PopularCoinsList />
-      <Pagination />
     </div>
   );
 }

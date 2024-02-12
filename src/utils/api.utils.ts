@@ -238,26 +238,28 @@ export function isCoinDetailsApiResponse(
   return data && "coinDetails" in data;
 }
 
+export type TInitialRoute = "/" | "/coin";
+
+interface IFetchInitialDataParams {
+  initialRoute?: TInitialRoute;
+  currencyPreference?: TCurrencyString;
+}
+
 /**
  * Fetches initial data based on the route stored in cookies for server-side rendering.
  * This function checks the 'initialRoute' cookie to determine the current page ('home' or 'coin')
  * and fetches corresponding data. It also retrieves the user's currency preference from cookies.
  * This function is designed for server-side initial data loading.
  *
- * @param {ReadonlyRequestCookies} cookieStore - Cookies object to access user-specific settings.
- * @returns {Promise<TInitialDataOptions>} - A promise that resolves to the fetched data specific to the route.
+ * @param params - The parameters object containing the initial route and currency preference.
+ * @param params.initialRoute - Specifies the route to determine which data to fetch. Defaults to the home page route.
+ * @param params.currencyPreference - Specifies the user's preferred currency for formatting data. Defaults to 'USD'.
+ * @returns A promise that resolves to the fetched data specific to the route, or null if no matching data can be fetched.
  */
-export async function fetchInitialDataBasedOnRoute(
-  cookieStore: ReadonlyRequestCookies,
-): Promise<TInitialDataOptions> {
-  // Retrieve currency preference from cookies or use default
-  const currencyPreference =
-    (cookieStore.get("currencyPreference")?.value as TCurrencyString) ||
-    INITIAL_CURRENCY;
-
-  // Retrieve the initial route from the cookie store
-  const initialRoute = cookieStore.get("initialRoute")?.value || "/";
-
+export async function fetchInitialDataBasedOnRoute({
+  initialRoute = "/",
+  currencyPreference = INITIAL_CURRENCY, // Default currency preference
+}: IFetchInitialDataParams): Promise<TInitialDataOptions> {
   // Fetch data based on the route
   switch (initialRoute) {
     case "/":

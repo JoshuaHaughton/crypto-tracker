@@ -1,17 +1,14 @@
 import { createSelector } from "@reduxjs/toolkit";
 import { TRootState } from "..";
-import { FuzzySearchInstance } from "./searchSlice";
 import { ICoinOverview } from "@/types/coinTypes";
 
 /**
- * Selector to get the fuzzy search instance from the state.
- * This does not use `createSelector` as it directly retrieves a simple state slice.
+ * Selector to see if the search has been initialized yet.
  * @param state - The current state of the application.
  * @returns The fuzzy search instance or null if not set.
  */
-export const selectFuzzySearchInstance = (
-  state: TRootState,
-): FuzzySearchInstance | null => state.search.fuzzySearchInstance;
+export const selectIsSearchInitialized = (state: TRootState): boolean =>
+  state.search.isSearchInitialized;
 
 /**
  * Selector to get the current search query.

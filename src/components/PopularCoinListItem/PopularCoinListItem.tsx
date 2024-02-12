@@ -1,12 +1,7 @@
 import Image from "next/image";
 import styles from "./PopularCoinListItem.module.scss";
 import { useCoinDetailsPreloader } from "@/lib/hooks/preloaders/useCoinDetailsPreloader";
-import { ICoinOverview } from "@/types/coinTypes";
-import { TCurrencySymbol } from "@/lib/constants/globalConstants";
-
-interface IDisplayedCoinOverview extends ICoinOverview {
-  currentCurrencySymbol: TCurrencySymbol;
-}
+import { IDisplayedCoinOverview } from "@/types/coinTypes";
 
 const PopularCoinListItem = ({
   name,
@@ -45,7 +40,7 @@ const PopularCoinListItem = ({
         })}
       </td>
       <td>
-        {volume_24h !== 0 && volume_24h
+        {volume_24h !== "0" && volume_24h
           ? `${currentCurrencySymbol} ${volume_24h}`
           : "Info Missing"}
       </td>
