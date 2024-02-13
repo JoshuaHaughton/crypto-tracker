@@ -1,9 +1,13 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { ICoinOverview } from "@/types/coinTypes";
 import { POPULAR_COINS_PAGE_SIZE } from "@/lib/constants/globalConstants";
 import { selectPopularCoinsPageNumber } from "@/lib/store/appInfo/appInfoSelectors";
 import { useAppSelector } from "@/lib/store";
-import { selectSearchResults } from "@/lib/store/search/searchSelectors";
+import {
+  selectCurrentQuery,
+  selectSearchResults,
+} from "@/lib/store/search/searchSelectors";
+import { selectPopularCoins } from "@/lib/store/coins/coinsSelectors";
 
 /**
  * Defines the shape of the state returned by useCoinsForCurrentPage.
@@ -13,50 +17,61 @@ interface IUseCurrentPageCoinsState {
 }
 
 /**
- * Manages the display of cryptocurrency coins based on current pagination and search results.
- * This hook slices the array of filtered coins into separate pages to only display those relevant to the current page,
- * ensuring efficient data presentation without unnecessary computations or data exposure.
+ * Custom hook to manage the display of cryptocurrency coins for the current pagination page,
+ * taking into account the search results if a search query is active.
  *
- * @returns An object containing the `coinsForCurrentPage` array for the current page context.
+ * @returns The state including the array of coins to be displayed on the current page.
  */
-const useCurrentPageCoins = (): IUseCurrentPageCoinsState => {
-  // Get necessary Redux state
-  const searchResults = useAppSelector(selectSearchResults);
-  const popularCoinsPageNumber = useAppSelector(selectPopularCoinsPageNumber);
-
+export const useCurrentPageCoins = (): IUseCurrentPageCoinsState => {
   const [coinsForCurrentPage, setCoinsForCurrentPage] = useState<
     ICoinOverview[]
   >([]);
-  // Use a ref to store a cache for pagination slices.
-  const pageCache = useRef<Map<number, ICoinOverview[]>>(new Map());
 
-  useEffect(() => {
-    // If searchResults changes, clear the cache to ensure fresh pagination for new data.
-    pageCache.current.clear();
+  // Redux state selectors.
+  const searchResults = useAppSelector(selectSearchResults);
+  const currentQuery = useAppSelector(selectCurrentQuery);
+  const popularCoins = useAppSelector(selectPopularCoins);
+  const pageNumber = useAppSelector(selectPopularCoinsPageNumber);
 
-    const calculateAndSetPage = () => {
-      const firstPageIndex =
-        (popularCoinsPageNumber - 1) * POPULAR_COINS_PAGE_SIZE;
-      const lastPageIndex = firstPageIndex + POPULAR_COINS_PAGE_SIZE;
-      // Perform the slice operation to get the new current page coins.
-      const newCoinsForCurrentPage = searchResults.slice(
-        firstPageIndex,
-        lastPageIndex,
-      );
+  // Cache for storing pagination results to avoid recalculations.
+  const pageCacheRef = useRef<Map<string, ICoinOverview[]>>(new Map());
 
-      // Update the cache with the new slice for the current page.
-      pageCache.current.set(popularCoinsPageNumber, newCoinsForCurrentPage);
-      setCoinsForCurrentPage(newCoinsForCurrentPage);
-    };
+  /**
+   * Computes and updates the list of coins for the current page, using cached results when available.
+   * Determines the source of coins based on the presence of a search query.
+   */
+  const updateCoinsForCurrentPage = useCallback(() => {
+    const activeSource =
+      currentQuery.trim().length > 0 ? searchResults : popularCoins;
+    const cacheKey = `${pageNumber}-${
+      activeSource === searchResults ? "searchResults" : "all"
+    }`;
 
-    // Check if the current page is already in the cache.
-    const cachedPage = pageCache.current.get(popularCoinsPageNumber);
-    if (cachedPage) {
-      setCoinsForCurrentPage(cachedPage);
-    } else {
-      calculateAndSetPage();
+    if (!pageCacheRef.current.has(cacheKey)) {
+      const startIndex = (pageNumber - 1) * POPULAR_COINS_PAGE_SIZE;
+      const endIndex = startIndex + POPULAR_COINS_PAGE_SIZE;
+      const coinsForPage = activeSource.slice(startIndex, endIndex);
+
+      // Update cache with new results.
+      pageCacheRef.current.set(cacheKey, coinsForPage);
     }
-  }, [searchResults, popularCoinsPageNumber]); // Dependencies include searchResults to reset cache when it changes.
+
+    // Set state with cached or newly computed coins.
+    setCoinsForCurrentPage(pageCacheRef.current.get(cacheKey) || []);
+  }, [currentQuery, pageNumber, searchResults, popularCoins]);
+
+  // Clears cache when search results or popular coins list changes.
+  useEffect(() => {
+    pageCacheRef.current.clear();
+    updateCoinsForCurrentPage();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchResults, popularCoins]);
+
+  // Effect for updating coins for the current page on pagination or query change.
+  useEffect(() => {
+    updateCoinsForCurrentPage();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentQuery, pageNumber]);
 
   return { coinsForCurrentPage };
 };

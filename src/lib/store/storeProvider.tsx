@@ -28,6 +28,7 @@ export const StoreProvider: React.FC<IStoreProviderProps> = ({
   initialData,
 }) => {
   console.log("initializing store");
+  console.log("initializing store", window?.uFuzzy);
   const storeRef = useRef<TAppStore>();
 
   // Only initialize store and state if the store hasn't been created yet

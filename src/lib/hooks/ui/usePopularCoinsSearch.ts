@@ -1,7 +1,10 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { IPopularCoinSearchResult } from "@/types/coinTypes";
 import { useSelector, useDispatch } from "react-redux";
-import { setGlobalSearchResults } from "@/lib/store/search/searchSlice"; // Import the action to update search results in the store
+import {
+  setCurrentQuery,
+  setGlobalSearchResults,
+} from "@/lib/store/search/searchSlice"; // Import the action to update search results in the store
 import { selectPopularCoins } from "@/lib/store/coins/coinsSelectors";
 import UFuzzyManager from "@/utils/uFuzzyManager";
 import { selectIsSearchInitialized } from "@/lib/store/search/searchSelectors";
@@ -16,7 +19,7 @@ import { selectIsSearchInitialized } from "@/lib/store/search/searchSelectors";
  */
 interface IUsePopularCoinsSearchState {
   search: string;
-  setSearch: React.Dispatch<React.SetStateAction<string>>;
+  setSearch: (searchTerm: string) => void;
 }
 
 /**
@@ -112,6 +115,12 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
     }
   }, [search, performSearch]);
 
+  // Also dispatch the current query to the Redux store
+  const handleSetSearch = (searchTerm: string) => {
+    setSearch(searchTerm); // Update local state
+    dispatch(setCurrentQuery(searchTerm)); // Dispatch action to update the Redux store
+  };
+
   // Return the current search state.
-  return { search, setSearch };
+  return { search, setSearch: handleSetSearch };
 }

@@ -7,7 +7,7 @@ import { useInitializeUFuzzy } from "./useInitializeUFuzzy";
  */
 export const useAppInitialization = () => {
   // useRouteEvents(store, initialReduxState, serverGlobalCacheVersion);
+  // useInitializeUFuzzy();
   useWebWorker();
-  useInitializeUFuzzy();
   useHydrateCoinDataOnLoad();
 };

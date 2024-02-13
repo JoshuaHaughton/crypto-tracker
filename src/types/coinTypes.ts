@@ -15,8 +15,8 @@ export interface ICoinOverview {
   price_change_percentage_24h: number;
 }
 
-// We format larger numbers to make them cleaner to display
 export interface IDisplayedCoinOverview
+  // We format larger numbers to make them cleaner to display
   extends Omit<ICoinOverview, "total_market_cap" | "volume_24h"> {
   total_market_cap: string;
   volume_24h: string;

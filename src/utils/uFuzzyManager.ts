@@ -31,27 +31,32 @@ class UFuzzyManager {
       // Remove uFuzzy from window to encapsulate access and avoid global usage
       (window as any).uFuzzy = undefined;
       // Freeze the instance to prevent modifications, enhancing the immutability of the singleton.
-      UFuzzyManager.instance = Object.freeze(UFuzzyManager.instance);
+      Object.freeze(UFuzzyManager.instance);
       console.log("uFuzzy initialized", UFuzzyManager.instance);
     }
   }
 
   /**
    * Provides global access to the uFuzzy singleton instance.
-   * Ensures that the instance is initialized before returning it.
-   * Throws an error if `initialize` has not been called before accessing the instance.
+   * Attempts to automatically initialize the instance if it has not been done so before accessing it.
+   * Logs an error and returns null if the instance cannot be initialized.
    *
-   * @returns The initialized and immutable uFuzzy instance.
-   * @throws {Error} If the instance has not been initialized.
+   * @returns The initialized and immutable uFuzzy instance, or null if initialization fails.
    */
   public static getInstance(): ReturnType<TUFuzzyConstructor> | null {
-    console.log("uFuzzy getInstance");
+    console.log("Attempting to access uFuzzy instance.");
     if (!UFuzzyManager.instance) {
-      console.error(
-        "uFuzzy has not been initialized. Call UFuzzyManager.initialize() first.",
-      );
-      return null;
+      console.error("uFuzzy instance not found. Attempting to initialize...");
+      UFuzzyManager.initialize();
+      if (!UFuzzyManager.instance) {
+        // After an attempt to initialize, if the instance is still not available, log an error and return null.
+        console.error(
+          "Failed to initialize uFuzzy instance after another attempt. Please ensure uFuzzy is correctly set up.",
+        );
+        return null;
+      }
     }
+    console.log("uFuzzy instance accessed successfully.");
     return UFuzzyManager.instance;
   }
 }

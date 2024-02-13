@@ -1,29 +1,54 @@
 "use client";
 
+import ExternalScriptLoader from "@/components/initializers/ExternalScriptLoader";
+import { FUZZY_SEARCH_SCRIPT } from "@/lib/constants/externalScripts";
 import { useAppInitialization } from "@/lib/hooks/appLifecycle/useAppInitialization";
+import { useAppDispatch } from "@/lib/store";
+import { setSearchIsInitialized } from "@/lib/store/search/searchSlice";
+import UFuzzyManager from "@/utils/uFuzzyManager";
 
 /**
- * A client-side component (`AppInitializer`) designed to be used within a server-rendered
- * component for initializing application state in a Next.js application using the App Router
- * model with Server Side Rendering (SSR) capabilities.
+ * The `AppInitializer` serves as the highest level client-side component to initialize
+ * application-wide scripts and state in the Next.js App Router setup. This design ensures state setup
+ * and external scripts like `FUZZY_SEARCH_SCRIPT` are loaded/initialized once and early, preventing re-renders
+ * across client-side navigation and maintaining consistent app state.
  *
- * The `AppInitializer` component leverages the `useAppInitialization` hook to set up
- * the application based on the Redux store state and router information. This approach
- * allows the component to run client-side initialization logic (like setting up a web worker)
- * while being nested within a server-rendered component, adhering to the constraints of
- * Next.js 14's App Router where direct usage of hooks in server components is restricted.
+ * Ideally, we'd execute these scripts earlier using the beforeInteractive strategy for optimal performance.
+ * However, this strategy sometimes restricts modifications to the window object, which is necessary for scripts
+ * that need to register or access global variables or functions. Consequently, to ensure such scripts can operate
+ * effectively by interacting with the window object, we resort to the afterInteractive strategy.
  *
- * By separating the initialization logic into a client component, we ensure that the
- * server component (`RootLayout`) remains focused on server-side rendering and data fetching
- * tasks, while the `AppInitializer` handles client-specific tasks. This setup facilitates
- * a hybrid architecture where server-rendered pages can efficiently initialize client-side
- * application state without violating the architectural patterns of Next.js 14.
- *
+ * Utilizing `useAppInitialization`, this component orchestrates client-side logic,
+ * such as Redux state setup and web worker configuration, complementing server-rendered
+ * content with crucial client-side interactions. This separation allows for efficient
+ * initialization while adhering to Next.js's SSR and client-side execution model.
  */
 export const AppInitializer: React.FC = () => {
   // Call the app initialization hook directly at the component's top level
   useAppInitialization();
+  const dispatch = useAppDispatch();
+
+  const handleUFuzzyScriptLoad = () => {
+    console.log("UFuzzy script loaded");
+    const instance = UFuzzyManager.getInstance();
+    if (instance) {
+      // Only dispatch if the UFuzzy instance exists
+      dispatch(setSearchIsInitialized());
+      console.log("UFuzzyManager instance exists, search is initialized.");
+    } else {
+      console.error(
+        "UFuzzyManager instance does not exist & cannot be created, search initialization skipped.",
+      );
+    }
+  };
 
   // This component does not render any UI elements.
-  return null;
+  return (
+    <>
+      <ExternalScriptLoader
+        scriptConfig={FUZZY_SEARCH_SCRIPT}
+        afterScriptsLoad={handleUFuzzyScriptLoad}
+      />
+    </>
+  );
 };

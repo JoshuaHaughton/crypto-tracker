@@ -1,33 +1,24 @@
-import React, { ChangeEvent } from "react";
 import PopularCoinListItem from "./PopularCoinListItem/PopularCoinListItem";
 import styles from "./PopularCoinsList.module.scss";
 import { TextField } from "@mui/material";
-import { useSelector } from "react-redux";
-import { selectPopularCoinsPageNumber } from "@/lib/store/appInfo/appInfoSelectors";
-import {
-  selectIsBreakpoint1250,
-  selectIsBreakpoint380,
-  selectIsBreakpoint680,
-} from "@/lib/store/mediaQuery/mediaQuerySelectors";
-import { selectCurrentSymbol } from "@/lib/store/currency/currencySelectors";
 import { bigNumberFormatter } from "@/utils/dataFormat.utils";
 import { POPULAR_COINS_PAGE_SIZE } from "@/lib/constants/globalConstants";
 import Pagination from "./UI/Pagination";
 import { usePopularCoinsList } from "@/lib/hooks/ui/usePopularCoinsList";
 
 const PopularCoinsList = () => {
-  const isBreakpoint380 = useSelector(selectIsBreakpoint380);
-  const isBreakpoint680 = useSelector(selectIsBreakpoint680);
-  const isBreakpoint1250 = useSelector(selectIsBreakpoint1250);
-  const popularCoinsListPageNumber = useSelector(selectPopularCoinsPageNumber);
-  const currentSymbol = useSelector(selectCurrentSymbol);
-  const { search, setSearch, coinsForCurrentPage } = usePopularCoinsList();
-  console.warn("coinsForCurrentPage - PopularCoinsList", coinsForCurrentPage);
+  const {
+    search,
+    handleInputChange,
+    coinsForCurrentPage,
+    isBreakpoint380,
+    isBreakpoint680,
+    isBreakpoint1250,
+    popularCoinsListPageNumber,
+    currentSymbol,
+  } = usePopularCoinsList();
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    setSearch(e.target.value);
-  };
+  console.warn("coinsForCurrentPage - PopularCoinsList", coinsForCurrentPage);
 
   return (
     <>

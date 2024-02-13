@@ -12,8 +12,6 @@ import {
   TCurrencyString,
   INITIAL_CURRENCY,
 } from "@/lib/constants/globalConstants";
-import ExternalScriptLoader from "@/components/initializers/ExternalScriptLoader";
-import { FUZZY_SEARCH_SCRIPT } from "@/lib/constants/externalScripts";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -56,7 +54,6 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <ExternalScriptLoader scriptConfig={FUZZY_SEARCH_SCRIPT} />
       <StoreProvider initialData={initialData}>
         <AppInitializer />
         <body className={inter.className}>
