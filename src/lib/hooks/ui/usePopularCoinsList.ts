@@ -10,6 +10,7 @@ import {
 import { ChangeEvent } from "react";
 import { useSelector } from "react-redux";
 import { TCurrencySymbol } from "@/lib/constants/globalConstants";
+import { IPopularCoinSearchItem } from "@/types/coinTypes";
 
 /**
  * Interface defining the structure for the state and setters returned by usePopularCoinsList hook.
@@ -17,7 +18,7 @@ import { TCurrencySymbol } from "@/lib/constants/globalConstants";
 interface IUsePopularCoinsListState {
   search: string;
   setSearch: (searchTerm: string) => void;
-  coinsForCurrentPage: any[]; // Adjust the type according to your data structure
+  coinsForCurrentPage: IPopularCoinSearchItem[];
   isBreakpoint380: boolean;
   isBreakpoint680: boolean;
   isBreakpoint1250: boolean;

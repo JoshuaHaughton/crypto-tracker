@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { IPopularCoinSearchResult } from "@/types/coinTypes";
+import { IPopularCoinSearchItem } from "@/types/coinTypes";
 import { useSelector, useDispatch } from "react-redux";
 import {
   setCurrentQuery,
@@ -87,13 +87,13 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
       );
 
       // Prepare search results with highlighting details
-      const results: IPopularCoinSearchResult[] = idxs.map((index) => {
+      const results: IPopularCoinSearchItem[] = idxs.map((index) => {
         const coin = allPopularCoins[index];
         // Directly use ranges provided by uFuzzy for highlighting
         const highlightDetails = info.ranges[index] || [];
 
         return {
-          ...coin,
+          coinDetails: coin,
           matchDetails: highlightDetails, // Directly usable by the HighlightedText component
         };
       });

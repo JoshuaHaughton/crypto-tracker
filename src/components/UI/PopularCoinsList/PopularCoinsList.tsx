@@ -7,6 +7,7 @@ import { POPULAR_COINS_PAGE_SIZE } from "@/lib/constants/globalConstants";
 import { usePopularCoinsList } from "@/lib/hooks/ui/usePopularCoinsList";
 
 const PopularCoinsList = () => {
+  console.log("PopularCoinsList");
   const {
     search,
     handleInputChange,
@@ -18,7 +19,7 @@ const PopularCoinsList = () => {
     currentSymbol,
   } = usePopularCoinsList();
 
-  console.warn("coinsForCurrentPage - PopularCoinsList", coinsForCurrentPage);
+  console.log("coinsForCurrentPage - PopularCoinsList", coinsForCurrentPage);
 
   return (
     <>
@@ -72,7 +73,9 @@ const PopularCoinsList = () => {
             </tr>
           </thead>
           <tbody>
-            {coinsForCurrentPage?.map((coin, index) => {
+            {coinsForCurrentPage?.map((listItem, index) => {
+              const { coinDetails: coin, matchDetails } = listItem;
+
               const marketCapRank =
                 (popularCoinsListPageNumber - 1) * POPULAR_COINS_PAGE_SIZE +
                 index +

@@ -1,4 +1,4 @@
-import { ICoinOverview } from "@/types/coinTypes";
+import { IPopularCoinSearchItem } from "@/types/coinTypes";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface FuzzySearchInstance {
@@ -40,7 +40,7 @@ export type TUFuzzyConstructor = (opts?: any) => FuzzySearchInstance;
 interface SearchState {
   isSearchInitialized: boolean;
   currentQuery: string;
-  results: ICoinOverview[];
+  results: IPopularCoinSearchItem[];
 }
 
 /**
@@ -85,7 +85,10 @@ const searchSlice = createSlice({
      * @param state - The current state of the search slice.
      * @param action - The action payload containing the search results.
      */
-    setGlobalSearchResults(state, action: PayloadAction<ICoinOverview[]>) {
+    setGlobalSearchResults(
+      state,
+      action: PayloadAction<IPopularCoinSearchItem[]>,
+    ) {
       state.results = action.payload;
     },
   },

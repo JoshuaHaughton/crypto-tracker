@@ -1,14 +1,24 @@
 import UFuzzyManager from "@/utils/uFuzzyManager";
 import { ScriptProps } from "next/script";
+import { setSearchIsInitialized } from "../store/search/searchSlice";
+import { Dispatch } from "@reduxjs/toolkit";
 
-export const FUZZY_SEARCH_SCRIPT: ScriptProps = {
+export interface ScriptConfig extends ScriptProps {
+  onLoadNeedsDispatch?: boolean;
+  onLoad?: (dispatch: Dispatch<any>) => void;
+}
+
+export const FUZZY_SEARCH_SCRIPT: ScriptConfig = {
   src: "https://cdn.jsdelivr.net/npm/@leeoniya/ufuzzy@1.0.14/dist/uFuzzy.iife.min.js",
   strategy: "afterInteractive",
   async: false,
   defer: false,
-  onLoad: () => {
+  id: "uFuzzy",
+  onLoadNeedsDispatch: true,
+  onLoad: (dispatch) => {
     console.log("UFuzzy script loaded. window.uFuzzy:", window?.uFuzzy);
     UFuzzyManager.initialize();
+    dispatch(setSearchIsInitialized());
   },
 };
 

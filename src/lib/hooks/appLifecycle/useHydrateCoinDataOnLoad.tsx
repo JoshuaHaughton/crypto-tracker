@@ -24,10 +24,10 @@ const useHydrateCoinDataOnLoad = () => {
   const symbol = searchParams.get("symbol");
 
   const popularCoins = useAppSelector(selectPopularCoins);
+  const selectedCoinDetails = useAppSelector(selectSelectedCoinDetails);
   const coinDetailsBeingPreloaded = useAppSelector((state) =>
     selectIsCoinBeingPreloaded(state, symbol || ""),
   );
-  const selectedCoinDetails = useAppSelector(selectSelectedCoinDetails);
 
   useEffect(
     () => {
