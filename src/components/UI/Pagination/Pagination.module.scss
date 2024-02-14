@@ -30,23 +30,18 @@
     min-width: 32px;
     transition: background-color 250ms ease;
 
-    &.dots,
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.255);
+    &:hover:not(.dots, .disabled) {
+      background-color: rgba(255, 255, 255, 0.25);
+      cursor: pointer;
     }
 
     &.dots:hover {
       cursor: text;
-      background-color: transparent;
     }
 
     &.selected {
       background-color: #ff9500;
       cursor: default;
-    }
-
-    &:not(.dots, .disabled):hover {
-      cursor: pointer;
     }
 
     &.disabled {
@@ -55,6 +50,15 @@
 
       &:hover {
         background-color: transparent;
+      }
+
+      // Additional styles for disabled arrows
+      .arrow {
+        color: #aaa; // Grayed out color for disabled arrows
+        &::before {
+          border-right: 0.12em solid #aaa; // Adjust color to match disabled state
+          border-top: 0.12em solid #aaa;
+        }
       }
     }
   }
@@ -80,92 +84,3 @@
     }
   }
 }
-
-// .container {
-//   display: flex;
-//   list-style-type: none;
-//   margin: 44px 0;
-//   padding: 0;
-//   max-width: 100vw;
-//   overflow: hidden;
-//   .item {
-//     padding: 0 12px;
-//     height: 32px;
-//     text-align: center;
-//     margin: auto 4px;
-//     color: white;
-//     display: flex;
-//     box-sizing: border-box;
-//     align-items: center;
-//     letter-spacing: 0.01071em;
-//     border-radius: 16px;
-//     line-height: 1.43;
-//     font-size: 14px;
-//     min-width: 32px;
-//     transition: all 250ms ease;
-
-//     &.dots {
-//       transition: all 250ms ease;
-//     }
-
-//     &.dots:hover {
-//       background-color: transparent;
-//       cursor: text;
-//     }
-//     &:hover {
-//       background-color: rgba(255, 255, 255, 0.255);
-//       cursor: pointer;
-//     }
-
-//     &.selected {
-//       background-color: #ff9500;
-//       cursor: default;
-//     }
-
-//     .arrow {
-//       color: #ff9500;
-//       &::before {
-//         position: relative;
-//         /* top: 3pt; Uncomment this to lower the icons as requested in comments*/
-//         content: '';
-//         /* By using an em scale, the arrows will size with the font */
-//         display: inline-block;
-//         width: 0.4em;
-//         height: 0.4em;
-//         border-right: 0.12em solid #ff9500;
-//         border-top: 0.12em solid #ff9500;
-//       }
-
-//       &.left {
-//         transform: rotate(-135deg);
-//       }
-
-//       &.right {
-//         transform: rotate(45deg);
-//       }
-//     }
-
-//     &.disabled {
-//       pointer-events: none;
-
-//       .arrow::before {
-//         border-right: 0.12em solid #ff9500;
-//         border-top: 0.12em solid #ff9500;
-//       }
-
-//       &:hover {
-//         background-color: rgba(255, 255, 255, 0.255);
-//         cursor: default;
-//       }
-//     }
-//   }
-// }
-
-// @media(max-width: 450px) {
-//   .container {
-//     max-width: 80%;
-//     flex-wrap: wrap;
-//     justify-content: center;
-//     align-items: center;
-//   }
-// }

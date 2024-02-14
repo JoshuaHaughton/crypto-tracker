@@ -1,5 +1,6 @@
-import { useWebWorker } from "./useWebWorker";
-import { useHydrateCoinDataOnLoad } from "./useHydrateCoinDataOnLoad";
+import useWebWorker from "./useWebWorker";
+import useBreakpointSync from "../ui/useBreakpointSync";
+import useHydrateCoinDataOnLoad from "./useHydrateCoinDataOnLoad";
 import { useInitializeUFuzzy } from "./useInitializeUFuzzy";
 
 /**
@@ -9,5 +10,6 @@ export const useAppInitialization = () => {
   // useRouteEvents(store, initialReduxState, serverGlobalCacheVersion);
   // useInitializeUFuzzy();
   useWebWorker();
+  useBreakpointSync();
   useHydrateCoinDataOnLoad();
 };

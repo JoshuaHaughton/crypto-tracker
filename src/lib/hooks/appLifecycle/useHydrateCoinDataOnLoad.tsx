@@ -17,7 +17,7 @@ import { ICoinDetails } from "@/types/coinTypes";
  * It also ensures that the popular coins list is loaded and initializes the cache if needed.
  *
  */
-export const useHydrateCoinDataOnLoad = () => {
+const useHydrateCoinDataOnLoad = () => {
   console.log("useHydrateCoinDataOnLoad");
   const dispatch = useAppDispatch();
   const searchParams = useSearchParams();
@@ -91,3 +91,5 @@ export const useHydrateCoinDataOnLoad = () => {
     [],
   );
 };
+
+export default useHydrateCoinDataOnLoad;

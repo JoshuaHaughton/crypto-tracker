@@ -23,7 +23,12 @@ const PaginationItem: React.FC<IPaginationItemProps> = ({
   onClick,
 }: IPaginationItemProps): React.ReactElement => {
   // Determine the content to render based on whether the item is a page number or ellipses
-  const content = pageNumber === ELLIPSES ? <>&#8230;</> : pageNumber;
+  const isEllipsis = pageNumber === ELLIPSES;
+  const itemClasses = `${styles.item} ${isCurrent ? styles.selected : ""} ${
+    isEllipsis ? styles.dots : ""
+  }`;
+
+  const content = isEllipsis ? <>&#8230;</> : pageNumber;
 
   // Check if the key pressed is either Enter or Space
   const handleKeyPress = (event: React.KeyboardEvent) => {
@@ -34,15 +39,13 @@ const PaginationItem: React.FC<IPaginationItemProps> = ({
 
   return (
     <li
-      className={`${styles.item} ${isCurrent ? styles.selected : ""}`}
-      role={pageNumber !== ELLIPSES ? "button" : undefined}
-      tabIndex={pageNumber !== ELLIPSES ? 0 : undefined}
+      className={itemClasses}
+      role={!isEllipsis ? "button" : undefined}
+      tabIndex={!isEllipsis ? 0 : undefined}
       aria-current={isCurrent ? "page" : undefined}
-      onClick={() => pageNumber !== ELLIPSES && onClick()}
-      onKeyDown={pageNumber !== ELLIPSES ? handleKeyPress : undefined}
-      aria-label={
-        pageNumber !== ELLIPSES ? `Go to page ${pageNumber}` : "Ellipses"
-      }
+      onClick={() => !isEllipsis && onClick()}
+      onKeyDown={!isEllipsis ? handleKeyPress : undefined}
+      aria-label={!isEllipsis ? `Go to page ${pageNumber}` : "Ellipses"}
     >
       {content}
     </li>

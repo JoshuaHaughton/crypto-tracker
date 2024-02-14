@@ -1,34 +1,50 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+// Define breakpoints as a const object
+export const BREAKPOINT_KEYS = {
+  isMobile: "(max-width: 480px)",
+  isTablet: "(max-width: 768px)",
+  isDesktop: "(max-width: 1024px)",
+  isLargeDesktop: "(max-width: 1280px)",
+
+  isBreakpoint380: "(max-width: 380px)",
+  isBreakpoint520: "(max-width: 520px)",
+  isBreakpoint555: "(max-width: 555px)",
+  isBreakpoint680: "(max-width: 680px)",
+  isBreakpoint1040: "(max-width: 1040px)",
+  isBreakpoint1250: "(max-width: 1250px)",
+} as const;
+
+// Use this approach for TypeScript compatibility
+export type TBreakpointKeys = keyof typeof BREAKPOINT_KEYS;
+
 /**
- * Interface representing the state structure for the media query slice.
+ * Type representing the state structure for the media query slice.
  * Includes boolean flags for various breakpoints.
  */
-export interface IMediaQueryState {
-  isBreakpoint380: boolean;
-  isBreakpoint520: boolean;
-  isBreakpoint555: boolean;
-  isBreakpoint680: boolean;
-  isBreakpoint1040: boolean;
-  isBreakpoint1250: boolean;
-}
+export type TMediaQueryState = {
+  [K in TBreakpointKeys]: boolean;
+};
+
+// Generate initial state dynamically from BREAKPOINT_KEYS
+const generateInitialState = (): TMediaQueryState => {
+  const state: Partial<TMediaQueryState> = {};
+  Object.keys(BREAKPOINT_KEYS).forEach((key) => {
+    state[key as TBreakpointKeys] = false;
+  });
+  return state as TMediaQueryState;
+};
 
 /**
  * Initial state for the media query slice.
  */
-export const initialMediaQueryState: IMediaQueryState = {
-  isBreakpoint380: false,
-  isBreakpoint520: false,
-  isBreakpoint555: false,
-  isBreakpoint680: false,
-  isBreakpoint1040: false,
-  isBreakpoint1250: false,
-};
+export const initialMediaQueryState: TMediaQueryState = generateInitialState();
 
 /**
  * Payload structure for setting a breakpoint state.
  */
-interface SetBreakpointPayload {
+interface IUpdateBreakpointPayload {
+  breakpoint: TBreakpointKeys;
   value: boolean;
 }
 
@@ -37,73 +53,42 @@ const mediaQuerySlice = createSlice({
   initialState: initialMediaQueryState,
   reducers: {
     /**
-     * Sets the state for breakpoint 380.
-     * @param state - The current state of the media query slice.
-     * @param action - The action payload containing the boolean value.
+     * Updates the media query state for a given breakpoint.
+     * This reducer changes the boolean state of a specified breakpoint based on the action's payload.
+     * It is used to dynamically adjust the UI based on viewport changes, ensuring components
+     * respond to different screen sizes or orientations.
+     *
+     * @param {TMediaQueryState} state - The current state of the media query slice.
+     * @param {PayloadAction<IUpdateBreakpointPayload>} action - An object containing the breakpoint key and its new boolean value.
+     *                                                           The `breakpoint` key corresponds to one of the predefined breakpoint keys, and `value` indicates whether the breakpoint is currently active (true) or not (active).
      */
-    setBreakpoint380(
-      state: IMediaQueryState,
-      action: PayloadAction<SetBreakpointPayload>,
+    updateBreakpoint(
+      state: TMediaQueryState,
+      action: PayloadAction<IUpdateBreakpointPayload>,
     ) {
-      state.isBreakpoint380 = action.payload.value;
+      const { breakpoint, value } = action.payload;
+      state[breakpoint] = value;
     },
     /**
-     * Sets the state for breakpoint 520.
-     * @param state - The current state of the media query slice.
-     * @param action - The action payload containing the boolean value.
+     * Updates the state for all breakpoints simultaneously.
+     * This reducer function takes the entire media query state object as the payload and updates the Redux state to match it.
+     * It's an efficient way to update multiple breakpoints at once without dispatching multiple actions, thus reducing the number of re-renders and potentially improving performance.
+     *
+     * @param {TMediaQueryState} state - The current state of the media query slice.
+     * @param {PayloadAction<IUpdateBreakpointPayload>} action - An object containing the breakpoint key and its new boolean value.
+     *                                                           The `breakpoint` key corresponds to one of the predefined breakpoint keys, and `value` indicates whether the breakpoint is currently active (true) or not (active).
      */
-    setBreakpoint520(
-      state: IMediaQueryState,
-      action: PayloadAction<SetBreakpointPayload>,
+    updateAllBreakpoints(
+      state: TMediaQueryState,
+      action: PayloadAction<TMediaQueryState>,
     ) {
-      state.isBreakpoint520 = action.payload.value;
-    },
-    /**
-     * Sets the state for breakpoint 555.
-     * @param state - The current state of the media query slice.
-     * @param action - The action payload containing the boolean value.
-     */
-    setBreakpoint555(
-      state: IMediaQueryState,
-      action: PayloadAction<SetBreakpointPayload>,
-    ) {
-      state.isBreakpoint555 = action.payload.value;
-    },
-    /**
-     * Sets the state for breakpoint 680.
-     * @param state - The current state of the media query slice.
-     * @param action - The action payload containing the boolean value.
-     */
-    setBreakpoint680(
-      state: IMediaQueryState,
-      action: PayloadAction<SetBreakpointPayload>,
-    ) {
-      state.isBreakpoint680 = action.payload.value;
-    },
-    /**
-     * Sets the state for breakpoint 1040.
-     * @param state - The current state of the media query slice.
-     * @param action - The action payload containing the boolean value.
-     */
-    setBreakpoint1040(
-      state: IMediaQueryState,
-      action: PayloadAction<SetBreakpointPayload>,
-    ) {
-      state.isBreakpoint1040 = action.payload.value;
-    },
-    /**
-     * Sets the state for breakpoint 1250.
-     * @param state - The current state of the media query slice.
-     * @param action - The action payload containing the boolean value.
-     */
-    setBreakpoint1250(
-      state: IMediaQueryState,
-      action: PayloadAction<SetBreakpointPayload>,
-    ) {
-      state.isBreakpoint1250 = action.payload.value;
+      Object.entries(action.payload).forEach(([key, value]) => {
+        state[key as TBreakpointKeys] = value;
+      });
     },
   },
 });
 
-export const mediaQueryActions = mediaQuerySlice.actions;
+export const { updateBreakpoint, updateAllBreakpoints } =
+  mediaQuerySlice.actions;
 export default mediaQuerySlice.reducer;

@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "./pagination.module.scss";
+import styles from "./Pagination.module.scss";
 
 const ArrowDirections = {
   Left: "left",
