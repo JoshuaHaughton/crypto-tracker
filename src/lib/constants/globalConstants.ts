@@ -57,6 +57,7 @@ export const isActualProd =
   process.env.NODE_ENV === "production" && !isLocalProd;
 
 export const POPULAR_COINS_PAGE_SIZE = 10;
+export const ELLIPSES = "...";
 
 // https://github.com/leeoniya/uFuzzy?tab=readme-ov-file#options
 

@@ -1,9 +1,9 @@
-import PopularCoinListItem from "./PopularCoinListItem/PopularCoinListItem";
 import styles from "./PopularCoinsList.module.scss";
+import PopularCoinListItem from "../../PopularCoinListItem/PopularCoinListItem";
+import Pagination from "../Pagination/Pagination";
 import { TextField } from "@mui/material";
 import { bigNumberFormatter } from "@/utils/dataFormat.utils";
 import { POPULAR_COINS_PAGE_SIZE } from "@/lib/constants/globalConstants";
-import Pagination from "./UI/Pagination";
 import { usePopularCoinsList } from "@/lib/hooks/ui/usePopularCoinsList";
 
 const PopularCoinsList = () => {
@@ -27,7 +27,7 @@ const PopularCoinsList = () => {
           label="Search for a cryptocurrency"
           variant="outlined"
           sx={{
-            "& .MuiInputLabel-root": { color: "#b2b2b2" }, //styles the label
+            "& .MuiInputLabel-root": { color: "#b2b2b2" },
             "& .MuiOutlinedInput-root": {
               "& > fieldset": { borderColor: "white", color: "white" },
             },
@@ -53,7 +53,6 @@ const PopularCoinsList = () => {
           className={styles.input}
           onChange={handleInputChange}
         />
-        {/* <DataTable columns={columns} data={coinsForCurrentPage} /> */}
         <table className={styles.table}>
           <thead>
             <tr>

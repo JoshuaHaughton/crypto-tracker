@@ -1,6 +1,7 @@
 import { createSelector } from "@reduxjs/toolkit";
 import { TRootState } from "..";
 import { ICoinOverview } from "@/types/coinTypes";
+import { selectPopularCoins } from "../coins/coinsSelectors";
 
 /**
  * Selector to see if the search has been initialized yet.
@@ -30,3 +31,20 @@ export const selectCurrentQuery = (state: TRootState): string =>
  */
 export const selectSearchResults = (state: TRootState): ICoinOverview[] =>
   state.search.results;
+
+/**
+ * Selects the total count of items based on the active search query.
+ * If there's an active search query, it returns the length of the search results;
+ * otherwise, it returns the count of popular coins.
+ *
+ * @param {TRootState} state The current state of the application.
+ * @returns {number} The total count of items based on the active search query.
+ */
+export const selectTotalSearchItemsCount = createSelector(
+  [selectCurrentQuery, selectSearchResults, selectPopularCoins],
+  (currentQuery, searchResults, popularCoins) => {
+    return currentQuery.trim().length > 0
+      ? searchResults.length
+      : popularCoins.length;
+  },
+);

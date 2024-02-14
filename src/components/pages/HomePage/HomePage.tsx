@@ -1,6 +1,6 @@
 "use client";
 
-import PopularCoinsList from "@/components/PopularCoinsList";
+import PopularCoinsList from "@/components/UI/PopularCoinsList/PopularCoinsList";
 import Banner from "@/components/UI/Banner/Banner";
 import styles from "./HomePage.module.scss";
 import { selectPopularCoinsPageNumber } from "@/lib/store/appInfo/appInfoSelectors";
