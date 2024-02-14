@@ -2,7 +2,7 @@ import styles from "./PopularCoinsList.module.scss";
 import PopularCoinListItem from "../../PopularCoinListItem/PopularCoinListItem";
 import Pagination from "../Pagination/Pagination";
 import { TextField } from "@mui/material";
-import { bigNumberFormatter } from "@/utils/dataFormat.utils";
+import { formatBigNumber } from "@/utils/dataFormat.utils";
 import { POPULAR_COINS_PAGE_SIZE } from "@/lib/constants/globalConstants";
 import { usePopularCoinsList } from "@/lib/hooks/ui/usePopularCoinsList";
 
@@ -81,10 +81,8 @@ const PopularCoinsList = () => {
               let transformedVolume = null;
 
               if (isBreakpoint1250) {
-                transformedVolume = bigNumberFormatter(coin.volume_24h);
-                transformedMarketCap = bigNumberFormatter(
-                  coin.total_market_cap,
-                );
+                transformedVolume = formatBigNumber(coin.volume_24h);
+                transformedMarketCap = formatBigNumber(coin.total_market_cap);
               } else {
                 transformedVolume = coin.volume_24h.toLocaleString();
                 transformedMarketCap = coin.total_market_cap.toLocaleString();

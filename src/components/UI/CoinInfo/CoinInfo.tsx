@@ -1,11 +1,12 @@
 import styles from "./CoinInfo.module.scss";
 import { ICoinDetailAttributes } from "@/types/coinTypes";
-import { removeHTML, bigNumberFormatter } from "@/utils/global.utils";
+import { removeHTML } from "@/utils/global.utils";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import Image from "next/image";
 import CoinInfoSkeleton from "../Skeletons/CoinInfoSkeleton/CoinInfoSkeleton";
+import { formatBigNumber } from "@/utils/dataFormat.utils";
 
 /**
  * Props for the CoinInfo component.
@@ -83,7 +84,7 @@ const CoinInfo: React.FC<ICoinInfoProps> = ({
           <h3>Market Cap:</h3>
           <p className={styles.current}>
             {currentSymbol}
-            {bigNumberFormatter(coinAttributes.total_market_cap)}
+            {formatBigNumber(coinAttributes.total_market_cap)}
           </p>
         </div>
 

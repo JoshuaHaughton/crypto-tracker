@@ -565,10 +565,10 @@ export function filterUndefinedProps<T extends Record<string, any>>(
  * @returns The formatted string representation of the number.
  *
  * @example
- * bigNumberFormatter(1234); // returns '1.2K'
- * bigNumberFormatter(1234567); // returns '1.2M'
+ * formatBigNumber(1234); // returns '1.2K'
+ * formatBigNumber(1234567); // returns '1.2M'
  */
-export const bigNumberFormatter = (num: number): string => {
+export const formatBigNumber = (num: number): string => {
   // Define thresholds for number ranges
   const { THOUSAND, MILLION, BILLION, TRILLION } = ENumericThresholds;
 

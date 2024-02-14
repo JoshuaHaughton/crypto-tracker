@@ -1,5 +1,5 @@
 /**
- * Enum for numeric thresholds used in bigNumberFormatter.
+ * Enum for numeric thresholds used in formatBigNumber.
  */
 export enum ENumericThresholds {
   THOUSAND = 1000,
