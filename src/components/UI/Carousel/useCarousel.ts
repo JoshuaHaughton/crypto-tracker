@@ -36,6 +36,7 @@ export const useCarousel = (
   autoplayIntervalMs: number = 3000,
   options: EmblaOptionsType = defaultOptions,
 ): CarouselState => {
+  console.log("useCarousel Hook Invoked");
   const [emblaRef, emblaApi] = useEmblaCarousel(options);
   const [isHovering, setIsHovering] = useState(false);
   // Reference to store the interval ID.
@@ -44,6 +45,7 @@ export const useCarousel = (
   const pauseTimeRef = useRef<number | null>(null);
 
   const controlAutoplayStart = useCallback(() => {
+    console.log("controlAutoplayStart - useCarousel");
     if (autoplayTimeoutRef.current === null && emblaApi) {
       // Calculate the remaining time for the next autoplay, if paused before
       const elapsedTime = pauseTimeRef.current
@@ -67,6 +69,7 @@ export const useCarousel = (
 
   const controlAutoplayStop = useCallback(
     ({ shouldPause }: { shouldPause: boolean }) => {
+      console.log("controlAutoplayStop - useCarousel");
       if (autoplayTimeoutRef.current !== null) {
         clearTimeout(autoplayTimeoutRef.current);
         autoplayTimeoutRef.current = null;
@@ -85,6 +88,7 @@ export const useCarousel = (
 
   const handleCarouselVisibilityChange = useCallback(
     (entries: IntersectionObserverEntry[]) => {
+      console.log("handleCarouselVisibilityChange - useCarousel");
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           // Carousel is visible
@@ -99,6 +103,7 @@ export const useCarousel = (
   );
 
   const handleDocumentVisibilityChange = useCallback(() => {
+    console.log("handleDocumentVisibilityChange - useCarousel");
     if (document.visibilityState === "hidden") {
       controlAutoplayStop({ shouldPause: true });
     } else if (document.visibilityState === "visible") {
@@ -109,6 +114,7 @@ export const useCarousel = (
   // Effect to handle pausing the animation when the carousel is not in the viewport,
   // and document visibility changes.
   useEffect(() => {
+    console.log("observerCreation - useCarousel");
     // Create an IntersectionObserver to track carousel visibility.
     const observer = new IntersectionObserver(handleCarouselVisibilityChange, {
       threshold: 0.1,
@@ -119,6 +125,7 @@ export const useCarousel = (
 
     // Observe the carousel's root node for visibility changes.
     if (emblaRootNode) {
+      console.log("observer embla root", emblaRootNode);
       observer.observe(emblaRootNode);
     }
 
@@ -148,6 +155,7 @@ export const useCarousel = (
 
   // Effect to pause/play based on hover state.
   useEffect(() => {
+    console.log("hover - useCarousel", isHovering);
     // Check if the mouse is not hovering over the carousel.
     if (!isHovering) {
       // If not hovering, start autoplay.
@@ -160,6 +168,7 @@ export const useCarousel = (
 
   // Effect to start autoplay when the component mounts and stop /reset it when it unmounts.
   useEffect(() => {
+    console.log("initial - useCarousel");
     // Start autoplay when the component mounts.
     controlAutoplayStart();
 

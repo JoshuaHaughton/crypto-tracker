@@ -16,7 +16,9 @@ export const FUZZY_SEARCH_SCRIPT: ScriptConfig = {
   id: "uFuzzy",
   onLoadNeedsDispatch: true,
   onLoad: (dispatch) => {
-    console.log("UFuzzy script loaded. window.uFuzzy:", window?.uFuzzy);
+    if (window) {
+      console.log("UFuzzy script loaded. window.uFuzzy:", window.uFuzzy);
+    }
     UFuzzyManager.initialize();
     dispatch(setSearchIsInitialized());
   },

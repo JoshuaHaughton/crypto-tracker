@@ -7,7 +7,7 @@ import { POPULAR_COINS_PAGE_SIZE } from "@/lib/constants/globalConstants";
 import { usePopularCoinsList } from "@/components/UI/PopularCoinsList/usePopularCoinsList";
 
 const PopularCoinsList = () => {
-  console.log("PopularCoinsList");
+  console.log("PopularCoinsList Render");
   const {
     search,
     handleInputChange,

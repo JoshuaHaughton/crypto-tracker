@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import { useSelector } from "react-redux";
 
 export default function HomePage() {
+  console.log("HomePage render");
   const popularCoinsListPageNumber = useSelector(selectPopularCoinsPageNumber);
 
   useEffect(() => {

@@ -1,4 +1,3 @@
-import { TCurrencyString } from "@/lib/constants/globalConstants";
 import { createSelector } from "@reduxjs/toolkit";
 import { TRootState } from "..";
 import {

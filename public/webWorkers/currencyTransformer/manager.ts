@@ -39,7 +39,7 @@ export function initializeCurrencyTransformerWorker(dispatch: Dispatch) {
 
   // Ensure the worker can be initialized (i.e., running in a browser environment)
   if (typeof window === "undefined") return;
-
+  console.log("creating currencyTransformerWorker");
   currencyTransformerWorker = new Worker(
     new URL("./worker.ts", import.meta.url),
   );

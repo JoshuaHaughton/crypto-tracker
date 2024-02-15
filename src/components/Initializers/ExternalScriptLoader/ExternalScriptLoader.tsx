@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Script, { ScriptProps } from "next/script";
 import { FUZZY_SEARCH_SCRIPT } from "@/lib/constants/externalScriptConstants";
+import useWhyDidComponentUpdate from "@/lib/hooks/debug/useWhyDidComponentUpdate";
 
 interface IExternalScriptLoaderParams {
   scriptConfig: ScriptProps | ScriptProps[];
@@ -24,6 +25,11 @@ const ExternalScriptLoader: React.FC<IExternalScriptLoaderParams> = ({
   scriptConfig = FUZZY_SEARCH_SCRIPT,
   afterScriptsLoad,
 }) => {
+  useWhyDidComponentUpdate("ExternalScriptLoader", {
+    scriptConfig,
+    afterScriptsLoad,
+  });
+  console.log("ExternalScriptLoader render");
   const scriptsArray = Array.isArray(scriptConfig)
     ? scriptConfig
     : [scriptConfig];
@@ -55,4 +61,4 @@ const ExternalScriptLoader: React.FC<IExternalScriptLoaderParams> = ({
   );
 };
 
-export default ExternalScriptLoader;
+export default React.memo(ExternalScriptLoader);

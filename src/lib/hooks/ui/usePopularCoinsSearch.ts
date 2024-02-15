@@ -29,6 +29,7 @@ interface IUsePopularCoinsSearchState {
  * @returns The search state, including the search term, results, and a setter for the search term.
  */
 export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
+  console.log("usePopularCoinsSearch");
   // State hooks for managing search term and results.
   const [search, setSearch] = useState<string>("");
 
@@ -37,14 +38,13 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
   const allPopularCoins = useSelector(selectPopularCoins);
   const dispatch = useDispatch();
 
-  // Ref to track the initial mount of the component.
-  const isInitialMount = useRef(true);
-
   // Memoize the haystack to prevent recalculating it on every render
   const haystack = useMemo(
     () => allPopularCoins.map((coin) => `${coin.name} ${coin.symbol}`),
     [allPopularCoins],
   );
+
+  const initialSearchPerformed = useRef(false);
 
   // Memoize the uFuzzy instance retrieval based on the search initialization status
   const uFuzzyInstance = useMemo(() => {
@@ -58,6 +58,7 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
   // Callback hook to memoize the search function.
   const performSearch = useCallback(
     (query: string) => {
+      console.log("performSearch - usePopularCoinsSearch");
       if (!uFuzzyInstance) {
         // Handle the scenario where uFuzzyInstance is not available
         console.warn("Fuzzy search instance is not available.");
@@ -107,13 +108,18 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
 
   // Effect hook to perform search operations after the initial mount.
   useEffect(() => {
-    if (isInitialMount.current) {
-      // Mark initial mount as complete.
-      isInitialMount.current = false;
-    } else {
+    // Only perform search if it's not the initial search
+    if (initialSearchPerformed.current) {
       performSearch(search);
+    } else {
+      console.log("initial search attempted but not performed");
     }
-  }, [search, performSearch]);
+
+    // Mark that an initial search has been performed after the first non-initial render.
+    if (!initialSearchPerformed.current && isSearchInitialized) {
+      initialSearchPerformed.current = true;
+    }
+  }, [isSearchInitialized, search, performSearch]);
 
   // Also dispatch the current query to the Redux store
   const handleSetSearch = (searchTerm: string) => {

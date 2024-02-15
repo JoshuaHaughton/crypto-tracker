@@ -7,11 +7,12 @@ import { AppConfigDynamic } from "next/dist/build/utils";
 import { StoreProvider } from "@/lib/store/storeProvider";
 import { AppInitializer } from "../components/Initializers/AppInitializer/AppInitializer";
 import { cookies } from "next/headers";
-import { TInitialRoute, fetchInitialDataBasedOnRoute } from "@/lib/utils/api.utils";
+import { fetchInitialDataBasedOnRoute } from "@/lib/utils/api.utils";
 import {
   TCurrencyString,
   INITIAL_CURRENCY,
 } from "@/lib/constants/globalConstants";
+import { TInitialRoute } from "@/lib/types/apiRequestTypes";
 
 const inter = Inter({ subsets: ["latin"] });
 

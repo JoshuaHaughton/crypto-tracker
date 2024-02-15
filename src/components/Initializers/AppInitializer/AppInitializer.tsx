@@ -33,6 +33,7 @@ import { curryScriptsWithDispatch } from "@/lib/utils/script.utils";
  * influencing the UI by setting up required functionalities and state.
  */
 export const AppInitializer: React.FC = () => {
+  console.log("AppInitializer render");
   // Initialize app-wide logic (e.g., state, web workers) at the component's start.
   useAppInitialization();
 

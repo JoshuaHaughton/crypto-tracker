@@ -3,6 +3,7 @@ import Carousel from "../Carousel/Carousel";
 import styles from "./Banner.module.scss";
 
 const Banner = () => {
+  console.log("Banner render");
   return (
     <div className={styles.container}>
       <div className={styles.banner}>

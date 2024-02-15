@@ -22,7 +22,7 @@ class UFuzzyManager {
    */
   public static initialize(): void {
     console.log("uFuzzy - initialize");
-    if (!window.uFuzzy) {
+    if (!window?.uFuzzy) {
       console.error("uFuzzy is not available on window.");
       return;
     }

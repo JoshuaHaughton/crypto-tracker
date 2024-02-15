@@ -4,13 +4,21 @@ import CarouselCoin from "./CarouselCoin";
 import { selectCarouselCoins } from "@/lib/store/coins/coinsSelectors";
 import { selectCurrentSymbol } from "@/lib/store/currency/currencySelectors";
 import { useCarousel } from "@/components/UI/Carousel/useCarousel";
+import useWhyDidComponentUpdate from "@/lib/hooks/debug/useWhyDidComponentUpdate";
 
 const Carousel = () => {
-  const { emblaRef, setIsHovering } = useCarousel();
+  console.log("Carousel render");
   const currentSymbol = useSelector(selectCurrentSymbol);
   const carouselCoins = useSelector(selectCarouselCoins);
-  console.log("carousel mounted");
-  console.log("carousel coins", carouselCoins);
+  const { emblaRef, setIsHovering } = useCarousel();
+  useWhyDidComponentUpdate("Carousel", {
+    carouselCoins,
+    currentSymbol,
+    emblaRef,
+    setIsHovering,
+  });
+
+  console.log("carouselCoins - Carousel", carouselCoins);
 
   return (
     <div className={styles.embla} ref={emblaRef}>

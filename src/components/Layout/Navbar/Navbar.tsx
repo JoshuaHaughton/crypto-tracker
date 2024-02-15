@@ -1,7 +1,8 @@
 "use client";
+
 import React from "react";
 import styles from "./Navbar.module.scss";
-import logo from "../../../public/Crypto.svg";
+import logo from "../../../../public/Crypto.svg";
 import Image from "next/image";
 import HomeIcon from "@mui/icons-material/Home";
 import MenuItem from "@mui/material/MenuItem";
@@ -11,15 +12,12 @@ import styled from "@mui/system/styled";
 import { outlinedInputClasses } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
-import { updateCurrency } from "../../../thunks/updateCurrencyThunk";
-// import { usePopularCoinsListPreloader } from "../../hooks/preloaders/usePopularCoinsListPreloader";
 import Link from "next/link";
 import {
   selectCurrentCurrency,
   selectCurrentSymbol,
 } from "@/lib/store/currency/currencySelectors";
 import { selectIsBreakpoint555 } from "@/lib/store/mediaQuery/mediaQuerySelectors";
-import { currencyActions } from "@/lib/store/currency/currencySlice";
 
 const vertical = "bottom";
 const horizontal = "center";
@@ -42,6 +40,7 @@ const StyledSelect = styled(Select)(`
 `);
 
 const Navbar = () => {
+  console.log("Navbar render");
   const dispatch = useDispatch();
   const [openNotificationBar, setOpenNotificationBar] = useState(false);
   const currentCurrency = useSelector(selectCurrentCurrency);

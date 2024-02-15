@@ -23,6 +23,7 @@ interface IUseCurrentPageCoinsState {
  * @returns The state including the array of coins to be displayed on the current page.
  */
 export const useCurrentPageCoins = (): IUseCurrentPageCoinsState => {
+  console.log("useCurrentPageCoins - Hook Invoked");
   // Redux state selectors.
   const searchResults = useAppSelector(selectSearchResults);
   const currentQuery = useAppSelector(selectCurrentQuery);
@@ -44,11 +45,15 @@ export const useCurrentPageCoins = (): IUseCurrentPageCoinsState => {
   // Cache for storing pagination results to avoid recalculations.
   const pageCacheRef = useRef<Map<string, IPopularCoinSearchItem[]>>(new Map());
 
+  // Ref to avoid cache clearing on initial render.
+  const initialRender = useRef(true);
+
   /**
    * Computes and updates the list of coins for the current page, using cached results when available.
    * Determines the source of coins based on the presence of a search query.
    */
   const updateCoinsForCurrentPage = useCallback(() => {
+    console.log("updateCoinsForCurrentPage - useCurrentPageCoins");
     const cacheKey = `${pageNumber}-${
       currentQuery.trim().length > 0 ? "searchResults" : "popular"
     }`;
@@ -69,15 +74,27 @@ export const useCurrentPageCoins = (): IUseCurrentPageCoinsState => {
     setCoinsForCurrentPage(pageCacheRef.current.get(cacheKey) || []);
   }, [currentQuery, pageNumber, searchResults, popularCoins]);
 
-  // Clears cache when search results or popular coins list changes.
+  // Clears cache when search results or popular coins list changes, but not on initial render.
   useEffect(() => {
+    if (initialRender.current) {
+      return;
+    }
+
+    console.log("clear results effect - useCurrentPageCoins");
     pageCacheRef.current.clear();
     updateCoinsForCurrentPage();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchResults, popularCoins]);
 
-  // Effect for updating coins for the current page on pagination or query change.
+  // Effect for updating coins for the current page on pagination or query change, but not on initial render.
   useEffect(() => {
+    if (initialRender.current) {
+      initialRender.current = false;
+      return;
+    }
+
+    console.log("update effect - useCurrentPageCoins");
     updateCoinsForCurrentPage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentQuery, pageNumber]);

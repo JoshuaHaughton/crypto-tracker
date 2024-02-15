@@ -1,14 +1,10 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import {
-  ALL_CURRENCIES,
-  TCurrencyString,
-} from "../../constants/globalConstants";
+import { TCurrencyString } from "../../constants/globalConstants";
 import {
   ICoinDetails,
   ICoinOverview,
   TShallowOrFullCoinDetails,
 } from "../../types/coinTypes";
-import { isNull, isUndefined, mergeWith } from "lodash";
 import { mergeCoinDetails } from "@/lib/utils/dataFormat.utils";
 
 /**

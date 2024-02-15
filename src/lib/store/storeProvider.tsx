@@ -6,7 +6,10 @@ import { TAppStore, makeStore } from ".";
 import { initialCoinsState } from "./coins/coinsSlice";
 import { initialCurrencyState } from "./currency/currencySlice";
 import { ICoinOverview } from "@/lib/types/coinTypes";
-import { InitialDataType, TInitialDataOptions } from "@/lib/types/apiRequestTypes";
+import {
+  InitialDataType,
+  TInitialDataOptions,
+} from "@/lib/types/apiRequestTypes";
 
 interface IStoreProviderProps {
   children: React.ReactNode;
@@ -27,11 +30,12 @@ export const StoreProvider: React.FC<IStoreProviderProps> = ({
   children,
   initialData,
 }) => {
-  console.log("initializing store");
+  console.log("Store Provider render");
   const storeRef = useRef<TAppStore>();
 
   // Only initialize store and state if the store hasn't been created yet
   if (!storeRef.current) {
+    console.log("initializing store");
     let initialState = {};
 
     let coinsInitialState = { ...initialCoinsState };
