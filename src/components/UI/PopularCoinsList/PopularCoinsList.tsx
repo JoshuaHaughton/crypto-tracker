@@ -1,5 +1,5 @@
 import styles from "./PopularCoinsList.module.scss";
-import PopularCoinListItem from "../../PopularCoinListItem/PopularCoinListItem";
+import PopularCoinListItem from "./PopularCoinListItem/PopularCoinListItem";
 import Pagination from "../Pagination/Pagination";
 import { TextField } from "@mui/material";
 import { formatBigNumber } from "@/utils/dataFormat.utils";

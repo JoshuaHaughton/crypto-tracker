@@ -1,4 +1,4 @@
-import { uFuzzyOptions } from "@/lib/constants/globalConstants";
+import { uFuzzyOptions } from "@/lib/constants/searchConstants";
 import { TUFuzzyConstructor } from "@/lib/store/search/searchSlice";
 
 /**

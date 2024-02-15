@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Script, { ScriptProps } from "next/script";
-import { FUZZY_SEARCH_SCRIPT } from "@/lib/constants/externalScripts";
+import { FUZZY_SEARCH_SCRIPT } from "@/lib/constants/externalScriptConstants";
 
 interface IExternalScriptLoaderParams {
   scriptConfig: ScriptProps | ScriptProps[];

@@ -18,7 +18,6 @@ import {
   IRawPopularCoinsApiResponse,
   ITopMarketCapApiResponse,
 } from "@/types/apiResponseTypes";
-import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { TInitialDataOptions, InitialDataType } from "@/types/apiRequestTypes";
 
 /**

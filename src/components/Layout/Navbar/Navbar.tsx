@@ -11,7 +11,7 @@ import styled from "@mui/system/styled";
 import { outlinedInputClasses } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
-import { updateCurrency } from "../../thunks/updateCurrencyThunk";
+import { updateCurrency } from "../../../thunks/updateCurrencyThunk";
 // import { usePopularCoinsListPreloader } from "../../hooks/preloaders/usePopularCoinsListPreloader";
 import Link from "next/link";
 import {

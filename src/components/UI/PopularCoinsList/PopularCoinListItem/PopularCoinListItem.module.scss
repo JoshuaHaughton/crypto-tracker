@@ -2,38 +2,19 @@
   height: 80px;
   border-bottom: 1px solid var(--border-color);
   width: 100%;
-  // max-width: 85%;
-  padding: 0rem 2rem;
+  padding: 0 2rem;
 
   &:hover {
     background: #171718;
     cursor: pointer;
   }
 
-  & > p {
-    text-align: center;
-    margin: auto;
-    // font-size: 17px;
-  }
-
+  & > p,
   td {
     text-align: center;
-    // font-size: 17px;
+    margin: auto;
   }
 }
-
-// .coin_wrapper {
-//   display: flex;
-//   align-items: center;
-//   justify-content: center;
-//   /* padding-right: 24px; */
-//   min-width: 25%;
-//   width: 25%;
-// }
-
-// .coin_wrapper > h1 {
-//   font-size: 16px;
-// }
 
 .coin {
   display: flex;
@@ -46,7 +27,7 @@
     min-height: 38px;
     width: 38px;
     min-width: 38px;
-    margin: 0 10px 0 0;
+    margin-right: 10px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -59,11 +40,7 @@
   }
 }
 
-.name_wrapper > h1 {
-  font-size: 16px;
-  margin: 0;
-}
-
+.name_wrapper > h1,
 .name_wrapper > p {
   font-size: 16px;
   margin: 0;
@@ -75,65 +52,34 @@
 
 .data {
   display: flex;
-  text-align: right;
   justify-content: space-between;
+  text-align: right;
   width: 100%;
 }
 
-.price {
-  min-width: 16.25%;
-  width: 16.25%;
-  transition: all 300ms ease;
-}
-
-.volume {
-  min-width: 21.25%;
-  width: 21.25%;
-}
-
-.market_cap {
-  min-width: 21.25%;
-  width: 21.25%;
+.price,
+.volume,
+.market_cap,
+.red_percent,
+.green_percent {
+  transition: all 300ms ease; // Apply transition for all for consistency, even if only .price changes
+  width: 16.25%; // Set default width
 }
 
 .red_percent {
-  min-width: 16.25%;
-  width: 16.25%;
   color: #f00606;
 }
-
 .green_percent {
-  min-width: 16.25%;
-  width: 16.25%;
   color: #13c783;
 }
 
+// Adjust widths in response to screen size
 @media (max-width: 990px) {
-  .coin_wrapper {
-    width: 30%;
-    min-width: 30%;
-  }
-
-  .name {
-    min-width: 30%;
-    width: 30%;
-  }
-
-  .price {
-    min-width: 17.5%;
-    width: 17.5%;
-  }
-
-  .volume {
-    min-width: 17.5%;
-    width: 17.5%;
-  }
-
-  .dayChange {
-    min-width: 17.5%;
-    width: 17.5%;
-  }
-
+  .coin_wrapper,
+  .name,
+  .price,
+  .volume,
+  .dayChange,
   .market_cap {
     min-width: 17.5%;
     width: 17.5%;
@@ -144,11 +90,7 @@
   .coin_wrapper {
     width: 45%;
   }
-
-  .price {
-    width: 27.5%;
-  }
-
+  .price,
   .red_percent,
   .green_percent {
     width: 27.5%;
@@ -158,42 +100,32 @@
 @media (max-width: 380px) {
   .container {
     flex-direction: column;
-    justify-content: center;
     align-items: center;
     height: fit-content;
     padding: 24px 0;
   }
 
   .image_wrapper {
-    margin: 0 0 8px 0;
+    margin-bottom: 8px;
   }
 
-  .coin {
+  .coin,
+  .coin_wrapper {
     flex-direction: column;
-  }
-
-  .coin_wrapper,
-  .coin {
-    min-width: 100%;
-    justify-content: center;
+    width: 100%;
     align-items: center;
   }
 
   .name_wrapper {
     text-align: center;
     width: 90%;
+    > h1,
+    > p {
+      font-size: 7vw;
+    }
   }
 
-  .name_wrapper > p,
-  .name_wrapper > h1 {
-    font-size: 7vw;
-    margin: 0;
-  }
-  .price {
-    font-size: 5vw;
-    width: 70%;
-  }
-
+  .price,
   .red_percent,
   .green_percent {
     font-size: 5vw;

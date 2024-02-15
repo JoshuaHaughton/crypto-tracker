@@ -7,99 +7,77 @@
 .table {
   width: 100%;
   border-collapse: collapse;
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
-  background-color: var(--card-bg);
-  // border: 1px solid var(--primary);
+  border-radius: 6px 6px 0 0; // Combined border-radius for top-left and top-right
+  background-color: var(
+    --card-bg
+  ); // Utilizes CSS variable for background color
 
   thead {
     height: 64px;
     background-color: var(--primary);
 
-    tr > th:first-child {
-      border-top-left-radius: 6px;
-      // border-bottom-left-radius: 6px;
+    // Optimized selector for first and last child with shared properties
+    tr > th {
+      &:first-child {
+        border-top-left-radius: 6px;
+      }
+      &:last-child {
+        border-top-right-radius: 6px;
+      }
     }
-
-    tr > th:last-child {
-      border-top-right-radius: 6px;
-      // border-bottom-right-radius: 6px;
-    }
   }
 
-  // th {
-  //   height: 64px;
-  //   background-color: var(--primary);
-  // }
-
-  .nameHeader {
-    width: 25%;
-    text-align: left;
-    padding-left: 24px;
-  }
-
-  .priceHeader {
-    width: 16.25%;
-    text-align: center;
-  }
-
-  .volumeHeader {
-    width: 21.25%;
-    text-align: center;
-  }
-
-  .dayChangeHeader {
-    width: 16.25%;
-    text-align: center;
-  }
-
-  .marketCapHeader {
-    width: 21.25%;
-    text-align: center;
-  }
-}
-
-@media (max-width: 990px) {
-  .nameHeader {
-    width: 30%;
-  }
+  // Consolidated header styles with shared properties
+  .nameHeader,
   .priceHeader,
   .volumeHeader,
   .dayChangeHeader,
   .marketCapHeader {
-    width: 17.5%;
+    text-align: center;
+    padding-left: 24px; // Specific for .nameHeader, but will not affect center alignment of others
+
+    // Responsive adjustments for headers
+    @media (max-width: 990px) {
+      width: 17.5%;
+      &:first-child {
+        width: 30%;
+      } // .nameHeader specific adjustment
+    }
+  }
+
+  // Specific width adjustments for better clarity and maintainability
+  .nameHeader {
+    width: 25%;
+  }
+  .priceHeader,
+  .dayChangeHeader {
+    width: 16.25%;
+  }
+  .volumeHeader,
+  .marketCapHeader {
+    width: 21.25%;
   }
 }
 
+// Media queries optimized for mobile views
 @media (max-width: 680px) {
   .table thead th {
+    display: none; // Default state for all headers
     &:first-child {
-      width: 45%;
+      display: block; // Ensuring the first child is visible and adjusted
+      width: 100%;
     }
-    &:nth-child(2) {
-      display: none;
-    } // Hiding Price header
-    &:nth-child(3) {
-      display: none;
-    } // Hiding 24hr Volume header
-    &:nth-child(4) {
-      display: none;
-    } // Hiding 24hr Change header
-    &:nth-child(5) {
-      display: none;
-    } // Hiding Market Cap header
   }
 }
 
 @media (max-width: 380px) {
   .table thead th {
-    // Mobile view adjustments (if needed)
-    display: none; // Example: hiding all headers except the first
+    display: none; // Hide all headers for smallest view
     &:first-child {
-      display: flex;
-      width: 100%;
-      justify-content: center;
-      text-align: center;
+      display: flex; // Keep the first header visible
+      justify-content: center; // Center content
+      text-align: center; // Ensure text alignment is centered
+      width: 100%; // Full width for visibility
     }
   }
 }

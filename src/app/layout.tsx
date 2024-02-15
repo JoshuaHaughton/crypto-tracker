@@ -1,11 +1,11 @@
 import "../styles/globals.scss";
-import Navbar from "@/components/Navbar/Navbar";
+import Navbar from "@/components/Layout/Navbar/Navbar";
 import { Inter } from "next/font/google";
 import { Metadata } from "next";
 import { Revalidate } from "next/dist/server/lib/revalidate";
 import { AppConfigDynamic } from "next/dist/build/utils";
 import { StoreProvider } from "@/lib/store/storeProvider";
-import { AppInitializer } from "./appInitializer";
+import { AppInitializer } from "../components/Initializers/AppInitializer/AppInitializer";
 import { cookies } from "next/headers";
 import { TInitialRoute, fetchInitialDataBasedOnRoute } from "@/utils/api.utils";
 import {

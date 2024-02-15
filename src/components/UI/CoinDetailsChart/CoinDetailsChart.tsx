@@ -1,6 +1,6 @@
 import styles from "./CoinDetailsChart.module.scss";
 import useChartData from "@/lib/hooks/ui/useChartData";
-import HistoryChart from "../HistoryChart";
+import HistoryChart from "../HistoryChart/HistoryChart";
 import { EChartPeriodInterval, ICoinDetails } from "@/types/coinTypes";
 import { isFullCoinDetails } from "@/utils/global.utils";
 import CoinDetailsChartSkeleton from "../Skeletons/CoinDetailsChart/CoinDetailsChartSkeleton";
