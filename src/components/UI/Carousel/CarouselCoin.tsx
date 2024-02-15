@@ -31,8 +31,8 @@ const CarouselCoin = ({ coin, currentSymbol }: CarouselCoinProps) => {
   return (
     <div
       className={styles.carousel_item}
-      onMouseEnter={handleMouseEnter}
-      onClick={handleCoinClick}
+      // onMouseEnter={handleMouseEnter}
+      // onClick={handleCoinClick}
     >
       <Image src={coin.image} alt={coin.name} height={80} width={80} priority />
       <p>
