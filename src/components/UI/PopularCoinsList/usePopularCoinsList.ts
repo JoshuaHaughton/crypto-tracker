@@ -1,5 +1,5 @@
-import { usePopularCoinsSearch } from "./usePopularCoinsSearch";
-import useCurrentPageCoins from "./useCurrentPageCoins";
+import { usePopularCoinsSearch } from "../../../lib/hooks/ui/usePopularCoinsSearch";
+import useCurrentPageCoins from "../../../lib/hooks/ui/useCurrentPageCoins";
 import { selectPopularCoinsPageNumber } from "@/lib/store/appInfo/appInfoSelectors";
 import { selectCurrentSymbol } from "@/lib/store/currency/currencySelectors";
 import {
@@ -10,7 +10,7 @@ import {
 import { ChangeEvent } from "react";
 import { useSelector } from "react-redux";
 import { TCurrencySymbol } from "@/lib/constants/globalConstants";
-import { IPopularCoinSearchItem } from "@/types/coinTypes";
+import { IPopularCoinSearchItem } from "@/lib/types/coinTypes";
 
 /**
  * Interface defining the structure for the state and setters returned by usePopularCoinsList hook.

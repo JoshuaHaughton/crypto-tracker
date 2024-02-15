@@ -1,4 +1,4 @@
-import { IPopularCoinSearchItem } from "@/types/coinTypes";
+import { IPopularCoinSearchItem } from "@/lib/types/coinTypes";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface FuzzySearchInstance {

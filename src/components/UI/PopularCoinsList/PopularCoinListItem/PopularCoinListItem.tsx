@@ -1,7 +1,7 @@
 import Image from "next/image";
 import styles from "./PopularCoinListItem.module.scss";
 import { useCoinDetailsPreloader } from "@/lib/hooks/preloaders/useCoinDetailsPreloader";
-import { IDisplayedCoinOverview } from "@/types/coinTypes";
+import { IDisplayedCoinOverview } from "@/lib/types/coinTypes";
 
 const PopularCoinListItem = ({
   name,

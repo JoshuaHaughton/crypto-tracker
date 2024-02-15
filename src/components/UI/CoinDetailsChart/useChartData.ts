@@ -6,9 +6,9 @@ import {
   ICoinDetails,
   IPriceChartDataset,
   IPriceTrendData,
-} from "@/types/coinTypes";
+} from "@/lib/types/coinTypes";
 import { selectCurrentCurrency } from "@/lib/store/currency/currencySelectors";
-import { isFullCoinDetails } from "@/utils/global.utils";
+import { isFullCoinDetails } from "@/lib/utils/global.utils";
 
 /**
  * Defines the structure for a single chart period.

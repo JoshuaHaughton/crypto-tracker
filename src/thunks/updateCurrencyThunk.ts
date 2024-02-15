@@ -1,11 +1,11 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { coinsActions } from "@/lib/store/coins/coinsSlice";
-import { ICoinDetails } from "@/types/coinTypes";
+import { ICoinDetails } from "@/lib/types/coinTypes";
 import { currencyActions } from "@/lib/store/currency/currencySlice";
 import { postMessageToCurrencyTransformerWorker } from "../../public/webWorkers/currencyTransformer/manager";
 import Cookies from "js-cookie";
 import { isEmpty } from "lodash";
-import { storeCurrentCurrencyInIndexedDB } from "../utils/cache.utils";
+import { storeCurrentCurrencyInIndexedDB } from "../lib/utils/cache.utils";
 import { CURRENT_CURRENCY_COOKIE_EXPIRY_TIME } from "@/lib/constants/globalConstants";
 
 /**

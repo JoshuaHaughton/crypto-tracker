@@ -1,10 +1,10 @@
-import { postMessageToCurrencyTransformerWorker } from "../../public/webWorkers/currencyTransformer/manager";
+import { postMessageToCurrencyTransformerWorker } from "../../../public/webWorkers/currencyTransformer/manager";
 import { TCurrencyString } from "@/lib/constants/globalConstants";
 import { coinsActions } from "@/lib/store/coins/coinsSlice";
 import { Dispatch } from "@reduxjs/toolkit";
-import { TCurrencyExchangeRates } from "@/types/currencyTypes";
-import { ICoinDetails } from "@/types/coinTypes";
-import { CTWMessageRequestType } from "../../public/webWorkers/currencyTransformer/types";
+import { TCurrencyExchangeRates } from "@/lib/types/currencyTypes";
+import { ICoinDetails } from "@/lib/types/coinTypes";
+import { CTWMessageRequestType } from "../../../public/webWorkers/currencyTransformer/types";
 
 interface IPreloadFetchedCoinDetailsOptions {
   dispatch: Dispatch;

@@ -1,12 +1,13 @@
 import styles from "./CoinInfo.module.scss";
-import { ICoinDetailAttributes } from "@/types/coinTypes";
-import { removeHTML } from "@/utils/global.utils";
+import { ICoinDetailAttributes } from "@/lib/types/coinTypes";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import Image from "next/image";
 import CoinInfoSkeleton from "../Skeletons/CoinInfoSkeleton/CoinInfoSkeleton";
-import { formatBigNumber } from "@/utils/dataFormat.utils";
+import { formatBigNumber } from "@/lib/utils/dataFormat.utils";
+
+const removeHTML = (str: string) => str.replace(/<\/?[^>]+(>|$)/g, "");
 
 /**
  * Props for the CoinInfo component.

@@ -1,5 +1,5 @@
 import { TCurrencyString } from "@/lib/constants/globalConstants";
-import { TCurrencyRates, TCurrencyExchangeRates } from "@/types/currencyTypes";
+import { TCurrencyRates, TCurrencyExchangeRates } from "@/lib/types/currencyTypes";
 import {
   ICoinDetails,
   ICoinDetailAttributes,
@@ -10,7 +10,7 @@ import {
   IPeriodicPriceChanges,
   ICoinOverview,
   TShallowCoinDetails,
-} from "@/types/coinTypes";
+} from "@/lib/types/coinTypes";
 import {
   IHistoricalDataApiResponse,
   IAssetDataApiResponse,
@@ -19,12 +19,12 @@ import {
   IRawPopularCoinsApiResponse,
   IFormattedCoinDetailsAPIResponse,
   IRawCoinDetailsApiResponse,
-} from "@/types/apiResponseTypes";
+} from "@/lib/types/apiResponseTypes";
 import { CRYPTO_COMPARE_WEBSITE } from "@/lib/constants/apiConstants";
 import { isNull, isUndefined, mergeWith } from "lodash";
 import { coinsActions } from "@/lib/store/coins/coinsSlice";
 import { Dispatch } from "@reduxjs/toolkit";
-import { ENumericThresholds } from "@/types/globalTypes";
+import { ENumericThresholds } from "@/lib/types/numericTypes";
 
 // Formatting CoinDetails after retrieval from the API
 

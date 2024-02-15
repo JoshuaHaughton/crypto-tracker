@@ -5,11 +5,11 @@ import styles from "./CoinDetailsPage.module.scss";
 import CoinInfoSkeleton from "@/components/UI/Skeletons/CoinInfoSkeleton/CoinInfoSkeleton";
 import { selectSelectedCoinDetails } from "@/lib/store/coins/coinsSelectors";
 import { selectCurrentSymbol } from "@/lib/store/currency/currencySelectors";
-import { isFullCoinDetails } from "@/utils/global.utils";
+import { isFullCoinDetails } from "@/lib/utils/global.utils";
 import { useSelector } from "react-redux";
 import CoinDetailsChart from "@/components/UI/CoinDetailsChart/CoinDetailsChart";
 import CoinDetailsChartSkeleton from "@/components/UI/Skeletons/CoinDetailsChart/CoinDetailsChartSkeleton";
-import { ICoinDetails } from "@/types/coinTypes";
+import { ICoinDetails } from "@/lib/types/coinTypes";
 
 const CoinDetails = () => {
   const currentSymbol = useSelector(selectCurrentSymbol);

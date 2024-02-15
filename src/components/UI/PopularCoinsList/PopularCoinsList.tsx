@@ -2,9 +2,9 @@ import styles from "./PopularCoinsList.module.scss";
 import PopularCoinListItem from "./PopularCoinListItem/PopularCoinListItem";
 import Pagination from "../Pagination/Pagination";
 import { TextField } from "@mui/material";
-import { formatBigNumber } from "@/utils/dataFormat.utils";
+import { formatBigNumber } from "@/lib/utils/dataFormat.utils";
 import { POPULAR_COINS_PAGE_SIZE } from "@/lib/constants/globalConstants";
-import { usePopularCoinsList } from "@/lib/hooks/ui/usePopularCoinsList";
+import { usePopularCoinsList } from "@/components/UI/PopularCoinsList/usePopularCoinsList";
 
 const PopularCoinsList = () => {
   console.log("PopularCoinsList");

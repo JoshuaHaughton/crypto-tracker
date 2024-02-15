@@ -4,7 +4,7 @@ import ExternalScriptLoader from "@/components/Initializers/ExternalScriptLoader
 import { EXTERNAL_SCRIPTS } from "@/lib/constants/externalScriptConstants";
 import { useAppInitialization } from "@/lib/hooks/appLifecycle/useAppInitialization";
 import { useAppDispatch } from "@/lib/store";
-import { curryScriptsWithDispatch } from "@/utils/script.utils";
+import { curryScriptsWithDispatch } from "@/lib/utils/script.utils";
 
 /**
  * The `AppInitializer` acts as the primary client-side component for initializing

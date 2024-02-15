@@ -1,14 +1,14 @@
 import {
   formatPopularCoinsApiResponse,
   formatCoinDetailsApiResponse,
-} from "@/utils/dataFormat.utils";
+} from "@/lib/utils/dataFormat.utils";
 import {
   TCurrencyString,
   INITIAL_CURRENCY,
   ALL_CURRENCIES,
-} from "../lib/constants/globalConstants";
-import { API_ENDPOINTS } from "../lib/constants/apiConstants";
-import { TCurrencyRates } from "@/types/currencyTypes";
+} from "../constants/globalConstants";
+import { API_ENDPOINTS } from "../constants/apiConstants";
+import { TCurrencyRates } from "@/lib/types/currencyTypes";
 import {
   IAssetDataApiResponse,
   IFormattedCoinDetailsAPIResponse,
@@ -17,8 +17,12 @@ import {
   IRawCoinDetailsApiResponse,
   IRawPopularCoinsApiResponse,
   ITopMarketCapApiResponse,
-} from "@/types/apiResponseTypes";
-import { TInitialDataOptions, InitialDataType } from "@/types/apiRequestTypes";
+} from "@/lib/types/apiResponseTypes";
+import {
+  TInitialDataOptions,
+  InitialDataType,
+  TInitialRoute,
+} from "@/lib/types/apiRequestTypes";
 
 /**
  * Fetches raw data for the top 100 coins and currency exchange rates.
@@ -236,8 +240,6 @@ export function isCoinDetailsApiResponse(
 ): data is IFormattedCoinDetailsAPIResponse {
   return data && "coinDetails" in data;
 }
-
-export type TInitialRoute = "/" | "/coin";
 
 interface IFetchInitialDataParams {
   initialRoute?: TInitialRoute;

@@ -7,9 +7,9 @@ import {
   ICoinDetails,
   ICoinOverview,
   TShallowOrFullCoinDetails,
-} from "../../../types/coinTypes";
+} from "../../types/coinTypes";
 import { isNull, isUndefined, mergeWith } from "lodash";
-import { mergeCoinDetails } from "@/utils/dataFormat.utils";
+import { mergeCoinDetails } from "@/lib/utils/dataFormat.utils";
 
 /**
  * Represents the state of the coins slice, including lists of popular and carousel coins,

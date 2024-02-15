@@ -5,8 +5,8 @@ import { Provider } from "react-redux";
 import { TAppStore, makeStore } from ".";
 import { initialCoinsState } from "./coins/coinsSlice";
 import { initialCurrencyState } from "./currency/currencySlice";
-import { ICoinOverview } from "@/types/coinTypes";
-import { InitialDataType, TInitialDataOptions } from "@/types/apiRequestTypes";
+import { ICoinOverview } from "@/lib/types/coinTypes";
+import { InitialDataType, TInitialDataOptions } from "@/lib/types/apiRequestTypes";
 
 interface IStoreProviderProps {
   children: React.ReactNode;

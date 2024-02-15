@@ -7,7 +7,7 @@ import { AppConfigDynamic } from "next/dist/build/utils";
 import { StoreProvider } from "@/lib/store/storeProvider";
 import { AppInitializer } from "../components/Initializers/AppInitializer/AppInitializer";
 import { cookies } from "next/headers";
-import { TInitialRoute, fetchInitialDataBasedOnRoute } from "@/utils/api.utils";
+import { TInitialRoute, fetchInitialDataBasedOnRoute } from "@/lib/utils/api.utils";
 import {
   TCurrencyString,
   INITIAL_CURRENCY,

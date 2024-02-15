@@ -1,6 +1,6 @@
 "use server";
 
-import { CookieAction } from "@/types/cookieTypes";
+import { CookieAction } from "@/lib/types/cookieTypes";
 import { cookies } from "next/headers";
 
 /**

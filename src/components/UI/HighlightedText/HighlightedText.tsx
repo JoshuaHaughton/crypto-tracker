@@ -1,4 +1,4 @@
-import { IMatchDetail } from "@/types/coinTypes";
+import { IMatchDetail } from "@/lib/types/coinTypes";
 import React from "react";
 
 /**

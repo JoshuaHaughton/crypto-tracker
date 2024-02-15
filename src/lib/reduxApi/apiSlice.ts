@@ -9,11 +9,11 @@ import {
   IFormattedCoinDetailsAPIResponse,
   IRawPopularCoinsApiResponse,
   IRawCoinDetailsApiResponse,
-} from "@/types/apiResponseTypes";
+} from "@/lib/types/apiResponseTypes";
 import {
   formatCoinDetailsApiResponse,
   formatPopularCoinsApiResponse,
-} from "@/utils/dataFormat.utils";
+} from "@/lib/utils/dataFormat.utils";
 
 /**
  * This API slice is responsible for managing and providing access to data-fetching endpoints.

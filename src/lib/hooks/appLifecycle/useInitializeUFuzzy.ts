@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import UFuzzyManager from "@/utils/uFuzzyManager";
+import UFuzzyManager from "@/lib/search/uFuzzyManager";
 import { setSearchIsInitialized } from "@/lib/store/search/searchSlice";
 
 /**

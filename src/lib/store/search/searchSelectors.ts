@@ -1,6 +1,6 @@
 import { createSelector } from "@reduxjs/toolkit";
 import { TRootState } from "..";
-import { IPopularCoinSearchItem } from "@/types/coinTypes";
+import { IPopularCoinSearchItem } from "@/lib/types/coinTypes";
 import { selectPopularCoins } from "../coins/coinsSelectors";
 
 /**

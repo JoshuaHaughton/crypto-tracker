@@ -5,7 +5,7 @@ import {
   ICoinDetails,
   ICoinOverview,
   TShallowOrFullCoinDetails,
-} from "@/types/coinTypes";
+} from "@/lib/types/coinTypes";
 
 /**
  * Selector for popular coins.

@@ -9,7 +9,7 @@ import {
 import { selectIsCoinBeingPreloaded } from "@/lib/store/appInfo/appInfoSelectors";
 import { initializeCoinCache } from "@/thunks/initializeCoinCacheThunk";
 import { isEmpty } from "lodash";
-import { ICoinDetails } from "@/types/coinTypes";
+import { ICoinDetails } from "@/lib/types/coinTypes";
 
 /**
  * Custom hook to hydrate coin-related data on the initial load based on the current route.

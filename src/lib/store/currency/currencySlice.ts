@@ -5,7 +5,7 @@ import {
   SYMBOLS_BY_CURRENCIES,
   INITIAL_CURRENCY,
 } from "../../constants/globalConstants";
-import { TCurrencyExchangeRates } from "@/types/currencyTypes";
+import { TCurrencyExchangeRates } from "@/lib/types/currencyTypes";
 
 /**
  * Interface representing the state structure for the currency slice.

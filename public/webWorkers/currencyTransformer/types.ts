@@ -1,6 +1,6 @@
 import { TCurrencyString } from "@/lib/constants/globalConstants";
-import { ICoinDetails, ICoinOverview } from "@/types/coinTypes";
-import { TCurrencyExchangeRates } from "@/types/currencyTypes";
+import { ICoinDetails, ICoinOverview } from "@/lib/types/coinTypes";
+import { TCurrencyExchangeRates } from "@/lib/types/currencyTypes";
 
 // Specific callback types for each response type
 export type CTWCoinDetailsCallback = (

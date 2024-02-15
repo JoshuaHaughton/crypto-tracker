@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { IPopularCoinSearchItem } from "@/types/coinTypes";
+import { IPopularCoinSearchItem } from "@/lib/types/coinTypes";
 import { useSelector, useDispatch } from "react-redux";
 import {
   setCurrentQuery,
   setGlobalSearchResults,
 } from "@/lib/store/search/searchSlice"; // Import the action to update search results in the store
 import { selectPopularCoins } from "@/lib/store/coins/coinsSelectors";
-import UFuzzyManager from "@/utils/uFuzzyManager";
+import UFuzzyManager from "@/lib/search/uFuzzyManager";
 import { selectIsSearchInitialized } from "@/lib/store/search/searchSelectors";
 
 /**

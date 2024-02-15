@@ -3,6 +3,8 @@ import {
   IFormattedCoinDetailsAPIResponse,
 } from "./apiResponseTypes";
 
+export type TInitialRoute = "/" | "/coin";
+
 export enum InitialDataType {
   POPULAR_COINS = "popularCoins",
   COIN_DETAILS = "coinDetails",

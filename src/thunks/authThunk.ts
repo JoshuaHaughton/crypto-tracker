@@ -6,7 +6,7 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
-import { storeUserLoggedInStatusInIndexedDB } from "../utils/cache.utils";
+import { storeUserLoggedInStatusInIndexedDB } from "../lib/utils/cache.utils";
 
 export const signupUser = createAsyncThunk(
   "auth/signup",

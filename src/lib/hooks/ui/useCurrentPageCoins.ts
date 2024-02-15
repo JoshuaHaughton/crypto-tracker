@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { ICoinOverview, IPopularCoinSearchItem } from "@/types/coinTypes";
+import { ICoinOverview, IPopularCoinSearchItem } from "@/lib/types/coinTypes";
 import { POPULAR_COINS_PAGE_SIZE } from "@/lib/constants/globalConstants";
 import { useAppSelector } from "@/lib/store";
 import { selectPopularCoinsPageNumber } from "@/lib/store/appInfo/appInfoSelectors";

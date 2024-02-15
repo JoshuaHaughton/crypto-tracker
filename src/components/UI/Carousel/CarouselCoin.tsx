@@ -2,7 +2,7 @@ import { memo } from "react";
 import Image from "next/image";
 import styles from "./Carousel.module.scss";
 import { useCoinDetailsPreloader } from "@/lib/hooks/preloaders/useCoinDetailsPreloader";
-import { ICoinOverview } from "@/types/coinTypes";
+import { ICoinOverview } from "@/lib/types/coinTypes";
 import { TCurrencySymbol } from "@/lib/constants/globalConstants";
 
 /**

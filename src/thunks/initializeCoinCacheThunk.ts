@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { postMessageToCurrencyTransformerWorker } from "../../public/webWorkers/currencyTransformer/manager";
-import { transformAndDispatchPopularCoinsToShallow } from "../utils/dataFormat.utils";
+import { transformAndDispatchPopularCoinsToShallow } from "../lib/utils/dataFormat.utils";
 import {
   CTWAllPopularCoinsListsExternalResponseData,
   CTWMessageRequestType,

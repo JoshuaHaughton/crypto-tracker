@@ -1,4 +1,4 @@
-import UFuzzyManager from "@/utils/uFuzzyManager";
+import UFuzzyManager from "@/lib/search/uFuzzyManager";
 import { ScriptProps } from "next/script";
 import { setSearchIsInitialized } from "../store/search/searchSlice";
 import { Dispatch } from "@reduxjs/toolkit";

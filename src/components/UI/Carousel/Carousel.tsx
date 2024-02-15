@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import CarouselCoin from "./CarouselCoin";
 import { selectCarouselCoins } from "@/lib/store/coins/coinsSelectors";
 import { selectCurrentSymbol } from "@/lib/store/currency/currencySelectors";
-import { useCarousel } from "@/lib/hooks/ui/useCarousel";
+import { useCarousel } from "@/components/UI/Carousel/useCarousel";
 
 const Carousel = () => {
   const { emblaRef, setIsHovering } = useCarousel();

@@ -1,7 +1,7 @@
 import { TAppDispatch, TRootState } from "@/lib/store";
 import { coinsActions } from "@/lib/store/coins/coinsSlice";
 import { appInfoActions } from "@/lib/store/appInfo/appInfoSlice";
-import { ICoinDetails } from "@/types/coinTypes";
+import { ICoinDetails } from "@/lib/types/coinTypes";
 import { postMessageToCurrencyTransformerWorker } from "../../public/webWorkers/currencyTransformer/manager";
 import { CTWMessageRequestType } from "../../public/webWorkers/currencyTransformer/types";
 import { cryptoApiSlice } from "@/lib/reduxApi/apiSlice";

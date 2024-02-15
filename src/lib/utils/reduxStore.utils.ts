@@ -1,8 +1,8 @@
 import { TAppStore } from "@/lib/store";
 import { coinsActions } from "@/lib/store/coins/coinsSlice";
 import { currencyActions } from "@/lib/store/currency/currencySlice";
-import { ICoinOverview, ICoinDetails } from "@/types/coinTypes";
-import { TCurrencyExchangeRates } from "@/types/currencyTypes";
+import { ICoinOverview, ICoinDetails } from "@/lib/types/coinTypes";
+import { TCurrencyExchangeRates } from "@/lib/types/currencyTypes";
 import { Dispatch } from "@reduxjs/toolkit";
 
 interface IStoreInitializationOptions {
