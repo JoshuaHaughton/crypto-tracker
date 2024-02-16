@@ -30,8 +30,8 @@ export const initializeCoinCache = createAsyncThunk<
     let popularCoins = state.coins.popularCoins;
     const { currentCurrency, currencyRates } = state.currency;
 
-    // Begin preloading process for popular coins
-    dispatch(appInfoActions.startPopularCoinsPreloading());
+    // Begin preloading process for initial popular coins)not preloading yet)
+    dispatch(appInfoActions.startInitialPopularCoinsLoading());
 
     // Conditionally fetch popular coins data from the API if handleFetch is true
     if (handleFetch) {
@@ -41,7 +41,7 @@ export const initializeCoinCache = createAsyncThunk<
           currentCurrency,
         ),
       ).unwrap();
-      popularCoins = response.popularCoinsList;
+      popularCoins = response.popularCoins;
     }
 
     // Update the Redux store with the initial popular coins data
@@ -51,6 +51,12 @@ export const initializeCoinCache = createAsyncThunk<
         coinList: popularCoins,
       }),
     );
+
+    // Mark the completion of initial popular coins loading
+    dispatch(appInfoActions.completeInitialPopularCoinsLoading());
+
+    // Start the preloading process for additional data (different currencies, etc.)
+    dispatch(appInfoActions.startPopularCoinsPreloading());
 
     // Calls `transformAndDispatchPopularCoinsToShallow` with the transformed data from the web worker and the Redux dispatch function.
     // This function processes each currency's popular coins data into a shallow format and updates the Redux store accordingly
@@ -76,11 +82,10 @@ export const initializeCoinCache = createAsyncThunk<
           // Handle the transformed coins for each currency in the same way we do to the initial coins above this webworker call
           const { transformedData } = response;
           transformAndDispatchPopularCoinsToShallow(dispatch, transformedData);
+          // End the comprehensive preloading process
+          dispatch(appInfoActions.completePopularCoinsPreloading());
         },
       },
     );
-
-    // End preloading process
-    dispatch(appInfoActions.stopPopularCoinsPreloading());
   },
 );

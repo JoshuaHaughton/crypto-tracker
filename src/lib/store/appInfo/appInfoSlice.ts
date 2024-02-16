@@ -1,5 +1,25 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+export const LoadingStatus = {
+  IDLE: "idle",
+  LOADING: "loading",
+  LOADED: "loaded",
+  PRELOADING: "preloading",
+  PRELOADED: "preloaded",
+} as const;
+
+export type TLoadingStatus = (typeof LoadingStatus)[keyof typeof LoadingStatus];
+
+export type TInitialPopularCoinsStatus = Extract<
+  TLoadingStatus,
+  "idle" | "loading" | "loaded"
+>;
+
+export type TPreloadedPopularCoinsStatus = Extract<
+  TLoadingStatus,
+  "idle" | "preloading" | "preloaded"
+>;
+
 /**
  * Interface representing the state structure for the appInfo slice.
  */
@@ -7,7 +27,8 @@ export interface IAppInfoState {
   popularCoinsPageNumber: number;
   coinsBeingPreloaded: Record<string, boolean>;
   coinsBeingPreloadedOrder: string[];
-  arePopularCoinsBeingPreloaded: boolean;
+  initialPopularCoinsStatus: TInitialPopularCoinsStatus;
+  preloadedPopularCoinsStatus: TPreloadedPopularCoinsStatus;
 }
 
 /**
@@ -31,7 +52,8 @@ export const initialAppInfoState: IAppInfoState = {
   popularCoinsPageNumber: 1,
   coinsBeingPreloaded: {},
   coinsBeingPreloadedOrder: [],
-  arePopularCoinsBeingPreloaded: false,
+  initialPopularCoinsStatus: "idle",
+  preloadedPopularCoinsStatus: "idle",
 };
 
 const appInfoSlice = createSlice({
@@ -100,19 +122,35 @@ const appInfoSlice = createSlice({
     },
 
     /**
-     * Starts the preloading process for popular coins.
-     * @param state - The current state of appInfo.
+     * Initiates loading of initial popular coins.
+     * @param state - The current state of the app information.
      */
-    startPopularCoinsPreloading(state: IAppInfoState) {
-      state.arePopularCoinsBeingPreloaded = true;
+    startInitialPopularCoinsLoading(state: IAppInfoState) {
+      state.initialPopularCoinsStatus = "loading";
     },
 
     /**
-     * Stops the preloading process for popular coins.
-     * @param state - The current state of appInfo.
+     * Marks the completion of initial popular coins loading.
+     * @param state - The current state of the app information.
      */
-    stopPopularCoinsPreloading(state: IAppInfoState) {
-      state.arePopularCoinsBeingPreloaded = false;
+    completeInitialPopularCoinsLoading(state: IAppInfoState) {
+      state.initialPopularCoinsStatus = "loaded";
+    },
+
+    /**
+     * Starts the comprehensive coins preloading process after initial coins are loaded.
+     * @param state - The current state of the app information.
+     */
+    startPopularCoinsPreloading(state: IAppInfoState) {
+      state.preloadedPopularCoinsStatus = "preloading";
+    },
+
+    /**
+     * Completes the comprehensive coins preloading process.
+     * @param state - The current state of the app information.
+     */
+    completePopularCoinsPreloading(state: IAppInfoState) {
+      state.preloadedPopularCoinsStatus = "preloaded";
     },
   },
 });
