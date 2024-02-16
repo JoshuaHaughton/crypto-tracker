@@ -1,4 +1,10 @@
 :root {
+// Breakpoints
+  --breakpoints-mobile: 480px;
+  --breakpoints-tablet: 768px;
+  --breakpoints-desktop: 1024px;
+  --breakpoints-large-desktop: 1280px;
+
 // Colors
   --colors-primary: #ff9500;
   --colors-primary-dark: #ff9500;
@@ -46,6 +52,10 @@
   --colors-input-dark: 217.2 32.6% 17.5%;
   --colors-ring: 222.2 84% 4.9%;
   --colors-ring-dark: 212.7 26.8% 83.9%;
+  --colors-defaults-gray: #e0e0e0;
+  --colors-defaults-gray-dark: #575757;
+  --colors-defaults-light-gray: #f8f8f8;
+  --colors-defaults-light-gray-dark: #737373;
 
 // Spacing
   --spacing-radius: 0.5rem;

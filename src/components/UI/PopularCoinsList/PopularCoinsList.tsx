@@ -1,3 +1,4 @@
+import React from "react";
 import styles from "./PopularCoinsList.module.scss";
 import PopularCoinListItem from "./PopularCoinListItem/PopularCoinListItem";
 import Pagination from "../Pagination/Pagination";
@@ -6,12 +7,18 @@ import { formatBigNumber } from "@/lib/utils/dataFormat.utils";
 import { POPULAR_COINS_PAGE_SIZE } from "@/lib/constants/globalConstants";
 import { usePopularCoinsList } from "@/components/UI/PopularCoinsList/usePopularCoinsList";
 
-const PopularCoinsList = () => {
-  console.log("PopularCoinsList Render");
+/**
+ * Displays a list of popular coins with pagination and search functionality.
+ * Handles different loading states to provide feedback to the user.
+ * @returns The PopularCoinsList component as a React Functional Component.
+ */
+const PopularCoinsList: React.FC = () => {
+  // Destructuring values from the custom hook for managing state and behavior of the popular coins list.
   const {
     search,
     handleInputChange,
     coinsForCurrentPage,
+    isLoading,
     isBreakpoint380,
     isBreakpoint680,
     isBreakpoint1250,

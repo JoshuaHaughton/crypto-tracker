@@ -45,7 +45,7 @@ module.exports = {
   platforms: {
     scss: {
       transformGroup: "scss",
-      buildPath: "src/styles/",
+      buildPath: "src/styles/partials/",
       files: [
         {
           destination: "_variables.scss",

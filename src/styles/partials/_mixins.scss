@@ -1,0 +1,69 @@
+@import "./animations";
+@import "./variables";
+
+// Shimmer Effect
+// This mixin creates a shimmer effect animation that can be applied to loading skeletons or placeholders.
+@mixin shimmer-effect {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--colors-default-gray);
+  background-image: linear-gradient(
+    90deg,
+    var(--colors-default-gray) 0px,
+    var(--colors-default-light-gray) 50%,
+    var(--colors-default-gray) 100%
+  );
+  background-size: 200% 100%; // Ensures the gradient covers the full component
+  animation: shimmer 1.5s infinite linear;
+
+  &:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0,
+      rgba(255, 255, 255, 0.8) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    animation: shimmer 1.5s infinite linear;
+  }
+}
+
+// Breakpoints Mixins
+// These mixins allow for cleaner and more maintainable media queries in SCSS files.
+
+// Mobile Devices
+// Use this mixin for styles specific to mobile devices.
+@mixin mobile {
+  @media (max-width: var(--breakpoints-mobile)) {
+    @content;
+  }
+}
+
+// Tablet Devices
+// Use this mixin for styles specific to tablet devices.
+@mixin tablet {
+  @media (max-width: var(--breakpoints-tablet)) {
+    @content;
+  }
+}
+
+// Desktop Devices
+// Use this mixin for styles specific to desktop devices.
+@mixin desktop {
+  @media (max-width: var(--breakpoints-desktop)) {
+    @content;
+  }
+}
+
+// Large Desktop Devices
+// Use this mixin for styles specific to large desktop devices.
+@mixin largeDesktop {
+  @media (max-width: var(--breakpoints-largeDesktop)) {
+    @content;
+  }
+}

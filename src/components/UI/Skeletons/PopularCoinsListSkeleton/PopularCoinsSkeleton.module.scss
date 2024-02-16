@@ -1,0 +1,10 @@
+.skeletonCell {
+  padding: 10px;
+  background-color: transparent;
+}
+
+.skeleton {
+  @include shimmer-effect;
+  width: 100%;
+  height: 100%;
+}

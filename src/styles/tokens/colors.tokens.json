@@ -93,6 +93,16 @@
     "ring": {
       "value": "222.2 84% 4.9%",
       "darkValue": "212.7 26.8% 83.9%"
+    },
+    "defaults": {
+      "gray": {
+        "value": "#e0e0e0",
+        "darkValue": "#575757"
+      },
+      "lightGray": {
+        "value": "#f8f8f8",
+        "darkValue": "#737373"
+      }
     }
   }
 }
