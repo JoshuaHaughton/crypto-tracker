@@ -6,9 +6,9 @@ import { ICoinOverview } from "@/lib/types/coinTypes";
 import { TCurrencySymbol } from "@/lib/constants/globalConstants";
 
 /**
- * Props for CarouselCoin component.
+ * Props for CarouselItem component.
  */
-interface CarouselCoinProps {
+interface CarouselItemProps {
   coin: ICoinOverview;
   currentSymbol: TCurrencySymbol;
 }
@@ -19,9 +19,9 @@ interface CarouselCoinProps {
  * Provides interactivity for mouse hover and click events.
  *
  * @param props - The props for the component.
- * @returns The CarouselCoin component.
+ * @returns The CarouselItem component.
  */
-const CarouselCoin = ({ coin, currentSymbol }: CarouselCoinProps) => {
+const CarouselItem = ({ coin, currentSymbol }: CarouselItemProps) => {
   const id = coin.symbol;
   const { handleMouseEnter, handleCoinClick } = useCoinDetailsPreloader(id);
 
@@ -67,4 +67,4 @@ const CarouselCoin = ({ coin, currentSymbol }: CarouselCoinProps) => {
   );
 };
 
-export default memo(CarouselCoin);
+export default memo(CarouselItem);

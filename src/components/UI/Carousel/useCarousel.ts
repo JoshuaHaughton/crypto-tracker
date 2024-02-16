@@ -2,6 +2,13 @@ import { EmblaOptionsType } from "embla-carousel";
 import useEmblaCarousel from "embla-carousel-react";
 import AutoplayPlugin from "embla-carousel-autoplay";
 import { WheelGesturesPlugin } from "embla-carousel-wheel-gestures";
+import { TCurrencySymbol } from "@/lib/constants/globalConstants";
+import { ICoinOverview } from "@/lib/types/coinTypes";
+import { useAppSelector } from "@/lib/store";
+import { selectCarouselCoins } from "@/lib/store/coins/coinsSelectors";
+import { selectCurrentSymbol } from "@/lib/store/currency/currencySelectors";
+import { selectInitialPopularCoinsStatus } from "@/lib/store/appInfo/appInfoSelectors";
+import { LoadingStatus } from "@/lib/types/apiRequestTypes";
 
 /**
  * Types for the custom hook's return value, utilizing ReturnType for synchronization
@@ -12,6 +19,9 @@ import { WheelGesturesPlugin } from "embla-carousel-wheel-gestures";
 interface IUseCarouselState {
   emblaRef: ReturnType<typeof useEmblaCarousel>[0] | null; // Reference to the carousel container
   emblaApi: ReturnType<typeof useEmblaCarousel>[1] | null; // API object for controlling the carousel
+  isLoading: boolean;
+  carouselCoins: ICoinOverview[];
+  currentSymbol: TCurrencySymbol;
 }
 
 // Set global options for all Embla Carousels
@@ -42,13 +52,30 @@ const defaultAutoplayOptions = {
  * This setup enhances the user experience by allowing navigation through scroll gestures alongside the autoplay feature.
  * @returns The carousel's API, state, and control functions, providing comprehensive control and information about the carousel instance.
  */
-export const useCarousel = (): IUseCarouselState => {
+const useCarousel = (): IUseCarouselState => {
   console.log("useCarousel Hook Invoked");
+  // Fetching carousel coins and loading status from Redux.
+  const carouselCoins = useAppSelector(selectCarouselCoins);
+  const coinsStatus = useAppSelector(selectInitialPopularCoinsStatus);
+  const currentSymbol = useAppSelector(selectCurrentSymbol);
+
+  // Determine loading state based on coin availability and their loading status.
+  const isLoading =
+    coinsStatus === LoadingStatus.LOADING || carouselCoins.length < 1;
+
   // Combine EmblaCarousel with the default options, Autoplay and Wheel Gestures plugins.
   const [emblaRef, emblaApi] = useEmblaCarousel(defaultCarouselOptions, [
     AutoplayPlugin(defaultAutoplayOptions),
     WheelGesturesPlugin(),
   ]);
 
-  return { emblaRef, emblaApi };
+  return {
+    emblaRef,
+    emblaApi,
+    isLoading,
+    carouselCoins,
+    currentSymbol,
+  };
 };
+
+export default useCarousel;

@@ -1,0 +1,28 @@
+@import "./Carousel.module.scss";
+
+.itemSkeleton {
+  @extend .carousel_item; // Extend the main carousel item styles for consistency
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+
+  .imageSkeleton {
+    @include shimmer-effect; // Apply your global shimmer effect mixin
+    width: 80px; // Match the image size from CarouselItem
+    height: 80px;
+    border-radius: 50%; // Assuming the images are circular
+  }
+
+  .textSkeleton {
+    @include shimmer-effect; // Reuse the shimmer effect for text elements
+    width: 100%; // Full width for main text
+    height: 16px; // Approximate height of text
+    margin-top: 10px; // Space between skeleton elements
+
+    &:last-child {
+      width: 60%; // Shorter width to mimic title and subtitle
+    }
+  }
+}

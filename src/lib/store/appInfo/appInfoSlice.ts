@@ -1,24 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
-export const LoadingStatus = {
-  IDLE: "idle",
-  LOADING: "loading",
-  LOADED: "loaded",
-  PRELOADING: "preloading",
-  PRELOADED: "preloaded",
-} as const;
-
-export type TLoadingStatus = (typeof LoadingStatus)[keyof typeof LoadingStatus];
-
-export type TInitialPopularCoinsStatus = Extract<
-  TLoadingStatus,
-  "idle" | "loading" | "loaded"
->;
-
-export type TPreloadedPopularCoinsStatus = Extract<
-  TLoadingStatus,
-  "idle" | "preloading" | "preloaded"
->;
+import {
+  TInitialPopularCoinsStatus,
+  TPreloadedPopularCoinsStatus,
+} from "@/lib/types/apiRequestTypes";
 
 /**
  * Interface representing the state structure for the appInfo slice.
