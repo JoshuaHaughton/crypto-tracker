@@ -1,0 +1,28 @@
+// Extending styles from PopularCoinListItem for consistent layout while applying shimmer effect for skeleton loading.
+@import "../../PopularCoinsList/PopularCoinListItem/PopularCoinListItem.module.scss";
+
+.skeletonRow {
+  @extend .itemRow;
+  background-color: transparent;
+}
+
+.skeletonImage {
+  @extend .coin__image_wrapper;
+  @include shimmer-effect;
+}
+
+.skeletonText {
+  height: 16px;
+  margin-top: 5px;
+  width: 100%;
+  @include shimmer-effect;
+}
+
+.skeletonPrice,
+.skeletonMarketCap,
+.skeletonChange {
+  @include shimmer-effect;
+  width: 100%;
+  height: 20px;
+  margin: 10px 0;
+}

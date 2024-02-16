@@ -17,9 +17,17 @@ export interface ICoinOverview {
 
 export interface IDisplayedCoinOverview
   // We format larger numbers to make them cleaner to display
-  extends Omit<ICoinOverview, "total_market_cap" | "volume_24h"> {
+  extends Omit<
+    ICoinOverview,
+    | "total_market_cap"
+    | "volume_24h"
+    | "current_price"
+    | "price_change_percentage_24h"
+  > {
   total_market_cap: string;
   volume_24h: string;
+  current_price: string;
+  price_change_percentage_24h: string;
   currentCurrencySymbol: TCurrencySymbol;
 }
 

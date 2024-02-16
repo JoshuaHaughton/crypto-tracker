@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "./PopularCoinsSkeleton.module.scss";
+import PopularCoinsListItemSkeleton from "./PopularCoinsListItemSkeleton";
 import { POPULAR_COINS_PAGE_SIZE } from "@/lib/constants/globalConstants";
 
 interface IPopularCoinsSkeletonProps {
@@ -23,23 +23,7 @@ const PopularCoinsSkeleton: React.FC<IPopularCoinsSkeletonProps> = ({
   return (
     <>
       {Array.from({ length: rows }, (_, index) => (
-        <tr key={index}>
-          <td className={styles.skeletonCell}>
-            <div className={styles.skeleton}></div>
-          </td>
-          <td className={styles.skeletonCell}>
-            <div className={styles.skeleton}></div>
-          </td>
-          <td className={styles.skeletonCell}>
-            <div className={styles.skeleton}></div>
-          </td>
-          <td className={styles.skeletonCell}>
-            <div className={styles.skeleton}></div>
-          </td>
-          <td className={styles.skeletonCell}>
-            <div className={styles.skeleton}></div>
-          </td>
-        </tr>
+        <PopularCoinsListItemSkeleton key={index} />
       ))}
     </>
   );

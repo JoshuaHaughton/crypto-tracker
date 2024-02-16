@@ -67,3 +67,45 @@
     @content;
   }
 }
+
+// Extra Small Devices
+@mixin xs {
+  @media (max-width: var(--breakpoints-xs)) {
+    @content;
+  }
+}
+
+// Small Devices
+@mixin sm {
+  @media (max-width: var(--breakpoints-sm)) {
+    @content;
+  }
+}
+
+// Medium Devices
+@mixin md {
+  @media (max-width: var(--breakpoints-md)) {
+    @content;
+  }
+}
+
+// Large Devices
+@mixin lg {
+  @media (max-width: var(--breakpoints-lg)) {
+    @content;
+  }
+}
+
+// Extra Large Devices
+@mixin xl {
+  @media (max-width: var(--breakpoints-xl)) {
+    @content;
+  }
+}
+
+// Extra Extra Large Devices
+@mixin xxl {
+  @media (max-width: var(--breakpoints-xxl)) {
+    @content;
+  }
+}

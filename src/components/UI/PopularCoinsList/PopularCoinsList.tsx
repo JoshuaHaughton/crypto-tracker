@@ -1,11 +1,19 @@
 import React from "react";
 import styles from "./PopularCoinsList.module.scss";
-import PopularCoinListItem from "./PopularCoinListItem/PopularCoinListItem";
+import PopularCoinsListItem from "./PopularCoinsListItem/PopularCoinsListItem";
+import PopularCoinsListSkeleton from "../Skeletons/PopularCoinsListSkeleton/PopularCoinsListSkeleton";
 import Pagination from "../Pagination/Pagination";
 import { TextField } from "@mui/material";
 import { formatBigNumber } from "@/lib/utils/dataFormat.utils";
-import { POPULAR_COINS_PAGE_SIZE } from "@/lib/constants/globalConstants";
+import {
+  POPULAR_COINS_PAGE_SIZE,
+  TCurrencySymbol,
+} from "@/lib/constants/globalConstants";
 import { usePopularCoinsList } from "@/components/UI/PopularCoinsList/usePopularCoinsList";
+import {
+  IDisplayedCoinOverview,
+  IPopularCoinSearchItem,
+} from "@/lib/types/coinTypes";
 
 /**
  * Displays a list of popular coins with pagination and search functionality.
@@ -19,12 +27,26 @@ const PopularCoinsList: React.FC = () => {
     handleInputChange,
     coinsForCurrentPage,
     isLoading,
-    isBreakpoint380,
-    isBreakpoint680,
     isBreakpoint1250,
     popularCoinsListPageNumber,
     currentSymbol,
   } = usePopularCoinsList();
+
+  // Determine which content to display based on the loading state and coinsForCurrentPage length
+  let contentToDisplay;
+  if (isLoading) {
+    contentToDisplay = <PopularCoinsListSkeleton />;
+  } else {
+    contentToDisplay =
+      coinsForCurrentPage.length > 0
+        ? mapCoinsToComponents(
+            coinsForCurrentPage,
+            isBreakpoint1250,
+            popularCoinsListPageNumber,
+            currentSymbol,
+          )
+        : renderEmptyState();
+  }
 
   console.log("coinsForCurrentPage - PopularCoinsList", coinsForCurrentPage);
 
@@ -65,55 +87,13 @@ const PopularCoinsList: React.FC = () => {
           <thead>
             <tr>
               <th className={styles.nameHeader}>Name</th>
-              {!isBreakpoint380 && (
-                <th className={styles.priceHeader}>Price</th>
-              )}
-              {!isBreakpoint680 && (
-                <th className={styles.volumeHeader}>24hr Volume</th>
-              )}
-              {!isBreakpoint380 && (
-                <th className={styles.dayChangeHeader}>24hr Change</th>
-              )}
-              {!isBreakpoint680 && (
-                <th className={styles.marketCapHeader}>Market Cap</th>
-              )}
+              <th className={styles.priceHeader}>Price</th>
+              <th className={styles.volumeHeader}>24hr Volume</th>
+              <th className={styles.dayChangeHeader}>24hr Change</th>
+              <th className={styles.marketCapHeader}>Market Cap</th>
             </tr>
           </thead>
-          <tbody>
-            {coinsForCurrentPage?.map((listItem, index) => {
-              const { coinDetails: coin, matchDetails } = listItem;
-
-              const marketCapRank =
-                (popularCoinsListPageNumber - 1) * POPULAR_COINS_PAGE_SIZE +
-                index +
-                1;
-              let transformedMarketCap = null;
-              let transformedVolume = null;
-
-              if (isBreakpoint1250) {
-                transformedVolume = formatBigNumber(coin.volume_24h);
-                transformedMarketCap = formatBigNumber(coin.total_market_cap);
-              } else {
-                transformedVolume = coin.volume_24h.toLocaleString();
-                transformedMarketCap = coin.total_market_cap.toLocaleString();
-              }
-
-              return (
-                <PopularCoinListItem
-                  key={coin.symbol}
-                  name={coin.name}
-                  symbol={coin.symbol}
-                  image={coin.image}
-                  current_price={coin.current_price}
-                  total_market_cap={transformedMarketCap}
-                  market_cap_rank={marketCapRank}
-                  volume_24h={transformedVolume}
-                  price_change_percentage_24h={coin.price_change_percentage_24h}
-                  currentCurrencySymbol={currentSymbol}
-                />
-              );
-            })}
-          </tbody>
+          <tbody>{contentToDisplay}</tbody>
         </table>
       </div>
       <Pagination />
@@ -122,3 +102,76 @@ const PopularCoinsList: React.FC = () => {
 };
 
 export default PopularCoinsList;
+
+function renderEmptyState() {
+  return (
+    <tr>
+      <td colSpan={5} className={styles.emptyState}>
+        No coins found.
+      </td>
+    </tr>
+  );
+}
+
+/**
+ * Maps an array of coin data to PopularCoinsListItem components.
+ * This function preprocesses coin data to fit the display requirements of the PopularCoinsListItem components.
+ * It handles the conditional formatting of numerical values based on the screen size and
+ * enriches the coin data with additional display-specific properties such as market cap rank.
+ *
+ * @param {IPopularCoinSearchItem[]} coinsForCurrentPage - Array of coins for the current page.
+ * @param {boolean} isBreakpoint1250 - True if the current screen width is above 1250 pixels.
+ * @param {number} popularCoinsListPageNumber - Current page number in pagination.
+ * @param {TCurrencySymbol} currentSymbol - The current currency symbol used for price display.
+ * @returns {JSX.Element[]} An array of PopularCoinsListItem components populated with formatted coin data.
+ */
+function mapCoinsToComponents(
+  coinsForCurrentPage: IPopularCoinSearchItem[],
+  isBreakpoint1250: boolean,
+  popularCoinsListPageNumber: number,
+  currentSymbol: TCurrencySymbol,
+): JSX.Element[] {
+  return coinsForCurrentPage.map((listItem, index): JSX.Element => {
+    const { coinDetails: coin, matchDetails } = listItem;
+
+    // Define and format necessary properties from the coin data
+    const marketCapRank =
+      (popularCoinsListPageNumber - 1) * POPULAR_COINS_PAGE_SIZE + index + 1;
+    const formattedCurrentPrice = isBreakpoint1250
+      ? formatBigNumber(coin.current_price)
+      : coin.current_price.toLocaleString("en-US", {
+          maximumFractionDigits: 8,
+          minimumFractionDigits: 2,
+        });
+
+    const formattedVolume =
+      coin.volume_24h > 0
+        ? isBreakpoint1250
+          ? formatBigNumber(coin.volume_24h)
+          : coin.volume_24h.toLocaleString()
+        : "Info Missing";
+
+    const formattedTotalMarketCap = coin.total_market_cap
+      ? isBreakpoint1250
+        ? formatBigNumber(coin.total_market_cap)
+        : coin.total_market_cap.toLocaleString()
+      : "N/A";
+
+    const formattedPriceChangePercentage = `${coin.price_change_percentage_24h.toFixed(
+      2,
+    )}%`;
+
+    // Constructing enhancedCoin object with additional and formatted properties
+    const enhancedCoin: IDisplayedCoinOverview = {
+      ...coin,
+      currentCurrencySymbol: currentSymbol,
+      market_cap_rank: marketCapRank,
+      current_price: formattedCurrentPrice,
+      volume_24h: formattedVolume,
+      total_market_cap: formattedTotalMarketCap,
+      price_change_percentage_24h: formattedPriceChangePercentage,
+    };
+
+    return <PopularCoinsListItem key={coin.symbol} coin={enhancedCoin} />;
+  });
+}

@@ -64,13 +64,12 @@
 .green_percent {
   transition: all 300ms ease; // Apply transition for all for consistency, even if only .price changes
   width: 16.25%; // Set default width
-}
-
-.red_percent {
-  color: #f00606;
-}
-.green_percent {
-  color: #13c783;
+  &.red_percent {
+    color: #f00606;
+  }
+  &.green_percent {
+    color: #13c783;
+  }
 }
 
 // Adjust widths in response to screen size

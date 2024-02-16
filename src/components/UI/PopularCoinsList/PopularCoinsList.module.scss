@@ -7,16 +7,13 @@
 .table {
   width: 100%;
   border-collapse: collapse;
-  border-radius: 6px 6px 0 0; // Combined border-radius for top-left and top-right
-  background-color: var(
-    --card-bg
-  ); // Utilizes CSS variable for background color
+  border-radius: 6px 6px 0 0;
+  background-color: var(--card-bg);
 
   thead {
     height: 64px;
     background-color: var(--primary);
 
-    // Optimized selector for first and last child with shared properties
     tr > th {
       &:first-child {
         border-top-left-radius: 6px;
@@ -27,57 +24,76 @@
     }
   }
 
-  // Consolidated header styles with shared properties
+  th,
   .nameHeader,
   .priceHeader,
   .volumeHeader,
   .dayChangeHeader,
   .marketCapHeader {
     text-align: center;
-    padding-left: 24px; // Specific for .nameHeader, but will not affect center alignment of others
+    padding-left: 24px; // default padding
 
-    // Responsive adjustments for headers
-    @media (max-width: 990px) {
+    // Default widths
+    &.nameHeader {
+      width: 25%;
+    }
+    &.priceHeader,
+    &.dayChangeHeader {
+      width: 16.25%;
+    }
+    &.volumeHeader,
+    &.marketCapHeader {
+      width: 21.25%;
+    }
+  }
+
+  tbody .emptyState {
+    text-align: center;
+    padding: 20px;
+    color: var(--font-text-secondary);
+    font-size: 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  @include lg {
+    .nameHeader {
+      width: 30%;
+    }
+    th {
       width: 17.5%;
+    }
+  }
+
+  @include md {
+    .priceHeader,
+    .marketCapHeader {
+      display: none;
+    }
+
+    thead th {
       &:first-child {
-        width: 30%;
-      } // .nameHeader specific adjustment
+        display: block;
+        width: 100%;
+      }
+    }
+
+    tbody .emptyState {
+      padding: 10px;
+      font-size: 0.875rem;
     }
   }
 
-  // Specific width adjustments for better clarity and maintainability
-  .nameHeader {
-    width: 25%;
-  }
-  .priceHeader,
-  .dayChangeHeader {
-    width: 16.25%;
-  }
-  .volumeHeader,
-  .marketCapHeader {
-    width: 21.25%;
-  }
-}
+  @include xs {
+    .volumeHeader,
+    .dayChangeHeader {
+      display: none;
+    }
 
-// Media queries optimized for mobile views
-@media (max-width: 680px) {
-  .table thead th {
-    display: none; // Default state for all headers
-    &:first-child {
-      display: block; // Ensuring the first child is visible and adjusted
+    thead th:first-child {
+      display: flex;
+      justify-content: center;
+      text-align: center;
       width: 100%;
-    }
-  }
-}
-
-@media (max-width: 380px) {
-  .table thead th {
-    display: none; // Hide all headers for smallest view
-    &:first-child {
-      display: flex; // Keep the first header visible
-      justify-content: center; // Center content
-      text-align: center; // Ensure text alignment is centered
-      width: 100%; // Full width for visibility
     }
   }
 }
