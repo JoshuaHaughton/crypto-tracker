@@ -25,6 +25,8 @@ const PopularCoinsList: React.FC = () => {
   const {
     search,
     handleInputChange,
+    handleMouseEnter,
+    handleItemClick,
     coinsForCurrentPage,
     isLoading,
     isBreakpoint1250,
@@ -44,6 +46,8 @@ const PopularCoinsList: React.FC = () => {
             isBreakpoint1250,
             popularCoinsListPageNumber,
             currentSymbol,
+            handleMouseEnter,
+            handleItemClick,
           )
         : renderEmptyState();
   }
@@ -130,6 +134,8 @@ function mapCoinsToComponents(
   isBreakpoint1250: boolean,
   popularCoinsListPageNumber: number,
   currentSymbol: TCurrencySymbol,
+  handleMouseEnter: (id: string) => void,
+  handleItemClick: (id: string) => void,
 ): JSX.Element[] {
   return coinsForCurrentPage.map((listItem, index): JSX.Element => {
     const { coinDetails: coin, matchDetails } = listItem;
@@ -172,6 +178,13 @@ function mapCoinsToComponents(
       price_change_percentage_24h: formattedPriceChangePercentage,
     };
 
-    return <PopularCoinsListItem key={coin.symbol} coin={enhancedCoin} />;
+    return (
+      <PopularCoinsListItem
+        key={coin.symbol}
+        coin={enhancedCoin}
+        handleMouseEnter={() => handleMouseEnter(coin.symbol)}
+        handlItemClick={() => handleItemClick(coin.symbol)}
+      />
+    );
   });
 }

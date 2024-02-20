@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700&family=Rubik:wght@400;600;700&display=swap");
 // move typography imports to html head
+// These SASS imports are only made available in this file, not globally
 @import "./partials/variables";
-@import "./partials/mixins";
 
 :root {
   // Colors

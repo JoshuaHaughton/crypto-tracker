@@ -1,5 +1,6 @@
 // Extending styles from PopularCoinListItem for consistent layout while applying shimmer effect for skeleton loading.
-@import "../../PopularCoinsList/PopularCoinListItem/PopularCoinListItem.module.scss";
+@import "../../PopularCoinsList/PopularCoinsListItem/PopularCoinsListItem.module.scss";
+@import "../../../../styles/partials/mixins";
 
 .skeletonRow {
   @extend .itemRow;

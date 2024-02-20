@@ -11,17 +11,17 @@ import {
   selectIsBreakpoint1250,
 } from "@/lib/store/mediaQuery/mediaQuerySelectors";
 import { ChangeEvent } from "react";
-import { useSelector } from "react-redux";
 import { TCurrencySymbol } from "@/lib/constants/globalConstants";
 import { IPopularCoinSearchItem } from "@/lib/types/coinTypes";
 import { LoadingStatus } from "@/lib/types/apiRequestTypes";
+import useCoinDetailsPreloader from "@/lib/hooks/preloaders/useCoinDetailsPreloader";
+import { useAppSelector } from "@/lib/store";
 
 /**
  * Interface defining the structure for the state and setters returned by usePopularCoinsList hook.
  */
 interface IUsePopularCoinsListState {
   search: string;
-  setSearch: (searchTerm: string) => void;
   coinsForCurrentPage: IPopularCoinSearchItem[];
   isLoading: boolean;
   isBreakpoint380: boolean;
@@ -29,7 +29,10 @@ interface IUsePopularCoinsListState {
   isBreakpoint1250: boolean;
   popularCoinsListPageNumber: number;
   currentSymbol: TCurrencySymbol;
+  setSearch: (searchTerm: string) => void;
   handleInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleMouseEnter: (id: string) => void;
+  handleItemClick: (id: string) => void;
 }
 
 /**
@@ -41,14 +44,16 @@ interface IUsePopularCoinsListState {
 export function usePopularCoinsList(): IUsePopularCoinsListState {
   console.log("usePopularCoinsList render");
   // Monitor loading status via redux
-  const coinsStatus = useSelector(selectInitialPopularCoinsStatus);
+  const coinsStatus = useAppSelector(selectInitialPopularCoinsStatus);
   const isLoading = coinsStatus === LoadingStatus.LOADING;
 
-  const isBreakpoint380 = useSelector(selectIsBreakpoint380);
-  const isBreakpoint680 = useSelector(selectIsBreakpoint680);
-  const isBreakpoint1250 = useSelector(selectIsBreakpoint1250);
-  const popularCoinsListPageNumber = useSelector(selectPopularCoinsPageNumber);
-  const currentSymbol = useSelector(selectCurrentSymbol);
+  const isBreakpoint380 = useAppSelector(selectIsBreakpoint380);
+  const isBreakpoint680 = useAppSelector(selectIsBreakpoint680);
+  const isBreakpoint1250 = useAppSelector(selectIsBreakpoint1250);
+  const popularCoinsListPageNumber = useAppSelector(
+    selectPopularCoinsPageNumber,
+  );
+  const currentSymbol = useAppSelector(selectCurrentSymbol);
 
   // Manage search term via Redux, reducing local state management.
   const { search, setSearch } = usePopularCoinsSearch();
@@ -62,17 +67,22 @@ export function usePopularCoinsList(): IUsePopularCoinsListState {
     setSearch(e.target.value);
   };
 
+  // Custom hook to handle preloading and interactions.
+  const { handleMouseEnter, handleCoinClick } = useCoinDetailsPreloader();
+
   // Provides API for search term management and current page coins display.
   return {
     search,
-    setSearch,
     coinsForCurrentPage,
-    handleInputChange,
     isLoading,
     isBreakpoint380,
     isBreakpoint680,
     isBreakpoint1250,
     popularCoinsListPageNumber,
     currentSymbol,
+    setSearch,
+    handleInputChange,
+    handleMouseEnter,
+    handleItemClick: handleCoinClick,
   };
 }
