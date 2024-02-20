@@ -1,7 +1,6 @@
 import { memo } from "react";
 import Image from "next/image";
 import styles from "./Carousel.module.scss";
-import { useCoinDetailsPreloader } from "@/lib/hooks/preloaders/useCoinDetailsPreloader";
 import { ICoinOverview } from "@/lib/types/coinTypes";
 import { TCurrencySymbol } from "@/lib/constants/globalConstants";
 
@@ -10,59 +9,63 @@ import { TCurrencySymbol } from "@/lib/constants/globalConstants";
  */
 interface CarouselItemProps {
   coin: ICoinOverview;
-  currentSymbol: TCurrencySymbol;
+  currencySymbol: TCurrencySymbol;
+  showFallback: boolean;
+  onMouseEnter: () => void;
+  onClick: () => void;
 }
 
 /**
- * Displays a single coin within the carousel.
- * It shows the coin's image, symbol, price change, and current price.
- * Provides interactivity for mouse hover and click events.
+ * Component to display a single item within the carousel.
+ * It renders the coin's image, symbol, price change, and current price.
+ * Additionally, it supports interactivity such as mouse hover and click events.
  *
- * @param props - The props for the component.
- * @returns The CarouselItem component.
+ * @param coin - The coin data to display.
+ * @param currencySymbol - The current currency symbol for price display.
+ * @param showFallback - Indicates if the content is loading.
+ * @param onMouseEnter - Function to execute on mouse enter event.
+ * @param onClick - Function to execute on click event.
+ * @returns A React component representing a single carousel item.
  */
-const CarouselItem = ({ coin, currentSymbol }: CarouselItemProps) => {
-  const id = coin.symbol;
-  const { handleMouseEnter, handleCoinClick } = useCoinDetailsPreloader(id);
-
+const CarouselItem: React.FC<CarouselItemProps> = ({
+  coin,
+  currencySymbol,
+  showFallback,
+  onMouseEnter,
+  onClick,
+}) => {
   // Determine if the price change is positive (profit) or negative.
-  let profit = coin.price_change_percentage_24h >= 0;
+  let isProfit = coin.price_change_percentage_24h >= 0;
+
+  // CSS class for profit/loss indicator based on the coin's price change percentage.
+  const priceChangeClass = isProfit ? styles.green : styles.red;
+
+  // Apply shimmer effect class if loading.
+  const shimmerClass = showFallback ? styles.shimmer : "";
 
   return (
     <div
-      className={styles.carousel_item}
-      // onMouseEnter={handleMouseEnter}
-      // onClick={handleCoinClick}
+      className={`${styles.carouselItem} ${shimmerClass}`}
+      onMouseEnter={onMouseEnter}
+      onClick={onClick}
     >
-      <Image src={coin.image} alt={coin.name} height={80} width={80} priority />
-      <p>
-        {coin?.symbol.toUpperCase()}&nbsp;
-        {profit ? (
-          <span className={styles.green}>
-            +
-            {coin.price_change_percentage_24h.toLocaleString("en-US", {
-              maximumFractionDigits: 5,
-              minimumFractionDigits: 2,
-            })}
-            %
-          </span>
-        ) : (
-          <span className={styles.red}>
-            {coin.price_change_percentage_24h.toLocaleString("en-US", {
-              maximumFractionDigits: 5,
-              minimumFractionDigits: 2,
-            })}
-            %
-          </span>
-        )}
+      {showFallback ? (
+        <div className={`${styles.image} ${shimmerClass}`}></div>
+      ) : (
+        <Image src={coin.image} alt={coin.name} width={80} height={80} />
+      )}
+      <p className={shimmerClass}>
+        {!showFallback
+          ? `${coin.symbol.toUpperCase()} (${currencySymbol}${
+              coin.current_price
+            })`
+          : ""}
       </p>
-      <h6>
-        {currentSymbol}
-        {coin?.current_price.toLocaleString("en-US", {
-          maximumFractionDigits: 8,
-          minimumFractionDigits: 2,
-        })}
-      </h6>
+      {!showFallback && (
+        <span className={priceChangeClass}>
+          {coin.price_change_percentage_24h.toFixed(2)}%
+        </span>
+      )}
     </div>
   );
 };

@@ -22,6 +22,10 @@
   color: #f00606;
 }
 
+.shimmer {
+  @include shimmer-effect;
+}
+
 .embla {
   overflow: hidden;
 }

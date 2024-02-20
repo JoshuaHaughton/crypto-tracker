@@ -9,6 +9,7 @@ import { selectCarouselCoins } from "@/lib/store/coins/coinsSelectors";
 import { selectCurrentSymbol } from "@/lib/store/currency/currencySelectors";
 import { selectInitialPopularCoinsStatus } from "@/lib/store/appInfo/appInfoSelectors";
 import { LoadingStatus } from "@/lib/types/apiRequestTypes";
+import useCoinDetailsPreloader from "@/lib/hooks/preloaders/useCoinDetailsPreloader";
 
 /**
  * Types for the custom hook's return value, utilizing ReturnType for synchronization
@@ -21,7 +22,9 @@ interface IUseCarouselState {
   emblaApi: ReturnType<typeof useEmblaCarousel>[1] | null; // API object for controlling the carousel
   isLoading: boolean;
   carouselCoins: ICoinOverview[];
-  currentSymbol: TCurrencySymbol;
+  currencySymbol: TCurrencySymbol;
+  handleMouseEnter: (id: string) => void;
+  handleItemClick: (id: string) => void;
 }
 
 // Set global options for all Embla Carousels
@@ -57,7 +60,7 @@ const useCarousel = (): IUseCarouselState => {
   // Fetching carousel coins and loading status from Redux.
   const carouselCoins = useAppSelector(selectCarouselCoins);
   const coinsStatus = useAppSelector(selectInitialPopularCoinsStatus);
-  const currentSymbol = useAppSelector(selectCurrentSymbol);
+  const currencySymbol = useAppSelector(selectCurrentSymbol);
 
   // Determine loading state based on coin availability and their loading status.
   const isLoading =
@@ -69,12 +72,16 @@ const useCarousel = (): IUseCarouselState => {
     WheelGesturesPlugin(),
   ]);
 
+  const { handleMouseEnter, handleCoinClick } = useCoinDetailsPreloader();
+
   return {
     emblaRef,
     emblaApi,
     isLoading,
     carouselCoins,
-    currentSymbol,
+    currencySymbol,
+    handleMouseEnter,
+    handleItemClick: handleCoinClick,
   };
 };
 
