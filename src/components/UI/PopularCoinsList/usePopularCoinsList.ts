@@ -14,7 +14,6 @@ import { ChangeEvent } from "react";
 import { TCurrencySymbol } from "@/lib/constants/globalConstants";
 import { IPopularCoinSearchItem } from "@/lib/types/coinTypes";
 import { LoadingStatus } from "@/lib/types/apiRequestTypes";
-import useCoinDetailsPreloader from "@/lib/hooks/preloaders/useCoinDetailsPreloader";
 import { useAppSelector } from "@/lib/store";
 
 /**
@@ -31,8 +30,6 @@ interface IUsePopularCoinsListState {
   currentSymbol: TCurrencySymbol;
   setSearch: (searchTerm: string) => void;
   handleInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  handleMouseEnter: (id: string) => void;
-  handleItemClick: (id: string) => void;
 }
 
 /**
@@ -67,9 +64,6 @@ export function usePopularCoinsList(): IUsePopularCoinsListState {
     setSearch(e.target.value);
   };
 
-  // Custom hook to handle preloading and interactions.
-  const { handleMouseEnter, handleCoinClick } = useCoinDetailsPreloader();
-
   // Provides API for search term management and current page coins display.
   return {
     search,
@@ -82,7 +76,5 @@ export function usePopularCoinsList(): IUsePopularCoinsListState {
     currentSymbol,
     setSearch,
     handleInputChange,
-    handleMouseEnter,
-    handleItemClick: handleCoinClick,
   };
 }

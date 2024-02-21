@@ -78,24 +78,15 @@ export const preloadCoinDetailsThunk = createAsyncThunk<
     !!preloadedCoinDetailsByCurrency[currentCurrency]?.[coinSymbol]
       ?.priceChartDataset;
 
-  if (!currencyRates || isAlreadyPreloaded) {
-    console.error(
-      !currencyRates
-        ? `Currency Rates are not available for preloading coin details. Please reload the app. Coin Symbol: ${coinSymbol}`
-        : `${coinSymbol} has already been preloaded. Returning.`,
-    );
-    return;
-  }
+  if (!currencyRates || isAlreadyPreloaded || isBeingPreloaded) {
+    const errorCheck = !currencyRates
+      ? "noCurrencyRates"
+      : isAlreadyPreloaded
+      ? "alreadyPreloaded"
+      : isBeingPreloaded
+      ? "currentlyPreloading"
+      : null; // No issues, proceed normally.
 
-  const errorCheck = !currencyRates
-    ? "noCurrencyRates"
-    : isAlreadyPreloaded
-    ? "alreadyPreloaded"
-    : isBeingPreloaded
-    ? "currentlyPreloading"
-    : null; // No issues, proceed normally.
-
-  if (errorCheck) {
     // Handle different error scenarios with a switch case for debugging in dev
     switch (errorCheck) {
       case "noCurrencyRates":
@@ -113,10 +104,9 @@ export const preloadCoinDetailsThunk = createAsyncThunk<
           `Coin details for ${coinSymbol} are currently being preloaded. Please wait.`,
         );
         return;
-      default:
-        // No errors, proceed with the logic.
-        break;
     }
+
+    return;
   }
 
   dispatch(appInfoActions.addCoinBeingPreloaded({ coinId: coinSymbol }));
@@ -150,34 +140,30 @@ export const preloadCoinDetailsThunk = createAsyncThunk<
     );
   }
 
-  // If the coin was not already being preloaded, proceed with the preloading process.
-  if (!isBeingPreloaded) {
-    // Dispatch an action to set the preloaded coin details in the store.
-    dispatch(
-      coinsActions.setPreloadedCoinDetailsUsingPopularCoinsBase({
-        coinDetails: detailsToPreload,
-        currency: currentCurrency, // The currency in which the details are preloaded.
-      }),
-    );
+  // Proceed with the preloading process.
+  // Dispatch an action to set the preloaded coin details in the store.
+  dispatch(
+    coinsActions.setPreloadedCoinDetailsUsingPopularCoinsBase({
+      coinDetails: detailsToPreload,
+      currency: currentCurrency, // The currency in which the details are preloaded.
+    }),
+  );
 
-    // Post a message to the web worker to start preloading the coin details for all available currencies.
-    postMessageToCurrencyTransformerWorker({
-      requestType: CTWMessageRequestType.COIN_DETAILS_ALL_CURRENCIES,
-      requestData: {
-        coinToTransform: detailsToPreload, // The coin details to transform.
-        fromCurrency: currentCurrency, // The base currency for the transformation.
-        currencyExchangeRates: currencyRates, // The current currency exchange rates.
-      },
-      onComplete: () => {
-        // Once preloading is complete, remove the coin from the preloading list.
-        dispatch(
-          appInfoActions.removeCoinBeingPreloaded({ coinId: coinSymbol }),
-        );
-        // Log a message indicating that preloading has completed for this coin.
-        console.log(`Preloading completed for coin: ${coinSymbol}`);
-      },
-    });
-  }
+  // Post a message to the web worker to start preloading the coin details for all available currencies.
+  postMessageToCurrencyTransformerWorker({
+    requestType: CTWMessageRequestType.COIN_DETAILS_ALL_CURRENCIES,
+    requestData: {
+      coinToTransform: detailsToPreload, // The coin details to transform.
+      fromCurrency: currentCurrency, // The base currency for the transformation.
+      currencyExchangeRates: currencyRates, // The current currency exchange rates.
+    },
+    onComplete: () => {
+      // Once preloading is complete, remove the coin from the preloading list.
+      dispatch(appInfoActions.removeCoinBeingPreloaded({ coinId: coinSymbol }));
+      // Log a message indicating that preloading has completed for this coin.
+      console.log(`Preloading completed for coin: ${coinSymbol}`);
+    },
+  });
 });
 
 /**

@@ -23,8 +23,6 @@ interface IUseCarouselState {
   isLoading: boolean;
   carouselCoins: ICoinOverview[];
   currencySymbol: TCurrencySymbol;
-  handleMouseEnter: (id: string) => void;
-  handleItemClick: (id: string) => void;
 }
 
 // Set global options for all Embla Carousels
@@ -72,16 +70,12 @@ const useCarousel = (): IUseCarouselState => {
     WheelGesturesPlugin(),
   ]);
 
-  const { handleMouseEnter, handleCoinClick } = useCoinDetailsPreloader();
-
   return {
     emblaRef,
     emblaApi,
     isLoading,
     carouselCoins,
     currencySymbol,
-    handleMouseEnter,
-    handleItemClick: handleCoinClick,
   };
 };
 

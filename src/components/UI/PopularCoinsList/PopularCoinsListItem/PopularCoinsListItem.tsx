@@ -1,6 +1,7 @@
-import { memo } from "react";
+import React from "react";
 import Image from "next/image";
 import styles from "./PopularCoinsListItem.module.scss";
+import useCoinDetailsPreloader from "@/lib/hooks/preloaders/useCoinDetailsPreloader";
 import { IDisplayedCoinOverview } from "@/lib/types/coinTypes";
 
 /**
@@ -10,8 +11,6 @@ import { IDisplayedCoinOverview } from "@/lib/types/coinTypes";
  */
 interface IPopularCoinListItemProps {
   coin: IDisplayedCoinOverview;
-  handleMouseEnter: () => void;
-  handlItemClick: () => void;
 }
 
 /**
@@ -25,9 +24,8 @@ interface IPopularCoinListItemProps {
  */
 const PopularCoinListItem: React.FC<IPopularCoinListItemProps> = ({
   coin,
-  handleMouseEnter,
-  handlItemClick,
 }: IPopularCoinListItemProps): JSX.Element => {
+  // Destructuring to extract coin details from the coin object.
   const {
     symbol,
     image,
@@ -39,6 +37,9 @@ const PopularCoinListItem: React.FC<IPopularCoinListItemProps> = ({
     currentCurrencySymbol,
   } = coin;
 
+  // Custom hook to handle preloading and interactions.
+  const { handleMouseEnter, handleCoinClick } = useCoinDetailsPreloader(symbol);
+
   // Determine the CSS class based on the price change percentage (red for negative, green for positive).
   const priceChangeClass = price_change_percentage_24h.startsWith("-")
     ? styles.redPercent
@@ -49,7 +50,7 @@ const PopularCoinListItem: React.FC<IPopularCoinListItemProps> = ({
     <tr
       className={styles.itemRow}
       onMouseEnter={handleMouseEnter}
-      onClick={handlItemClick}
+      onClick={handleCoinClick}
     >
       <td>
         <div className={styles.coin}>
@@ -74,4 +75,4 @@ const PopularCoinListItem: React.FC<IPopularCoinListItemProps> = ({
 };
 
 // Using React.memo to prevent unnecessary re-renders when props have not changed.
-export default memo(PopularCoinListItem);
+export default React.memo(PopularCoinListItem);
