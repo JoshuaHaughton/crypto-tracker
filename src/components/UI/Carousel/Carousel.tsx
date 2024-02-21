@@ -1,8 +1,7 @@
 import styles from "./Carousel.module.scss";
 import useCarousel from "@/components/UI/Carousel/useCarousel";
 import CarouselItem from "./CarouselItem";
-
-const CAROUSEL_COIN_COUNT = 10;
+import { CAROUSEL_COIN_COUNT } from "@/lib/constants/globalConstants";
 
 /**
  * Carousel component responsible for displaying a carousel of coin items.

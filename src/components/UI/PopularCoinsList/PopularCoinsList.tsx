@@ -52,6 +52,7 @@ const PopularCoinsList: React.FC = () => {
 
   return (
     <>
+      <h2>Crypto Prices</h2>
       <div className={styles.container}>
         <TextField
           label="Search for a cryptocurrency"

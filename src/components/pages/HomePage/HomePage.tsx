@@ -1,11 +1,11 @@
 "use client";
 
-import PopularCoinsList from "@/components/UI/PopularCoinsList/PopularCoinsList";
-import Banner from "@/components/UI/Banner/Banner";
-import styles from "./HomePage.module.scss";
-import { selectPopularCoinsPageNumber } from "@/lib/store/appInfo/appInfoSelectors";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
+import styles from "./HomePage.module.scss";
+import Banner from "@/components/UI/Banner/Banner";
+import PopularCoinsList from "@/components/UI/PopularCoinsList/PopularCoinsList";
+import { selectPopularCoinsPageNumber } from "@/lib/store/appInfo/appInfoSelectors";
 
 export default function HomePage() {
   console.log("HomePage render");
@@ -20,7 +20,6 @@ export default function HomePage() {
   return (
     <div className={styles.container}>
       <Banner />
-      <h2>Crypto Prices</h2>
       <PopularCoinsList />
     </div>
   );

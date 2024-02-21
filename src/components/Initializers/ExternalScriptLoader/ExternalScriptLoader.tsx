@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Script, { ScriptProps } from "next/script";
 import { FUZZY_SEARCH_SCRIPT } from "@/lib/constants/externalScriptConstants";
 import useWhyDidComponentUpdate from "@/lib/hooks/debug/useWhyDidComponentUpdate";
+import { useExternalScripts } from "./useExternalScripts";
 
 interface IExternalScriptLoaderParams {
   scriptConfig: ScriptProps | ScriptProps[];
@@ -30,32 +31,15 @@ const ExternalScriptLoader: React.FC<IExternalScriptLoaderParams> = ({
     afterScriptsLoad,
   });
   console.log("ExternalScriptLoader render");
-  const scriptsArray = Array.isArray(scriptConfig)
-    ? scriptConfig
-    : [scriptConfig];
-  const [loadedScripts, setLoadedScripts] = useState<number>(0);
-
-  useEffect(() => {
-    // Check if all scripts have loaded
-    if (loadedScripts === scriptsArray.length) {
-      afterScriptsLoad?.();
-    }
-  }, [loadedScripts, scriptsArray.length, afterScriptsLoad]);
-
-  const handleScriptLoad = (e: any, scriptOnLoad?: (e: any) => void) => {
-    scriptOnLoad?.(e); // Call the individual script's onLoad if provided
-    // Increment the count of loaded scripts
-    setLoadedScripts((prevLoaded) => prevLoaded + 1);
-  };
+  const { scriptElementProps } = useExternalScripts({
+    scriptConfigs: scriptConfig,
+    afterScriptsLoad,
+  });
 
   return (
     <>
-      {scriptsArray.map((script, index) => (
-        <Script
-          key={index}
-          {...script}
-          onLoad={(e) => handleScriptLoad(e, script.onLoad)}
-        />
+      {scriptElementProps.map((elementProps, index) => (
+        <Script key={index} {...elementProps} />
       ))}
     </>
   );

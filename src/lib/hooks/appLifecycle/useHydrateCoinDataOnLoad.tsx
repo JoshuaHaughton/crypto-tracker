@@ -31,7 +31,7 @@ const useHydrateCoinDataOnLoad = () => {
 
   useEffect(
     () => {
-      console.log("useHydrateCoinDataOnLoad - Start");
+      console.warn("useHydrateCoinDataOnLoad - Start");
       const isOnCoinDetailsPage = symbol != null;
 
       // Handle coin details loading for the coin details page
@@ -66,7 +66,7 @@ const useHydrateCoinDataOnLoad = () => {
           );
           dispatch(
             preloadCoinDetailsThunk({
-              coinDetailsToPreload: selectedCoinDetails as ICoinDetails, // The coinDetailsAreFullyPreloaded check ensures that we are using the full coin details and not a shallow version
+              detailsToPreload: selectedCoinDetails as ICoinDetails, // The coinDetailsAreFullyPreloaded check ensures that we are using the full coin details and not a shallow version
             }),
           );
         }
@@ -79,12 +79,12 @@ const useHydrateCoinDataOnLoad = () => {
       const actionLogDescription = popularCoinsExist
         ? "Popular Coins exist - Initializing cache."
         : "Popular Coins not found - Fetching from API.";
-      console.log(actionLogDescription);
+      console.warn(actionLogDescription);
 
       // Initialize the coins with the existing data if possible. If it doesn't exist, fetch before initialization
       dispatch(initializeCoinCache({ handleFetch: !popularCoinsExist }));
 
-      console.log("hydrateCoinDataOnLoad - End");
+      console.warn("hydrateCoinDataOnLoad - End");
     },
     // This should only run on the iniitial mount
     // eslint-disable-next-line react-hooks/exhaustive-deps

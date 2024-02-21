@@ -1,4 +1,4 @@
-import React from "react";
+import { memo } from "react";
 import Carousel from "../Carousel/Carousel";
 import styles from "./Banner.module.scss";
 
@@ -19,4 +19,4 @@ const Banner = () => {
   );
 };
 
-export default React.memo(Banner);
+export default memo(Banner);
