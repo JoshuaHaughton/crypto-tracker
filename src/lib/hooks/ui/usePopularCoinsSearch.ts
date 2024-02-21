@@ -11,15 +11,17 @@ import { selectIsSearchInitialized } from "@/lib/store/search/searchSelectors";
 
 /**
  * Defines the structure for the search state within the popular coins search hook.
- * Includes the current search string, search searchResults, and a method to update the search string.
+ * Includes the current search string, search Results, and a method to update the search string.
  *
  * @interface IUsePopularCoinsSearchState
  * @property search - The current search query string.
  * @property setSearch - Function to update the search query string.
+ * @property results - Search Results.
  */
 interface IUsePopularCoinsSearchState {
   search: string;
   setSearch: (searchTerm: string) => void;
+  results: IPopularCoinSearchItem[];
 }
 
 /**
@@ -32,6 +34,7 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
   console.log("usePopularCoinsSearch");
   // State hooks for managing search term and results.
   const [search, setSearch] = useState<string>("");
+  const [results, setResults] = useState<IPopularCoinSearchItem[]>([]);
 
   // Redux hooks for accessing the fuzzy search instance and dispatching actions.
   const isSearchInitialized = useSelector(selectIsSearchInitialized);
@@ -88,7 +91,7 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
       );
 
       // Prepare search results with highlighting details
-      const results: IPopularCoinSearchItem[] = idxs.map((index) => {
+      const results: IPopularCoinSearchItem[] = idxs?.map((index) => {
         const coin = allPopularCoins[index];
         // Directly use ranges provided by uFuzzy for highlighting
         const highlightDetails = info.ranges[index] || [];
@@ -99,6 +102,7 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
         };
       });
 
+      setResults(results);
       // Update Redux state with the search results.
       dispatch(setGlobalSearchResults(results));
     },
@@ -128,5 +132,5 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
   };
 
   // Return the current search state.
-  return { search, setSearch: handleSetSearch };
+  return { search, setSearch: handleSetSearch, results };
 }

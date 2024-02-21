@@ -2,33 +2,39 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { ICoinOverview, IPopularCoinSearchItem } from "@/lib/types/coinTypes";
 import { POPULAR_COINS_PAGE_SIZE } from "@/lib/constants/globalConstants";
 import { useAppSelector } from "@/lib/store";
-import { selectPopularCoinsPageNumber } from "@/lib/store/appInfo/appInfoSelectors";
-import {
-  selectCurrentQuery,
-  selectSearchResults,
-} from "@/lib/store/search/searchSelectors";
 import { selectPopularCoins } from "@/lib/store/coins/coinsSelectors";
+
+/**
+ * Defines the shape of the params used by useCoinsForCurrentPage.
+ */
+interface IUseCurrentPageCoinsParams {
+  currentQuery: string;
+  searchResults: IPopularCoinSearchItem[];
+  currentPageNumber: number;
+}
 
 /**
  * Defines the shape of the state returned by useCoinsForCurrentPage.
  */
 interface IUseCurrentPageCoinsState {
-  coinsForCurrentPage: IPopularCoinSearchItem[]; // Array of coins currently being displayed.
+  coinsForCurrentPage: IPopularCoinSearchItem[];
 }
 
 /**
  * Custom hook to manage the display of cryptocurrency coins for the current pagination page,
- * taking into account the search results if a search query is active.
+ * taking into account the provided search results and query.
  *
+ * @param {IUseCurrentPageCoinsParams} params - The parameters for the hook, including search results and current query.
  * @returns The state including the array of coins to be displayed on the current page.
  */
-export const useCurrentPageCoins = (): IUseCurrentPageCoinsState => {
+export const useCurrentPageCoins = ({
+  currentQuery,
+  searchResults,
+  currentPageNumber,
+}: IUseCurrentPageCoinsParams): IUseCurrentPageCoinsState => {
   console.log("useCurrentPageCoins - Hook Invoked");
   // Redux state selectors.
-  const searchResults = useAppSelector(selectSearchResults);
-  const currentQuery = useAppSelector(selectCurrentQuery);
   const popularCoins = useAppSelector(selectPopularCoins);
-  const pageNumber = useAppSelector(selectPopularCoinsPageNumber);
 
   // Initial load logic
   const [coinsForCurrentPage, setCoinsForCurrentPage] = useState<
@@ -38,7 +44,7 @@ export const useCurrentPageCoins = (): IUseCurrentPageCoinsState => {
       currentQuery,
       searchResults,
       popularCoins,
-      pageNumber,
+      currentPageNumber,
     ),
   );
 
@@ -54,7 +60,7 @@ export const useCurrentPageCoins = (): IUseCurrentPageCoinsState => {
    */
   const updateCoinsForCurrentPage = useCallback(() => {
     console.log("updateCoinsForCurrentPage - useCurrentPageCoins");
-    const cacheKey = `${pageNumber}-${
+    const cacheKey = `${currentPageNumber}-${
       currentQuery.trim().length > 0 ? "searchResults" : "popular"
     }`;
 
@@ -63,7 +69,7 @@ export const useCurrentPageCoins = (): IUseCurrentPageCoinsState => {
         currentQuery,
         searchResults,
         popularCoins,
-        pageNumber,
+        currentPageNumber,
       );
 
       // Update cache with new results.
@@ -72,7 +78,7 @@ export const useCurrentPageCoins = (): IUseCurrentPageCoinsState => {
 
     // Set state with cached or newly computed coins.
     setCoinsForCurrentPage(pageCacheRef.current.get(cacheKey) || []);
-  }, [currentQuery, pageNumber, searchResults, popularCoins]);
+  }, [currentQuery, currentPageNumber, searchResults, popularCoins]);
 
   // Clears cache when search results or popular coins list changes, but not on initial render.
   useEffect(() => {
@@ -97,7 +103,7 @@ export const useCurrentPageCoins = (): IUseCurrentPageCoinsState => {
     console.log("update effect - useCurrentPageCoins");
     updateCoinsForCurrentPage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentQuery, pageNumber]);
+  }, [currentQuery, currentPageNumber]);
 
   return { coinsForCurrentPage };
 };
@@ -112,14 +118,14 @@ export default useCurrentPageCoins;
  * @param {string} currentQuery - The current search query used to determine if search results should be used.
  * @param {IPopularCoinSearchItem[]} searchResults - The array of search results, each including potential match details for highlighting.
  * @param {ICoinOverview[]} popularCoins - The default array of popular coins, not including search match details.
- * @param {number} pageNumber - The current page number for pagination, used to calculate the slice of coins to display.
+ * @param {number} currentPageNumber - The current page number for pagination, used to calculate the slice of coins to display.
  * @returns {IPopularCoinSearchItem[]} - An array of coin items formatted for display, including only the items for the current page.
  */
 function prepareCoinsForDisplay(
   currentQuery: string,
   searchResults: IPopularCoinSearchItem[],
   popularCoins: ICoinOverview[],
-  pageNumber: number,
+  currentPageNumber: number,
 ): IPopularCoinSearchItem[] {
   // Check if there is an active search query to determine the source of the coins.
   const isSearchActive = currentQuery.trim().length > 0;
@@ -134,7 +140,7 @@ function prepareCoinsForDisplay(
       }));
 
   // Calculate the start and end indices for slicing the array based on the current page number and the predefined page size.
-  const startIndex = (pageNumber - 1) * POPULAR_COINS_PAGE_SIZE;
+  const startIndex = (currentPageNumber - 1) * POPULAR_COINS_PAGE_SIZE;
   const endIndex = startIndex + POPULAR_COINS_PAGE_SIZE;
 
   // Slice the initialSource array to get only the coins for the current page, ensuring efficient data loading and display.

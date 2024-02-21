@@ -105,7 +105,7 @@ export const selectPreloadedCoinDetailsByCurrentCurrencyAndId = createSelector(
     id,
   ): TShallowOrFullCoinDetails | undefined => {
     const coinDetails = preloadedCoinDetailsByCurrency[currentCurrency][id];
-    return coinDetails.priceChartDataset != null ? coinDetails : undefined;
+    return coinDetails?.priceChartDataset != null ? coinDetails : undefined;
   },
 );
 
