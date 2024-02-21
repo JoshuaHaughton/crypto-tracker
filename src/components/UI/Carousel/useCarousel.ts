@@ -9,7 +9,6 @@ import { selectCarouselCoins } from "@/lib/store/coins/coinsSelectors";
 import { selectCurrentSymbol } from "@/lib/store/currency/currencySelectors";
 import { selectInitialPopularCoinsStatus } from "@/lib/store/appInfo/appInfoSelectors";
 import { LoadingStatus } from "@/lib/types/apiRequestTypes";
-import useCoinDetailsPreloader from "@/lib/hooks/preloaders/useCoinDetailsPreloader";
 
 /**
  * Types for the custom hook's return value, utilizing ReturnType for synchronization

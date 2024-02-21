@@ -29,9 +29,7 @@ const CarouselItem: React.FC<CarouselItemProps> = ({
   currencySymbol,
   showFallback,
 }) => {
-  const { handleMouseEnter, handleCoinClick } = useCoinDetailsPreloader(
-    coin.symbol,
-  );
+  const { handleHover, handleClick } = useCoinDetailsPreloader(coin.symbol);
 
   // Determine if the price change is positive (profit) or negative.
   let isProfit = coin.price_change_percentage_24h >= 0;
@@ -45,8 +43,8 @@ const CarouselItem: React.FC<CarouselItemProps> = ({
   return (
     <div
       className={`${styles.carouselItem} ${shimmerClass}`}
-      onMouseEnter={handleMouseEnter}
-      onClick={handleCoinClick}
+      onMouseEnter={handleHover}
+      onClick={handleClick}
     >
       {showFallback ? (
         <div className={`${styles.image} ${shimmerClass}`}></div>

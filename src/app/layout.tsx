@@ -31,10 +31,6 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  if (typeof window !== "undefined") {
-    console.log("App.js rendered in Browser,", children);
-  }
-
   // Access cookies in server components
   const cookieStore = cookies();
 

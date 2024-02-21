@@ -150,20 +150,20 @@ export const preloadCoinDetailsThunk = createAsyncThunk<
   );
 
   // Post a message to the web worker to start preloading the coin details for all available currencies.
-  postMessageToCurrencyTransformerWorker({
-    requestType: CTWMessageRequestType.COIN_DETAILS_ALL_CURRENCIES,
-    requestData: {
-      coinToTransform: detailsToPreload, // The coin details to transform.
-      fromCurrency: currentCurrency, // The base currency for the transformation.
-      currencyExchangeRates: currencyRates, // The current currency exchange rates.
-    },
-    onComplete: () => {
-      // Once preloading is complete, remove the coin from the preloading list.
-      dispatch(appInfoActions.removeCoinBeingPreloaded({ coinId: coinSymbol }));
-      // Log a message indicating that preloading has completed for this coin.
-      console.log(`Preloading completed for coin: ${coinSymbol}`);
-    },
-  });
+  // postMessageToCurrencyTransformerWorker({
+  //   requestType: CTWMessageRequestType.COIN_DETAILS_ALL_CURRENCIES,
+  //   requestData: {
+  //     coinToTransform: detailsToPreload, // The coin details to transform.
+  //     fromCurrency: currentCurrency, // The base currency for the transformation.
+  //     currencyExchangeRates: currencyRates, // The current currency exchange rates.
+  //   },
+  //   onComplete: () => {
+  //     // Once preloading is complete, remove the coin from the preloading list.
+  //     dispatch(appInfoActions.removeCoinBeingPreloaded({ coinId: coinSymbol }));
+  //     // Log a message indicating that preloading has completed for this coin.
+  //     console.log(`Preloading completed for coin: ${coinSymbol}`);
+  //   },
+  // });
 });
 
 /**

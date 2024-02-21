@@ -38,7 +38,7 @@ const PopularCoinListItem: React.FC<IPopularCoinListItemProps> = ({
   } = coin;
 
   // Custom hook to handle preloading and interactions.
-  const { handleMouseEnter, handleCoinClick } = useCoinDetailsPreloader(symbol);
+  const { handleHover, handleClick } = useCoinDetailsPreloader(symbol);
 
   // Determine the CSS class based on the price change percentage (red for negative, green for positive).
   const priceChangeClass = price_change_percentage_24h.startsWith("-")
@@ -49,8 +49,8 @@ const PopularCoinListItem: React.FC<IPopularCoinListItemProps> = ({
   return (
     <tr
       className={styles.itemRow}
-      onMouseEnter={handleMouseEnter}
-      onClick={handleCoinClick}
+      onMouseEnter={handleHover}
+      onClick={handleClick}
     >
       <td>
         <div className={styles.coin}>

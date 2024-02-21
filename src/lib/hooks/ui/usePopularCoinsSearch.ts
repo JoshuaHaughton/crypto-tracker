@@ -104,7 +104,7 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
 
       setResults(results);
       // Update Redux state with the search results.
-      dispatch(setGlobalSearchResults(results));
+      // dispatch(setGlobalSearchResults(results));
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [dispatch, haystack, uFuzzyInstance],
@@ -128,7 +128,7 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
   // Also dispatch the current query to the Redux store
   const handleSetSearch = (searchTerm: string) => {
     setSearch(searchTerm); // Update local state
-    dispatch(setCurrentQuery(searchTerm)); // Dispatch action to update the Redux store
+    // dispatch(setCurrentQuery(searchTerm)); // Dispatch action to update the Redux store
   };
 
   // Return the current search state.

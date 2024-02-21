@@ -259,7 +259,7 @@ interface IFetchInitialDataParams {
  */
 export async function fetchInitialDataBasedOnRoute({
   initialRoute = "/",
-  currencyPreference = INITIAL_CURRENCY, // Default currency preference
+  currencyPreference = INITIAL_CURRENCY,
 }: IFetchInitialDataParams): Promise<TInitialDataOptions> {
   // Fetch data based on the route
   switch (initialRoute) {
