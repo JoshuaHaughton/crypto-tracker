@@ -4,10 +4,7 @@ import styles from "./Carousel.module.scss";
 import { ICoinOverview } from "@/lib/types/coinTypes";
 import { TCurrencySymbol } from "@/lib/constants/globalConstants";
 
-/**
- * Props for CarouselItem component.
- */
-interface CarouselItemProps {
+interface ICarouselItemParams {
   coin: ICoinOverview;
   currencySymbol: TCurrencySymbol;
   showFallback: boolean;
@@ -27,7 +24,7 @@ interface CarouselItemProps {
  * @param handleClick - Function to execute on click event.
  * @returns A React component representing a single carousel item.
  */
-const CarouselItem: React.FC<CarouselItemProps> = ({
+const CarouselItem: React.FC<ICarouselItemParams> = ({
   coin,
   currencySymbol,
   showFallback,
