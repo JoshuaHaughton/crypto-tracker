@@ -3,7 +3,6 @@ import Image from "next/image";
 import styles from "./Carousel.module.scss";
 import { ICoinOverview } from "@/lib/types/coinTypes";
 import { TCurrencySymbol } from "@/lib/constants/globalConstants";
-import useCoinDetailsPreloader from "@/lib/hooks/preloaders/useCoinDetailsPreloader";
 
 /**
  * Props for CarouselItem component.
@@ -12,6 +11,8 @@ interface CarouselItemProps {
   coin: ICoinOverview;
   currencySymbol: TCurrencySymbol;
   showFallback: boolean;
+  handleMouseEnter: () => void;
+  handleClick: () => void;
 }
 
 /**
@@ -22,15 +23,17 @@ interface CarouselItemProps {
  * @param coin - The coin data to display.
  * @param currencySymbol - The current currency symbol for price display.
  * @param showFallback - Indicates if the content is loading.
+ * @param handleMouseEnter - Function to execute on mouse enter event.
+ * @param handleClick - Function to execute on click event.
  * @returns A React component representing a single carousel item.
  */
 const CarouselItem: React.FC<CarouselItemProps> = ({
   coin,
   currencySymbol,
   showFallback,
+  handleMouseEnter,
+  handleClick,
 }) => {
-  const { handleHover, handleClick } = useCoinDetailsPreloader(coin.symbol);
-
   // Determine if the price change is positive (profit) or negative.
   let isProfit = coin.price_change_percentage_24h >= 0;
 
@@ -43,7 +46,7 @@ const CarouselItem: React.FC<CarouselItemProps> = ({
   return (
     <div
       className={`${styles.carouselItem} ${shimmerClass}`}
-      onMouseEnter={handleHover}
+      onMouseEnter={handleMouseEnter}
       onClick={handleClick}
     >
       {showFallback ? (

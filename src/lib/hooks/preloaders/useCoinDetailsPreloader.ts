@@ -5,11 +5,10 @@ import { selectPreloadedCoinDetailsByCurrentCurrency } from "@/lib/store/coins/c
 import { useAppDispatch, useAppSelector } from "@/lib/store";
 import { selectCoinsBeingPreloaded } from "@/lib/store/appInfo/appInfoSelectors";
 import { preloadCoinDetailsThunk } from "@/thunks/preloadCoinDetailsThunk";
-
-const MAX_PRELOADING_COINS = 3;
+import { MAX_PRELOADING_COUNT } from "@/lib/constants/globalConstants";
 
 interface IUseCoinDetailsPreloaderState {
-  handleHover: (symbol: string) => void;
+  handleMouseEnter: (symbol: string) => void;
   handleClick: (symbol: string) => void;
   isLoadingLocally: boolean;
   isLoadingGlobally: boolean;
@@ -43,23 +42,40 @@ const useCoinDetailsListPreloader = (): IUseCoinDetailsPreloaderState => {
    */
   const initiateFetchIfNotPreloading = useCallback(
     (symbol: string) => {
+      console.warn("initiateFetchIfNotPreloading triggered");
       const isGlobalPreloadLimitReached =
-        Object.keys(coinsBeingPreloadedGlobally).length >= MAX_PRELOADING_COINS;
+        Object.keys(coinsBeingPreloadedGlobally).length >= MAX_PRELOADING_COUNT;
       const isAlreadyPreloadingLocally = localPreloadingSymbols.get(symbol);
       const isBeingPreloadedGlobally = !!coinsBeingPreloadedGlobally[symbol];
       const existingPreloadedDetails = globalPreloadedCoinDetails?.[symbol];
 
-      if (
-        !isGlobalPreloadLimitReached &&
-        !isAlreadyPreloadingLocally &&
-        !existingPreloadedDetails &&
-        !isBeingPreloadedGlobally
-      ) {
-        dispatch(
-          preloadCoinDetailsThunk({ handleFetch: true, symbolToFetch: symbol }),
+      console.log(`Checking preload status for ${symbol}`);
+
+      if (isGlobalPreloadLimitReached) {
+        console.error(
+          `Cannot preload '${symbol}': Exceeds maximum preloading limit.`,
         );
-        setLocalPreloadingSymbols((prev) => new Map(prev).set(symbol, true));
+        return;
       }
+
+      if (
+        isAlreadyPreloadingLocally ||
+        existingPreloadedDetails ||
+        isBeingPreloadedGlobally
+      ) {
+        console.warn(
+          `Preload attempt for '${symbol}' ignored: Coin is already ${
+            existingPreloadedDetails ? "preloaded" : "being preloaded"
+          }.`,
+        );
+        return;
+      }
+
+      console.log(`Initiating preload for ${symbol}`);
+      dispatch(
+        preloadCoinDetailsThunk({ handleFetch: true, symbolToFetch: symbol }),
+      );
+      setLocalPreloadingSymbols((prev) => new Map(prev).set(symbol, true));
     },
     [
       dispatch,
@@ -75,7 +91,7 @@ const useCoinDetailsListPreloader = (): IUseCoinDetailsPreloaderState => {
    *
    * @param symbol - The symbol of the coin being hovered.
    */
-  const handleHover = useCallback(
+  const handleMouseEnter = useCallback(
     (symbol: string) => {
       initiateFetchIfNotPreloading(symbol);
     },
@@ -90,15 +106,18 @@ const useCoinDetailsListPreloader = (): IUseCoinDetailsPreloaderState => {
    */
   const handleClick = useCallback(
     (symbol: string) => {
+      console.log(`Clicked on ${symbol}`);
       const existingPreloadedDetails = globalPreloadedCoinDetails?.[symbol];
 
       if (existingPreloadedDetails) {
+        console.log(`Navigating to preloaded details for ${symbol}`);
         dispatch(
           coinsActions.setSelectedCoinDetails({
             coinDetails: existingPreloadedDetails,
           }),
         );
       } else {
+        console.log(`Details not preloaded for ${symbol}, initiating preload`);
         initiateFetchIfNotPreloading(symbol);
       }
 
@@ -114,7 +133,7 @@ const useCoinDetailsListPreloader = (): IUseCoinDetailsPreloaderState => {
   const isLoadingLocally = Object.keys(localPreloadingSymbols).length > 0;
   const isLoadingGlobally = Object.keys(coinsBeingPreloadedGlobally).length > 0;
 
-  return { handleHover, handleClick, isLoadingLocally, isLoadingGlobally };
+  return { handleMouseEnter, handleClick, isLoadingLocally, isLoadingGlobally };
 };
 
 export default useCoinDetailsListPreloader;

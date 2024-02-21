@@ -11,21 +11,34 @@ import { CAROUSEL_COIN_COUNT } from "@/lib/constants/globalConstants";
  * @returns {React.FC} A functional component that renders the carousel with coins or skeletons based on loading state.
  */
 const Carousel: React.FC = () => {
-  const { emblaRef, carouselCoins, currencySymbol, isLoading } = useCarousel();
+  const {
+    emblaRef,
+    carouselCoins,
+    currencySymbol,
+    isLoading,
+    handleItemMouseEnter,
+    handleItemClick,
+  } = useCarousel();
 
   return (
     <div className={styles.embla} ref={emblaRef}>
       <div className={styles.embla__container}>
         {/* Render either a set number of skeletons or actual coin items based on the loading state */}
-        {Array.from({ length: CAROUSEL_COIN_COUNT }, (_, index) => (
-          <div className={styles.embla__slide} key={index}>
-            <CarouselItem
-              coin={carouselCoins[index]}
-              currencySymbol={currencySymbol}
-              showFallback={isLoading}
-            />
-          </div>
-        ))}
+        {Array.from({ length: CAROUSEL_COIN_COUNT }, (_, index) => {
+          const coinSymbol = carouselCoins[index]?.symbol;
+
+          return (
+            <div className={styles.embla__slide} key={index}>
+              <CarouselItem
+                coin={carouselCoins[index]}
+                currencySymbol={currencySymbol}
+                showFallback={isLoading}
+                handleMouseEnter={() => handleItemMouseEnter(coinSymbol)}
+                handleClick={() => handleItemClick(coinSymbol)}
+              />
+            </div>
+          );
+        })}
       </div>
     </div>
   );

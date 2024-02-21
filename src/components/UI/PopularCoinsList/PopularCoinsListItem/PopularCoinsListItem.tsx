@@ -10,7 +10,7 @@ import { IDisplayedCoinOverview } from "@/lib/types/coinTypes";
  */
 interface IPopularCoinListItemProps {
   coin: IDisplayedCoinOverview;
-  handleHover: () => void;
+  handleMouseEnter: () => void;
   handleClick: () => void;
 }
 
@@ -25,7 +25,7 @@ interface IPopularCoinListItemProps {
  */
 const PopularCoinListItem: React.FC<IPopularCoinListItemProps> = ({
   coin,
-  handleHover,
+  handleMouseEnter,
   handleClick,
 }: IPopularCoinListItemProps): JSX.Element => {
   const {
@@ -48,7 +48,7 @@ const PopularCoinListItem: React.FC<IPopularCoinListItemProps> = ({
   return (
     <tr
       className={styles.itemRow}
-      onMouseEnter={handleHover}
+      onMouseEnter={handleMouseEnter}
       onClick={handleClick}
     >
       <td>

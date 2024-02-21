@@ -39,6 +39,7 @@ export const SYMBOLS_BY_CURRENCIES = {
 export const MAXIMUM_PRELOADED_COIN_COUNT = 30;
 export const POPULAR_COINS_PAGE_SIZE = 10;
 export const CAROUSEL_COIN_COUNT = 10;
+export const MAX_PRELOADING_COUNT = 3;
 export const ELLIPSES = "...";
 export const isLocalDev = process.env.NODE_ENV !== "production";
 export const isLocalProd = process.env.NEXT_PUBLIC_IS_LOCAL === "true";

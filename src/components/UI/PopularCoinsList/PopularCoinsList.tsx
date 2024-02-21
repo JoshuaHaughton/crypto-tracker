@@ -25,18 +25,18 @@ const PopularCoinsList: React.FC = () => {
   const {
     search,
     coinsForCurrentPage,
-    isLoading,
+    popularCoinsAreLoading,
     isBreakpoint1250,
     popularCoinsListPageNumber,
     currentSymbol,
     handleInputChange,
-    handleHover,
-    handleClick,
+    handleItemMouseEnter,
+    handleItemClick,
   } = usePopularCoinsList();
 
   // Determine which content to display based on the loading state and coinsForCurrentPage length
   let contentToDisplay;
-  if (isLoading) {
+  if (popularCoinsAreLoading) {
     contentToDisplay = <PopularCoinsListSkeleton />;
   } else {
     contentToDisplay =
@@ -46,8 +46,8 @@ const PopularCoinsList: React.FC = () => {
             isBreakpoint1250,
             popularCoinsListPageNumber,
             currentSymbol,
-            handleHover,
-            handleClick,
+            handleItemMouseEnter,
+            handleItemClick,
           )
         : renderEmptyState();
   }
@@ -135,8 +135,8 @@ function mapCoinsToComponents(
   isBreakpoint1250: boolean,
   popularCoinsListPageNumber: number,
   currentSymbol: TCurrencySymbol,
-  handleHover: (id: string) => void,
-  handleClick: (id: string) => void,
+  handleItemMouseEnter: (id: string) => void,
+  handleItemClick: (id: string) => void,
 ): JSX.Element[] {
   return coinsForCurrentPage.map((listItem, index): JSX.Element => {
     const { coinDetails: coin, matchDetails } = listItem;
@@ -183,8 +183,8 @@ function mapCoinsToComponents(
       <PopularCoinsListItem
         key={coin.symbol}
         coin={enhancedCoin}
-        handleHover={() => handleHover(coin.symbol)}
-        handleClick={() => handleClick(coin.symbol)}
+        handleMouseEnter={() => handleItemMouseEnter(coin.symbol)}
+        handleClick={() => handleItemClick(coin.symbol)}
       />
     );
   });

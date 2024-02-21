@@ -23,7 +23,7 @@ import useCoinDetailsPreloader from "@/lib/hooks/preloaders/useCoinDetailsPreloa
 interface IUsePopularCoinsListState {
   search: string;
   coinsForCurrentPage: IPopularCoinSearchItem[];
-  isLoading: boolean;
+  popularCoinsAreLoading: boolean;
   isBreakpoint380: boolean;
   isBreakpoint680: boolean;
   isBreakpoint1250: boolean;
@@ -31,8 +31,8 @@ interface IUsePopularCoinsListState {
   currentSymbol: TCurrencySymbol;
   setSearch: (searchTerm: string) => void;
   handleInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  handleHover: (symbol: string) => void;
-  handleClick: (symbol: string) => void;
+  handleItemMouseEnter: (symbol: string) => void;
+  handleItemClick: (symbol: string) => void;
 }
 
 /**
@@ -54,7 +54,8 @@ export function usePopularCoinsList(): IUsePopularCoinsListState {
   const popularCoinsLoadingStatus = useAppSelector(
     selectInitialPopularCoinsStatus,
   );
-  const isLoading = popularCoinsLoadingStatus === LoadingStatus.LOADING;
+  const popularCoinsAreLoading =
+    popularCoinsLoadingStatus === LoadingStatus.LOADING;
 
   // Manage search term via Redux, reducing local state management.
   const { search, setSearch, results } = usePopularCoinsSearch();
@@ -72,13 +73,13 @@ export function usePopularCoinsList(): IUsePopularCoinsListState {
     setSearch(e.target.value);
   };
 
-  const { handleHover, handleClick } = useCoinDetailsPreloader();
+  const { handleMouseEnter, handleClick } = useCoinDetailsPreloader();
 
   // Provides API for search term management and current page coins display.
   return {
     search,
     coinsForCurrentPage,
-    isLoading,
+    popularCoinsAreLoading,
     isBreakpoint380,
     isBreakpoint680,
     isBreakpoint1250,
@@ -86,7 +87,7 @@ export function usePopularCoinsList(): IUsePopularCoinsListState {
     currentSymbol,
     setSearch,
     handleInputChange,
-    handleHover,
-    handleClick,
+    handleItemMouseEnter: handleMouseEnter,
+    handleItemClick: handleClick,
   };
 }
