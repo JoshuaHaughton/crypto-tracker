@@ -15,6 +15,7 @@ import { TCurrencySymbol } from "@/lib/constants/globalConstants";
 import { IPopularCoinSearchItem } from "@/lib/types/coinTypes";
 import { LoadingStatus } from "@/lib/types/apiRequestTypes";
 import { useAppSelector } from "@/lib/store";
+import useCoinDetailsPreloader from "@/lib/hooks/preloaders/useCoinDetailsPreloader";
 
 /**
  * Interface defining the structure for the state and setters returned by usePopularCoinsList hook.
@@ -30,6 +31,8 @@ interface IUsePopularCoinsListState {
   currentSymbol: TCurrencySymbol;
   setSearch: (searchTerm: string) => void;
   handleInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleHover: (symbol: string) => void;
+  handleClick: (symbol: string) => void;
 }
 
 /**
@@ -69,6 +72,8 @@ export function usePopularCoinsList(): IUsePopularCoinsListState {
     setSearch(e.target.value);
   };
 
+  const { handleHover, handleClick } = useCoinDetailsPreloader();
+
   // Provides API for search term management and current page coins display.
   return {
     search,
@@ -81,5 +86,7 @@ export function usePopularCoinsList(): IUsePopularCoinsListState {
     currentSymbol,
     setSearch,
     handleInputChange,
+    handleHover,
+    handleClick,
   };
 }

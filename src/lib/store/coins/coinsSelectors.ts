@@ -80,8 +80,8 @@ export const selectPreloadedCoinDetailsByCurrentCurrency = createSelector(
   (
     preloadedCoinDetailsByCurrency,
     currentCurrency,
-  ): Record<string, ICoinDetails> | {} =>
-    preloadedCoinDetailsByCurrency[currentCurrency] || {},
+  ): Record<string, TShallowOrFullCoinDetails> | null =>
+    preloadedCoinDetailsByCurrency[currentCurrency] ?? null,
 );
 
 /**

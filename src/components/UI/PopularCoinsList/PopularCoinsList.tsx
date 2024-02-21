@@ -24,12 +24,14 @@ const PopularCoinsList: React.FC = () => {
   // Destructuring values from the custom hook for managing state and behavior of the popular coins list.
   const {
     search,
-    handleInputChange,
     coinsForCurrentPage,
     isLoading,
     isBreakpoint1250,
     popularCoinsListPageNumber,
     currentSymbol,
+    handleInputChange,
+    handleHover,
+    handleClick,
   } = usePopularCoinsList();
 
   // Determine which content to display based on the loading state and coinsForCurrentPage length
@@ -44,6 +46,8 @@ const PopularCoinsList: React.FC = () => {
             isBreakpoint1250,
             popularCoinsListPageNumber,
             currentSymbol,
+            handleHover,
+            handleClick,
           )
         : renderEmptyState();
   }
@@ -131,6 +135,8 @@ function mapCoinsToComponents(
   isBreakpoint1250: boolean,
   popularCoinsListPageNumber: number,
   currentSymbol: TCurrencySymbol,
+  handleHover: (id: string) => void,
+  handleClick: (id: string) => void,
 ): JSX.Element[] {
   return coinsForCurrentPage.map((listItem, index): JSX.Element => {
     const { coinDetails: coin, matchDetails } = listItem;
@@ -173,6 +179,13 @@ function mapCoinsToComponents(
       price_change_percentage_24h: formattedPriceChangePercentage,
     };
 
-    return <PopularCoinsListItem key={coin.symbol} coin={enhancedCoin} />;
+    return (
+      <PopularCoinsListItem
+        key={coin.symbol}
+        coin={enhancedCoin}
+        handleHover={() => handleHover(coin.symbol)}
+        handleClick={() => handleClick(coin.symbol)}
+      />
+    );
   });
 }
