@@ -8,7 +8,7 @@ import {
 import { TRootState } from "@/lib/store";
 import { appInfoActions } from "@/lib/store/appInfo/appInfoSlice";
 import { coinsActions } from "@/lib/store/coins/coinsSlice";
-import { cryptoApiSlice } from "@/lib/reduxApi/apiSlice";
+import apiSlice from "@/lib/store/api/apiSlice";
 
 /**
  * Asynchronously initiates the caching process for popular coins and their shallow details. This thunk first checks
@@ -37,9 +37,7 @@ export const initializeCoinCache = createAsyncThunk<
     if (handleFetch) {
       console.log("Fetching popular coins data from API.");
       const response = await dispatch(
-        cryptoApiSlice.endpoints.fetchPopularCoinsData.initiate(
-          currentCurrency,
-        ),
+        apiSlice.endpoints.fetchPopularCoinsData.initiate(currentCurrency),
       ).unwrap();
       popularCoins = response.popularCoins;
     }

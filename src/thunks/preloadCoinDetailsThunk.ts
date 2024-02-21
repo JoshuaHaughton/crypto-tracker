@@ -4,7 +4,7 @@ import { appInfoActions } from "@/lib/store/appInfo/appInfoSlice";
 import { ICoinDetails } from "@/lib/types/coinTypes";
 import { postMessageToCurrencyTransformerWorker } from "../../public/webWorkers/currencyTransformer/manager";
 import { CTWMessageRequestType } from "../../public/webWorkers/currencyTransformer/types";
-import { cryptoApiSlice } from "@/lib/reduxApi/apiSlice";
+import apiSlice from "@/lib/store/api/apiSlice";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 /**
@@ -124,7 +124,7 @@ export const preloadCoinDetailsThunk = createAsyncThunk<
   if (handleFetch && currentCurrency) {
     try {
       const fetchedDetails = await dispatch(
-        cryptoApiSlice.endpoints.fetchCoinDetailsData.initiate({
+        apiSlice.endpoints.fetchCoinDetailsData.initiate({
           symbol: symbolToFetch,
           targetCurrency: currentCurrency,
         }),

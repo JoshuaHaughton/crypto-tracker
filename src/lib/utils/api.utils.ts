@@ -35,7 +35,7 @@ async function fetchRawPopularCoinsData(
   targetCurrency: TCurrencyString,
 ): Promise<IRawPopularCoinsApiResponse> {
   // API Key for authorization header
-  const apiKey = process.env.CRYPTOCOMPARE_API_KEY;
+  const apiKey = process.env.NEXT_PUBLIC_CRYPTOCOMPARE_API_KEY;
   const fetchOptions = {
     headers: { Authorization: `Apikey ${apiKey}` },
   };
@@ -126,7 +126,7 @@ async function fetchRawCoinDetailsData(
   targetCurrency: TCurrencyString = INITIAL_CURRENCY,
 ): Promise<IRawCoinDetailsApiResponse> {
   // API Key for authorization header
-  const apiKey = process.env.CRYPTOCOMPARE_API_KEY;
+  const apiKey = process.env.NEXT_PUBLIC_CRYPTOCOMPARE_API_KEY;
   const fetchOptions = {
     headers: { Authorization: `Apikey ${apiKey}` },
   };
