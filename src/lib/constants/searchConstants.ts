@@ -13,10 +13,13 @@ export const uFuzzyOptions = {
   // insert an extra character. For example, searching for "apple" could still match "aapple".
   intraIns: 1,
 
-  // intraMode: Activates single-error mode within each term of the search query.
-  // In this mode, the search algorithm will tolerate one error (substitution, transposition,
-  // deletion, or insertion) within each term, helping to catch and correct simple mistakes
-  // made by the user while typing.
+  // intraMode: Determines the error tolerance within each term of the search query.
+  // When set to 1, activates single-error mode, allowing one substitution, transposition,
+  // deletion, or insertion error within each term. This setting helps to improve search
+  // resilience by accommodating common typing errors, enhancing usability for end-users.
+  // In contrast, the default mode or multi-line mode (intraMode set to 0) requires exact
+  // matches for each term within the search query, without allowing any errors. This strict
+  // matching approach is suited for scenarios where precision is critical.
   intraMode: 1,
 
   // intraSlice: Defines the range within terms where errors are allowed, from the second character

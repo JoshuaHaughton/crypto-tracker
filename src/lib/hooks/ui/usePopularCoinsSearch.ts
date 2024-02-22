@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { IPopularCoinSearchItem } from "@/lib/types/coinTypes";
+import { IMatchDetail, IPopularCoinSearchItem } from "@/lib/types/coinTypes";
 import { useSelector, useDispatch } from "react-redux";
 import {
   setCurrentQuery,
@@ -8,6 +8,7 @@ import {
 import { selectPopularCoins } from "@/lib/store/coins/coinsSelectors";
 import UFuzzyManager from "@/lib/search/uFuzzyManager";
 import { selectIsSearchInitialized } from "@/lib/store/search/searchSelectors";
+import { debounce } from "lodash";
 
 /**
  * Defines the structure for the search state within the popular coins search hook.
@@ -63,6 +64,13 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
     return null;
   }, [isSearchInitialized]);
 
+  // Ref to store the debounced function
+  const debouncedSetGlobalSearchResultsRef = useRef(
+    debounce((formattedResults: IPopularCoinSearchItem[]) => {
+      dispatch(setGlobalSearchResults(formattedResults));
+    }, 1000),
+  );
+
   // Callback hook to memoize the search function.
   const performSearch = useCallback(
     (query: string) => {
@@ -75,7 +83,7 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
 
       if (!query.trim()) {
         // Dispatch action to update the Redux store with the initial set of coins if query is empty.
-        dispatch(setGlobalSearchResults([]));
+        debouncedSetGlobalSearchResultsRef.current([]);
         return;
       }
 
@@ -88,39 +96,60 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
       const infoThreshold = 1000;
 
       // Perform separate searches on names and symbols
-      const nameMatches = uFuzzyInstance.search(
+      const [nameMatchedIndices, nameMatchInfo] = uFuzzyInstance.search(
         nameHaystack,
         query,
         outOfOrder,
         infoThreshold,
       );
-      const symbolMatches = uFuzzyInstance.search(
+      const [symbolMatchedIndices, symbolMatchInfo] = uFuzzyInstance.search(
         symbolHaystack,
         query,
         outOfOrder,
         infoThreshold,
       );
-      console.log("NAMEMATCHES", nameMatches);
-      console.log("NAMEHaystack", nameHaystack);
-      console.log("SYMBOLMATCHES", symbolMatches);
-      console.log("SYMBOLHaystack", symbolHaystack);
 
-      // Combine and map results back to the coin data, including which field was matched
-      const combinedResults = new Set([...nameMatches[0], ...symbolMatches[0]]);
-      console.log("combinedResults", Array.from(combinedResults));
-      const formattedResults = Array.from(combinedResults).map(
-        (resultIndex, orderIndex) => ({
-          coinDetails: allPopularCoins[resultIndex],
-          matchDetails: {
-            nameMatches: nameMatches[1].ranges?.[orderIndex] || null, // Highlight details for names
-            symbolMatches: symbolMatches[1].ranges?.[orderIndex] || null, // Highlight details for symbols
-          },
-        }),
+      // Create Maps to associate indices with their match details directly.
+      const nameMatchMap = new Map<number, IMatchDetail>(
+        nameMatchedIndices.map((index, i) => [
+          index,
+          nameMatchInfo.ranges[i] ?? null,
+        ]),
+      );
+      const symbolMatchMap = new Map<number, IMatchDetail>(
+        symbolMatchedIndices.map((index, i) => [
+          index,
+          symbolMatchInfo.ranges[i] ?? null,
+        ]),
+      );
+
+      // Generate the formatted results using the new Maps.
+      const formattedResults: IPopularCoinSearchItem[] = allPopularCoins.reduce(
+        (accumulator, coin, index) => {
+          // Retrieve match details for the current coin
+          const nameMatches = nameMatchMap.get(index);
+          const symbolMatches = symbolMatchMap.get(index);
+
+          // Only include coins that have a match in either name or symbol.
+          if (nameMatches || symbolMatches) {
+            accumulator.push({
+              coinDetails: coin,
+              matchDetails: {
+                nameMatches: nameMatches ?? null,
+                symbolMatches: symbolMatches ?? null,
+              },
+            });
+          }
+
+          // Return the accumulated results so far.
+          return accumulator;
+        },
+        [] as IPopularCoinSearchItem[],
       );
 
       setResults(formattedResults);
       // Update Redux state with the search results.
-      // dispatch(setGlobalSearchResults(formattedResults));
+      debouncedSetGlobalSearchResultsRef.current(formattedResults);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [dispatch, uFuzzyInstance, nameHaystack, symbolHaystack],
@@ -141,10 +170,17 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
     }
   }, [isSearchInitialized, search, performSearch]);
 
+  // Ref to store the debounced function
+  const debouncedSetCurrentQueryRef = useRef(
+    debounce((searchTerm: string) => {
+      dispatch(setCurrentQuery(searchTerm));
+    }, 1000),
+  );
+
   // Also dispatch the current query to the Redux store
   const handleSetSearch = (searchTerm: string) => {
     setSearch(searchTerm); // Update local state
-    // dispatch(setCurrentQuery(searchTerm)); // Dispatch action to update the Redux store
+    debouncedSetCurrentQueryRef.current(searchTerm);
   };
 
   // Return the current search state.

@@ -45,9 +45,6 @@ const PopularCoinListItem: React.FC<IPopularCoinListItemProps> = ({
     currentCurrencySymbol,
   } = coin;
 
-  console.log(coin.name);
-  console.log(matchDetails);
-
   // Apply highlighting based on match details if necessary
   const renderedName = matchDetails?.nameMatches ? (
     <HighlightMatchedText

@@ -32,11 +32,13 @@ export interface IDisplayedCoinOverview
 }
 
 /**
- * Type alias for storing match details used for highlighting search results.
- * Each MatchDetail tuple represents a range within a string that matches a search query,
- * where the first element is the starting index and the second element is the ending index of the match.
+ * Represents indices for multiple match details within a string.
+ * This array stores pairs of numbers, each pair consisting of a start index and an end index for a match.
+ * The array should be interpreted as [(start1, end1), (start2, end2), ...] meaning that
+ * indices 0 and 1 form the first pair, indices 2 and 3 form the second pair, and so on.
+ * However, TypeScript does not enforce the structure beyond it being an array of numbers.
  */
-export type IMatchDetail = [start: number, end: number];
+export type IMatchDetail = number[]; // Interpreted as pairs of [start, end].
 
 /**
  * Represents detailed match information for a coin's name or symbol in search results.
@@ -48,13 +50,13 @@ export interface IPopularCoinMatchDetails {
    * Match details for the coin's name. Each entry defines a substring range that matched
    * the search query.
    */
-  nameMatches: IMatchDetail;
+  nameMatches: IMatchDetail | null;
 
   /**
    * Match details for the coin's symbol. Each entry defines a substring range that matched
    * the search query.
    */
-  symbolMatches: IMatchDetail;
+  symbolMatches: IMatchDetail | null;
 }
 
 /**
