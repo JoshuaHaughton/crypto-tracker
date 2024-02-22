@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import styles from "./Navbar.module.scss";
 import logo from "../../../../public/Crypto.svg";

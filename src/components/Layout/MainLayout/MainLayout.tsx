@@ -1,15 +1,35 @@
+"use client";
+
+import React from "react";
 import Navbar from "@/components/Layout/Navbar/Navbar";
+// import Footer from "@/components/Layout/Footer/Footer";
+import "../styles/globals.scss";
 
 /**
- * MainLayout component for wrapping the main content of the application.
- * Typically used to include elements like the Navbar across all pages.
- * @param children Child nodes to be rendered within the layout.
+ * Props definition for the MainLayout component.
  */
-const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+interface MainLayoutProps {
+  children: React.ReactNode; // Children elements to render within the layout
+}
+
+/**
+ * The MainLayout component serves as a higher-order component that wraps around the main content of a page.
+ * It includes a Navbar at the top and a Footer at the bottom, providing a consistent structure and layout for all pages.
+ *
+ * @param {MainLayoutProps} props - The props containing the child components to be rendered.
+ * @returns {React.FC} The React functional component rendering the main layout structure.
+ *
+ * @example
+ * <MainLayout>
+ *   <p>This is a child component</p>
+ * </MainLayout>
+ */
+const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   return (
     <>
       <Navbar />
-      <div className="main-content">{children}</div>
+      {children}
+      {/* <Footer /> */}
     </>
   );
 };

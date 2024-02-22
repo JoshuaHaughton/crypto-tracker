@@ -13,6 +13,7 @@ import {
   INITIAL_CURRENCY,
 } from "@/lib/constants/globalConstants";
 import { TInitialRoute } from "@/lib/types/apiRequestTypes";
+import MainLayout from "@/components/Layout/MainLayout/MainLayout";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -54,8 +55,7 @@ export default async function RootLayout({
       <StoreProvider initialData={initialData}>
         <AppInitializer />
         <body className={inter.className}>
-          <Navbar />
-          {children}
+          <MainLayout>{children}</MainLayout>
         </body>
       </StoreProvider>
     </html>
