@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
+  LoadingStatus,
   TInitialPopularCoinsStatus,
   TPreloadedPopularCoinsStatus,
 } from "@/lib/types/apiRequestTypes";
@@ -110,7 +111,7 @@ const appInfoSlice = createSlice({
      * @param state - The current state of the app information.
      */
     startInitialPopularCoinsLoading(state: IAppInfoState) {
-      state.initialPopularCoinsStatus = "loading";
+      state.initialPopularCoinsStatus = LoadingStatus.LOADING;
     },
 
     /**
@@ -118,7 +119,15 @@ const appInfoSlice = createSlice({
      * @param state - The current state of the app information.
      */
     completeInitialPopularCoinsLoading(state: IAppInfoState) {
-      state.initialPopularCoinsStatus = "loaded";
+      state.initialPopularCoinsStatus = LoadingStatus.LOADED;
+    },
+
+    /**
+     * Marks the failure of initial popular coins loading.
+     * @param state - The current state of the app information.
+     */
+    failInitialPopularCoinsLoading(state: IAppInfoState) {
+      state.initialPopularCoinsStatus = LoadingStatus.FAILED;
     },
 
     /**
@@ -126,7 +135,7 @@ const appInfoSlice = createSlice({
      * @param state - The current state of the app information.
      */
     startPopularCoinsPreloading(state: IAppInfoState) {
-      state.preloadedPopularCoinsStatus = "preloading";
+      state.preloadedPopularCoinsStatus = LoadingStatus.PRELOADING;
     },
 
     /**
@@ -134,7 +143,15 @@ const appInfoSlice = createSlice({
      * @param state - The current state of the app information.
      */
     completePopularCoinsPreloading(state: IAppInfoState) {
-      state.preloadedPopularCoinsStatus = "preloaded";
+      state.preloadedPopularCoinsStatus = LoadingStatus.PRELOADED;
+    },
+
+    /**
+     * Marks the failure of comprehensive coins preloading process.
+     * @param state - The current state of the app information.
+     */
+    failPopularCoinsPreloading(state: IAppInfoState) {
+      state.preloadedPopularCoinsStatus = LoadingStatus.FAILED;
     },
   },
 });

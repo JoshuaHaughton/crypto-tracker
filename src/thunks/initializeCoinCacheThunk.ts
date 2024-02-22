@@ -26,64 +26,76 @@ export const initializeCoinCache = createAsyncThunk<
 >(
   "coins/initializeCoinCache",
   async ({ handleFetch = false } = {}, { dispatch, getState }) => {
-    const state = getState();
-    let popularCoins = state.coins.popularCoins;
-    const { currentCurrency, currencyRates } = state.currency;
+    try {
+      const state = getState();
+      let popularCoins = state.coins.popularCoins;
+      const { currentCurrency, currencyRates } = state.currency;
 
-    // Begin preloading process for initial popular coins)not preloading yet)
-    dispatch(appInfoActions.startInitialPopularCoinsLoading());
+      // Begin preloading process for initial popular coins)not preloading yet)
+      dispatch(appInfoActions.startInitialPopularCoinsLoading());
 
-    // Conditionally fetch popular coins data from the API if handleFetch is true
-    if (handleFetch) {
-      console.log("Fetching popular coins data from API.");
-      const response = await dispatch(
-        apiSlice.endpoints.fetchPopularCoinsData.initiate(currentCurrency),
-      ).unwrap();
-      popularCoins = response.popularCoins;
+      // Conditionally fetch popular coins data from the API if handleFetch is true
+      if (handleFetch) {
+        console.log("Fetching popular coins data from API.");
+        const response = await dispatch(
+          apiSlice.endpoints.fetchPopularCoinsData.initiate(currentCurrency),
+        ).unwrap();
+        popularCoins = response.popularCoins;
+      }
+
+      // Update the Redux store with the initial popular coins data
+      dispatch(
+        coinsActions.setCachedPopularCoinsMap({
+          currency: currentCurrency,
+          coinList: popularCoins,
+        }),
+      );
+
+      // Mark the completion of initial popular coins loading
+      dispatch(appInfoActions.completeInitialPopularCoinsLoading());
+
+      // Start the preloading process for additional data (different currencies, etc.)
+      dispatch(appInfoActions.startPopularCoinsPreloading());
+
+      // Calls `transformAndDispatchPopularCoinsToShallow` with the transformed data from the web worker and the Redux dispatch function.
+      // This function processes each currency's popular coins data into a shallow format and updates the Redux store accordingly
+      transformAndDispatchPopularCoinsToShallow(
+        dispatch,
+        popularCoins,
+        currentCurrency,
+      );
+
+      // Sending current Popular Coins data to the web worker for currency transformation
+      postMessageToCurrencyTransformerWorker<CTWMessageRequestType.POPULAR_COINS_ALL_CURRENCIES>(
+        {
+          requestType: CTWMessageRequestType.POPULAR_COINS_ALL_CURRENCIES,
+          requestData: {
+            coinsToTransform: popularCoins,
+            fromCurrency: currentCurrency,
+            currencyExchangeRates: currencyRates!,
+            // We start off with the initial coins for the current currency, so we can exclude it to avoid
+            // an unnecessary computation
+            currenciesToExclude: [currentCurrency],
+          },
+          onComplete: (
+            response: CTWAllPopularCoinsListsExternalResponseData,
+          ) => {
+            // Handle the transformed coins for each currency in the same way we do to the initial coins above this webworker call
+            const { transformedData } = response;
+            transformAndDispatchPopularCoinsToShallow(
+              dispatch,
+              transformedData,
+            );
+            // End the comprehensive preloading process
+            dispatch(appInfoActions.completePopularCoinsPreloading());
+          },
+        },
+      );
+    } catch (error) {
+      console.error("Failed to initialize coin cache:", error);
+      // Dispatch failure actions
+      dispatch(appInfoActions.failInitialPopularCoinsLoading());
+      dispatch(appInfoActions.failPopularCoinsPreloading());
     }
-
-    // Update the Redux store with the initial popular coins data
-    dispatch(
-      coinsActions.setCachedPopularCoinsMap({
-        currency: currentCurrency,
-        coinList: popularCoins,
-      }),
-    );
-
-    // Mark the completion of initial popular coins loading
-    dispatch(appInfoActions.completeInitialPopularCoinsLoading());
-
-    // Start the preloading process for additional data (different currencies, etc.)
-    dispatch(appInfoActions.startPopularCoinsPreloading());
-
-    // Calls `transformAndDispatchPopularCoinsToShallow` with the transformed data from the web worker and the Redux dispatch function.
-    // This function processes each currency's popular coins data into a shallow format and updates the Redux store accordingly
-    transformAndDispatchPopularCoinsToShallow(
-      dispatch,
-      popularCoins,
-      currentCurrency,
-    );
-
-    // Sending current Popular Coins data to the web worker for currency transformation
-    postMessageToCurrencyTransformerWorker<CTWMessageRequestType.POPULAR_COINS_ALL_CURRENCIES>(
-      {
-        requestType: CTWMessageRequestType.POPULAR_COINS_ALL_CURRENCIES,
-        requestData: {
-          coinsToTransform: popularCoins,
-          fromCurrency: currentCurrency,
-          currencyExchangeRates: currencyRates!,
-          // We start off with the initial coins for the current currency, so we can exclude it to avoid
-          // an unnecessary computation
-          currenciesToExclude: [currentCurrency],
-        },
-        onComplete: (response: CTWAllPopularCoinsListsExternalResponseData) => {
-          // Handle the transformed coins for each currency in the same way we do to the initial coins above this webworker call
-          const { transformedData } = response;
-          transformAndDispatchPopularCoinsToShallow(dispatch, transformedData);
-          // End the comprehensive preloading process
-          dispatch(appInfoActions.completePopularCoinsPreloading());
-        },
-      },
-    );
   },
 );

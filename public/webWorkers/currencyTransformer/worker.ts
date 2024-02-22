@@ -1,5 +1,3 @@
-import { initialCoinsState } from "@/lib/store/coins/coinsSlice";
-
 const ALL_CURRENCIES = ["CAD", "USD", "AUD", "GBP"] as const;
 
 /**

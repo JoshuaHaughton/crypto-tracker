@@ -29,6 +29,7 @@ export const LoadingStatus = {
   IDLE: "idle",
   LOADING: "loading",
   LOADED: "loaded",
+  FAILED: "failed",
   PRELOADING: "preloading",
   PRELOADED: "preloaded",
 } as const;
@@ -43,7 +44,7 @@ export type TLoadingStatus = (typeof LoadingStatus)[keyof typeof LoadingStatus];
  */
 export type TInitialPopularCoinsStatus = Extract<
   TLoadingStatus,
-  "idle" | "loading" | "loaded"
+  "idle" | "loading" | "loaded" | "failed"
 >;
 
 /**
@@ -51,5 +52,5 @@ export type TInitialPopularCoinsStatus = Extract<
  */
 export type TPreloadedPopularCoinsStatus = Extract<
   TLoadingStatus,
-  "idle" | "preloading" | "preloaded"
+  "idle" | "preloading" | "preloaded" | "failed"
 >;

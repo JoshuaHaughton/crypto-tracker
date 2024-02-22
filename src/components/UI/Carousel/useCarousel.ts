@@ -64,7 +64,8 @@ const useCarousel = (): IUseCarouselState => {
 
   // Determine loading state based on coin availability and their loading status.
   const isLoading =
-    coinsStatus === LoadingStatus.LOADING || carouselCoins.length < 1;
+    coinsStatus === LoadingStatus.LOADING ||
+    (coinsStatus !== LoadingStatus.FAILED && carouselCoins.length < 1);
 
   // Combine EmblaCarousel with the default options, Autoplay and Wheel Gestures plugins.
   const [emblaRef, emblaApi] = useEmblaCarousel(defaultCarouselOptions, [
