@@ -31,8 +31,9 @@ export const initializeCoinCache = createAsyncThunk<
       let popularCoins = state.coins.popularCoins;
       const { currentCurrency, currencyRates } = state.currency;
 
-      // Begin preloading process for initial popular coins)not preloading yet)
+      // Begin preloading process for initial popular coins
       dispatch(appInfoActions.startInitialPopularCoinsLoading());
+      dispatch(appInfoActions.startPopularCoinsPreloading());
 
       // Conditionally fetch popular coins data from the API if handleFetch is true
       if (handleFetch) {
@@ -53,9 +54,6 @@ export const initializeCoinCache = createAsyncThunk<
 
       // Mark the completion of initial popular coins loading
       dispatch(appInfoActions.completeInitialPopularCoinsLoading());
-
-      // Start the preloading process for additional data (different currencies, etc.)
-      dispatch(appInfoActions.startPopularCoinsPreloading());
 
       // Calls `transformAndDispatchPopularCoinsToShallow` with the transformed data from the web worker and the Redux dispatch function.
       // This function processes each currency's popular coins data into a shallow format and updates the Redux store accordingly
