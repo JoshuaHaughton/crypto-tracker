@@ -41,9 +41,14 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
   const allPopularCoins = useSelector(selectPopularCoins);
   const dispatch = useDispatch();
 
-  // Memoize the haystack to prevent recalculating it on every render
-  const haystack = useMemo(
-    () => allPopularCoins.map((coin) => `${coin.name} ${coin.symbol}`),
+  // Memoize coin names and symbols to prevent recalculating them on every render.
+  // This optimization helps to reduce unnecessary computations, especially when the list of coins is large.
+  const nameHaystack = useMemo(
+    () => allPopularCoins.map((coin) => coin.name),
+    [allPopularCoins],
+  );
+  const symbolHaystack = useMemo(
+    () => allPopularCoins.map((coin) => coin.symbol),
     [allPopularCoins],
   );
 
@@ -82,32 +87,43 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
       // Max 1000 results (Should only be 80-200 here)
       const infoThreshold = 1000;
 
-      // Perform the search using the uFuzzy instance.
-      const [idxs, info] = uFuzzyInstance.search(
-        haystack,
+      // Perform separate searches on names and symbols
+      const nameMatches = uFuzzyInstance.search(
+        nameHaystack,
         query,
         outOfOrder,
         infoThreshold,
       );
+      const symbolMatches = uFuzzyInstance.search(
+        symbolHaystack,
+        query,
+        outOfOrder,
+        infoThreshold,
+      );
+      console.log("NAMEMATCHES", nameMatches);
+      console.log("NAMEHaystack", nameHaystack);
+      console.log("SYMBOLMATCHES", symbolMatches);
+      console.log("SYMBOLHaystack", symbolHaystack);
 
-      // Prepare search results with highlighting details
-      const results: IPopularCoinSearchItem[] = idxs?.map((index) => {
-        const coin = allPopularCoins[index];
-        // Directly use ranges provided by uFuzzy for highlighting
-        const highlightDetails = info.ranges[index] || [];
+      // Combine and map results back to the coin data, including which field was matched
+      const combinedResults = new Set([...nameMatches[0], ...symbolMatches[0]]);
+      console.log("combinedResults", Array.from(combinedResults));
+      const formattedResults = Array.from(combinedResults).map(
+        (resultIndex, orderIndex) => ({
+          coinDetails: allPopularCoins[resultIndex],
+          matchDetails: {
+            nameMatches: nameMatches[1].ranges?.[orderIndex] || null, // Highlight details for names
+            symbolMatches: symbolMatches[1].ranges?.[orderIndex] || null, // Highlight details for symbols
+          },
+        }),
+      );
 
-        return {
-          coinDetails: coin,
-          matchDetails: highlightDetails, // Directly usable by the HighlightedText component
-        };
-      });
-
-      setResults(results);
+      setResults(formattedResults);
       // Update Redux state with the search results.
-      // dispatch(setGlobalSearchResults(results));
+      // dispatch(setGlobalSearchResults(formattedResults));
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dispatch, haystack, uFuzzyInstance],
+    [dispatch, uFuzzyInstance, nameHaystack, symbolHaystack],
   );
 
   // Effect hook to perform search operations after the initial mount.

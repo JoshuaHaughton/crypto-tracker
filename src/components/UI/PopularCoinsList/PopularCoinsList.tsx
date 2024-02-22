@@ -183,6 +183,7 @@ function mapCoinsToComponents(
       <PopularCoinsListItem
         key={coin.symbol}
         coin={enhancedCoin}
+        matchDetails={matchDetails}
         handleMouseEnter={() => handleItemMouseEnter(coin.symbol)}
         handleClick={() => handleItemClick(coin.symbol)}
       />

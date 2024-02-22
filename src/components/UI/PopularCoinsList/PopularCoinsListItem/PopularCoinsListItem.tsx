@@ -1,7 +1,11 @@
 import { memo } from "react";
 import Image from "next/image";
 import styles from "./PopularCoinsListItem.module.scss";
-import { IDisplayedCoinOverview } from "@/lib/types/coinTypes";
+import {
+  IDisplayedCoinOverview,
+  IPopularCoinMatchDetails,
+} from "@/lib/types/coinTypes";
+import HighlightMatchedText from "../../HighlightMatchedText/HighlightMatchedText";
 
 /**
  * Props for the PopularCoinListItem component.
@@ -10,6 +14,7 @@ import { IDisplayedCoinOverview } from "@/lib/types/coinTypes";
  */
 interface IPopularCoinListItemProps {
   coin: IDisplayedCoinOverview;
+  matchDetails: IPopularCoinMatchDetails | undefined;
   handleMouseEnter: () => void;
   handleClick: () => void;
 }
@@ -25,6 +30,7 @@ interface IPopularCoinListItemProps {
  */
 const PopularCoinListItem: React.FC<IPopularCoinListItemProps> = ({
   coin,
+  matchDetails,
   handleMouseEnter,
   handleClick,
 }: IPopularCoinListItemProps): JSX.Element => {
@@ -38,6 +44,30 @@ const PopularCoinListItem: React.FC<IPopularCoinListItemProps> = ({
     price_change_percentage_24h,
     currentCurrencySymbol,
   } = coin;
+
+  console.log(coin.name);
+  console.log(matchDetails);
+
+  // Apply highlighting based on match details if necessary
+  const renderedName = matchDetails?.nameMatches ? (
+    <HighlightMatchedText
+      text={name}
+      match={matchDetails.nameMatches}
+      styles={styles}
+    />
+  ) : (
+    name
+  );
+
+  const renderedSymbol = matchDetails?.symbolMatches ? (
+    <HighlightMatchedText
+      text={symbol}
+      match={matchDetails.symbolMatches}
+      styles={styles}
+    />
+  ) : (
+    symbol
+  );
 
   // Determine the CSS class based on the price change percentage (red for negative, green for positive).
   const priceChangeClass = price_change_percentage_24h.startsWith("-")
@@ -57,8 +87,8 @@ const PopularCoinListItem: React.FC<IPopularCoinListItemProps> = ({
             <Image src={image} height={38} width={38} alt={`${name} image`} />
           </figure>
           <div className={styles.coin__info}>
-            <p className={styles.symbol}>{symbol}</p>
-            <h3>{name}</h3>
+            <p className={styles.symbol}>{renderedSymbol}</p>
+            <h3>{renderedName}</h3>
           </div>
         </div>
       </td>

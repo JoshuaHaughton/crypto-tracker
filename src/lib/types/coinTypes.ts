@@ -39,6 +39,25 @@ export interface IDisplayedCoinOverview
 export type IMatchDetail = [start: number, end: number];
 
 /**
+ * Represents detailed match information for a coin's name or symbol in search results.
+ * Contains arrays of match details for name and symbol respectively, indicating the
+ * segments that matched the search query.
+ */
+export interface IPopularCoinMatchDetails {
+  /**
+   * Match details for the coin's name. Each entry defines a substring range that matched
+   * the search query.
+   */
+  nameMatches: IMatchDetail;
+
+  /**
+   * Match details for the coin's symbol. Each entry defines a substring range that matched
+   * the search query.
+   */
+  symbolMatches: IMatchDetail;
+}
+
+/**
  * Represents a coin item which might also include details about search matches.
  * This structure is versatile, accommodating both regular coin listings and enhanced
  * search results where parts of the coin's information match a search query.
@@ -51,11 +70,11 @@ export interface IPopularCoinSearchItem {
 
   /**
    * Optional match details for search results. This property is populated when the
-   * item is a result of a search operation, detailing the segments of the coin's information
+   * item is a result of a search operation, detailing the segments of the coin's name and symbol
    * that matched the search criteria. It's omitted for regular listings where search
    * context is not applicable.
    */
-  matchDetails?: IMatchDetail[];
+  matchDetails?: IPopularCoinMatchDetails;
 }
 
 // Coin Details
