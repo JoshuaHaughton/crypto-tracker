@@ -1,4 +1,8 @@
 import { TShallowOrFullCoinDetails, ICoinDetails } from "@/lib/types/coinTypes";
+import {
+  TEN_YEARS_IN_SECONDS,
+  FIVE_MINUTES_IN_MS,
+} from "../constants/globalConstants";
 
 /**
  * Type guard to check if the provided coin details are of the type `ICoinDetails`.
@@ -14,3 +18,11 @@ export function isFullCoinDetails(
 ): coinDetails is ICoinDetails {
   return (coinDetails as ICoinDetails)?.priceChartDataset != null;
 }
+
+export const getTenYearsInFuture = (): Date => {
+  return new Date(new Date().getTime() + TEN_YEARS_IN_SECONDS * 1000);
+};
+
+export const getFiveMinutesInFuture = (): Date => {
+  return new Date(new Date().getTime() + FIVE_MINUTES_IN_MS);
+};

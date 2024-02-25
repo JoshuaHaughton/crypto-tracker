@@ -1,5 +1,4 @@
 import "../styles/globals.scss";
-import Navbar from "@/components/Layout/Navbar/Navbar";
 import { Inter } from "next/font/google";
 import { Metadata } from "next";
 import { Revalidate } from "next/dist/server/lib/revalidate";
@@ -14,6 +13,7 @@ import {
 } from "@/lib/constants/globalConstants";
 import { TInitialRoute } from "@/lib/types/apiRequestTypes";
 import MainLayout from "@/components/Layout/MainLayout/MainLayout";
+import { E_COOKIE_NAMES } from "@/lib/types/cookieTypes";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -37,12 +37,13 @@ export default async function RootLayout({
 
   // Retrieve currency preference from cookies or use default
   const currencyPreference =
-    (cookieStore.get("currencyPreference")?.value as TCurrencyString) ||
-    INITIAL_CURRENCY;
+    (cookieStore.get(E_COOKIE_NAMES.CURRENT_CURRENCY)
+      ?.value as TCurrencyString) || INITIAL_CURRENCY;
 
   // Retrieve the initial route from the cookie store
   const initialRoute =
-    (cookieStore.get("initialRoute")?.value as TInitialRoute) || "/";
+    (cookieStore.get(E_COOKIE_NAMES.INITIAL_ROUTE)?.value as TInitialRoute) ||
+    "/";
 
   // Fetch initial data based on the route and currency information
   const initialData = await fetchInitialDataBasedOnRoute({
@@ -52,12 +53,12 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <StoreProvider initialData={initialData}>
-        <AppInitializer />
-        <body className={inter.className}>
+      <body className={inter.className}>
+        <StoreProvider initialData={initialData}>
+          <AppInitializer />
           <MainLayout>{children}</MainLayout>
-        </body>
-      </StoreProvider>
+        </StoreProvider>
+      </body>
     </html>
   );
 }

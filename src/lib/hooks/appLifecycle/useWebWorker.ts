@@ -22,7 +22,9 @@ const useWebWorker = () => {
     return () => {
       terminateCurrencyTransformerWorker();
     };
-  }, [dispatch]);
+    // Should only run on initial mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 };
 
 export default useWebWorker;

@@ -3,7 +3,6 @@
 import React from "react";
 import Navbar from "@/components/Layout/Navbar/Navbar";
 // import Footer from "@/components/Layout/Footer/Footer";
-import "../styles/globals.scss";
 
 /**
  * Props definition for the MainLayout component.

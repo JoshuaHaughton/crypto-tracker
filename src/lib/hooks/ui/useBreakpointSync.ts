@@ -78,7 +78,9 @@ const useBreakpointSync = () => {
     // Cleanup
     return () =>
       window?.removeEventListener("resize", debouncedCheckAndUpdateBreakpoints);
-  }, [dispatch]);
+    // Should only run on initial mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 };
 
 export default useBreakpointSync;

@@ -1,28 +1,68 @@
 "use server";
 
-import { CookieAction } from "@/lib/types/cookieTypes";
 import { cookies } from "next/headers";
+import {
+  COOKIE_ACTIONS,
+  COOKIE_ACTION,
+  E_COOKIE_NAMES,
+} from "@/lib/types/cookieTypes";
+
+// Define valid SameSite options for type checking
+type TSameSiteOptions = "strict" | "lax" | "none";
+// IcookieOptions.types.ts
+interface ICookieOptions {
+  path?: string;
+  domain?: string;
+  maxAge?: number;
+  expires?: Date;
+  sameSite?: TSameSiteOptions;
+  secure?: boolean;
+  httpOnly?: boolean;
+}
+
+const defaultCookieOptions: ICookieOptions = {
+  path: "/",
+  httpOnly: true,
+  sameSite: "strict", // Use the TSameSiteOptions type for strict type checking
+};
 
 /**
- * Manages cookies by either deleting or updating them based on the specified action.
- *
- * @param actionType - The action to perform on the cookie, either DELETE or UPDATE.
- * @param cookieName - The name of the cookie to manage.
- * @param cookieValue - The value for the cookie, relevant for the UPDATE action. Defaults to an empty string if not provided.
+ * Parameters for the manageCookies function.
  */
-export async function manageCookies(
-  actionType: CookieAction,
-  cookieName: string,
-  cookieValue?: string,
-) {
+interface IManageCookiesParams {
+  actionType: COOKIE_ACTION;
+  cookieName: E_COOKIE_NAMES;
+  cookieValue?: string;
+  options?: ICookieOptions;
+}
+
+/**
+ * Manages cookies by either deleting or updating them based on the specified parameters.
+ *
+ * @param {IManageCookiesParams} params - The parameters for cookie management.
+ * @returns {Promise<void>} A promise that resolves when the cookie has been successfully managed.
+ *
+ */
+export async function manageCookies({
+  actionType,
+  cookieName,
+  cookieValue,
+  options = {},
+}: IManageCookiesParams): Promise<void> {
   const cookieHandler = cookies();
 
-  if (actionType === CookieAction.DELETE) {
+  if (actionType === COOKIE_ACTIONS.DELETE) {
     cookieHandler.delete(cookieName);
-  } else if (actionType === CookieAction.UPDATE) {
-    cookieHandler.set(cookieName, cookieValue || "", {
-      path: "/",
-      httpOnly: true,
-    });
+  } else if (actionType === COOKIE_ACTIONS.UPDATE) {
+    if (typeof cookieValue === "undefined") {
+      throw new Error("Cookie value must be provided for update action");
+    }
+
+    // Merge the provided options with default values
+    const finalOptions = {
+      ...defaultCookieOptions,
+      ...options, // User-provided options
+    };
+    cookieHandler.set(cookieName, cookieValue, finalOptions);
   }
 }

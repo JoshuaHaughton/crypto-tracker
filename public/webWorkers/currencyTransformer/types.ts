@@ -68,7 +68,7 @@ export enum CTWMessageRequestType {
 
 // Types for the data object based on each REQUEST case
 export interface CTWCoinDetailsRequestData {
-  coinToTransform: any;
+  coinToTransform: ICoinDetails;
   fromCurrency: TCurrencyString;
   toCurrency: TCurrencyString;
   currencyExchangeRates: Record<
@@ -78,14 +78,14 @@ export interface CTWCoinDetailsRequestData {
 }
 
 export interface CTWAllCoinDetailsRequestData {
-  coinToTransform: any;
+  coinToTransform: ICoinDetails;
   fromCurrency: TCurrencyString;
   currencyExchangeRates: TCurrencyExchangeRates;
   currenciesToExclude?: TCurrencyString[];
 }
 
 export interface CTWPopularCoinsListRequestData {
-  coinsToTransform: any[];
+  coinsToTransform: ICoinOverview[];
   fromCurrency: TCurrencyString;
   toCurrency: TCurrencyString;
   currencyExchangeRates: Record<
@@ -95,7 +95,7 @@ export interface CTWPopularCoinsListRequestData {
 }
 
 export interface CTWAllPopularCoinsListsRequestData {
-  coinsToTransform: any[];
+  coinsToTransform: ICoinOverview[];
   fromCurrency: TCurrencyString;
   currenciesToExclude?: TCurrencyString[];
   currencyExchangeRates: Record<

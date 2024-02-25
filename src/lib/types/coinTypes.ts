@@ -156,16 +156,19 @@ export interface IPeriodicPriceChangePercentages {
 }
 
 /**
- * Represents the shallow details of a coin, typically derived from popular coins data.
- * This includes a subset of the attributes available in the detailed coin information,
- * focusing on the overview provided by popular coins.
+ * Represents the shallow details of a coin, usually sourced from popular coins data.
+ * This type includes the 'coinAttributes' property, which must be present and conform to either
+ * `ICoinOverview` or `ICoinDetailAttributes`. All other properties from `ICoinDetails` are optional
+ * and when not provided, they are expected to be `undefined`. This approach is used to indicate
+ * that these properties are not part of the shallow data representation.
  */
-export type TShallowCoinDetails = Omit<
-  Partial<ICoinDetails>,
-  "coinAttributes"
-> & {
+export type TShallowCoinDetails = {
+  // Mark all properties from ICoinDetails, except for 'coinAttributes', as potentially undefined.
+  [P in keyof Omit<ICoinDetails, "coinAttributes">]?: undefined;
+} & {
+  // Ensure 'coinAttributes' is always present and adheres to specified types.
   coinAttributes: ICoinOverview | ICoinDetailAttributes;
 };
 
-// Define the union type for either partially or fully populated coin details
+// Union type combining full coin details with the shallow coin details.
 export type TShallowOrFullCoinDetails = ICoinDetails | TShallowCoinDetails;
