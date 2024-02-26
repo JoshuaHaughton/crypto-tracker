@@ -26,22 +26,16 @@ function handleCTWTransformedCoinDetailsForCurrency(
   toCurrency: TCurrencyString,
   dispatch: Dispatch,
 ) {
+  console.log(
+    "transformedData - handleCTWTransformedCoinDetailsForCurrency",
+    transformedData,
+  );
   dispatch(
     coinsActions.setOrUpdatePreloadedCoinDetails({
       currency: toCurrency,
       coinDetails: transformedData,
     }),
   );
-  // move callbacks like this into the callback,,,callback (second param)
-
-  // Store transformed coin data in Redux
-  // dispatch(
-  //   coinsActions.setSelectedCoinDetails({
-  //     coinDetails: transformedData,
-  //   }),
-  // );
-
-  // dispatch(currencyActions.setDisplayedCurrency({ currency: toCurrency }));
 }
 
 /**
@@ -57,6 +51,10 @@ function handleCTWTransformedCoinDetailsForMultipleCurrencies(
 ) {
   for (const currency in transformedData) {
     // Store transformed coin data in Redux
+    console.log(
+      "transformedData - handleCTWTransformedCoinDetailsForMultipleCurrencies",
+      transformedData[currency as TCurrencyString],
+    );
     dispatch(
       coinsActions.setOrUpdatePreloadedCoinDetails({
         currency: currency as TCurrencyString,
@@ -85,15 +83,6 @@ function handleTransformedPopularCoinsForCurrency(
       coinList: transformedData,
     }),
   );
-  // move callbacks like this into the callback,,,callback (econd param)
-  // dispatch(currencyActions.setDisplayedCurrency({ currency: toCurrency }));
-
-  // Not sure if we should save this until after (using the callback) because it would dispatch the other currencies first.
-  // dispatch(
-  //   coinsActions.setPopularCoins({
-  //     coinList: transformedData,
-  //   }),
-  // );
 }
 
 /**

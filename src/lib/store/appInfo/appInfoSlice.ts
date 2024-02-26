@@ -37,8 +37,8 @@ export const initialAppInfoState: IAppInfoState = {
   popularCoinsPageNumber: 1,
   coinsBeingPreloaded: {},
   coinsBeingPreloadedOrder: [],
-  initialPopularCoinsStatus: "idle",
-  preloadedPopularCoinsStatus: "idle",
+  initialPopularCoinsStatus: LoadingStatus.IDLE,
+  preloadedPopularCoinsStatus: LoadingStatus.IDLE,
 };
 
 const appInfoSlice = createSlice({

@@ -1,5 +1,8 @@
 import { TCurrencyString } from "@/lib/constants/globalConstants";
-import { TCurrencyRates, TCurrencyExchangeRates } from "@/lib/types/currencyTypes";
+import {
+  TCurrencyRates,
+  TCurrencyExchangeRates,
+} from "@/lib/types/currencyTypes";
 import {
   ICoinDetails,
   ICoinDetailAttributes,
@@ -21,7 +24,7 @@ import {
   IRawCoinDetailsApiResponse,
 } from "@/lib/types/apiResponseTypes";
 import { CRYPTO_COMPARE_WEBSITE } from "@/lib/constants/apiConstants";
-import { isNull, isUndefined, mergeWith } from "lodash";
+import { isNull, isPlainObject, isUndefined, mergeWith } from "lodash";
 import { coinsActions } from "@/lib/store/coins/coinsSlice";
 import { Dispatch } from "@reduxjs/toolkit";
 import { ENumericThresholds } from "@/lib/types/numericTypes";
@@ -367,52 +370,66 @@ export function mapPopularCoinsToShallowDetailedAttributes(
 }
 
 /**
- * Customizer function for lodash's mergeWith that tells mergewith to overwrite undefined & null values on the target object using the source.
+ * Customizer function for lodash's mergeWith that tells mergeWith to selectively overwrite undefined and null values in the target object with values from the source object.
+ * This customizer also ensures deep merging by recursively applying the same logic to nested properties.
  *
- * @remarks
- * This function is used as a customizer in lodash's mergeWith function. It ensures that
- * only null or undefined properties in the source object are overwritten by the corresponding
- * values from the destination object.
- *
- * @param objValue - The value from the source object.
- * @param srcValue - The value from the destination object.
- * @returns The value to be used in the merged object.
+ * @param objValue - The current value from the target object.
+ * @param srcValue - The current value from the source object.
+ * @returns The merged value to use: source value if the original is null or undefined; otherwise, the original value.
  */
 export function overwriteUndefinedAndNullValues(
   objValue: any,
   srcValue: any,
 ): any {
+  // Apply custom merging rules recursively for plain objects
+  if (isPlainObject(objValue) && isPlainObject(srcValue)) {
+    return mergeWith({}, objValue, srcValue, overwriteUndefinedAndNullValues);
+  }
+
+  // For leaf values, overwrite only if the original value is null or undefined
   return isUndefined(objValue) || isNull(objValue) ? srcValue : objValue;
 }
 
 /**
- * Merges base coin details with additional details.
+ * Merges base coin details with additional details. If baseDetails is a CoinOverview, it merges it into the additionalDetails' coinAttributes.
+ * If baseDetails is already CoinDetails, it merges the entire objects while prioritizing non-null and non-undefined baseDetails values.
  *
- * @remarks
- * This function is designed for scenarios where more comprehensive coin details need to be
- * constructed. It merges a base set of coin details (typically obtained from a cached map or
- * a less detailed source) with additional, more specific data. The merging strategy employed
- * ensures that only null or undefined properties in the base object are overwritten by
- * corresponding values from the additional details. This approach allows for efficiently
- * constructing a complete set of coin details while ensuring that existing data is not
- * unnecessarily overwritten.
- *
- * @param baseDetails - The base details of a coin.
- * @param additionalDetails - Additional detailed data to merge into the shallow details.
- * @param currentCurrency - The currency in which the coin details are presented.
- * @returns The merged coin details.
+ * @param baseDetails - Base coin details which could be an overview or full details.
+ * @param additionalDetails - Additional detailed data to merge.
+ * @returns Merged coin details.
  */
 export function mergeCoinDetails(
   baseDetails: ICoinOverview | ICoinDetails,
   additionalDetails: ICoinDetails,
-  currentCurrency: TCurrencyString,
 ): ICoinDetails {
-  return mergeWith(
-    {},
-    { ...baseDetails, currency: currentCurrency },
-    additionalDetails,
-    overwriteUndefinedAndNullValues,
-  );
+  let mergedDetails: ICoinDetails;
+
+  // Check if base details are shallow (ICoinOverview) or full (ICoinDetails)
+  if ("priceChartDataset" in baseDetails) {
+    // Checks if baseDetails is of type ICoinDetails
+    // If baseDetails is already ICoinDetails, merge directly
+    mergedDetails = mergeWith(
+      {},
+      baseDetails,
+      additionalDetails,
+      overwriteUndefinedAndNullValues,
+    );
+  } else {
+    // If baseDetails is ICoinOverview, merge only into the additionalDetails' coinAttributes
+    const updatedCoinAttributes = mergeWith(
+      {},
+      baseDetails,
+      additionalDetails.coinAttributes,
+      overwriteUndefinedAndNullValues,
+    );
+    // Ensure the merged coin attributes are set within the structure of additionalDetails
+    mergedDetails = {
+      ...additionalDetails,
+      coinAttributes: updatedCoinAttributes,
+    };
+  }
+
+  return mergedDetails;
 }
 
 /**

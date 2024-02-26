@@ -6,6 +6,7 @@ import { postMessageToCurrencyTransformerWorker } from "../../public/webWorkers/
 import { CTWMessageRequestType } from "../../public/webWorkers/currencyTransformer/types";
 import apiSlice from "@/lib/store/api/apiSlice";
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import { mergeCoinDetails } from "@/lib/utils/dataFormat.utils";
 
 /**
  * Exclusive parameters for fetching coin details. If provided, `handleFetch` must be true,
@@ -49,8 +50,7 @@ export const preloadCoinDetailsThunk = createAsyncThunk<
 >("coins/preloadCoinDetails", async (params, { dispatch, getState }) => {
   const state = getState();
   const { currentCurrency, currencyRates } = state.currency;
-  const { coinsBeingPreloaded } = state.appInfo;
-  const { preloadedCoinDetailsByCurrency } = state.coins;
+  const { popularCoinsMap } = state.coins;
 
   // Determine parameters based on the provided action type
   // Based on the scenario, we then declare our variables and provide default values as needed.
@@ -74,45 +74,15 @@ export const preloadCoinDetailsThunk = createAsyncThunk<
   }
 
   let coinSymbol = symbolToFetch;
-  const isBeingPreloaded = !!coinsBeingPreloaded[coinSymbol];
-  const isAlreadyPreloaded =
-    !!preloadedCoinDetailsByCurrency[currentCurrency]?.[coinSymbol]
-      ?.priceChartDataset;
 
-  if (!currencyRates || isAlreadyPreloaded || isBeingPreloaded) {
-    const errorCheck = !currencyRates
-      ? "noCurrencyRates"
-      : isAlreadyPreloaded
-      ? "alreadyPreloaded"
-      : isBeingPreloaded
-      ? "currentlyPreloading"
-      : null; // No issues, proceed normally.
-
-    // Handle different error scenarios with a switch case for debugging in dev
-    switch (errorCheck) {
-      case "noCurrencyRates":
-        console.error(
-          `Currency Rates are not available for preloading coin details. Please reload the app. Coin Symbol: ${coinSymbol}`,
-        );
-        return;
-      case "alreadyPreloaded":
-        console.error(
-          `Coin details for ${coinSymbol} have already been preloaded. Returning.`,
-        );
-        return;
-      case "currentlyPreloading":
-        console.error(
-          `Coin details for ${coinSymbol} are currently being preloaded. Please wait.`,
-        );
-        return;
-    }
-
+  if (!currencyRates) {
     return;
   }
 
   dispatch(appInfoActions.addCoinBeingPreloaded({ coinId: coinSymbol }));
+  console.warn(`Preloading started for coin: ${coinSymbol}`);
 
-  if (handleFetch && currentCurrency) {
+  if (handleFetch) {
     try {
       const fetchedDetails = await dispatch(
         apiSlice.endpoints.fetchCoinDetailsData.initiate({
@@ -134,35 +104,54 @@ export const preloadCoinDetailsThunk = createAsyncThunk<
     return; // Exit the function as there's nothing to preload.
   }
 
+  const existingData = popularCoinsMap[coinSymbol];
+  {
+  }
+
+  // We merge the new coin details with existing data to make the display as consistent as possible when selecting a coin
+  const normalizedCoinDetailsWithExistingData = mergeCoinDetails(
+    existingData,
+    detailsToPreload,
+  );
+
   // If specified, select the coin details after fetching them, updating the state accordingly.
   if (selectCoinAfterFetch) {
     dispatch(
-      coinsActions.setSelectedCoinDetails({ coinDetails: detailsToPreload }),
+      coinsActions.setSelectedCoinDetails({
+        coinDetails: normalizedCoinDetailsWithExistingData,
+      }),
     );
   }
 
+  console.warn("existingData", existingData);
+  console.warn("detailsToPreload", detailsToPreload);
+  console.warn(
+    "normalizedCoinDetailsWithExistingData",
+    normalizedCoinDetailsWithExistingData,
+  );
   // Proceed with the preloading process.
-  // Dispatch an action to set the preloaded coin details in the store.
   dispatch(
-    coinsActions.setPreloadedCoinDetailsUsingPopularCoinsBase({
-      coinDetails: detailsToPreload,
-      currency: currentCurrency, // The currency in which the details are preloaded.
+    coinsActions.setPreloadedCoinForCurrency({
+      coinDetails: normalizedCoinDetailsWithExistingData,
+      currency: currentCurrency,
     }),
   );
+  dispatch(appInfoActions.removeCoinBeingPreloaded({ coinId: coinSymbol }));
 
   // Post a message to the web worker to start preloading the coin details for all available currencies.
   // postMessageToCurrencyTransformerWorker({
   //   requestType: CTWMessageRequestType.COIN_DETAILS_ALL_CURRENCIES,
   //   requestData: {
-  //     coinToTransform: detailsToPreload, // The coin details to transform.
+  //     coinToTransform: normalizedCoinDetailsWithExistingData, // The coin details to transform.
   //     fromCurrency: currentCurrency, // The base currency for the transformation.
   //     currencyExchangeRates: currencyRates, // The current currency exchange rates.
+  //     currenciesToExclude: [currentCurrency],
   //   },
   //   onComplete: () => {
   //     // Once preloading is complete, remove the coin from the preloading list.
   //     dispatch(appInfoActions.removeCoinBeingPreloaded({ coinId: coinSymbol }));
   //     // Log a message indicating that preloading has completed for this coin.
-  //     console.log(`Preloading completed for coin: ${coinSymbol}`);
+  //     console.warn(`Preloading completed for coin: ${coinSymbol}`);
   //   },
   // });
 });

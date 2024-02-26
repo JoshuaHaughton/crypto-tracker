@@ -164,10 +164,11 @@ export interface IPeriodicPriceChangePercentages {
  */
 export type TShallowCoinDetails = {
   // Mark all properties from ICoinDetails, except for 'coinAttributes', as potentially undefined.
-  [P in keyof Omit<ICoinDetails, "coinAttributes">]?: undefined;
+  [P in keyof Omit<ICoinDetails, "coinAttributes" | "id">]?: undefined;
 } & {
   // Ensure 'coinAttributes' is always present and adheres to specified types.
   coinAttributes: ICoinOverview | ICoinDetailAttributes;
+  id: string;
 };
 
 // Union type combining full coin details with the shallow coin details.

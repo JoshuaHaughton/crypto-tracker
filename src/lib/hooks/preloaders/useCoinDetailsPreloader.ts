@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { coinsActions } from "@/lib/store/coins/coinsSlice";
 import { selectPreloadedCoinDetailsByCurrentCurrency } from "@/lib/store/coins/coinsSelectors";
@@ -33,6 +33,7 @@ const useCoinDetailsListPreloader = (): IUseCoinDetailsPreloaderState => {
   const [localPreloadingSymbols, setLocalPreloadingSymbols] = useState<
     Map<string, boolean>
   >(new Map());
+  const [preloadQueue, setPreloadQueue] = useState<Set<string>>(new Set());
 
   /**
    * Initiates data fetching for a coin's details if it's not already being preloaded locally or globally,
@@ -48,42 +49,73 @@ const useCoinDetailsListPreloader = (): IUseCoinDetailsPreloaderState => {
       const isAlreadyPreloadingLocally = localPreloadingSymbols.get(symbol);
       const isBeingPreloadedGlobally = !!coinsBeingPreloadedGlobally[symbol];
       const existingPreloadedDetails = globalPreloadedCoinDetails?.[symbol];
+      const coinDetailsAreFullyPreloaded =
+        existingPreloadedDetails?.priceChartDataset != null;
 
       console.log(`Checking preload status for ${symbol}`);
 
-      if (isGlobalPreloadLimitReached) {
-        console.error(
-          `Cannot preload '${symbol}': Exceeds maximum preloading limit.`,
-        );
-        return;
-      }
-
       if (
         isAlreadyPreloadingLocally ||
-        existingPreloadedDetails ||
+        coinDetailsAreFullyPreloaded ||
         isBeingPreloadedGlobally
       ) {
         console.warn(
           `Preload attempt for '${symbol}' ignored: Coin is already ${
-            existingPreloadedDetails ? "preloaded" : "being preloaded"
+            coinDetailsAreFullyPreloaded ? "preloaded" : "being preloaded"
           }.`,
         );
         return;
       }
 
+      if (isGlobalPreloadLimitReached) {
+        // Add symbol to queue if global limit is reached and it's not already in the queue.
+        if (!preloadQueue.has(symbol)) {
+          setPreloadQueue((prevQueue) => {
+            const updatedQueue = new Set(prevQueue).add(symbol);
+            return updatedQueue;
+          });
+        }
+      } else {
+        // Initiate preloading if under global limit.
+        dispatch(
+          preloadCoinDetailsThunk({
+            handleFetch: true,
+            symbolToFetch: symbol,
+          }),
+        );
+        setLocalPreloadingSymbols((prev) => new Map(prev).set(symbol, true));
+      }
+
       console.log(`Initiating preload for ${symbol}`);
-      dispatch(
-        preloadCoinDetailsThunk({ handleFetch: true, symbolToFetch: symbol }),
-      );
-      setLocalPreloadingSymbols((prev) => new Map(prev).set(symbol, true));
     },
     [
       dispatch,
+      preloadQueue,
       coinsBeingPreloadedGlobally,
       localPreloadingSymbols,
       globalPreloadedCoinDetails,
     ],
   );
+
+  // Effect to monitor global preloading changes and process queue accordingly.
+  useEffect(() => {
+    if (
+      Object.keys(coinsBeingPreloadedGlobally).length < MAX_PRELOADING_COUNT &&
+      preloadQueue.size > 0
+    ) {
+      // Create a copy of the queue and remove the first symbol
+      const newQueue = new Set(preloadQueue);
+      const nextSymbol = newQueue.values().next().value;
+
+      // Update the queue state and initiate preloading if there's a symbol
+      newQueue.delete(nextSymbol);
+      setPreloadQueue(newQueue);
+      if (nextSymbol) {
+        console.log("QUEUE UP");
+        initiateFetchIfNotPreloading(nextSymbol);
+      }
+    }
+  }, [coinsBeingPreloadedGlobally, preloadQueue, initiateFetchIfNotPreloading]);
 
   /**
    * Handler for mouse hover events on coin list items.
@@ -108,8 +140,10 @@ const useCoinDetailsListPreloader = (): IUseCoinDetailsPreloaderState => {
     (symbol: string) => {
       console.log(`Clicked on ${symbol}`);
       const existingPreloadedDetails = globalPreloadedCoinDetails?.[symbol];
+      const coinDetailsAreFullyPreloaded =
+        existingPreloadedDetails?.priceChartDataset != null;
 
-      if (existingPreloadedDetails) {
+      if (coinDetailsAreFullyPreloaded) {
         console.log(`Navigating to preloaded details for ${symbol}`);
         dispatch(
           coinsActions.setSelectedCoinDetails({
@@ -117,7 +151,9 @@ const useCoinDetailsListPreloader = (): IUseCoinDetailsPreloaderState => {
           }),
         );
       } else {
-        console.log(`Details not preloaded for ${symbol}, initiating preload`);
+        console.log(
+          `Details aren't preloaded for ${symbol}, initiating preload`,
+        );
         initiateFetchIfNotPreloading(symbol);
       }
 

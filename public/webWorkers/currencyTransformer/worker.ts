@@ -244,6 +244,7 @@ const transformCurrencyForCoinDetails = (
     toCurrency,
     currencyExchangeRates,
   ),
+  currency: toCurrency,
 });
 
 /**

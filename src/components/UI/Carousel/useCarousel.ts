@@ -59,13 +59,13 @@ const useCarousel = (): IUseCarouselState => {
   console.log("useCarousel Hook Invoked");
   // Fetching carousel coins and loading status from Redux.
   const carouselCoins = useAppSelector(selectCarouselCoins);
+  console.log("carouselCoins", carouselCoins);
   const coinsStatus = useAppSelector(selectInitialPopularCoinsStatus);
   const currencySymbol = useAppSelector(selectCurrentSymbol);
 
   // Determine loading state based on coin availability and their loading status.
   const isLoading =
-    coinsStatus === LoadingStatus.LOADING ||
-    (coinsStatus !== LoadingStatus.FAILED && carouselCoins.length < 1);
+    coinsStatus === LoadingStatus.LOADING && carouselCoins.length < 1;
 
   // Combine EmblaCarousel with the default options, Autoplay and Wheel Gestures plugins.
   const [emblaRef, emblaApi] = useEmblaCarousel(defaultCarouselOptions, [

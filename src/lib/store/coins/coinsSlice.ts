@@ -184,6 +184,8 @@ const coinsSlice = createSlice({
     ) {
       const { currency, coinList } = action.payload;
 
+      console.warn("coinList", coinList);
+
       // Populate the map for quick individual coin data access
       state.cachedPopularCoinMapsByCurrency[currency] = coinList.reduce(
         (acc, coin) => {
@@ -308,11 +310,7 @@ const coinsSlice = createSlice({
       let mergedDetails: ICoinDetails;
 
       if (popularCoinsBase != null) {
-        mergedDetails = mergeCoinDetails(
-          popularCoinsBase,
-          coinDetails,
-          currency,
-        );
+        mergedDetails = mergeCoinDetails(popularCoinsBase, coinDetails);
       } else {
         mergedDetails = coinDetails;
       }
@@ -347,11 +345,10 @@ const coinsSlice = createSlice({
       let mergedDetails: ICoinDetails;
 
       // If existing details are found, merge them; otherwise, use shallow details from popular coins
-      if (existingPreloadedDetails || popularCoinsBase) {
+      if (popularCoinsBase || existingPreloadedDetails) {
         mergedDetails = mergeCoinDetails(
           popularCoinsBase || existingPreloadedDetails,
           coinDetails,
-          currency,
         );
         console.log(
           `Merged details for coin ${coinDetails.id} in currency ${currency}.`,

@@ -211,7 +211,6 @@ function prepareRequestData(
     const allRequestData: CTWAllCoinDetailsRequestData = {
       ...commonData,
       coinToTransform: coinData as ICoinDetails,
-      currenciesToExclude: [updatedCurrency, currentCurrency],
     };
     return { singleRequestData, allRequestData };
   } else {
@@ -224,7 +223,6 @@ function prepareRequestData(
     const allRequestData: CTWAllPopularCoinsListsRequestData = {
       ...commonData,
       coinsToTransform: coinData as ICoinOverview[],
-      currenciesToExclude: [updatedCurrency, currentCurrency],
     };
     return { singleRequestData, allRequestData };
   }
