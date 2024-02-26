@@ -1,39 +1,29 @@
-import React, { useState, useEffect } from "react";
+import { memo } from "react";
 import Script, { ScriptProps } from "next/script";
-import { FUZZY_SEARCH_SCRIPT } from "@/lib/constants/externalScriptConstants";
 import useWhyDidComponentUpdate from "@/lib/hooks/debug/useWhyDidComponentUpdate";
+import { FUZZY_SEARCH_SCRIPT } from "@/lib/constants/externalScriptConstants";
 import { useExternalScripts } from "./useExternalScripts";
 
 interface IExternalScriptLoaderParams {
   scriptConfig: ScriptProps | ScriptProps[];
-  /**
-   * Optional callback to be called once after all scripts have loaded.
-   * This is useful for initializing or executing logic dependent on multiple scripts,
-   * ensuring all scripts are loaded before proceeding.
-   */
-  afterScriptsLoad?: () => void;
 }
 
 /**
- * Dynamically loads external scripts using Next.js's Script component.
- * It supports loading a single script or an array of scripts.
+ * Component for dynamically loading external scripts using Next.js's Script component.
+ * This supports either a single script or multiple scripts configurations.
  *
- * @param scriptConfig Either a single script configuration or an array of script configurations.
- * @param onLoad Optional callback executed after all scripts have loaded. Useful for post-load operations.
- * @returns A React Fragment containing Script components for loading external scripts.
+ * @param {IExternalScriptLoaderParams} props - The script configurations for loading.
+ * @returns {React.ReactElement} A fragment containing the Script components for the external scripts.
  */
 const ExternalScriptLoader: React.FC<IExternalScriptLoaderParams> = ({
-  scriptConfig = FUZZY_SEARCH_SCRIPT,
-  afterScriptsLoad,
+  scriptConfig = FUZZY_SEARCH_SCRIPT, // Default to a predefined script if no config provided.
 }) => {
-  useWhyDidComponentUpdate("ExternalScriptLoader", {
-    scriptConfig,
-    afterScriptsLoad,
-  });
-  console.log("ExternalScriptLoader render");
+  // Debug hook to log component updates and their causes.
+  useWhyDidComponentUpdate("ExternalScriptLoader", { scriptConfig });
+
+  // Obtain script element properties from the custom hook.
   const { scriptElementProps } = useExternalScripts({
     scriptConfigs: scriptConfig,
-    afterScriptsLoad,
   });
 
   return (
@@ -45,4 +35,4 @@ const ExternalScriptLoader: React.FC<IExternalScriptLoaderParams> = ({
   );
 };
 
-export default React.memo(ExternalScriptLoader);
+export default memo(ExternalScriptLoader);

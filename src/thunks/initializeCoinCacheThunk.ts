@@ -50,14 +50,14 @@ export const initializeCoinCache = createAsyncThunk<
 
     if (handleFetch) {
       // Conditionally fetch popular coins data from the API if handleFetch is true
-      console.log("Fetching popular coins data from API.");
+      console.warn("Fetching popular coins data from API.");
       const response = await dispatch(
         apiSlice.endpoints.fetchPopularCoinsData.initiate(currentCurrency),
       ).unwrap();
       popularCoinsToUse = response.popularCoins;
     } else if (popularCoins) {
       // If popularCoins are provided, use these and ensure handleFetch is false.
-      console.log("Using provided popular coins data.");
+      console.warn("Using provided popular coins data.");
       popularCoinsToUse = popularCoins;
     } else {
       throw new Error(
