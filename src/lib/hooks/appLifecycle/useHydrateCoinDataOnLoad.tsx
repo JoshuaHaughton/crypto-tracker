@@ -1,95 +1,101 @@
 import { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "@/lib/store";
+import { useAppDispatch } from "@/lib/store";
 import { useSearchParams } from "next/navigation";
-import { preloadCoinDetailsThunk } from "@/thunks/preloadCoinDetailsThunk";
 import {
-  selectPopularCoins,
-  selectSelectedCoinDetails,
-} from "@/lib/store/coins/coinsSelectors";
-import { selectIsCoinBeingPreloaded } from "@/lib/store/appInfo/appInfoSelectors";
-import { initializeCoinCache } from "@/thunks/initializeCoinCacheThunk";
+  InitialDataType,
+  TInitialDataOptions,
+} from "@/lib/types/apiRequestTypes";
 import { isEmpty } from "lodash";
-import { ICoinDetails } from "@/lib/types/coinTypes";
+import { initializeCoinCache } from "@/thunks/initializeCoinCacheThunk";
+import { preloadCoinDetailsThunk } from "@/thunks/preloadCoinDetailsThunk";
 
 /**
- * Custom hook to hydrate coin-related data on the initial load based on the current route.
- * It checks if the user is on a coin details page and fetches necessary data accordingly.
- * It also ensures that the popular coins list is loaded and initializes the cache if needed.
+ * Custom hook to hydrate coin-related data on the initial load.
+ * This hook is responsible for ensuring that the necessary coin data is preloaded based on the current route.
+ * It differentiates between coin detail pages and other pages to fetch and preload relevant data.
+ * It utilizes initial server-rendered data to minimize unnecessary API calls and rehydrations.
  *
+ * @param {TInitialDataOptions} initialData - The initial data fetched server-side and passed for hydration.
  */
-const useHydrateCoinDataOnLoad = () => {
-  console.log("useHydrateCoinDataOnLoad");
+const useHydrateCoinDataOnLoad = (initialData: TInitialDataOptions) => {
+  console.log("Hydrating coin data on load - Hook Start");
+
   const dispatch = useAppDispatch();
   const searchParams = useSearchParams();
   const symbol = searchParams.get("symbol");
+  const isOnCoinDetailsPage = symbol != null;
 
-  const popularCoins = useAppSelector(selectPopularCoins);
-  const selectedCoinDetails = useAppSelector(selectSelectedCoinDetails);
-  const coinDetailsBeingPreloaded = useAppSelector((state) =>
-    selectIsCoinBeingPreloaded(state, symbol || ""),
-  );
+  useEffect(() => {
+    console.warn("Hydration of coin data on load - Initialization Start");
 
-  useEffect(
-    () => {
-      console.warn("useHydrateCoinDataOnLoad - Start");
-      const isOnCoinDetailsPage = symbol != null;
+    // Handling coin details page specific logic using initialData if on a coin details page.
+    if (isOnCoinDetailsPage) {
+      console.log("On Coin Details Page - Processing coin details data");
 
-      // Handle coin details loading for the coin details page
-      if (isOnCoinDetailsPage) {
-        console.log("useHydrateCoinDataOnLoad - On Coin Details Page");
-        const coinDetailsAreFullyPreloaded =
-          selectedCoinDetails?.priceChartDataset != null;
+      // Check if the necessary coin details are already fully preloaded.
+      const coinDetailsAreFullyPreloaded =
+        initialData?.dataType === InitialDataType.COIN_DETAILS &&
+        initialData.data.coinDetails?.priceChartDataset != null;
 
-        const shouldFetchDetailsBeforePreload =
-          !coinDetailsAreFullyPreloaded && !coinDetailsBeingPreloaded;
-
-        const shouldPreloadWithExistingData =
-          coinDetailsAreFullyPreloaded && !coinDetailsBeingPreloaded;
-
-        // Initiate fetch and preload if coin details are not available or being preloaded
-        if (shouldFetchDetailsBeforePreload) {
-          console.warn(
-            "Coin Details not fetched or preloaded - Initiating fetch and preload.",
-          );
-          dispatch(
-            preloadCoinDetailsThunk({
-              handleFetch: true,
-              symbolToFetch: symbol,
-              selectCoinAfterFetch: true,
-            }),
-          );
-        }
-        // Initiate preload using existing fetched data
-        else if (shouldPreloadWithExistingData) {
-          console.warn(
-            "Coin Details exist but not preloaded - Using existing data for preload.",
-          );
-          dispatch(
-            preloadCoinDetailsThunk({
-              detailsToPreload: selectedCoinDetails as ICoinDetails, // The coinDetailsAreFullyPreloaded check ensures that we are using the full coin details and not a shallow version
-            }),
-          );
-        }
+      if (coinDetailsAreFullyPreloaded) {
+        console.warn("Using existing coin details data for preload.");
+        dispatch(
+          preloadCoinDetailsThunk({
+            handleFetch: false,
+            detailsToPreload: initialData.data.coinDetails,
+          }),
+        );
+      } else {
+        console.warn(
+          "Coin details data not fully preloaded - Initiating fetch and preload.",
+        );
+        dispatch(
+          preloadCoinDetailsThunk({
+            handleFetch: true,
+            symbolToFetch: symbol,
+            selectCoinAfterFetch: true,
+          }),
+        );
       }
+    } else {
+      console.warn("Not on Coin Details Page");
+    }
 
-      // Check for the existence of the popular coins list
-      const popularCoinsExist = !isEmpty(popularCoins);
+    // Check for the existence of the popular coins list from the initial data
+    const popularCoinsExist =
+      initialData?.dataType === InitialDataType.POPULAR_COINS &&
+      !isEmpty(initialData?.data.popularCoins);
 
-      // Determine the log based on the existence of popular coins
-      const actionLogDescription = popularCoinsExist
-        ? "Popular Coins exist - Initializing cache."
-        : "Popular Coins not found - Fetching from API.";
-      console.warn(actionLogDescription);
+    // Log message to indicate the action taken based on popular coins existence
+    console.warn(
+      popularCoinsExist
+        ? "Popular Coins exist - Initializing cache with existing data."
+        : "Popular Coins not found - Fetching from API.",
+    );
 
-      // Initialize the coins with the existing data if possible. If it doesn't exist, fetch before initialization
-      dispatch(initializeCoinCache({ handleFetch: !popularCoinsExist }));
+    // Initialize the coin cache based on the existence of popular coins
+    if (popularCoinsExist) {
+      // If popular coins exist in the initial data, use them directly to initialize the cache
+      // Here we explicitly pass the popular coins and set handleFetch to false
+      console.log(
+        "Dispatching initializeCoinCache with provided popular coins data.",
+      );
+      dispatch(
+        initializeCoinCache({
+          handleFetch: false,
+          popularCoins: initialData.data.popularCoins,
+        }),
+      );
+    } else {
+      // If popular coins do not exist, instruct the thunk to fetch them from the API
+      console.log(
+        "Dispatching initializeCoinCache to fetch popular coins data.",
+      );
+      dispatch(initializeCoinCache({ handleFetch: true }));
+    }
 
-      console.warn("hydrateCoinDataOnLoad - End");
-    },
-    // This should only run on the iniitial mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
+    console.warn("Hydration of coin data on load - Initialization End");
+  }, [dispatch, isOnCoinDetailsPage, symbol, initialData]); // Ensures hook only re-executes when necessary
 };
 
 export default useHydrateCoinDataOnLoad;

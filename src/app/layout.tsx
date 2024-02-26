@@ -55,7 +55,7 @@ export default async function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <StoreProvider initialData={initialData}>
-          <AppInitializer />
+          <AppInitializer initialData={initialData} />
           <MainLayout>{children}</MainLayout>
         </StoreProvider>
       </body>
