@@ -50,7 +50,6 @@ export const preloadCoinDetailsThunk = createAsyncThunk<
 >("coins/preloadCoinDetails", async (params, { dispatch, getState }) => {
   const state = getState();
   const { currentCurrency, currencyRates } = state.currency;
-  const { popularCoinsMap } = state.coins;
 
   // Determine parameters based on the provided action type
   // Based on the scenario, we then declare our variables and provide default values as needed.
@@ -104,54 +103,20 @@ export const preloadCoinDetailsThunk = createAsyncThunk<
     return; // Exit the function as there's nothing to preload.
   }
 
-  const existingData = popularCoinsMap[coinSymbol];
-  {
-  }
-
-  // We merge the new coin details with existing data to make the display as consistent as possible when selecting a coin
-  const normalizedCoinDetailsWithExistingData = mergeCoinDetails(
-    existingData,
-    detailsToPreload,
-  );
-
   // If specified, select the coin details after fetching them, updating the state accordingly.
   if (selectCoinAfterFetch) {
     dispatch(
       coinsActions.setSelectedCoinDetails({
-        coinDetails: normalizedCoinDetailsWithExistingData,
+        coinDetails: detailsToPreload,
       }),
     );
   }
 
-  console.warn("existingData", existingData);
-  console.warn("detailsToPreload", detailsToPreload);
-  console.warn(
-    "normalizedCoinDetailsWithExistingData",
-    normalizedCoinDetailsWithExistingData,
-  );
-  // Proceed with the preloading process.
   dispatch(
     coinsActions.setPreloadedCoinForCurrency({
-      coinDetails: normalizedCoinDetailsWithExistingData,
+      coinDetails: detailsToPreload,
       currency: currentCurrency,
     }),
   );
   dispatch(appInfoActions.removeCoinBeingPreloaded({ coinId: coinSymbol }));
-
-  // Post a message to the web worker to start preloading the coin details for all available currencies.
-  // postMessageToCurrencyTransformerWorker({
-  //   requestType: CTWMessageRequestType.COIN_DETAILS_ALL_CURRENCIES,
-  //   requestData: {
-  //     coinToTransform: normalizedCoinDetailsWithExistingData, // The coin details to transform.
-  //     fromCurrency: currentCurrency, // The base currency for the transformation.
-  //     currencyExchangeRates: currencyRates, // The current currency exchange rates.
-  //     currenciesToExclude: [currentCurrency],
-  //   },
-  //   onComplete: () => {
-  //     // Once preloading is complete, remove the coin from the preloading list.
-  //     dispatch(appInfoActions.removeCoinBeingPreloaded({ coinId: coinSymbol }));
-  //     // Log a message indicating that preloading has completed for this coin.
-  //     console.warn(`Preloading completed for coin: ${coinSymbol}`);
-  //   },
-  // });
 });

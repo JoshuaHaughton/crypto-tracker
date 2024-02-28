@@ -184,8 +184,6 @@ const coinsSlice = createSlice({
     ) {
       const { currency, coinList } = action.payload;
 
-      console.warn("coinList", coinList);
-
       // Populate the map for quick individual coin data access
       state.cachedPopularCoinMapsByCurrency[currency] = coinList.reduce(
         (acc, coin) => {

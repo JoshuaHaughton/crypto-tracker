@@ -21,7 +21,7 @@ interface IUseCoinDetailsPreloaderState {
  *
  * @returns {IUseCoinDetailsPreloaderState} - Object containing event handlers and loading state indicator.
  */
-const useCoinDetailsListPreloader = (): IUseCoinDetailsPreloaderState => {
+const useCoinDetailsPreloader = (): IUseCoinDetailsPreloaderState => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const coinsBeingPreloadedGlobally = useAppSelector(selectCoinsBeingPreloaded);
@@ -172,4 +172,4 @@ const useCoinDetailsListPreloader = (): IUseCoinDetailsPreloaderState => {
   return { handleMouseEnter, handleClick, isLoadingLocally, isLoadingGlobally };
 };
 
-export default useCoinDetailsListPreloader;
+export default useCoinDetailsPreloader;
