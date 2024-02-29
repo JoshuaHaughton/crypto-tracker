@@ -2,6 +2,7 @@ import styles from "./Carousel.module.scss";
 import useCarousel from "@/components/UI/Carousel/useCarousel";
 import CarouselItem from "./CarouselItem";
 import { CAROUSEL_COIN_COUNT } from "@/lib/constants/globalConstants";
+import Link from "next/link";
 
 /**
  * Carousel component responsible for displaying a carousel of coin items.
@@ -17,7 +18,6 @@ const Carousel: React.FC = () => {
     currencySymbol,
     isLoading,
     handleItemMouseEnter,
-    handleItemClick,
   } = useCarousel();
 
   return (
@@ -29,13 +29,14 @@ const Carousel: React.FC = () => {
 
           return (
             <div className={styles.embla__slide} key={index}>
-              <CarouselItem
-                coin={carouselCoins[index]}
-                currencySymbol={currencySymbol}
-                showFallback={isLoading}
-                handleMouseEnter={() => handleItemMouseEnter(coinSymbol)}
-                handleClick={() => handleItemClick(coinSymbol)}
-              />
+              <Link href={`/coin/${coinSymbol}`} prefetch>
+                <CarouselItem
+                  coin={carouselCoins[index]}
+                  currencySymbol={currencySymbol}
+                  showFallback={isLoading}
+                  handleMouseEnter={() => handleItemMouseEnter(coinSymbol)}
+                />
+              </Link>
             </div>
           );
         })}

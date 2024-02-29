@@ -10,7 +10,7 @@ export enum InitialDataType {
   COIN_DETAILS = "coinDetails",
 }
 
-export type TInitialDataOptions =
+export type TInitialPageDataOptions =
   | {
       dataType: InitialDataType.POPULAR_COINS;
       data: IFormattedPopularCoinsApiResponse;
@@ -20,6 +20,8 @@ export type TInitialDataOptions =
       data: IFormattedCoinDetailsAPIResponse;
     }
   | null;
+
+export type TInitialReduxDataOptions = { currencyPreference: TCurrencyString };
 
 /**
  * Constants for loading statuses within the application.

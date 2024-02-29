@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { IMatchDetail, IPopularCoinSearchItem } from "@/lib/types/coinTypes";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
   setCurrentQuery,
   setGlobalSearchResults,
@@ -9,6 +9,8 @@ import { selectPopularCoins } from "@/lib/store/coins/coinsSelectors";
 import UFuzzyManager from "@/lib/search/uFuzzyManager";
 import { selectIsSearchInitialized } from "@/lib/store/search/searchSelectors";
 import { debounce } from "lodash";
+import { useAppSelector } from "@/lib/store";
+import { usePageData } from "@/lib/contexts/pageContext";
 
 /**
  * Defines the structure for the search state within the popular coins search hook.
@@ -38,8 +40,14 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
   const [results, setResults] = useState<IPopularCoinSearchItem[]>([]);
 
   // Redux hooks for accessing the fuzzy search instance and dispatching actions.
-  const isSearchInitialized = useSelector(selectIsSearchInitialized);
-  const allPopularCoins = useSelector(selectPopularCoins);
+  const isSearchInitialized = useAppSelector(selectIsSearchInitialized);
+  const allReduxPopularCoins = useAppSelector(selectPopularCoins);
+  // Fallback to page specific data if Redux store doesn't have carousel coins yet.
+  const { popularCoins } = usePageData();
+  const allPopularCoins: ICoinOverview[] =
+    allReduxPopularCoins.length > 0
+      ? allReduxPopularCoins
+      : (popularCoins as ICoinOverview[]);
   const dispatch = useDispatch();
 
   // Memoize coin names and symbols to prevent recalculating them on every render.

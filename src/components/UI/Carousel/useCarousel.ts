@@ -10,6 +10,7 @@ import { selectCurrentSymbol } from "@/lib/store/currency/currencySelectors";
 import { selectInitialPopularCoinsStatus } from "@/lib/store/appInfo/appInfoSelectors";
 import { LoadingStatus } from "@/lib/types/apiRequestTypes";
 import useCoinDetailsPreloader from "@/lib/hooks/preloaders/useCoinDetailsPreloader";
+import { usePageData } from "@/lib/contexts/pageContext";
 
 /**
  * Types for the custom hook's return value, utilizing ReturnType for synchronization
@@ -58,7 +59,17 @@ const defaultAutoplayOptions = {
 const useCarousel = (): IUseCarouselState => {
   console.log("useCarousel Hook Invoked");
   // Fetching carousel coins and loading status from Redux.
-  const carouselCoins = useAppSelector(selectCarouselCoins);
+  const reduxCarouselCoins = useAppSelector(selectCarouselCoins);
+  // Fallback to page specific data if Redux store doesn't have carousel coins yet.
+  const { popularCoinsMap, carouselSymbolList } = usePageData();
+  const carouselCoins: ICoinOverview[] =
+    reduxCarouselCoins.length > 0
+      ? reduxCarouselCoins
+      : carouselSymbolList?.reduce((acc: ICoinOverview[], symbol: string) => {
+          const coin = popularCoinsMap?.[symbol];
+          if (coin) acc.push(coin); // Add coin to array only if it's not undefined
+          return acc;
+        }, []) ?? [];
   console.log("carouselCoins", carouselCoins);
   const coinsStatus = useAppSelector(selectInitialPopularCoinsStatus);
   const currencySymbol = useAppSelector(selectCurrentSymbol);

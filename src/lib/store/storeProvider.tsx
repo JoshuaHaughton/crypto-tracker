@@ -5,15 +5,12 @@ import { Provider } from "react-redux";
 import { TAppStore, makeStore } from ".";
 import { initialCoinsState } from "./coins/coinsSlice";
 import { initialCurrencyState } from "./currency/currencySlice";
-import { ICoinOverview } from "@/lib/types/coinTypes";
-import {
-  InitialDataType,
-  TInitialDataOptions,
-} from "@/lib/types/apiRequestTypes";
+import { SYMBOLS_BY_CURRENCIES } from "../constants/globalConstants";
+import { TInitialReduxDataOptions } from "../types/apiRequestTypes";
 
 interface IStoreProviderProps {
   children: React.ReactNode;
-  initialData: TInitialDataOptions;
+  initialData?: TInitialReduxDataOptions;
 }
 
 /**
@@ -42,41 +39,11 @@ export const StoreProvider: React.FC<IStoreProviderProps> = ({
     let currencyInitialState = { ...initialCurrencyState };
 
     if (initialData) {
-      // Extracting the currency exchange rates outside the switch
-      // as it's common to both PopularCoins and CoinDetails cases
-      const { currencyExchangeRates } = initialData.data;
-      // Updating the currency initial state with currency exchange rates
-      currencyInitialState.currencyRates = currencyExchangeRates;
-
-      switch (initialData.dataType) {
-        case InitialDataType.POPULAR_COINS: {
-          // Destructuring the data specific to PopularCoins
-          const { popularCoins, carouselSymbolList } = initialData.data;
-
-          // Updating the coins initial state with data from PopularCoins
-          coinsInitialState.popularCoins = popularCoins;
-          coinsInitialState.popularCoinsMap = popularCoins.reduce(
-            (acc, coin) => {
-              acc[coin.symbol] = coin;
-              return acc;
-            },
-            {} as Record<string, ICoinOverview>,
-          );
-          coinsInitialState.carouselSymbolList = carouselSymbolList;
-
-          break;
-        }
-
-        case InitialDataType.COIN_DETAILS: {
-          // Destructuring the data specific to CoinDetails
-          const { coinDetails } = initialData.data;
-
-          // Updating the coins initial state with data from CoinDetails
-          coinsInitialState.selectedCoinDetails = coinDetails;
-
-          break;
-        }
-      }
+      const { currencyPreference } = initialData;
+      // Updating the currency initial state with the current currency
+      currencyInitialState.currentCurrency = currencyPreference;
+      currencyInitialState.currentSymbol =
+        SYMBOLS_BY_CURRENCIES[currencyPreference];
     }
 
     initialState = {

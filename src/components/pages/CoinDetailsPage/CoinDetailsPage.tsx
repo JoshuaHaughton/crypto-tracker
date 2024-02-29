@@ -11,10 +11,16 @@ import CoinDetailsChart from "@/components/UI/CoinDetailsChart/CoinDetailsChart"
 import CoinDetailsChartSkeleton from "@/components/UI/Skeletons/CoinDetailsChart/CoinDetailsChartSkeleton";
 import { ICoinDetails } from "@/lib/types/coinTypes";
 
-const CoinDetails = () => {
+const CoinDetails = ({
+  coinDetails: initialCoinDetails,
+}: {
+  coinDetails: ICoinDetails | undefined;
+}) => {
   const currentSymbol = useSelector(selectCurrentSymbol);
-  const coinDetails = useSelector(selectSelectedCoinDetails);
-  console.log("COINDETAILS ON PAGE", coinDetails);
+  const globalCoinDetails = useSelector(selectSelectedCoinDetails);
+  const coinDetails = globalCoinDetails ?? initialCoinDetails;
+  console.warn("COINDETAILS ON PAGE", globalCoinDetails);
+  console.warn("FALLBACK COINDETAILS ON PAGE", initialCoinDetails);
 
   // Check if the coin details are fully preloaded
   const isFullyPreloaded = isFullCoinDetails(coinDetails);

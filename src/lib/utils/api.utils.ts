@@ -19,10 +19,11 @@ import {
   ITopMarketCapApiResponse,
 } from "@/lib/types/apiResponseTypes";
 import {
-  TInitialDataOptions,
+  TInitialPageDataOptions,
   InitialDataType,
   TInitialRoute,
 } from "@/lib/types/apiRequestTypes";
+import { pfetchAndFormatCoinDetailsData } from "./server.utils";
 
 /**
  * Fetches raw data for the top 100 coins and currency exchange rates.
@@ -260,7 +261,7 @@ interface IFetchInitialDataParams {
 export async function fetchInitialDataBasedOnRoute({
   initialRoute = "/",
   currencyPreference = INITIAL_CURRENCY,
-}: IFetchInitialDataParams): Promise<TInitialDataOptions> {
+}: IFetchInitialDataParams): Promise<TInitialPageDataOptions> {
   // Fetch data based on the route
   switch (initialRoute) {
     case "/":
@@ -276,9 +277,10 @@ export async function fetchInitialDataBasedOnRoute({
       console.log("Fetching data for a coin details page");
       // Extract symbol from the route
       const symbol = initialRoute.split("/")[2];
-      const coinDetailsData = await fetchAndFormatCoinDetailsData(
+      const coinDetailsData = await pfetchAndFormatCoinDetailsData(
         symbol,
         currencyPreference,
+        { useCache: true },
       );
       return coinDetailsData
         ? { dataType: InitialDataType.COIN_DETAILS, data: coinDetailsData }

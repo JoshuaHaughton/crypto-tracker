@@ -32,6 +32,8 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  console.warn("LAYOUT RENDER");
+
   // Access cookies in server components
   const cookieStore = cookies();
 
@@ -40,22 +42,11 @@ export default async function RootLayout({
     (cookieStore.get(E_COOKIE_NAMES.CURRENT_CURRENCY)
       ?.value as TCurrencyString) || INITIAL_CURRENCY;
 
-  // Retrieve the initial route from the cookie store
-  const initialRoute =
-    (cookieStore.get(E_COOKIE_NAMES.INITIAL_ROUTE)?.value as TInitialRoute) ||
-    "/";
-
-  // Fetch initial data based on the route and currency information
-  const initialData = await fetchInitialDataBasedOnRoute({
-    initialRoute,
-    currencyPreference,
-  });
-
   return (
     <html lang="en">
       <body className={inter.className}>
-        <StoreProvider initialData={initialData}>
-          <AppInitializer initialData={initialData} />
+        <StoreProvider initialData={{ currencyPreference }}>
+          <AppInitializer />
           <MainLayout>{children}</MainLayout>
         </StoreProvider>
       </body>

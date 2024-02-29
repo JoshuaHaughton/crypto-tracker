@@ -4,7 +4,6 @@ import ExternalScriptLoader from "@/components/Initializers/ExternalScriptLoader
 import { EXTERNAL_SCRIPTS } from "@/lib/constants/externalScriptConstants";
 import { useAppInitialization } from "@/lib/hooks/appLifecycle/useAppInitialization";
 import { useAppDispatch } from "@/lib/store";
-import { TInitialDataOptions } from "@/lib/types/apiRequestTypes";
 import { curryScriptsWithDispatch } from "@/lib/utils/script.utils";
 
 /**
@@ -33,12 +32,10 @@ import { curryScriptsWithDispatch } from "@/lib/utils/script.utils";
  * loading external scripts. It renders `ExternalScriptLoader` for managing script loading, indirectly
  * influencing the UI by setting up required functionalities and state.
  */
-export const AppInitializer: React.FC<{ initialData: TInitialDataOptions }> = ({
-  initialData,
-}) => {
+export const AppInitializer: React.FC<{}> = ({}) => {
   console.log("AppInitializer render");
   // Initialize app-wide logic (e.g., state, web workers) at the component's start.
-  useAppInitialization(initialData);
+  useAppInitialization();
 
   // Dynamically attach dispatch to scripts that interact with the Redux store.
   const dispatch = useAppDispatch();

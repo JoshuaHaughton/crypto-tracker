@@ -14,7 +14,7 @@ import {
  * @returns `true` if `coinDetails` is of type `ICoinDetails`, otherwise `false`.
  */
 export function isFullCoinDetails(
-  coinDetails: TShallowOrFullCoinDetails | null,
+  coinDetails: TShallowOrFullCoinDetails | undefined | null,
 ): coinDetails is ICoinDetails {
   return (coinDetails as ICoinDetails)?.priceChartDataset != null;
 }
