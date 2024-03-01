@@ -41,20 +41,14 @@ const transformCurrencyForPopularCoinsList = (
       toCurrency,
       currencyExchangeRates,
     ),
-    market_cap: convertCurrency(
+    total_market_cap: convertCurrency(
       coin.total_market_cap,
       fromCurrency,
       toCurrency,
       currencyExchangeRates,
     ),
-    total_volume: convertCurrency(
+    volume_24h: convertCurrency(
       coin.volume_24h,
-      fromCurrency,
-      toCurrency,
-      currencyExchangeRates,
-    ),
-    price_change_24h: convertCurrency(
-      coin.price_change_percentage_24h,
       fromCurrency,
       toCurrency,
       currencyExchangeRates,
@@ -371,7 +365,7 @@ onmessage = (event: CTWInternalRequestMessageEvent) => {
   }
 };
 
-// Other Types taht can't be imported
+// Other Types that can't be imported
 
 type TCurrencyString = (typeof ALL_CURRENCIES)[number];
 
@@ -497,7 +491,7 @@ enum CTWMessageRequestType {
 
 // Types for the data object based on each REQUEST case
 interface CTWCoinDetailsRequestData {
-  coinToTransform: any;
+  coinToTransform: ICoinDetails;
   fromCurrency: TCurrencyString;
   toCurrency: TCurrencyString;
   currencyExchangeRates: Record<
@@ -507,17 +501,14 @@ interface CTWCoinDetailsRequestData {
 }
 
 interface CTWAllCoinDetailsRequestData {
-  coinToTransform: any;
+  coinToTransform: ICoinDetails;
   fromCurrency: TCurrencyString;
-  currencyExchangeRates: Record<
-    TCurrencyString,
-    Record<TCurrencyString, number>
-  >;
+  currencyExchangeRates: TCurrencyExchangeRates;
   currenciesToExclude?: TCurrencyString[];
 }
 
 interface CTWPopularCoinsListRequestData {
-  coinsToTransform: any[];
+  coinsToTransform: ICoinOverview[];
   fromCurrency: TCurrencyString;
   toCurrency: TCurrencyString;
   currencyExchangeRates: Record<
@@ -527,7 +518,7 @@ interface CTWPopularCoinsListRequestData {
 }
 
 interface CTWAllPopularCoinsListsRequestData {
-  coinsToTransform: any[];
+  coinsToTransform: ICoinOverview[];
   fromCurrency: TCurrencyString;
   currenciesToExclude?: TCurrencyString[];
   currencyExchangeRates: Record<

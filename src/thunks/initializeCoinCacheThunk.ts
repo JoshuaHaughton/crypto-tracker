@@ -42,22 +42,21 @@ export const initializeCoinCache = createAsyncThunk<
     const state = getState();
     const { currentCurrency, currencyRates } = state.currency;
 
-    // Begin preloading process for initial popular coins
-    dispatch(appInfoActions.startInitialPopularCoinsLoading());
+    // Mark the completion of initial popular coins loading
     dispatch(appInfoActions.startPopularCoinsPreloading());
 
     let popularCoinsToUse: ICoinOverview[];
 
     if (handleFetch) {
       // Conditionally fetch popular coins data from the API if handleFetch is true
-      console.warn("Fetching popular coins data from API.");
+      console.warn("Fetching popular coins data from API for initialization.");
       const response = await dispatch(
         apiSlice.endpoints.fetchPopularCoinsData.initiate(currentCurrency),
       ).unwrap();
       popularCoinsToUse = response.popularCoins;
     } else if (popularCoins) {
       // If popularCoins are provided, use these and ensure handleFetch is false.
-      console.warn("Using provided popular coins data.");
+      console.warn("Using provided popular coins data for initialization.");
       popularCoinsToUse = popularCoins;
     } else {
       throw new Error(
@@ -72,9 +71,6 @@ export const initializeCoinCache = createAsyncThunk<
         coinList: popularCoinsToUse,
       }),
     );
-
-    // Mark the completion of initial popular coins loading
-    dispatch(appInfoActions.completeInitialPopularCoinsLoading());
 
     // Calls `transformAndDispatchPopularCoinsToShallow` with the transformed data from the web worker and the Redux dispatch function.
     // This function processes each currency's popular coins data into a shallow format and updates the Redux store accordingly
@@ -96,19 +92,13 @@ export const initializeCoinCache = createAsyncThunk<
           // an unnecessary computation
           currenciesToExclude: [currentCurrency],
         },
-        onComplete: (response: CTWAllPopularCoinsListsExternalResponseData) => {
-          // Handle the transformed coins for each currency in the same way we do to the initial coins above this webworker call
-          const { transformedData } = response;
-          transformAndDispatchPopularCoinsToShallow(dispatch, transformedData);
-          // End the comprehensive preloading process
-          dispatch(appInfoActions.completePopularCoinsPreloading());
-        },
+        onComplete: () =>
+          dispatch(appInfoActions.completePopularCoinsPreloading()),
       },
     );
   } catch (error) {
     console.error("Failed to initialize coin cache:", error);
-    // Dispatch failure actions
-    dispatch(appInfoActions.failInitialPopularCoinsLoading());
+    // Dispatch failure action
     dispatch(appInfoActions.failPopularCoinsPreloading());
   }
 });

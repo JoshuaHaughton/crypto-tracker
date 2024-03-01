@@ -23,7 +23,7 @@ import {
 const PopularCoinsList: React.FC = () => {
   // Destructuring values from the custom hook for managing state and behavior of the popular coins list.
   const {
-    search,
+    searchQuery,
     coinsForCurrentPage,
     popularCoinsAreLoading,
     popularCoinsListPageNumber,
@@ -84,7 +84,7 @@ const PopularCoinsList: React.FC = () => {
             },
             input: { color: "white" },
           }}
-          value={search}
+          value={searchQuery}
           className={styles.input}
           onChange={handleInputChange}
         />

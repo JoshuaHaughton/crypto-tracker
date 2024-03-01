@@ -21,7 +21,7 @@ import useCoinDetailsPreloader from "@/lib/hooks/preloaders/useCoinDetailsPreloa
  * Interface defining the structure for the state and setters returned by usePopularCoinsList hook.
  */
 interface IUsePopularCoinsListState {
-  search: string;
+  searchQuery: string;
   coinsForCurrentPage: IPopularCoinSearchItem[];
   popularCoinsAreLoading: boolean;
   isBreakpoint380: boolean;
@@ -29,7 +29,7 @@ interface IUsePopularCoinsListState {
   isBreakpoint1250: boolean;
   popularCoinsListPageNumber: number;
   currentSymbol: TCurrencySymbol;
-  setSearch: (searchTerm: string) => void;
+  setSearchQuery: (searchTerm: string) => void;
   handleInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
   handleItemMouseEnter: (symbol: string) => void;
   handleItemClick: (symbol: string) => void;
@@ -58,26 +58,27 @@ export function usePopularCoinsList(): IUsePopularCoinsListState {
     popularCoinsLoadingStatus === LoadingStatus.LOADING;
 
   // Manage search term via Redux, reducing local state management.
-  const { search, setSearch, results } = usePopularCoinsSearch();
+  const { searchQuery, setSearchQuery, searchResults } =
+    usePopularCoinsSearch();
 
   // Fetch current page coins based on Redux-stored search results, enhancing performance.
   const { coinsForCurrentPage } = useCurrentPageCoins({
-    currentQuery: search,
-    searchResults: results,
+    currentQuery: searchQuery,
+    searchResults: searchResults,
     currentPageNumber: popularCoinsListPageNumber,
   });
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     console.log("handleInputChange");
-    setSearch(e.target.value);
+    setSearchQuery(e.target.value);
   };
 
   const { handleMouseEnter, handleClick } = useCoinDetailsPreloader();
 
   // Provides API for search term management and current page coins display.
   return {
-    search,
+    searchQuery,
     coinsForCurrentPage,
     popularCoinsAreLoading,
     isBreakpoint380,
@@ -85,7 +86,7 @@ export function usePopularCoinsList(): IUsePopularCoinsListState {
     isBreakpoint1250,
     popularCoinsListPageNumber,
     currentSymbol,
-    setSearch,
+    setSearchQuery,
     handleInputChange,
     handleItemMouseEnter: handleMouseEnter,
     handleItemClick: handleClick,

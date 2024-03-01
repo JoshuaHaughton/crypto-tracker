@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavbar } from "./useNavbar";
 import styles from "./Navbar.module.scss";
 import logo from "../../../../public/Crypto.svg";
 import Image from "next/image";
@@ -9,7 +10,6 @@ import Snackbar from "@mui/material/Snackbar";
 import styled from "@mui/system/styled";
 import { outlinedInputClasses } from "@mui/material";
 import Link from "next/link";
-import { useNavbar } from "./useNavbar";
 
 const vertical = "bottom";
 const horizontal = "center";

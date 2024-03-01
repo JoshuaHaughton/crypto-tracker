@@ -8,6 +8,7 @@ import {
 } from "@/lib/types/apiRequestTypes";
 import { initializeCoinCache } from "@/thunks/initializeCoinCacheThunk";
 import { preloadCoinDetailsThunk } from "@/thunks/preloadCoinDetailsThunk";
+import { appInfoActions } from "@/lib/store/appInfo/appInfoSlice";
 
 /**
  * Custom hook to initialize and hydrate application data based on initial server-side fetched data.
@@ -25,6 +26,7 @@ const useStoreHydrator = (initialData: TInitialPageDataOptions) => {
       switch (initialData.dataType) {
         case InitialDataType.POPULAR_COINS:
           // Dispatch popular coins and carousel data if available.
+          dispatch(appInfoActions.startInitialPopularCoinsLoading());
           if (initialData.data.popularCoins) {
             dispatch(
               coinsActions.setPopularCoins({
@@ -36,6 +38,10 @@ const useStoreHydrator = (initialData: TInitialPageDataOptions) => {
                 carouselSymbols: initialData.data.carouselSymbolList,
               }),
             );
+            dispatch(appInfoActions.completeInitialPopularCoinsLoading());
+          } else {
+            // Dispatch failure action
+            dispatch(appInfoActions.failInitialPopularCoinsLoading());
           }
           break;
 
@@ -71,7 +77,7 @@ const useStoreHydrator = (initialData: TInitialPageDataOptions) => {
         );
       }
 
-      // Always initialize the coin cache first, regardless of the page type.
+      // Always initialize the coin cache, regardless of the page type.
       // This is crucial for ensuring that the popular coins list is available application-wide.
       if (
         initialData?.dataType === InitialDataType.POPULAR_COINS &&
@@ -95,11 +101,6 @@ const useStoreHydrator = (initialData: TInitialPageDataOptions) => {
       }
     }
   }, [dispatch, initialData]);
-
-  // Log to indicate the hydration process is complete.
-  console.log(
-    "Application data initialized and hydrated based on initial load.",
-  );
 };
 
 export default useStoreHydrator;

@@ -135,7 +135,7 @@ function prepareCoinsForDisplay(
   currentPageNumber: number,
 ): IPopularCoinSearchItem[] {
   // Check if there is an active search query to determine the source of the coins.
-  const isSearchActive = currentQuery.trim().length > 0;
+  const isSearchActive = currentQuery.length > 0;
 
   // If there is an active search, use the searchResults directly. Otherwise, convert popularCoins to the IPopularCoinSearchItem format.
   // This conversion is necessary to maintain a consistent data structure for rendering, regardless of the coin source.

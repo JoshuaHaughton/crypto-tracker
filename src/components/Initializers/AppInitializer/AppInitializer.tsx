@@ -1,6 +1,6 @@
 "use client";
 
-import ExternalScriptLoader from "@/components/Initializers/ExternalScriptLoader/ExternalScriptLoader";
+import ExternalScriptLoaderClient from "../ExternalScriptLoader/ExternalScriptLoaderClient";
 import { EXTERNAL_SCRIPTS } from "@/lib/constants/externalScriptConstants";
 import { useAppInitialization } from "@/lib/hooks/appLifecycle/useAppInitialization";
 import { useAppDispatch } from "@/lib/store";
@@ -22,10 +22,10 @@ import { curryScriptsWithDispatch } from "@/lib/utils/script.utils";
  * This strategic initialization supports Next.js's SSR and client-side execution model, ensuring
  * a smooth and performant application experience.
  *
- * Additionally, `AppInitializer` dynamically applies Redux `dispatch` to scripts requiring state
- * management interactions upon loading. This approach is facilitated by `curryScriptsWithDispatch`,
- * selectively binding `dispatch` to script `onLoad` functions that impact application state. This
- * method optimizes the integration of external scripts with Redux, particularly for those executed
+ * Additionally, `AppInitializer` uses ExternalScriptLoaderClient which dynamically applies Redux
+ * `dispatch` to scripts requiring state management interactions upon loading. This approach is facilitated by
+ * `curryScriptsWithDispatch`, selectively binding `dispatch` to script `onLoad` functions that impact application state.
+ * This method optimizes the integration of external scripts with Redux, particularly for those executed
  * with the `afterInteractive` strategy, enhancing state management and application responsiveness.
  *
  * Contrary to rendering visible UI elements, `AppInitializer` focuses on initializing state and
@@ -34,13 +34,9 @@ import { curryScriptsWithDispatch } from "@/lib/utils/script.utils";
  */
 export const AppInitializer: React.FC<{}> = ({}) => {
   console.log("AppInitializer render");
-  // Initialize app-wide logic (e.g., state, web workers) at the component's start.
+  // Initialize app-wide logic (e.g., state, web workers) on the initial mount of the app in the Client.
   useAppInitialization();
 
-  // Dynamically attach dispatch to scripts that interact with the Redux store.
-  const dispatch = useAppDispatch();
-  const preparedScripts = curryScriptsWithDispatch(EXTERNAL_SCRIPTS, dispatch);
-
   // Render external scripts through ExternalScriptLoader, indirectly affecting UI by setting up app functionalities.
-  return <ExternalScriptLoader scriptConfig={preparedScripts} />;
+  return <ExternalScriptLoaderClient scriptConfig={EXTERNAL_SCRIPTS} />;
 };

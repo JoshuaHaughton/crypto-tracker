@@ -38,7 +38,7 @@ export const updateCurrency = createAsyncThunk<
   IUpdateCurrencyPayload,
   { state: TRootState }
 >(
-  "currency/update",
+  "currency/updatedCurrency",
   async (payload: IUpdateCurrencyPayload, { dispatch, getState }) => {
     const { updatedCurrency } = payload;
     const { coins, currency } = getState();
@@ -82,11 +82,11 @@ interface IHandleCacheUsedParams {
  * @param params.cache - The cached data, which can be either a list of coin overviews or coin details, depending on the cache type.
  * @param params.dispatch - The Redux dispatch function used to update the store with the new state.
  */
-async function handleCacheUsed({
+function handleCacheUsed({
   type,
   cache,
   dispatch,
-}: IHandleCacheUsedParams): Promise<void> {
+}: IHandleCacheUsedParams): void {
   switch (type) {
     case E_CACHE_TYPE.COIN_DETAILS:
       const selectedCoinCache = cache as ICoinDetails;
@@ -126,14 +126,14 @@ interface IHandleCacheNotUsedParams {
  * @param params.currencyRates - The current currency exchange rates, necessary for the conversion process.
  * @param params.dispatch - The Redux dispatch function used to issue actions based on the results of the currency conversion.
  */
-async function handleCacheNotUsed({
+function handleCacheNotUsed({
   type,
   coinData,
   currentCurrency,
   updatedCurrency,
   currencyRates,
   dispatch,
-}: IHandleCacheNotUsedParams): Promise<void> {
+}: IHandleCacheNotUsedParams): void {
   // Prepare the request data for currency updates
   const requestData = prepareRequestData(
     type,
@@ -303,7 +303,7 @@ async function processCoinDataUpdates({
   // Update for selected coin details if necessary
   const isPreloaded =
     selectedCoinDetails?.priceChartDataset != null &&
-    cachedSelectedCoinDetailsByCurrency[updatedCurrency]?.priceChartDataset !==
+    cachedSelectedCoinDetailsByCurrency[updatedCurrency]?.priceChartDataset !=
       null;
   if (isPreloaded) {
     const preloadedCache = cachedSelectedCoinDetailsByCurrency[
@@ -374,14 +374,13 @@ async function updateCurrencyAndCache({
   if (cache && !isEmpty(cache)) {
     // Use the cache to update the state immediately without fetching new data
     console.log(`CACHE USED - ${type}`);
-    await handleCacheUsed({ type, cache, dispatch });
-    dispatch(
-      currencyActions.setDisplayedCurrency({ currency: updatedCurrency }),
-    );
+    console.log(`CACHE -`, cache);
+    console.log(`CURRENT COINDATA -`, coinData);
+    handleCacheUsed({ type, cache, dispatch });
   } else {
     // No relevant cache available, request new data
     console.log(`CACHE NOT USED - ${type}`);
-    await handleCacheNotUsed({
+    handleCacheNotUsed({
       type,
       coinData,
       currentCurrency,
@@ -390,4 +389,5 @@ async function updateCurrencyAndCache({
       dispatch,
     });
   }
+  dispatch(currencyActions.setDisplayedCurrency({ currency: updatedCurrency }));
 }

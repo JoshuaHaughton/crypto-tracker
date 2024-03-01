@@ -13,7 +13,7 @@ interface IStoreHydratorProps {
 /**
  * Component responsible for initializing the Redux store with preloaded data.
  * This component does not render any UI; it only uses the useStoreHydrator hook
- * to dispatch actions and update the Redux store based on the provided props.
+ * to dispatch actions and update the Redux store based on the initial data of the app.
  *
  * @param {IStoreHydratorProps} props - The preloaded data for initializing the store.
  */

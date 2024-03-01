@@ -18,14 +18,22 @@ import { usePageData } from "@/lib/contexts/pageContext";
  *
  * @interface IUsePopularCoinsSearchState
  * @property search - The current search query string.
- * @property setSearch - Function to update the search query string.
+ * @property setSearchQuery - Function to update the search query string.
  * @property results - Search Results.
  */
 interface IUsePopularCoinsSearchState {
-  search: string;
-  setSearch: (searchTerm: string) => void;
-  results: IPopularCoinSearchItem[];
+  searchQuery: string;
+  setSearchQuery: (searchTerm: string) => void;
+  searchResults: IPopularCoinSearchItem[];
 }
+
+// The OUT_OF_ORDER parameter in the uFuzzy search function enables the
+// fuzzy search algorithm to match search terms in the input query
+// even if they appear in a different order in the target strings.
+const OUT_OF_ORDER = true;
+// Perform the search using the uFuzzy instance.
+// Max 1000 results (Should only be 80-200 here)
+const MAX_INFO_THRESHOLD = 1000;
 
 /**
  * Custom hook for searching within a list of popular coins.
@@ -36,32 +44,37 @@ interface IUsePopularCoinsSearchState {
 export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
   console.log("usePopularCoinsSearch");
   // State hooks for managing search term and results.
-  const [search, setSearch] = useState<string>("");
-  const [results, setResults] = useState<IPopularCoinSearchItem[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchResults, setSearchResults] = useState<IPopularCoinSearchItem[]>(
+    [],
+  );
 
+  const dispatch = useDispatch();
   // Redux hooks for accessing the fuzzy search instance and dispatching actions.
   const isSearchInitialized = useAppSelector(selectIsSearchInitialized);
   const allReduxPopularCoins = useAppSelector(selectPopularCoins);
-  // Fallback to page specific data if Redux store doesn't have carousel coins yet.
+  // Fallback to page specific data if Redux store doesn't have carousel coins yet due to initial hydration.
   const { popularCoins } = usePageData();
+
   const allPopularCoins: ICoinOverview[] =
     allReduxPopularCoins.length > 0
       ? allReduxPopularCoins
       : (popularCoins as ICoinOverview[]);
-  const dispatch = useDispatch();
+  console.log("allPopularCoins - usePopularCoinsSearch", allPopularCoins);
 
   // Memoize coin names and symbols to prevent recalculating them on every render.
   // This optimization helps to reduce unnecessary computations, especially when the list of coins is large.
+  // We don't recalculate when allPopularCoins changes because they'll be the same name in different currencies
   const nameHaystack = useMemo(
     () => allPopularCoins.map((coin) => coin.name),
-    [allPopularCoins],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   );
   const symbolHaystack = useMemo(
     () => allPopularCoins.map((coin) => coin.symbol),
-    [allPopularCoins],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   );
-
-  const initialSearchPerformed = useRef(false);
 
   // Memoize the uFuzzy instance retrieval based on the search initialization status
   const uFuzzyInstance = useMemo(() => {
@@ -72,9 +85,10 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
     return null;
   }, [isSearchInitialized]);
 
-  // Ref to store the debounced function
-  const debouncedSetGlobalSearchResultsRef = useRef(
-    debounce((formattedResults: IPopularCoinSearchItem[]) => {
+  // Ref to store the debounced global state updates
+  const updateGlobalSearchState = useRef(
+    debounce((searchTerm, formattedResults) => {
+      dispatch(setCurrentQuery(searchTerm));
       dispatch(setGlobalSearchResults(formattedResults));
     }, 1000),
   );
@@ -82,7 +96,7 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
   // Callback hook to memoize the search function.
   const performSearch = useCallback(
     (query: string) => {
-      console.log("performSearch - usePopularCoinsSearch");
+      console.log("performSearch - usePopularCoinsSearch", query);
       if (!uFuzzyInstance) {
         // Handle the scenario where uFuzzyInstance is not available
         console.warn("Fuzzy search instance is not available.");
@@ -90,31 +104,24 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
       }
 
       if (!query.trim()) {
-        // Dispatch action to update the Redux store with the initial set of coins if query is empty.
-        debouncedSetGlobalSearchResultsRef.current([]);
+        // Update results to be empty if the query is empty.
+        setSearchResults([]);
+        updateGlobalSearchState.current(query, []);
         return;
       }
-
-      // The outOfOrder parameter in the uFuzzy search function enables the
-      // fuzzy search algorithm to match search terms in the input query
-      // even if they appear in a different order in the target strings.
-      const outOfOrder = true;
-      // Perform the search using the uFuzzy instance.
-      // Max 1000 results (Should only be 80-200 here)
-      const infoThreshold = 1000;
 
       // Perform separate searches on names and symbols
       const [nameMatchedIndices, nameMatchInfo] = uFuzzyInstance.search(
         nameHaystack,
         query,
-        outOfOrder,
-        infoThreshold,
+        OUT_OF_ORDER,
+        MAX_INFO_THRESHOLD,
       );
       const [symbolMatchedIndices, symbolMatchInfo] = uFuzzyInstance.search(
         symbolHaystack,
         query,
-        outOfOrder,
-        infoThreshold,
+        OUT_OF_ORDER,
+        MAX_INFO_THRESHOLD,
       );
 
       // Create Maps to associate indices with their match details directly.
@@ -155,42 +162,23 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
         [] as IPopularCoinSearchItem[],
       );
 
-      setResults(formattedResults);
-      // Update Redux state with the search results.
-      debouncedSetGlobalSearchResultsRef.current(formattedResults);
+      // Update local state
+      setSearchResults(formattedResults);
+      // Update Global state with the search results.
+      updateGlobalSearchState.current(query, formattedResults);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dispatch, uFuzzyInstance, nameHaystack, symbolHaystack],
-  );
 
-  // Effect hook to perform search operations after the initial mount.
-  useEffect(() => {
-    // Only perform search if it's not the initial search
-    if (initialSearchPerformed.current) {
-      performSearch(search);
-    } else {
-      console.log("initial search attempted but not performed");
-    }
-
-    // Mark that an initial search has been performed after the first non-initial render.
-    if (!initialSearchPerformed.current && isSearchInitialized) {
-      initialSearchPerformed.current = true;
-    }
-  }, [isSearchInitialized, search, performSearch]);
-
-  // Ref to store the debounced function
-  const debouncedSetCurrentQueryRef = useRef(
-    debounce((searchTerm: string) => {
-      dispatch(setCurrentQuery(searchTerm));
-    }, 1000),
+    [uFuzzyInstance, nameHaystack, symbolHaystack, allPopularCoins],
   );
 
   // Also dispatch the current query to the Redux store
-  const handleSetSearch = (searchTerm: string) => {
-    setSearch(searchTerm); // Update local state
-    debouncedSetCurrentQueryRef.current(searchTerm);
+  const handleSetSearchQuery = (searchTerm: string) => {
+    if (searchTerm === searchQuery) return;
+
+    setSearchQuery(searchTerm); // Update local state
+    performSearch(searchTerm);
   };
 
   // Return the current search state.
-  return { search, setSearch: handleSetSearch, results };
+  return { searchQuery, setSearchQuery: handleSetSearchQuery, searchResults };
 }

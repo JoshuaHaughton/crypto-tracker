@@ -1,15 +1,13 @@
 import { useState } from "react";
 import { SelectChangeEvent } from "@mui/material/Select";
-import { COOKIE_ACTIONS, E_COOKIE_NAMES } from "@/lib/types/cookieTypes";
-import { manageCookies } from "@/lib/utils/server.utils";
 import { updateCurrency } from "@/thunks/updateCurrencyThunk";
-import { getTenYearsInFuture } from "@/lib/utils/global.utils";
 import {
   selectCurrentCurrency,
   selectCurrentSymbol,
 } from "@/lib/store/currency/currencySelectors";
 import { selectIsBreakpoint555 } from "@/lib/store/mediaQuery/mediaQuerySelectors";
 import { useAppDispatch, useAppSelector } from "@/lib/store";
+import { updateCurrencyCookie } from "@/app/api/updateCookie/utils";
 
 /**
  * Custom hook to encapsulate the Navbar's stateful logic.
@@ -43,17 +41,14 @@ export const useNavbar = () => {
     setOpenNotificationBar(true); // Open the notification bar to indicate the currency change.
 
     try {
-      // Update the currency cookie with the new currency value.
-
       // Update the Redux store with the new currency.
       await dispatch(updateCurrency({ updatedCurrency: newCurrency }));
-      await manageCookies({
-        actionType: COOKIE_ACTIONS.UPDATE,
-        cookieName: E_COOKIE_NAMES.CURRENT_CURRENCY,
-        cookieValue: newCurrency,
-        options: { expires: getTenYearsInFuture() },
-      });
-      setOpenNotificationBar(false); // Close the notification bar to indicate the currency change completion.
+
+      // Close the notification bar to indicate the currency change completion.
+      setOpenNotificationBar(false);
+
+      // Update the currency cookie with the new currency value.
+      updateCurrencyCookie(newCurrency);
     } catch (error) {
       console.error("Error updating currency:", error);
     }

@@ -133,7 +133,7 @@ export function handleTransformedCurrencyResponse(
   callbacksMap: CTWCallbacksMap,
 ) {
   const { responseType, onCompleteCallbackId } = event.data;
-  console.log(`currencyTransformerWorker message received - ${responseType}`);
+  console.warn(`currencyTransformerWorker message received - ${responseType}`);
 
   switch (responseType) {
     case CTWResponseType.COIN_DETAILS_SINGLE_CURRENCY: {
@@ -184,7 +184,7 @@ export function handleTransformedCurrencyResponse(
       const callback = callbacksMap.get(onCompleteCallbackId);
       if (callback) {
         console.warn(
-          "calling currencyTransformerWorker callback",
+          "Calling currencyTransformerWorker callback",
           onCompleteCallbackId,
         );
         // Create a response object that includes both responseType and transformedData
@@ -197,6 +197,10 @@ export function handleTransformedCurrencyResponse(
         callback(callbackResponse);
         // Delete the callback after it's been called to free up memory
         callbacksMap.delete(onCompleteCallbackId);
+        console.warn(
+          "Deleting currencyTransformerWorker callback",
+          onCompleteCallbackId,
+        );
       }
     } else {
       // Throw an error if onCompleteCallbackId is provided but not found in the map
