@@ -12,6 +12,11 @@ import { debounce } from "lodash";
 import { useAppSelector } from "@/lib/store";
 import { usePageData } from "@/lib/contexts/pageContext";
 
+interface ICurrentSearchData {
+  nameMatches: Map<number, IMatchDetail>;
+  symbolMatches: Map<number, IMatchDetail>;
+}
+
 /**
  * Defines the structure for the search state within the popular coins search hook.
  * Includes the current search string, search Results, and a method to update the search string.
@@ -48,7 +53,12 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
   const [searchResults, setSearchResults] = useState<IPopularCoinSearchItem[]>(
     [],
   );
-
+  // Ref updated when search changes. We use this when formatting results because formatResults may be called whenever popularCoins change,
+  // and we don't want to recompute search logic in those siituations
+  const currentSearchData = useRef<ICurrentSearchData>({
+    nameMatches: new Map(),
+    symbolMatches: new Map(),
+  });
   const dispatch = useDispatch();
   // Redux hooks for accessing the fuzzy search instance and dispatching actions.
   const isSearchInitialized = useAppSelector(selectIsSearchInitialized);
@@ -60,18 +70,15 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
     allReduxPopularCoins.length > 0
       ? allReduxPopularCoins
       : (popularCoins as ICoinOverview[]);
-  console.log("allPopularCoins - usePopularCoinsSearch", allPopularCoins);
 
   // Memoize coin names and symbols to prevent recalculating them on every render.
   // This optimization helps to reduce unnecessary computations, especially when the list of coins is large.
-  // We don't recalculate when allPopularCoins changes because they'll be the same name in different currencies
-  const nameHaystack = useMemo(
-    () => allPopularCoins.map((coin) => coin.name),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
-  const symbolHaystack = useMemo(
-    () => allPopularCoins.map((coin) => coin.symbol),
+  const { nameHaystack, symbolHaystack } = useMemo(
+    () => ({
+      nameHaystack: allPopularCoins.map((coin) => coin.name),
+      symbolHaystack: allPopularCoins.map((coin) => coin.symbol),
+    }),
+    // We don't recalculate when allPopularCoins changes because they'll be the same name in different currencies
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
@@ -87,10 +94,44 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
 
   // Ref to store the debounced global state updates
   const updateGlobalSearchState = useRef(
-    debounce((searchTerm, formattedResults) => {
-      dispatch(setCurrentQuery(searchTerm));
-      dispatch(setGlobalSearchResults(formattedResults));
+    debounce(({ searchTerm, formattedResults }) => {
+      if (searchTerm != null) {
+        dispatch(setCurrentQuery(searchTerm));
+      }
+      if (formattedResults != null) {
+        dispatch(setGlobalSearchResults(formattedResults));
+      }
     }, 1000),
+  );
+
+  // Function to format search results, this is separated so we can call it only when popularCoins change.
+  const formatResults = useCallback(
+    (
+      nameMatchesMap = currentSearchData.current.nameMatches,
+      symbolMatchesMap = currentSearchData.current.symbolMatches,
+    ) => {
+      // Generate the formatted results using the Maps.
+      return allPopularCoins.reduce((accumulator, coin, index) => {
+        // Retrieve match details for the current coin
+        const nameMatches = nameMatchesMap.get(index);
+        const symbolMatches = symbolMatchesMap.get(index);
+
+        // Only include coins that have a match in either name or symbol.
+        if (nameMatches || symbolMatches) {
+          accumulator.push({
+            coinDetails: coin,
+            matchDetails: {
+              nameMatches: nameMatches ?? null,
+              symbolMatches: symbolMatches ?? null,
+            },
+          });
+        }
+
+        // Return the accumulated results so far.
+        return accumulator;
+      }, [] as IPopularCoinSearchItem[]);
+    },
+    [allPopularCoins],
   );
 
   // Callback hook to memoize the search function.
@@ -106,7 +147,10 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
       if (!query.trim()) {
         // Update results to be empty if the query is empty.
         setSearchResults([]);
-        updateGlobalSearchState.current(query, []);
+        updateGlobalSearchState.current({
+          searchTerm: query,
+          formattedResults: [],
+        });
         return;
       }
 
@@ -138,38 +182,41 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
         ]),
       );
 
-      // Generate the formatted results using the new Maps.
-      const formattedResults: IPopularCoinSearchItem[] = allPopularCoins.reduce(
-        (accumulator, coin, index) => {
-          // Retrieve match details for the current coin
-          const nameMatches = nameMatchMap.get(index);
-          const symbolMatches = symbolMatchMap.get(index);
+      currentSearchData.current = {
+        nameMatches: nameMatchMap,
+        symbolMatches: symbolMatchMap,
+      };
 
-          // Only include coins that have a match in either name or symbol.
-          if (nameMatches || symbolMatches) {
-            accumulator.push({
-              coinDetails: coin,
-              matchDetails: {
-                nameMatches: nameMatches ?? null,
-                symbolMatches: symbolMatches ?? null,
-              },
-            });
-          }
-
-          // Return the accumulated results so far.
-          return accumulator;
-        },
-        [] as IPopularCoinSearchItem[],
-      );
+      const formattedResults = formatResults(nameMatchMap, symbolMatchMap);
 
       // Update local state
       setSearchResults(formattedResults);
       // Update Global state with the search results.
-      updateGlobalSearchState.current(query, formattedResults);
+      updateGlobalSearchState.current({
+        searchTerm: query,
+        formattedResults,
+      });
     },
 
-    [uFuzzyInstance, nameHaystack, symbolHaystack, allPopularCoins],
+    [uFuzzyInstance, nameHaystack, symbolHaystack, formatResults],
   );
+
+  // Effect to reformat results when popular coins change.
+  useEffect(() => {
+    if (isSearchInitialized) {
+      const formattedResults = formatResults();
+
+      // Update local state
+      setSearchResults(formattedResults);
+      // Update Global state with the new results.
+      updateGlobalSearchState.current({
+        formattedResults,
+      });
+    }
+    // We shouldn't add formatResults to the deps array because it rerenders whenever search changes,
+    // and we only want to call this on global state updates (e.g. currency updates)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSearchInitialized, allReduxPopularCoins]);
 
   // Also dispatch the current query to the Redux store
   const handleSetSearchQuery = (searchTerm: string) => {
