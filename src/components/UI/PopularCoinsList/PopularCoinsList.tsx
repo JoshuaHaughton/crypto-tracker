@@ -104,11 +104,11 @@ const PopularCoinsList: React.FC = () => {
             </thead>
             <tbody>{contentToDisplay}</tbody>
           </table>
-          <Pagination
-            totalItemsCount={totalItemsCount}
-            currentPageNumber={currentPageNumber}
-          />
         </div>
+        <Pagination
+          totalItemsCount={totalItemsCount}
+          currentPageNumber={currentPageNumber}
+        />
       </div>
     </>
   );

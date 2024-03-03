@@ -36,25 +36,26 @@ const PaginationArrow: React.FC<PaginationArrowProps> = ({
   };
 
   return (
-    <li
-      className={`${styles.item} ${isDisabled ? styles.disabled : ""}`}
-      role="button"
+    <button
+      className={`${styles.arrowButton} ${styles.item} ${
+        isDisabled ? styles.disabled : ""
+      }`}
       tabIndex={!isDisabled ? 0 : undefined}
       onClick={!isDisabled ? onClick : undefined}
       onKeyDown={!isDisabled ? handleKeyPress : undefined}
-      aria-disabled={isDisabled}
+      disabled={isDisabled}
       aria-label={
         direction === ArrowDirections.Left
           ? "Go to previous page"
           : "Go to next page"
       }
     >
-      <div
+      <i
         className={`${styles.arrow} ${
           direction === ArrowDirections.Left ? styles.left : styles.right
         }`}
       />
-    </li>
+    </button>
   );
 };
 

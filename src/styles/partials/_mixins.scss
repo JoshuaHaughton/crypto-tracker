@@ -32,6 +32,23 @@
   }
 }
 
+// Remove Default Button Styles
+// This mixin strips away browser default styling from <button> elements.
+@mixin removeDefaultButtonStyles {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer; // Maintains the pointer to indicate it's clickable but removes other default styles.
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:focus {
+    outline: none; // Remove the default focus outline if needed, otherwise, remove this line to keep default focus.
+  }
+}
+
 // Breakpoints Mixins
 // These mixins allow for cleaner and more maintainable media queries in SCSS files.
 

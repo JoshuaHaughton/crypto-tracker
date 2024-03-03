@@ -23,17 +23,12 @@ const Pagination: React.FC<IPaginationParams> = ({
     currentPageNumber,
   });
 
-  // Do not render if there's only one page or none.
-  if (paginationRange.length <= 1) {
-    return null;
-  }
-
   // Determine if the "Previous" and "Next" arrows should be disabled.
   const isFirstPage = currentPageNumber === 1;
   const isLastPage = currentPageNumber === paginationRange.at(-1);
 
   return (
-    <ul className={styles.container}>
+    <div className={styles.container}>
       {/* Previous page arrow, disabled if on the first page */}
       <PaginationArrow
         direction="left"
@@ -41,14 +36,18 @@ const Pagination: React.FC<IPaginationParams> = ({
         isDisabled={isFirstPage}
       />
 
-      {paginationRange.map((pageNumber, idx) => (
-        <PaginationItem
-          key={idx}
-          pageNumber={pageNumber}
-          isCurrent={pageNumber === currentPageNumber}
-          onClick={() => typeof pageNumber === "number" && goToPage(pageNumber)}
-        />
-      ))}
+      <ul className={styles.listContainer}>
+        {paginationRange.map((pageNumber, idx) => (
+          <PaginationItem
+            key={idx}
+            pageNumber={pageNumber}
+            isCurrent={pageNumber === currentPageNumber}
+            onClick={() =>
+              typeof pageNumber === "number" && goToPage(pageNumber)
+            }
+          />
+        ))}
+      </ul>
 
       {/* Next page arrow, disabled if on the last page */}
       <PaginationArrow
@@ -56,7 +55,7 @@ const Pagination: React.FC<IPaginationParams> = ({
         onClick={onNext}
         isDisabled={isLastPage}
       />
-    </ul>
+    </div>
   );
 };
 

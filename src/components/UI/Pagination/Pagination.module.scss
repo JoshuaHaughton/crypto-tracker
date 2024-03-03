@@ -1,32 +1,26 @@
+@import "../../../styles//partials/mixins";
+
 .container {
   display: flex;
-  list-style-type: none;
-  padding: 44px 0;
-  max-width: 100vw;
-  overflow: hidden;
+  align-items: center;
   justify-content: center;
+  gap: 8px;
+  padding: 44px 0;
 
   @media (max-width: 450px) {
-    max-width: 80%;
     flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
   }
 
   .item {
-    padding: 0 12px;
     height: 32px;
-    text-align: center;
-    margin: auto 4px;
-    color: white;
-    display: flex;
-    box-sizing: border-box;
-    align-items: center;
-    letter-spacing: 0.01071em;
+    width: 32px;
     border-radius: 16px;
-    line-height: 1.43;
     font-size: 14px;
-    min-width: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
     transition: background-color 250ms ease;
 
     &:hover:not(.dots, .disabled) {
@@ -53,33 +47,49 @@
 
       // Additional styles for disabled arrows
       .arrow {
-        color: #aaa; // Grayed out color for disabled arrows
-        &::before {
-          border-right: 0.12em solid #aaa; // Adjust color to match disabled state
-          border-top: 0.12em solid #aaa;
-        }
+        border: solid #aaa; // Grayed out color for disabled arrows
+        border-width: 0 1px 1px 0;
       }
     }
   }
 
-  .arrow {
-    color: #ff9500;
+  .arrowButton {
+    @include removeDefaultButtonStyles;
+  }
 
-    &::before {
-      content: "";
-      display: inline-block;
-      width: 0.4em;
-      height: 0.4em;
-      border-right: 0.12em solid currentColor;
-      border-top: 0.12em solid currentColor;
-    }
+  .arrow {
+    border: solid #ff9500;
+    border-width: 0 3px 3px 0;
+    display: inline-block;
+    padding: 3px;
 
     &.left {
-      transform: rotate(-135deg);
+      transform: rotate(135deg);
+      -webkit-transform: rotate(135deg);
+      margin-left: 3px;
     }
 
     &.right {
-      transform: rotate(45deg);
+      transform: rotate(-45deg);
+      -webkit-transform: rotate(-45deg);
+      margin-right: 3px;
     }
+  }
+}
+
+.listContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  list-style-type: none;
+  overflow: hidden;
+  gap: 8px;
+  min-width: 288px; // 32 (item width) x 9 (max number of items showing at once)
+
+  @media (max-width: 450px) {
+    max-width: 80%;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
   }
 }
