@@ -1,7 +1,8 @@
+import { Options } from "@leeoniya/ufuzzy";
 // https://github.com/leeoniya/uFuzzy?tab=readme-ov-file#options
 
 // Define custom options for uFuzzy to enhance search flexibility and accuracy.
-export const uFuzzyOptions = {
+export const uFuzzyOptions: Options = {
   // interIns: Allows additional characters between search terms.
   // This option helps to accommodate common typos such as accidental extra characters
   // or missed spaces between words, making the search more forgiving and likely to

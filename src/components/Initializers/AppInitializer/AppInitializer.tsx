@@ -1,10 +1,6 @@
 "use client";
 
-import ExternalScriptLoaderClient from "../ExternalScriptLoader/ExternalScriptLoaderClient";
-import { EXTERNAL_SCRIPTS } from "@/lib/constants/externalScriptConstants";
 import { useAppInitialization } from "@/lib/hooks/appLifecycle/useAppInitialization";
-import { useAppDispatch } from "@/lib/store";
-import { curryScriptsWithDispatch } from "@/lib/utils/script.utils";
 
 /**
  * The `AppInitializer` acts as the primary client-side component for initializing
@@ -37,6 +33,6 @@ export const AppInitializer: React.FC<{}> = ({}) => {
   // Initialize app-wide logic (e.g., state, web workers) on the initial mount of the app in the Client.
   useAppInitialization();
 
-  // Render external scripts through ExternalScriptLoader, indirectly affecting UI by setting up app functionalities.
-  return <ExternalScriptLoaderClient scriptConfig={EXTERNAL_SCRIPTS} />;
+  // Render nothing.
+  return null;
 };

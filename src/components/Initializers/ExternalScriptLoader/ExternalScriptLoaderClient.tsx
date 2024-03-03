@@ -1,10 +1,9 @@
 import { memo } from "react";
-import Script from "next/script";
+import Script, { ScriptProps } from "next/script";
 import { useExternalScripts } from "./useExternalScripts";
-import { ScriptConfig } from "@/lib/constants/externalScriptConstants";
 
 interface IExternalScriptLoaderClientParams {
-  scriptConfig: ScriptConfig | ScriptConfig[];
+  scriptConfig: ScriptProps | ScriptProps[];
 }
 
 /**
