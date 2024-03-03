@@ -51,6 +51,8 @@ const CoinInfo: React.FC<ICoinInfoProps> = ({
             width={88}
             height={88}
             className={styles.image}
+            quality={100}
+            priority
           />
 
           <h1 className={styles.name}>{coinAttributes.name}</h1>

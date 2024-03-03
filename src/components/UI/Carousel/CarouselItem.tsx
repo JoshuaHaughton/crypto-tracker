@@ -4,6 +4,8 @@ import styles from "./Carousel.module.scss";
 import { ICoinOverview } from "@/lib/types/coinTypes";
 import { TCurrencySymbol } from "@/lib/constants/globalConstants";
 
+const CAROUSEL_ITEM_IMG_SIZE = 80;
+
 interface ICarouselItemParams {
   coin: ICoinOverview;
   currencySymbol: TCurrencySymbol;
@@ -46,7 +48,14 @@ const CarouselItem: React.FC<ICarouselItemParams> = ({
       {showFallback ? (
         <div className={`${styles.image} ${shimmerClass}`}></div>
       ) : (
-        <Image src={coin.image} alt={coin.name} width={80} height={80} />
+        <Image
+          src={coin.image}
+          alt={coin.name}
+          width={CAROUSEL_ITEM_IMG_SIZE}
+          height={CAROUSEL_ITEM_IMG_SIZE}
+          quality={100}
+          priority
+        />
       )}
       <p className={shimmerClass}>
         {!showFallback

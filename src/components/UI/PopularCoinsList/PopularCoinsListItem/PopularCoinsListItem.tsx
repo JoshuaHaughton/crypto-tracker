@@ -7,6 +7,8 @@ import {
 } from "@/lib/types/coinTypes";
 import HighlightMatchedText from "../../HighlightMatchedText/HighlightMatchedText";
 
+const LIST_ITEM_IMG_SIZE = 38;
+
 /**
  * Props for the PopularCoinListItem component.
  * @interface IPopularCoinListItemProps
@@ -81,7 +83,14 @@ const PopularCoinListItem: React.FC<IPopularCoinListItemProps> = ({
       <td>
         <div className={styles.coin}>
           <figure className={styles.coin__image_wrapper}>
-            <Image src={image} height={38} width={38} alt={`${name} image`} />
+            <Image
+              src={image}
+              height={LIST_ITEM_IMG_SIZE}
+              width={LIST_ITEM_IMG_SIZE}
+              alt={`${name} image`}
+              quality={100}
+              priority
+            />
           </figure>
           <div className={styles.coin__info}>
             <p className={styles.symbol}>{renderedSymbol}</p>

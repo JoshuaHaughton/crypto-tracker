@@ -33,9 +33,11 @@
     "lodash": "^4.17.21",
     "next": "^14",
     "nprogress": "^0.2.0",
+    "plaiceholder": "^3.0.0",
     "react": "^18",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18",
+    "react-intersection-observer": "^9.8.1",
     "react-redux": "^9.0.4",
     "trie-search": "^2.0.0"
   },

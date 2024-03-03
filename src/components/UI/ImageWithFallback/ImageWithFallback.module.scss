@@ -1,0 +1,20 @@
+.container {
+  position: relative; // Corrected from "relative" to relative without quotes
+  width: 100%; // Corrected from "100%" to 100% without quotes
+  height: 100%; // Corrected from "100%" to 100% without quotes
+  display: flex; // Added for centering if needed
+  justify-content: center; // Center horizontally, remove if not needed
+  align-items: center; // Center vertically, remove if not needed
+  overflow: hidden; // Ensures no overflow if using border-radius or similar
+}
+
+.image {
+  // Transition for opacity should be applied here
+  transition: opacity 0.5s ease-in-out;
+  width: 100%; // Ensure the image covers the container width
+  height: auto; // Maintain aspect ratio, change as needed
+}
+
+.fadeIn {
+  opacity: 1; // Fully opaque when the image has loaded
+}
