@@ -1,42 +1,50 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import uFuzzy from "@leeoniya/ufuzzy";
+import { debounce } from "lodash";
 import {
   ICoinOverview,
   IMatchDetail,
   IPopularCoinSearchItem,
 } from "@/lib/types/coinTypes";
-import { useDispatch } from "react-redux";
 import {
   setCurrentQuery,
   setGlobalSearchResults,
 } from "@/lib/store/search/searchSlice";
-import { debounce } from "lodash";
-import uFuzzy from "@leeoniya/ufuzzy";
 import { uFuzzyOptions } from "@/lib/constants/searchConstants";
+import { useAppDispatch } from "@/lib/store";
 
 interface IUsePopularCoinsSearchParams {
   allPopularCoins: ICoinOverview[];
 }
 
-/**
- * Defines the structure for the search state within the popular coins search hook.
- * Includes the current search string, search Results, and a method to update the search string.
- *
- * @interface IUsePopularCoinsSearchState
- * @property search - The current search query string.
- * @property setSearchQuery - Function to update the search query string.
- * @property results - Search Results.
- */
 interface IUsePopularCoinsSearchState {
   searchQuery: string;
   setSearchQuery: (searchTerm: string) => void;
   searchResults: IPopularCoinSearchItem[];
 }
 
+type TFuzzySeachItemTypes = "name" | "symbol";
+
+interface IFuzzySearchItemReference {
+  text: string;
+  type: TFuzzySeachItemTypes;
+  originalIndex: number;
+}
+
+interface ICoinMatchDetails {
+  nameMatches?: IMatchDetail;
+  symbolMatches?: IMatchDetail;
+}
+
+type TDetailsByOriginalIndex = Map<number, ICoinMatchDetails>;
+
 interface ICurrentSearchData {
-  matches: Map<
-    number,
-    { nameMatches?: IMatchDetail; symbolMatches?: IMatchDetail }
-  >;
+  queryMatchDetails: TDetailsByOriginalIndex;
+}
+
+interface IUpdateGlobalSearchStateParams {
+  searchTerm?: string;
+  formattedResults?: IPopularCoinSearchItem[];
 }
 
 // The OUT_OF_ORDER parameter in the uFuzzy search function enables the
@@ -65,27 +73,30 @@ export function usePopularCoinsSearch({
   // Ref updated when search changes. We use this when formatting results because formatResults may be called whenever popularCoins change,
   // and we don't want to recompute search logic in those siituations
   const currentSearchData = useRef<ICurrentSearchData>({
-    matches: new Map(),
+    queryMatchDetails: new Map(),
   });
 
   // Memoize the uFuzzy instance retrieval based on the search initialization status
   const searchInstance = useMemo(() => new uFuzzy(uFuzzyOptions), []);
 
-  // Create a combined searchable array for both names and symbols, alongside their original index.
-  const searchItems = useMemo(() => {
-    return allPopularCoins.flatMap((coin, index) => [
-      { text: coin.name, type: "name", originalIndex: index },
-      { text: coin.symbol, type: "symbol", originalIndex: index },
-    ]);
+  // A combined searchable array for both types, alongside their original index.
+  // This way we don't have to perform 2 searches to get matches for both params
+  const searchItems: IFuzzySearchItemReference[] = useMemo(
+    () =>
+      allPopularCoins.flatMap((coin, index) => [
+        { text: coin.name, type: "name", originalIndex: index },
+        { text: coin.symbol, type: "symbol", originalIndex: index },
+      ]),
     // We don't recalculate when allPopularCoins changes because they'll be the same name in different currencies
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    [],
+  );
 
   const searchItemsHaystack = useMemo(() => {
     return searchItems.map((item) => item.text);
   }, [searchItems]);
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   // Ref to store the debounced global state updates
   const updateGlobalSearchState = useRef(
@@ -97,33 +108,6 @@ export function usePopularCoinsSearch({
         dispatch(setGlobalSearchResults(formattedResults));
       }
     }, 1000),
-  );
-
-  // Function to format search results, this is separated so we can call it only when popularCoins change.
-  const formatResults = useCallback(
-    (matchesMap = currentSearchData.current.matches) => {
-      // Generate the formatted results using the Maps.
-      return allPopularCoins.reduce((accumulator, coin, index) => {
-        // Retrieve match details for the current coin
-        const nameMatches = matchesMap.get(index)?.nameMatches;
-        const symbolMatches = matchesMap.get(index)?.symbolMatches;
-
-        // Only include coins that have a match in either name or symbol.
-        if (nameMatches || symbolMatches) {
-          accumulator.push({
-            coinDetails: coin,
-            matchDetails: {
-              nameMatches: nameMatches ?? null,
-              symbolMatches: symbolMatches ?? null,
-            },
-          });
-        }
-
-        // Return the accumulated results so far.
-        return accumulator;
-      }, [] as IPopularCoinSearchItem[]);
-    },
-    [allPopularCoins],
   );
 
   // Callback hook to memoize the search function.
@@ -148,10 +132,7 @@ export function usePopularCoinsSearch({
       );
 
       // Initialize a new map to store combined match details
-      const combinedMatchDetails = new Map<
-        number,
-        { nameMatches?: IMatchDetail; symbolMatches?: IMatchDetail }
-      >();
+      const matchDetailsMap: TDetailsByOriginalIndex = new Map();
 
       // Iterate over matched indices to distribute results to name and symbol matches based on their type
       matchedIndices?.forEach((matchIndex, i) => {
@@ -159,7 +140,7 @@ export function usePopularCoinsSearch({
         const matchDetail: IMatchDetail = matchInfo?.ranges[i] ?? [];
 
         // Retrieve existing entry or initialize a new one
-        const existingEntry = combinedMatchDetails.get(originalIndex) ?? {};
+        const existingEntry = matchDetailsMap.get(originalIndex) ?? {};
         if (type === "name") {
           existingEntry.nameMatches = matchDetail;
         } else {
@@ -167,14 +148,17 @@ export function usePopularCoinsSearch({
         }
 
         // Update the map
-        combinedMatchDetails.set(originalIndex, existingEntry);
+        matchDetailsMap.set(originalIndex, existingEntry);
       });
 
       currentSearchData.current = {
-        matches: combinedMatchDetails,
+        queryMatchDetails: matchDetailsMap,
       };
 
-      const formattedResults = formatResults(combinedMatchDetails);
+      const formattedResults = formatResults({
+        allPopularCoins,
+        matchDetailsMap,
+      });
 
       // Update local state
       setSearchResults(formattedResults);
@@ -185,12 +169,22 @@ export function usePopularCoinsSearch({
       });
     },
 
-    [searchItems, searchItemsHaystack, searchInstance, formatResults],
+    [
+      searchItems,
+      searchItemsHaystack,
+      searchInstance,
+      allPopularCoins,
+      updateGlobalSearchState,
+    ],
   );
 
-  // Effect to reformat results when popular coins change.
+  // Effect to reformat results when popular coins change (E.g. Currency Updates).
   useEffect(() => {
-    const formattedResults = formatResults();
+    const currentMatchDetails = currentSearchData.current.queryMatchDetails;
+    const formattedResults = formatResults({
+      allPopularCoins,
+      matchDetailsMap: currentMatchDetails,
+    });
 
     // Update local state
     setSearchResults(formattedResults);
@@ -198,12 +192,9 @@ export function usePopularCoinsSearch({
     updateGlobalSearchState.current({
       formattedResults,
     });
-    // We shouldn't add formatResults to the deps array because it rerenders whenever search changes,
-    // and we only want to call this on global state updates (e.g. currency updates)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allPopularCoins]);
 
-  // Also dispatch the current query to the Redux store
+  // Function to update query
   const handleSetSearchQuery = (searchTerm: string) => {
     if (searchTerm === searchQuery) return;
 
@@ -213,4 +204,34 @@ export function usePopularCoinsSearch({
 
   // Return the current search state.
   return { searchQuery, setSearchQuery: handleSetSearchQuery, searchResults };
+}
+
+// Function to format search results, this is separated so we can call it only when popularCoins change.
+function formatResults({
+  allPopularCoins,
+  matchDetailsMap,
+}: {
+  allPopularCoins: ICoinOverview[];
+  matchDetailsMap: TDetailsByOriginalIndex;
+}) {
+  // Generate the formatted results using the Maps.
+  return allPopularCoins.reduce((accumulator, coin, index) => {
+    // Retrieve match details for the current coin
+    const nameMatches = matchDetailsMap.get(index)?.nameMatches;
+    const symbolMatches = matchDetailsMap.get(index)?.symbolMatches;
+
+    // Only include coins that have a match in either name or symbol.
+    if (nameMatches || symbolMatches) {
+      accumulator.push({
+        coinDetails: coin,
+        matchDetails: {
+          nameMatches: nameMatches ?? null,
+          symbolMatches: symbolMatches ?? null,
+        },
+      });
+    }
+
+    // Return the accumulated results so far.
+    return accumulator;
+  }, [] as IPopularCoinSearchItem[]);
 }
