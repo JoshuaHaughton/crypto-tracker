@@ -17,7 +17,7 @@ import { useAppDispatch } from "@/lib/store";
  * This constant helps in determining if the full range of pages should be displayed without ellipses.
  */
 const STATIC_PAGINATION_ELEMENTS = 5;
-const DEFAULT_SIBLING_COUNT = 1;
+const DEFAULT_SIBLING_COUNT = 2;
 
 /**
  * Type definition for the pagination hook parameters.

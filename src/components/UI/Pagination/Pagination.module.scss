@@ -84,7 +84,7 @@
   list-style-type: none;
   overflow: hidden;
   gap: 8px;
-  min-width: 288px; // 32 (item width) x 9 (max number of items showing at once)
+  min-width: 352px; // 32 (item width) x 11 (max number of items showing at once)
 
   @media (max-width: 450px) {
     max-width: 80%;
