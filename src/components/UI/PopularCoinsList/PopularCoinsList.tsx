@@ -43,7 +43,7 @@ const PopularCoinsList: React.FC = () => {
     contentToDisplay = <PopularCoinsListSkeleton />;
   } else {
     contentToDisplay =
-      coinsForCurrentPage.length > 0
+      totalItemsCount > 0
         ? mapCoinsToComponents(
             coinsForCurrentPage,
             isBreakpoint1250,

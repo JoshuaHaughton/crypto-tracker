@@ -1,5 +1,4 @@
-import { useCallback, useMemo } from "react";
-import { useDispatch } from "react-redux";
+import { useCallback, useEffect, useMemo } from "react";
 import { appInfoActions } from "@/lib/store/appInfo/appInfoSlice";
 import {
   ELLIPSES,
@@ -114,6 +113,17 @@ const usePagination = ({
 
     return paginationItems;
   }, [currentPageNumber, totalPageCount, siblingCount]);
+
+  // Automatically adjust currentPageNumber if it's out of the total page count range
+  useEffect(() => {
+    if (currentPageNumber > totalPageCount) {
+      dispatch(
+        appInfoActions.setPopularCoinsListPageNumber({
+          popularCoinsPageNumber: 1,
+        }),
+      );
+    }
+  }, [dispatch, totalPageCount, currentPageNumber]);
 
   // Navigation functions
   const onPrevious = useCallback(() => {
