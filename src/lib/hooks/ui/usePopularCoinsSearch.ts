@@ -1,5 +1,9 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { IMatchDetail, IPopularCoinSearchItem } from "@/lib/types/coinTypes";
+import {
+  ICoinOverview,
+  IMatchDetail,
+  IPopularCoinSearchItem,
+} from "@/lib/types/coinTypes";
 import { useDispatch } from "react-redux";
 import {
   setCurrentQuery,
@@ -12,9 +16,8 @@ import { debounce } from "lodash";
 import { useAppSelector } from "@/lib/store";
 import { usePageData } from "@/lib/contexts/pageContext";
 
-interface ICurrentSearchData {
-  nameMatches: Map<number, IMatchDetail>;
-  symbolMatches: Map<number, IMatchDetail>;
+interface IUsePopularCoinsSearchParams {
+  allPopularCoins: ICoinOverview[];
 }
 
 /**
@@ -32,6 +35,11 @@ interface IUsePopularCoinsSearchState {
   searchResults: IPopularCoinSearchItem[];
 }
 
+interface ICurrentSearchData {
+  nameMatches: Map<number, IMatchDetail>;
+  symbolMatches: Map<number, IMatchDetail>;
+}
+
 // The OUT_OF_ORDER parameter in the uFuzzy search function enables the
 // fuzzy search algorithm to match search terms in the input query
 // even if they appear in a different order in the target strings.
@@ -46,7 +54,9 @@ const MAX_INFO_THRESHOLD = 1000;
  *
  * @returns The search state, including the search term, results, and a setter for the search term.
  */
-export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
+export function usePopularCoinsSearch({
+  allPopularCoins,
+}: IUsePopularCoinsSearchParams): IUsePopularCoinsSearchState {
   console.log("usePopularCoinsSearch");
   // State hooks for managing search term and results.
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -62,14 +72,6 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
   const dispatch = useDispatch();
   // Redux hooks for accessing the fuzzy search instance and dispatching actions.
   const isSearchInitialized = useAppSelector(selectIsSearchInitialized);
-  const allReduxPopularCoins = useAppSelector(selectPopularCoins);
-  // Fallback to page specific data if Redux store doesn't have carousel coins yet due to initial hydration.
-  const { popularCoins } = usePageData();
-
-  const allPopularCoins: ICoinOverview[] =
-    allReduxPopularCoins.length > 0
-      ? allReduxPopularCoins
-      : (popularCoins as ICoinOverview[]);
 
   // Memoize coin names and symbols to prevent recalculating them on every render.
   // This optimization helps to reduce unnecessary computations, especially when the list of coins is large.
@@ -208,7 +210,7 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
 
       // Update local state
       setSearchResults(formattedResults);
-      // Update Global state with the new results.
+      // Update Global state with the search results.
       updateGlobalSearchState.current({
         formattedResults,
       });
@@ -216,7 +218,7 @@ export function usePopularCoinsSearch(): IUsePopularCoinsSearchState {
     // We shouldn't add formatResults to the deps array because it rerenders whenever search changes,
     // and we only want to call this on global state updates (e.g. currency updates)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSearchInitialized, allReduxPopularCoins]);
+  }, [isSearchInitialized, allPopularCoins]);
 
   // Also dispatch the current query to the Redux store
   const handleSetSearchQuery = (searchTerm: string) => {

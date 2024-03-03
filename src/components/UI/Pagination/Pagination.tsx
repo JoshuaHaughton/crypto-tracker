@@ -4,14 +4,24 @@ import usePagination from "@/components/UI/Pagination/usePagination";
 import PaginationItem from "./PaginationItem";
 import PaginationArrow from "./PaginationArrow";
 
+interface IPaginationParams {
+  totalItemsCount: number;
+  currentPageNumber: number;
+}
+
 /**
  * Renders pagination controls with previous/next arrows and interactive page numbers.
  *
  * @returns {React.ReactElement | null} The Pagination component or null if pagination is not needed.
  */
-const Pagination: React.FC = (): React.ReactElement | null => {
-  const { paginationRange, currentPage, onPrevious, onNext, goToPage } =
-    usePagination();
+const Pagination: React.FC<IPaginationParams> = ({
+  totalItemsCount,
+  currentPageNumber,
+}: IPaginationParams): React.ReactElement | null => {
+  const { paginationRange, onPrevious, onNext, goToPage } = usePagination({
+    totalItemsCount,
+    currentPageNumber,
+  });
 
   // Do not render if there's only one page or none.
   if (paginationRange.length <= 1) {
@@ -19,9 +29,8 @@ const Pagination: React.FC = (): React.ReactElement | null => {
   }
 
   // Determine if the "Previous" and "Next" arrows should be disabled.
-  const isFirstPage = currentPage === 1;
-  const isLastPage =
-    currentPage === paginationRange[paginationRange.length - 1];
+  const isFirstPage = currentPageNumber === 1;
+  const isLastPage = currentPageNumber === paginationRange.at(-1);
 
   return (
     <ul className={styles.container}>
@@ -36,7 +45,7 @@ const Pagination: React.FC = (): React.ReactElement | null => {
         <PaginationItem
           key={idx}
           pageNumber={pageNumber}
-          isCurrent={pageNumber === currentPage}
+          isCurrent={pageNumber === currentPageNumber}
           onClick={() => typeof pageNumber === "number" && goToPage(pageNumber)}
         />
       ))}

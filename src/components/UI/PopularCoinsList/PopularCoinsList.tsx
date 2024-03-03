@@ -25,10 +25,13 @@ const PopularCoinsList: React.FC = () => {
   const {
     searchQuery,
     coinsForCurrentPage,
+    totalItemsCount,
     popularCoinsAreLoading,
-    popularCoinsListPageNumber,
+    currentPageNumber,
     currentSymbol,
     isBreakpoint1250,
+    isBreakpoint680,
+    isBreakpoint380,
     handleInputChange,
     handleItemMouseEnter,
     handleItemClick,
@@ -44,7 +47,7 @@ const PopularCoinsList: React.FC = () => {
         ? mapCoinsToComponents(
             coinsForCurrentPage,
             isBreakpoint1250,
-            popularCoinsListPageNumber,
+            currentPageNumber,
             currentSymbol,
             handleItemMouseEnter,
             handleItemClick,
@@ -101,7 +104,11 @@ const PopularCoinsList: React.FC = () => {
           <tbody>{contentToDisplay}</tbody>
         </table>
       </div>
-      <Pagination />
+
+      <Pagination
+        totalItemsCount={totalItemsCount}
+        currentPageNumber={currentPageNumber}
+      />
     </>
   );
 };
@@ -126,14 +133,14 @@ function renderEmptyState() {
  *
  * @param {IPopularCoinSearchItem[]} coinsForCurrentPage - Array of coins for the current page.
  * @param {boolean} isBreakpoint1250 - True if the current screen width is above 1250 pixels.
- * @param {number} popularCoinsListPageNumber - Current page number in pagination.
+ * @param {number} currentPageNumber - Current page number in pagination.
  * @param {TCurrencySymbol} currentSymbol - The current currency symbol used for price display.
  * @returns {JSX.Element[]} An array of PopularCoinsListItem components populated with formatted coin data.
  */
 function mapCoinsToComponents(
   coinsForCurrentPage: IPopularCoinSearchItem[],
   isBreakpoint1250: boolean,
-  popularCoinsListPageNumber: number,
+  currentPageNumber: number,
   currentSymbol: TCurrencySymbol,
   handleItemMouseEnter: (id: string) => void,
   handleItemClick: (id: string) => void,
@@ -143,7 +150,7 @@ function mapCoinsToComponents(
 
     // Define and format necessary properties from the coin data
     const marketCapRank =
-      (popularCoinsListPageNumber - 1) * POPULAR_COINS_PAGE_SIZE + index + 1;
+      (currentPageNumber - 1) * POPULAR_COINS_PAGE_SIZE + index + 1;
     const formattedCurrentPrice = isBreakpoint1250
       ? formatBigNumber(coin.current_price)
       : coin.current_price.toLocaleString("en-US", {

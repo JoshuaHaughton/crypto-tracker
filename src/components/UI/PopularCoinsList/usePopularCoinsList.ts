@@ -16,6 +16,8 @@ import { IPopularCoinSearchItem } from "@/lib/types/coinTypes";
 import { LoadingStatus } from "@/lib/types/apiRequestTypes";
 import { useAppSelector } from "@/lib/store";
 import useCoinDetailsPreloader from "@/lib/hooks/preloaders/useCoinDetailsPreloader";
+import { usePageData } from "@/lib/contexts/pageContext";
+import { selectPopularCoins } from "@/lib/store/coins/coinsSelectors";
 
 /**
  * Interface defining the structure for the state and setters returned by usePopularCoinsList hook.
@@ -23,12 +25,13 @@ import useCoinDetailsPreloader from "@/lib/hooks/preloaders/useCoinDetailsPreloa
 interface IUsePopularCoinsListState {
   searchQuery: string;
   coinsForCurrentPage: IPopularCoinSearchItem[];
+  currentPageNumber: number;
+  totalItemsCount: number;
+  currentSymbol: TCurrencySymbol;
   popularCoinsAreLoading: boolean;
   isBreakpoint380: boolean;
   isBreakpoint680: boolean;
   isBreakpoint1250: boolean;
-  popularCoinsListPageNumber: number;
-  currentSymbol: TCurrencySymbol;
   setSearchQuery: (searchTerm: string) => void;
   handleInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
   handleItemMouseEnter: (symbol: string) => void;
@@ -43,14 +46,20 @@ interface IUsePopularCoinsListState {
  */
 export function usePopularCoinsList(): IUsePopularCoinsListState {
   console.log("usePopularCoinsList render");
-  // Monitor loading status via redux
+  const currentPageNumber = useAppSelector(selectPopularCoinsPageNumber);
   const isBreakpoint380 = useAppSelector(selectIsBreakpoint380);
   const isBreakpoint680 = useAppSelector(selectIsBreakpoint680);
   const isBreakpoint1250 = useAppSelector(selectIsBreakpoint1250);
-  const popularCoinsListPageNumber = useAppSelector(
-    selectPopularCoinsPageNumber,
-  );
   const currentSymbol = useAppSelector(selectCurrentSymbol);
+  const allReduxPopularCoins = useAppSelector(selectPopularCoins);
+  // Fallback to page specific data if Redux store doesn't have carousel coins yet due to initial hydration.
+  const { popularCoins } = usePageData();
+
+  const allPopularCoins: ICoinOverview[] =
+    allReduxPopularCoins.length > 0
+      ? allReduxPopularCoins
+      : (popularCoins as ICoinOverview[]);
+
   const popularCoinsLoadingStatus = useAppSelector(
     selectInitialPopularCoinsStatus,
   );
@@ -58,15 +67,21 @@ export function usePopularCoinsList(): IUsePopularCoinsListState {
     popularCoinsLoadingStatus === LoadingStatus.LOADING;
 
   // Manage search term via Redux, reducing local state management.
-  const { searchQuery, setSearchQuery, searchResults } =
-    usePopularCoinsSearch();
+  const { searchQuery, setSearchQuery, searchResults } = usePopularCoinsSearch({
+    allPopularCoins,
+  });
 
   // Fetch current page coins based on Redux-stored search results, enhancing performance.
   const { coinsForCurrentPage } = useCurrentPageCoins({
     currentQuery: searchQuery,
     searchResults: searchResults,
-    currentPageNumber: popularCoinsListPageNumber,
+    currentPageNumber,
   });
+
+  const totalItemsCount =
+    searchQuery.trim().length > 0
+      ? searchResults.length
+      : allPopularCoins.length;
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -80,12 +95,13 @@ export function usePopularCoinsList(): IUsePopularCoinsListState {
   return {
     searchQuery,
     coinsForCurrentPage,
+    totalItemsCount,
+    currentPageNumber,
+    currentSymbol,
     popularCoinsAreLoading,
     isBreakpoint380,
     isBreakpoint680,
     isBreakpoint1250,
-    popularCoinsListPageNumber,
-    currentSymbol,
     setSearchQuery,
     handleInputChange,
     handleItemMouseEnter: handleMouseEnter,

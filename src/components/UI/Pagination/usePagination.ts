@@ -1,14 +1,12 @@
 import { useCallback, useMemo } from "react";
 import { useDispatch } from "react-redux";
-import { useAppSelector } from "@/lib/store";
 import { appInfoActions } from "@/lib/store/appInfo/appInfoSlice";
 import {
   ELLIPSES,
   POPULAR_COINS_PAGE_SIZE,
 } from "@/lib/constants/globalConstants";
-import { selectPopularCoinsPageNumber } from "@/lib/store/appInfo/appInfoSelectors";
-import { selectTotalSearchItemsCount } from "@/lib/store/search/searchSelectors";
 import { range } from "lodash";
+import { useAppDispatch } from "@/lib/store";
 
 /**
  * The constant STATIC_PAGINATION_ELEMENTS is used to account for the minimum number of elements
@@ -20,12 +18,15 @@ import { range } from "lodash";
  * This constant helps in determining if the full range of pages should be displayed without ellipses.
  */
 const STATIC_PAGINATION_ELEMENTS = 5;
+const DEFAULT_SIBLING_COUNT = 1;
 
 /**
  * Type definition for the pagination hook parameters.
  */
 interface IUsePaginationParams {
   siblingCount?: number; // Number of page numbers to show on each side of the current page.
+  totalItemsCount: number;
+  currentPageNumber: number;
 }
 
 /**
@@ -37,7 +38,6 @@ type PaginationItem = number | typeof ELLIPSES;
 
 interface IUsePaginationState {
   paginationRange: PaginationItem[];
-  currentPage: number;
   onNext: () => void;
   onPrevious: () => void;
   goToPage: (pageNumber: number) => void;
@@ -56,12 +56,11 @@ const usePagination = ({
    * showing enough page links for quick navigation without overcrowding the pagination UI.
    * It ensures the current page is always displayed with one page link on either side if available.
    */
-  siblingCount = 1,
-}: IUsePaginationParams = {}): IUsePaginationState => {
-  const dispatch = useDispatch();
-  // Retrieve the current page number and the total count of items from the Redux store.
-  const currentPage = useAppSelector(selectPopularCoinsPageNumber);
-  const totalItemsCount = useAppSelector(selectTotalSearchItemsCount);
+  siblingCount = DEFAULT_SIBLING_COUNT,
+  totalItemsCount,
+  currentPageNumber,
+}: IUsePaginationParams): IUsePaginationState => {
+  const dispatch = useAppDispatch();
 
   // Calculate the total number of pages.
   const totalPageCount = useMemo(
@@ -77,9 +76,9 @@ const usePagination = ({
     }
 
     // Determine the indices for the left and right siblings of the current page.
-    const leftSiblingIndex = Math.max(currentPage - siblingCount, 1);
+    const leftSiblingIndex = Math.max(currentPageNumber - siblingCount, 1);
     const rightSiblingIndex = Math.min(
-      currentPage + siblingCount,
+      currentPageNumber + siblingCount,
       totalPageCount,
     );
 
@@ -114,28 +113,28 @@ const usePagination = ({
     }
 
     return paginationItems;
-  }, [currentPage, totalPageCount, siblingCount]);
+  }, [currentPageNumber, totalPageCount, siblingCount]);
 
   // Navigation functions
   const onPrevious = useCallback(() => {
-    if (currentPage > 1) {
+    if (currentPageNumber > 1) {
       dispatch(
         appInfoActions.setPopularCoinsListPageNumber({
-          popularCoinsPageNumber: currentPage - 1,
+          popularCoinsPageNumber: currentPageNumber - 1,
         }),
       );
     }
-  }, [currentPage, dispatch]);
+  }, [currentPageNumber, dispatch]);
 
   const onNext = useCallback(() => {
-    if (currentPage < totalPageCount) {
+    if (currentPageNumber < totalPageCount) {
       dispatch(
         appInfoActions.setPopularCoinsListPageNumber({
-          popularCoinsPageNumber: currentPage + 1,
+          popularCoinsPageNumber: currentPageNumber + 1,
         }),
       );
     }
-  }, [currentPage, totalPageCount, dispatch]);
+  }, [currentPageNumber, totalPageCount, dispatch]);
 
   const goToPage = useCallback(
     (pageNumber: number) => {
@@ -148,7 +147,7 @@ const usePagination = ({
     [dispatch],
   );
 
-  return { paginationRange, currentPage, onPrevious, onNext, goToPage };
+  return { paginationRange, onPrevious, onNext, goToPage };
 };
 
 export default usePagination;
