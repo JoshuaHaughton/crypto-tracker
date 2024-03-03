@@ -6,6 +6,10 @@
   margin-top: 18px;
 }
 
+.listContainer {
+  min-height: 984px; // 80 * 10 items, + 64 header, + 120 Pagination height
+}
+
 .table {
   width: 100%;
   border-collapse: collapse;

@@ -74,7 +74,7 @@ const PopularCoinListItem: React.FC<IPopularCoinListItemProps> = ({
   // Render the table row with coin details.
   return (
     <tr
-      className={styles.itemRow}
+      className={styles.item}
       onMouseEnter={handleMouseEnter}
       onClick={handleClick}
     >

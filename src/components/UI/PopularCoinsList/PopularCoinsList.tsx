@@ -59,8 +59,8 @@ const PopularCoinsList: React.FC = () => {
 
   return (
     <>
-      <h2>Crypto Prices</h2>
       <div className={styles.container}>
+        <h2>Crypto Prices</h2>
         <TextField
           label="Search for a cryptocurrency"
           variant="outlined"
@@ -91,24 +91,25 @@ const PopularCoinsList: React.FC = () => {
           className={styles.input}
           onChange={handleInputChange}
         />
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th className={styles.nameHeader}>Name</th>
-              <th className={styles.priceHeader}>Price</th>
-              <th className={styles.volumeHeader}>24hr Volume</th>
-              <th className={styles.dayChangeHeader}>24hr Change</th>
-              <th className={styles.marketCapHeader}>Market Cap</th>
-            </tr>
-          </thead>
-          <tbody>{contentToDisplay}</tbody>
-        </table>
+        <div className={styles.listContainer}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th className={styles.nameHeader}>Name</th>
+                <th className={styles.priceHeader}>Price</th>
+                <th className={styles.volumeHeader}>24hr Volume</th>
+                <th className={styles.dayChangeHeader}>24hr Change</th>
+                <th className={styles.marketCapHeader}>Market Cap</th>
+              </tr>
+            </thead>
+            <tbody>{contentToDisplay}</tbody>
+          </table>
+          <Pagination
+            totalItemsCount={totalItemsCount}
+            currentPageNumber={currentPageNumber}
+          />
+        </div>
       </div>
-
-      <Pagination
-        totalItemsCount={totalItemsCount}
-        currentPageNumber={currentPageNumber}
-      />
     </>
   );
 };

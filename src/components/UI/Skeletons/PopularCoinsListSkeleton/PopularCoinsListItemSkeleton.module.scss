@@ -3,7 +3,7 @@
 @import "../../../../styles/partials/mixins";
 
 .skeletonRow {
-  @extend .itemRow;
+  @extend .item;
   background-color: transparent;
 }
 

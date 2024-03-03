@@ -1,8 +1,10 @@
-.itemRow {
+.item {
   height: 80px;
   border-bottom: 1px solid var(--border-color);
   width: 100%;
   padding: 0 2rem;
+  overflow: hidden;
+  white-space: nowrap;
 
   &:hover {
     background: #171718;
