@@ -3,7 +3,7 @@ import StoreHydrator from "@/components/Initializers/StoreHydrator/StoreHydrator
 import { cookies } from "next/headers";
 import { INITIAL_CURRENCY } from "@/lib/constants/globalConstants";
 import { E_COOKIE_NAMES } from "@/lib/types/cookieTypes";
-import { pfetchAndFormatCoinDetailsData } from "@/lib/utils/server.utils";
+import { fetchAndFormatCoinDetailsData } from "@/lib/utils/server.utils";
 import {
   InitialDataType,
   TInitialPageDataOptions,
@@ -27,7 +27,7 @@ export default async function CoinPage({
     (cookieStore.get(E_COOKIE_NAMES.CURRENT_CURRENCY)
       ?.value as TCurrencyString) || INITIAL_CURRENCY;
 
-  const coinDetailsResponseData = await pfetchAndFormatCoinDetailsData(
+  const coinDetailsResponseData = await fetchAndFormatCoinDetailsData(
     params.symbol,
     currencyPreference,
     { useCache: true },

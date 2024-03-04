@@ -6,11 +6,9 @@ import {
 } from "../../constants/apiConstants";
 import {
   IFormattedPopularCoinsApiResponse,
-  IFormattedCoinDetailsAPIResponse,
   IRawPopularCoinsApiResponse,
 } from "@/lib/types/apiResponseTypes";
 import { formatPopularCoinsApiResponse } from "@/lib/utils/dataFormat.utils";
-import { fetchAndFormatCoinDetailsData } from "@/lib/utils/api.utils";
 
 /**
  * This API slice is responsible for managing and providing access to data-fetching endpoints.
@@ -75,56 +73,6 @@ const cryptoApiSlice = createApi({
         return formatPopularCoinsApiResponse(response, targetCurrency);
       },
     }),
-
-    /**
-     * Endpoint for fetching and formatting detailed information about a specific coin.
-     * Utilizes a custom `queryFn` to handle fetching and formatting.
-     *
-     * @param {Object} args - Arguments containing symbol and target currency.
-     * @param {string} args.symbol - The symbol representing the cryptocurrency.
-     * @param {TCurrencyString} args.targetCurrency - The target currency for price conversion.
-     * @param {BaseQueryApi} queryApi - The API provided by RTK Query for executing additional queries or getting state.
-     * @param {Object} extraOptions - Extra options provided to the query function.
-     * @param {BaseQueryFn} baseQuery - The base query function provided by RTK Query for standard fetching.
-     * @returns {Promise<QueryReturnValue<IFormattedCoinDetailsAPIResponse, FetchBaseQueryError>>} - The formatted coin details or an error object.
-     */
-    fetchCoinDetailsData: builder.query<
-      IFormattedCoinDetailsAPIResponse,
-      { symbol: string; targetCurrency: TCurrencyString }
-    >({
-      queryFn: async ({ symbol, targetCurrency }) => {
-        try {
-          // Attempt to fetch and format the coin details data
-          const formattedData = await fetchAndFormatCoinDetailsData(
-            symbol,
-            targetCurrency,
-          );
-          if (!formattedData) {
-            // If no data could be formatted, return an API error
-            return {
-              error: {
-                status: "CUSTOM_ERROR",
-                error: "Failed to fetch or format data.",
-              },
-            };
-          }
-          // Return the successfully formatted data
-          return { data: formattedData };
-        } catch (error) {
-          // Log and return any errors encountered during the fetch/format process
-          console.error(`Error in fetchAndFormatCoinDetailsData: ${error}`);
-          return {
-            error: {
-              status: "CUSTOM_ERROR",
-              error:
-                error instanceof Error
-                  ? error.message
-                  : "An unknown error occurred",
-            },
-          };
-        }
-      },
-    }),
   }),
 });
 
@@ -134,7 +82,6 @@ const cryptoApiSlice = createApi({
  */
 export const {
   useFetchPopularCoinsDataQuery,
-  useFetchCoinDetailsDataQuery,
   reducer: apiReducer,
   middleware: apiMiddleware,
 } = cryptoApiSlice;

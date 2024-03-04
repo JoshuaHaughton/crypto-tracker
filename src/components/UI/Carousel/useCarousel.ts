@@ -84,7 +84,7 @@ const useCarousel = (): IUseCarouselState => {
     WheelGesturesPlugin(),
   ]);
 
-  const { handleMouseEnter, handleClick } = useCoinDetailsPreloader();
+  const { handlePreload, handleNavigation } = useCoinDetailsPreloader();
 
   return {
     emblaRef,
@@ -92,8 +92,8 @@ const useCarousel = (): IUseCarouselState => {
     isLoading,
     carouselCoins,
     currencySymbol,
-    handleItemMouseEnter: handleMouseEnter,
-    handleItemClick: handleClick,
+    handleItemMouseEnter: handlePreload,
+    handleItemClick: handleNavigation,
   };
 };
 

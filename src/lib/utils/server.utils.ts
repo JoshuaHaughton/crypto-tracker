@@ -81,6 +81,7 @@ interface IFetchOptions {
   revalidateTime?: number; // Time in seconds for revalidating cached data. Defaults to 30 seconds if useCache is true to ensure fresh data is fetched
 }
 
+// 30 seconds
 const DEFAULT_REVALIDATION_TIME = 30;
 
 /**
@@ -179,7 +180,7 @@ async function fetchRawCoinDetailsData(
  * @param targetCurrency - The target currency for conversions.
  * @returns {Promise<IFormattedCoinDetailsAPIResponse | null>} A promise that resolves to formatted coin details.
  */
-export async function pfetchAndFormatCoinDetailsData(
+export async function fetchAndFormatCoinDetailsData(
   id: string,
   targetCurrency: TCurrencyString = INITIAL_CURRENCY,
   options: IFetchOptions = {

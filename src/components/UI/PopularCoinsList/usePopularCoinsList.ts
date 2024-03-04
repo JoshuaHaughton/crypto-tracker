@@ -35,7 +35,7 @@ interface IUsePopularCoinsListState {
   setSearchQuery: (searchTerm: string) => void;
   handleInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
   handleItemMouseEnter: (symbol: string) => void;
-  handleItemClick: (symbol: string) => void;
+  handleNavigation: (symbol: string) => void;
 }
 
 /**
@@ -89,7 +89,7 @@ export function usePopularCoinsList(): IUsePopularCoinsListState {
     setSearchQuery(e.target.value);
   };
 
-  const { handleMouseEnter, handleClick } = useCoinDetailsPreloader();
+  const { handlePreload, handleNavigation } = useCoinDetailsPreloader();
 
   // Provides API for search term management and current page coins display.
   return {
@@ -104,7 +104,7 @@ export function usePopularCoinsList(): IUsePopularCoinsListState {
     isBreakpoint1250,
     setSearchQuery,
     handleInputChange,
-    handleItemMouseEnter: handleMouseEnter,
-    handleItemClick: handleClick,
+    handleItemMouseEnter: handlePreload,
+    handleNavigation,
   };
 }

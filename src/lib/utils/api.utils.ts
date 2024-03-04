@@ -10,11 +10,8 @@ import {
 import { API_ENDPOINTS } from "../constants/apiConstants";
 import { TCurrencyRates } from "@/lib/types/currencyTypes";
 import {
-  IAssetDataApiResponse,
   IFormattedCoinDetailsAPIResponse,
   IFormattedPopularCoinsApiResponse,
-  IHistoricalDataApiResponse,
-  IRawCoinDetailsApiResponse,
   IRawPopularCoinsApiResponse,
   ITopMarketCapApiResponse,
 } from "@/lib/types/apiResponseTypes";
@@ -23,7 +20,7 @@ import {
   InitialDataType,
   TInitialRoute,
 } from "@/lib/types/apiRequestTypes";
-import { pfetchAndFormatCoinDetailsData } from "./server.utils";
+import { fetchAndFormatCoinDetailsData } from "./server.utils";
 
 /**
  * Fetches raw data for the top 100 coins and currency exchange rates.
@@ -114,120 +111,6 @@ export async function fetchAndFormatPopularCoinsData(
   }
 }
 
-/**
- * Fetches raw data for a specific coin's details and historical data.
- * This function makes concurrent API calls with caching and revalidation strategies.
- *
- * @param {string} id - The coin identifier.
- * @param {TCurrencyString} targetCurrency - The target currency for conversions, defaults to INITIAL_CURRENCY.
- * @returns {Promise<IRawCoinDetailsApiResponse>} A Promise resolving to raw API response for coin details.
- */
-async function fetchRawCoinDetailsData(
-  id: string,
-  targetCurrency: TCurrencyString = INITIAL_CURRENCY,
-): Promise<IRawCoinDetailsApiResponse> {
-  // API Key for authorization header
-  const apiKey = process.env.NEXT_PUBLIC_CRYPTOCOMPARE_API_KEY;
-  const fetchOptions = {
-    headers: { Authorization: `Apikey ${apiKey}` },
-  };
-
-  // Constructing request URLs
-  const currencyExchangeURL = `${
-    API_ENDPOINTS.CURRENCY_EXCHANGE
-  }?fsym=${targetCurrency}&tsyms=${ALL_CURRENCIES.join(",")}`;
-  const assetDetailsURL = `${
-    API_ENDPOINTS.ASSET_DETAILS_BY_SYMBOL
-  }?asset_symbol=${id.toUpperCase()}&tysm=${targetCurrency}`;
-  const historical24hURL = `${API_ENDPOINTS.HISTORICAL_HOUR}?fsym=${id}&tsym=${targetCurrency}&limit=24`;
-  const historical365dURL = `${API_ENDPOINTS.HISTORICAL_DAY}?fsym=${id}&tsym=${targetCurrency}&limit=365`;
-
-  // Fetching with revalidation logic specific to Next.js 14
-  const exchangeRatePromise = fetch(currencyExchangeURL, {
-    ...fetchOptions,
-    next: { revalidate: 600 }, // Revalidates data every 10 minutes
-  }).then((res) => res.json() as Promise<TCurrencyRates>);
-
-  // Fetching asset details without caching
-  const assetDetailsPromise = fetch(assetDetailsURL, {
-    ...fetchOptions,
-    cache: "no-store",
-  }).then((res) => res.json() as Promise<IAssetDataApiResponse>);
-
-  // Fetching historical 24-hr data without caching for the most recent data
-  const historical24hPromise = fetch(historical24hURL, {
-    ...fetchOptions,
-    cache: "no-store",
-  }).then((res) => res.json() as Promise<IHistoricalDataApiResponse>);
-
-  // Fetching historical 365-day data without caching for the most recent data
-  const historical365dPromise = fetch(historical365dURL, {
-    ...fetchOptions,
-    cache: "no-store",
-  }).then((res) => res.json() as Promise<IHistoricalDataApiResponse>);
-
-  try {
-    // Await all promises and structure the response
-    const [
-      exchangeRateResponse,
-      assetDetailsResponse,
-      historicalResponse24h,
-      historicalResponse365d,
-    ] = await Promise.all([
-      exchangeRatePromise,
-      assetDetailsPromise,
-      historical24hPromise,
-      historical365dPromise,
-    ]);
-
-    // Return structured response
-    return {
-      exchangeRateResponse,
-      assetDetailsResponse,
-      historicalResponse24h,
-      historicalResponse365d,
-    };
-  } catch (error) {
-    console.error("Error fetching raw coin details data:", error);
-    throw error;
-  }
-}
-
-/**
- * Fetches and formats in-depth details for a specific coin, including its historical data, for the specified currency.
- *
- * @param id - The coin identifier.
- * @param targetCurrency - The target currency for conversions.
- * @returns {Promise<IFormattedCoinDetailsAPIResponse | null>} A promise that resolves to formatted coin details.
- */
-export async function fetchAndFormatCoinDetailsData(
-  id: string,
-  targetCurrency: TCurrencyString = INITIAL_CURRENCY,
-): Promise<IFormattedCoinDetailsAPIResponse | null> {
-  console.log(
-    "fetchAndFormatCoinDetailsData: Fetching and formatting coin details data for",
-    id,
-  );
-
-  try {
-    const rawData: IRawCoinDetailsApiResponse = await fetchRawCoinDetailsData(
-      id,
-      targetCurrency,
-    );
-    const formattedData: IFormattedCoinDetailsAPIResponse =
-      formatCoinDetailsApiResponse(rawData, targetCurrency);
-
-    console.log(
-      "fetchAndFormatCoinDetailsData: Successfully fetched and formatted coin details data for",
-      id,
-    );
-    return formattedData;
-  } catch (error) {
-    console.error("Error in fetchAndFormatCoinDetailsData:", error);
-    return null;
-  }
-}
-
 // Type guard for IFormattedPopularCoinsApiResponse
 export function isPopularCoinsApiResponse(
   data: any,
@@ -277,7 +160,7 @@ export async function fetchInitialDataBasedOnRoute({
       console.log("Fetching data for a coin details page");
       // Extract symbol from the route
       const symbol = initialRoute.split("/")[2];
-      const coinDetailsData = await pfetchAndFormatCoinDetailsData(
+      const coinDetailsData = await fetchAndFormatCoinDetailsData(
         symbol,
         currencyPreference,
         { useCache: true },

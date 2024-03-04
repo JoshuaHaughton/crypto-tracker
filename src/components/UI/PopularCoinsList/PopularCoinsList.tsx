@@ -34,7 +34,7 @@ const PopularCoinsList: React.FC = () => {
     isBreakpoint380,
     handleInputChange,
     handleItemMouseEnter,
-    handleItemClick,
+    handleNavigation,
   } = usePopularCoinsList();
 
   // Determine which content to display based on the loading state and coinsForCurrentPage length
@@ -50,7 +50,7 @@ const PopularCoinsList: React.FC = () => {
             currentPageNumber,
             currentSymbol,
             handleItemMouseEnter,
-            handleItemClick,
+            handleNavigation,
           )
         : renderEmptyState();
   }
@@ -144,7 +144,7 @@ function mapCoinsToComponents(
   currentPageNumber: number,
   currentSymbol: TCurrencySymbol,
   handleItemMouseEnter: (id: string) => void,
-  handleItemClick: (id: string) => void,
+  handleNavigation: (id: string) => void,
 ): JSX.Element[] {
   return coinsForCurrentPage.map((listItem, index): JSX.Element => {
     const { coinDetails: coin, matchDetails } = listItem;
@@ -193,7 +193,7 @@ function mapCoinsToComponents(
         coin={enhancedCoin}
         matchDetails={matchDetails}
         handleMouseEnter={() => handleItemMouseEnter(coin.symbol)}
-        handleClick={() => handleItemClick(coin.symbol)}
+        handleClick={() => handleNavigation(coin.symbol)}
       />
     );
   });

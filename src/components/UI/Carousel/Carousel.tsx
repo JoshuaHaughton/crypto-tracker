@@ -29,14 +29,12 @@ const Carousel: React.FC = () => {
 
           return (
             <div className={styles.embla__slide} key={index}>
-              <Link href={`/coin/${coinSymbol}`} prefetch>
-                <CarouselItem
-                  coin={carouselCoins[index]}
-                  currencySymbol={currencySymbol}
-                  showFallback={isLoading}
-                  handleMouseEnter={() => handleItemMouseEnter(coinSymbol)}
-                />
-              </Link>
+              <CarouselItem
+                coin={carouselCoins[index]}
+                currencySymbol={currencySymbol}
+                showFallback={isLoading}
+                handleMouseEnter={() => handleItemMouseEnter(coinSymbol)}
+              />
             </div>
           );
         })}

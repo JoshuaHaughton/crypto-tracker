@@ -3,6 +3,7 @@ import Image from "next/image";
 import styles from "./Carousel.module.scss";
 import { ICoinOverview } from "@/lib/types/coinTypes";
 import { TCurrencySymbol } from "@/lib/constants/globalConstants";
+import Link from "next/link";
 
 const CAROUSEL_ITEM_IMG_SIZE = 80;
 
@@ -41,22 +42,22 @@ const CarouselItem: React.FC<ICarouselItemParams> = ({
   const shimmerClass = showFallback ? styles.shimmer : "";
 
   return (
-    <div
-      className={`${styles.carouselItem} ${shimmerClass}`}
-      onMouseEnter={handleMouseEnter}
-    >
-      {showFallback ? (
-        <div className={`${styles.image} ${shimmerClass}`}></div>
-      ) : (
-        <Image
-          src={coin.image}
-          alt={coin.name}
-          width={CAROUSEL_ITEM_IMG_SIZE}
-          height={CAROUSEL_ITEM_IMG_SIZE}
-          quality={100}
-          priority
-        />
-      )}
+    <div className={`${styles.carouselItem} ${shimmerClass}`}>
+      <Link href={`/coin/${coin.symbol}`} prefetch>
+        {showFallback ? (
+          <div className={`${styles.image} ${shimmerClass}`}></div>
+        ) : (
+          <Image
+            src={coin.image}
+            alt={coin.name}
+            width={CAROUSEL_ITEM_IMG_SIZE}
+            height={CAROUSEL_ITEM_IMG_SIZE}
+            quality={100}
+            onMouseEnter={handleMouseEnter}
+            priority
+          />
+        )}
+      </Link>
       <p className={shimmerClass}>
         {!showFallback
           ? `${coin.symbol.toUpperCase()} (${currencySymbol}${

@@ -1,13 +1,12 @@
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/lib/store";
-import { selectCoinsBeingPreloaded } from "@/lib/store/appInfo/appInfoSelectors";
-import { pfetchAndFormatCoinDetailsData } from "@/lib/utils/server.utils";
+import { fetchAndFormatCoinDetailsData } from "@/lib/utils/server.utils";
 import { selectCurrentCurrency } from "@/lib/store/currency/currencySelectors";
 
 interface IUseCoinDetailsPreloaderState {
-  handleMouseEnter: (symbol: string) => void;
-  handleClick: (symbol: string) => void;
+  handlePreload: (symbol: string) => void;
+  handleNavigation: (symbol: string) => void;
 }
 
 /**
@@ -32,7 +31,7 @@ const useCoinDetailsPreloader = (): IUseCoinDetailsPreloaderState => {
     async (symbol: string) => {
       console.warn("initiateFetchIfNotPreloading triggered");
       router.prefetch(`/coin/${symbol}`);
-      await pfetchAndFormatCoinDetailsData(symbol, currentCurrency, {
+      await fetchAndFormatCoinDetailsData(symbol, currentCurrency, {
         useCache: true,
       });
 
@@ -47,7 +46,7 @@ const useCoinDetailsPreloader = (): IUseCoinDetailsPreloaderState => {
    *
    * @param symbol - The symbol of the coin being hovered.
    */
-  const handleMouseEnter = useCallback(
+  const handlePreload = useCallback(
     (symbol: string) => {
       initiateFetchIfNotPreloading(symbol);
     },
@@ -60,23 +59,16 @@ const useCoinDetailsPreloader = (): IUseCoinDetailsPreloaderState => {
    *
    * @param symbol - The symbol of the coin being clicked.
    */
-  const handleClick = useCallback(
+  const handleNavigation = useCallback(
     async (symbol: string) => {
-      console.log(`Clicked on ${symbol}`);
-
       // Navigate regardless to simulate an SPA-like experience
       router.push(`/coin/${symbol}`);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [dispatch, initiateFetchIfNotPreloading],
-    // initiateFetchIfNotPreloading rerendering will account for anything we could have added
   );
 
-  // Determine if there are any coins currently being preloaded
-  // const isLoadingLocally = Object.keys(localPreloadingSymbols).length > 0;
-  // const isLoadingGlobally = Object.keys(coinsBeingPreloadedGlobally).length > 0;
-
-  return { handleMouseEnter, handleClick };
+  return { handlePreload, handleNavigation };
 };
 
 export default useCoinDetailsPreloader;
