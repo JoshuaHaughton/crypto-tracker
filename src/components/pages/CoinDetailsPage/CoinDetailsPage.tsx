@@ -8,23 +8,29 @@ import { isFullCoinDetails } from "@/lib/utils/global.utils";
 import { useSelector } from "react-redux";
 import CoinDetailsChart from "@/components/UI/CoinDetailsChart/CoinDetailsChart";
 import { ICoinDetails } from "@/lib/types/coinTypes";
+import { isEmpty } from "lodash";
 
 const CoinDetails = ({
   coinDetails: initialCoinDetails,
 }: {
-  coinDetails: ICoinDetails | undefined;
+  coinDetails?: ICoinDetails | undefined;
 }) => {
   const currentSymbol = useSelector(selectCurrentSymbol);
   const globalCoinDetails = useSelector(selectSelectedCoinDetails);
-  const coinDetails = globalCoinDetails ?? initialCoinDetails;
-  console.warn("STORE COINDETAILS ON PAGE", globalCoinDetails);
-  console.warn("INITIAL COINDETAILS ON PAGE", initialCoinDetails);
+  const coinDetails =
+    !globalCoinDetails || isEmpty(globalCoinDetails)
+      ? initialCoinDetails
+      : globalCoinDetails;
 
   // Check if the coin details are fully preloaded
   const isFullyPreloaded = isFullCoinDetails(coinDetails);
   const fullCoinDetails = isFullyPreloaded
     ? (coinDetails as ICoinDetails)
     : null;
+  console.warn("INITIAL COINDETAILS ON PAGE", initialCoinDetails);
+  console.warn("globalCoinDetails ON PAGE", globalCoinDetails);
+  console.warn("FINAL COINDETAILS ON PAGE", coinDetails);
+  console.warn("isFullyPreloaded", isFullyPreloaded);
 
   const coinAttributes = fullCoinDetails?.coinAttributes ?? null;
 

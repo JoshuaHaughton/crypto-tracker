@@ -1,71 +1,108 @@
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/lib/store";
 import { fetchAndFormatCoinDetailsData } from "@/lib/utils/server.utils";
 import { selectCurrentCurrency } from "@/lib/store/currency/currencySelectors";
+import { coinsActions } from "@/lib/store/coins/coinsSlice";
+import { ICoinDetails } from "@/lib/types/coinTypes";
+import { debounce } from "lodash";
 
 interface IUseCoinDetailsPreloaderState {
   handlePreload: (symbol: string) => void;
   handleNavigation: (symbol: string) => void;
 }
 
+interface IBatchedDetails {
+  [symbol: string]: ICoinDetails | null;
+}
+
 /**
- * Custom hook to manage preloading of coin details for a list of coins.
- * This hook provides functions for handling mouse hover and click events which initiate the preloading of coin details.
- * It is designed to be used at the list component level to optimize performance by reducing redundant state updates and API calls.
- *
- * @returns {IUseCoinDetailsPreloaderState} - Object containing event handlers and loading state indicator.
+ * A hook designed to preload coin details data.
+ * This hook uses a server actions for preloading and setting coin details before navigation.
+ * It manages hover and click events for preloading coin details to optimize performance and reduce unnecessary API calls.
+ * @returns {IUseCoinDetailsPreloaderState} Object containing methods for preloading coin data and handling navigation.
  */
 const useCoinDetailsPreloader = (): IUseCoinDetailsPreloaderState => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const currentCurrency = useAppSelector(selectCurrentCurrency);
+  const preloadedCoinDetailsRef = useRef<Map<string, ICoinDetails>>(new Map());
 
-  /**
-   * Initiates data fetching for a coin's details if it's not already being preloaded locally or globally,
-   * and if the global preloading limit has not been exceeded.
-   *
-   * @param symbol - The symbol of the coin for which to initiate data fetching.
-   */
-  const initiateFetchIfNotPreloading = useCallback(
-    async (symbol: string) => {
-      console.warn("initiateFetchIfNotPreloading triggered");
-      router.prefetch(`/coin/${symbol}`);
-      await fetchAndFormatCoinDetailsData(symbol, currentCurrency, {
-        useCache: true,
-      });
+  // Batch update for preloaded coin details
+  const updatePreloadedCoinDetails = useRef(
+    debounce((updates: Map<string, ICoinDetails | null>) => {
+      const batchedDetails = Array.from(
+        updates.entries(),
+      ).reduce<IBatchedDetails>((acc, [symbol, details]) => {
+        if (details) acc[symbol] = details; // Accumulate only non-null details
+        return acc;
+      }, {} as IBatchedDetails);
 
-      console.log(`Initiating preload for ${symbol}`);
-    },
-    [router, currentCurrency],
+      const filteredDetails = Object.values(batchedDetails).filter(
+        (detail): detail is ICoinDetails => detail !== null,
+      );
+
+      if (filteredDetails.length) {
+        dispatch(
+          coinsActions.setPreloadedCoinsForMultipleCurrencies({
+            coinDetailsArray: Object.values(filteredDetails),
+            currency: currentCurrency,
+          }),
+        );
+      }
+    }, 300),
   );
 
-  /**
-   * Handler for mouse hover events on coin list items.
-   * Triggers preloading of coin details for the hovered coin symbol.
-   *
-   * @param symbol - The symbol of the coin being hovered.
-   */
+  // Preloads coin details for a given symbol. It fetches and stores them if they are not already preloaded.
   const handlePreload = useCallback(
-    (symbol: string) => {
-      initiateFetchIfNotPreloading(symbol);
+    async (symbol: string): Promise<ICoinDetails> => {
+      // Check if coin details are already stored to avoid unnecessary API calls
+      if (!preloadedCoinDetailsRef.current.has(symbol)) {
+        console.warn("initiateFetchIfNotPreloading triggered");
+        console.log(`Initiating preload for ${symbol}`);
+
+        // Prefetch the page for smoother navigation experience
+        router.prefetch(`/coin/${symbol}`);
+        // Fetch coin details and update the ref with fetched data
+        const coinDetailsResponse = await fetchAndFormatCoinDetailsData(
+          symbol,
+          currentCurrency,
+          { useCache: true },
+        );
+        const coinDetails = coinDetailsResponse?.coinDetails ?? null; // Default to null if no data
+
+        if (coinDetails != null) {
+          preloadedCoinDetailsRef.current.set(symbol, coinDetails);
+          updatePreloadedCoinDetails.current(preloadedCoinDetailsRef.current);
+          console.log(`preload complete for ${symbol}`);
+          console.log(
+            `state of preloadedCoinDetailsRef`,
+            preloadedCoinDetailsRef,
+          ); // Set fetched coin details in the ref);
+          return coinDetails;
+        }
+      }
+
+      return preloadedCoinDetailsRef.current.get(symbol)!;
     },
-    [initiateFetchIfNotPreloading],
+    [currentCurrency, router],
   );
 
-  /**
-   * Handler for click events on coin list items.
-   * Triggers navigation to the coin's detail page and preloads its details if they are not already loaded.
-   *
-   * @param symbol - The symbol of the coin being clicked.
-   */
+  // Handles navigation to the coin detail page for a given symbol. Preloads details if they haven't been preloaded.
   const handleNavigation = useCallback(
     async (symbol: string) => {
-      // Navigate regardless to simulate an SPA-like experience
-      router.push(`/coin/${symbol}`);
+      let coinDetails = preloadedCoinDetailsRef.current.get(symbol);
+      // If details are not preloaded, fetch them before navigating
+      if (!coinDetails) {
+        console.warn("FETCHING VIA CLICK");
+        coinDetails = await handlePreload(symbol);
+      }
+
+      dispatch(coinsActions.setSelectedCoinDetails({ coinDetails }));
+      router.push(`/coin/${symbol}`); // Navigate to the detailed page of the coin
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dispatch, initiateFetchIfNotPreloading],
+    [dispatch, handlePreload, router],
   );
 
   return { handlePreload, handleNavigation };

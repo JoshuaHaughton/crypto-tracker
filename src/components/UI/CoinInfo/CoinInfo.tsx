@@ -40,7 +40,7 @@ const CoinInfo: React.FC<ICoinInfoProps> = ({
 
   return (
     <div className={styles.coin_info}>
-      <Link href="/" passHref className={styles.back_link}>
+      <Link href="/" className={styles.back_link} prefetch>
         <FontAwesomeIcon icon={faArrowLeft} />
       </Link>
       <header className={styles.header}>

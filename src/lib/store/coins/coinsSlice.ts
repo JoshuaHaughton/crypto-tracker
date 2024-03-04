@@ -129,6 +129,14 @@ export interface SetPreloadedCoinDetailsAllCurrenciesPayload {
 }
 
 /**
+ * Payload structure for setting or updating preloaded coin details for multiple coins in a specific currency.
+ */
+interface SetPreloadedCoinsForMultipleCurrenciesPayload {
+  coinDetailsArray: ICoinDetails[];
+  currency: TCurrencyString;
+}
+
+/**
  * Payload structure for setting or updating preloaded coin details for a specific currency.
  */
 export interface SetPreloadedCoinDetailsPayload
@@ -264,6 +272,41 @@ const coinsSlice = createSlice({
 
       // Update the preloaded coin details for the specified currency
       state.preloadedCoinDetailsByCurrency[currency] = coinDetailsMap;
+    },
+    /**
+     * Updates preloaded coin details for multiple coins in a specific currency.
+     * This reducer function iterates over an array of coin details and updates the state
+     * for each coin individually. It's designed to handle batch updates efficiently.
+     *
+     * @param state - The current state of the coins slice.
+     * @param action - The action payload containing the array of coin details and currency.
+     */
+    setPreloadedCoinsForMultipleCurrencies(
+      state,
+      action: PayloadAction<SetPreloadedCoinsForMultipleCurrenciesPayload>,
+    ) {
+      const { coinDetailsArray, currency } = action.payload;
+
+      // Update each coin in the array
+      coinDetailsArray.forEach((coinDetails) => {
+        const popularCoinsBase =
+          state.cachedPopularCoinMapsByCurrency[currency]?.[coinDetails?.id];
+
+        let mergedDetails: ICoinDetails;
+
+        if (popularCoinsBase != null) {
+          mergedDetails = mergeCoinDetails(popularCoinsBase, coinDetails);
+        } else {
+          mergedDetails = coinDetails;
+        }
+
+        // Update the preloaded coin details in the state
+        state.preloadedCoinDetailsByCurrency[currency][coinDetails?.id] =
+          mergedDetails;
+
+        // state.preloadedCoinDetailsByCurrency[currency][coinDetails.id] =
+        //   coinDetails;
+      });
     },
     /**
      * Adds or updates preloaded coin details for a specific currency.
