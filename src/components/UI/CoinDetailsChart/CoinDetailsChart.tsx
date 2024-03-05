@@ -9,7 +9,7 @@ import CoinDetailsChartSkeleton from "../Skeletons/CoinDetailsChart/CoinDetailsC
  * Props for the CoinDetailsChart component.
  */
 export interface ICoinDetailsChartProps {
-  coinDetails: ICoinDetails | null;
+  coinDetails: ICoinDetails | undefined;
 }
 
 /**

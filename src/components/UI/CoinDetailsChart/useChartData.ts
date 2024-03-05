@@ -65,7 +65,7 @@ const chartPeriodConfig: TChartPeriodConfig = {
  * Type definition for the return value of useChartData hook.
  */
 interface IChartDataState {
-  chartData: IPriceChartDataset | null;
+  chartData: IPriceChartDataset | undefined;
   currentChartPeriod: EChartPeriodInterval;
   setCurrentChartPeriod: React.Dispatch<
     React.SetStateAction<EChartPeriodInterval>
@@ -75,10 +75,10 @@ interface IChartDataState {
 /**
  * Custom hook to manage and update chart data.
  *
- * @param {ICoinDetails | null} coinDetails - Details of the coin, or null if not loaded.
+ * @param {ICoinDetails | undefined} coinDetails - Details of the coin, or undefined if not loaded.
  * @returns {IChartDataState} Chart data and related state.
  */
-function useChartData(coinDetails: ICoinDetails | null): IChartDataState {
+function useChartData(coinDetails: ICoinDetails | undefined): IChartDataState {
   // Retrieve the current currency from the Redux store
   const currentCurrency = useSelector(selectCurrentCurrency);
 
@@ -114,7 +114,7 @@ function useChartData(coinDetails: ICoinDetails | null): IChartDataState {
   // Create chart data object, memoized to avoid unnecessary recalculations
   const chartData = useMemo(() => {
     // Return null if labels or dataValues are empty
-    if (labels.length === 0 || dataValues.length === 0) return null;
+    if (labels.length === 0 || dataValues.length === 0) return undefined;
 
     return {
       labels: labels,

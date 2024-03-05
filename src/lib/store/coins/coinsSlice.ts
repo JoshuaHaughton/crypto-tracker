@@ -41,10 +41,10 @@ export interface ICoinsState {
   carouselSymbolList: string[];
 
   // Selected Coin Details
-  selectedCoinDetails: TShallowOrFullCoinDetails | null;
+  selectedCoinDetails: ICoinDetails | null;
   cachedSelectedCoinDetailsByCurrency: Record<
     TCurrencyString,
-    TShallowOrFullCoinDetails | null
+    ICoinDetails | null
   >;
 
   // Preloaded Coin Details

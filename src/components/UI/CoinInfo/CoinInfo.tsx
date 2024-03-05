@@ -13,7 +13,7 @@ const removeHTML = (str: string) => str.replace(/<\/?[^>]+(>|$)/g, "");
  * Props for the CoinInfo component.
  */
 export interface ICoinInfoProps {
-  coinAttributes: ICoinDetailAttributes | null;
+  coinAttributes: ICoinDetailAttributes | undefined;
   currentSymbol: string;
 }
 
@@ -56,9 +56,7 @@ const CoinInfo: React.FC<ICoinInfoProps> = ({
           />
 
           <h1 className={styles.name}>{coinAttributes.name}</h1>
-          <h4 className={styles.symbol}>
-            {coinAttributes.symbol.toUpperCase()}
-          </h4>
+          <h4 className={styles.symbol}>{coinAttributes.symbol}</h4>
         </div>
         <div className={styles.description}>
           <p>

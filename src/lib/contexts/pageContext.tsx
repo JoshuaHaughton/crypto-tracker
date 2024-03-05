@@ -1,13 +1,16 @@
 "use client";
 
 import React, { createContext, useContext, ReactNode } from "react";
-import { ICoinOverview } from "../types/coinTypes";
+import { ICoinDetails, ICoinOverview } from "../types/coinTypes";
+import { TCurrencyExchangeRates } from "../types/currencyTypes";
 
 // Define the shape of your page-specific data.
-interface IPageData {
+export interface IPageData {
   popularCoins?: ICoinOverview[];
   popularCoinsMap?: Record<string, ICoinOverview>;
   carouselSymbolList?: string[];
+  selectedCoinDetails?: ICoinDetails;
+  currencyExchanceRates?: TCurrencyExchangeRates;
 }
 
 /**
@@ -33,7 +36,7 @@ export const usePageData = (): IPageData => {
 
 interface IPageProviderProps {
   children: ReactNode;
-  value: IPageData;
+  value: IPageData | undefined;
 }
 
 /**

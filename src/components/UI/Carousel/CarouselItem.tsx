@@ -43,10 +43,10 @@ const CarouselItem: React.FC<ICarouselItemParams> = ({
 
   return (
     <div className={`${styles.carouselItem} ${shimmerClass}`}>
-      <Link href={`/coin/${coin.symbol}`} prefetch>
-        {showFallback ? (
-          <div className={`${styles.image} ${shimmerClass}`}></div>
-        ) : (
+      {showFallback ? (
+        <div className={`${styles.image} ${shimmerClass}`}></div>
+      ) : (
+        <Link href={`/coin/${coin.symbol}`} prefetch>
           <Image
             src={coin.image}
             alt={coin.name}
@@ -56,8 +56,8 @@ const CarouselItem: React.FC<ICarouselItemParams> = ({
             onMouseEnter={handleMouseEnter}
             priority
           />
-        )}
-      </Link>
+        </Link>
+      )}
       <p className={shimmerClass}>
         {!showFallback
           ? `${coin.symbol.toUpperCase()} (${currencySymbol}${

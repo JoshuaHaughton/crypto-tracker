@@ -6,14 +6,8 @@ import { AppConfigDynamic } from "next/dist/build/utils";
 import { StoreProvider } from "@/lib/store/storeProvider";
 import { AppInitializer } from "../components/Initializers/AppInitializer/AppInitializer";
 import { cookies } from "next/headers";
-import { fetchInitialDataBasedOnRoute } from "@/lib/utils/api.utils";
-import {
-  TCurrencyString,
-  INITIAL_CURRENCY,
-} from "@/lib/constants/globalConstants";
-import { TInitialRoute } from "@/lib/types/apiRequestTypes";
 import MainLayout from "@/components/Layout/MainLayout/MainLayout";
-import { E_COOKIE_NAMES } from "@/lib/types/cookieTypes";
+import { getInitialData } from "@/lib/utils/dataFormat.utils";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -33,19 +27,13 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   console.warn("LAYOUT RENDER");
-
-  // Access cookies in server components
-  const cookieStore = cookies();
-
-  // Retrieve currency preference from cookies or use default
-  const currencyPreference =
-    (cookieStore.get(E_COOKIE_NAMES.CURRENT_CURRENCY)
-      ?.value as TCurrencyString) || INITIAL_CURRENCY;
+  // We initialize the global store with the relative data we have
+  const initialData = getInitialData(cookies());
 
   return (
     <html lang="en">
       <body className={inter.className}>
-        <StoreProvider initialData={{ currencyPreference }}>
+        <StoreProvider initialData={initialData}>
           <AppInitializer />
           <MainLayout>{children}</MainLayout>
         </StoreProvider>

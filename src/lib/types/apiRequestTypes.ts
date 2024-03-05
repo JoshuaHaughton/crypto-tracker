@@ -10,16 +10,20 @@ export enum InitialDataType {
   COIN_DETAILS = "coinDetails",
 }
 
+export type TInitialPopularCoinsData = {
+  dataType: InitialDataType.POPULAR_COINS;
+  data: IFormattedPopularCoinsApiResponse;
+};
+
+export type TInitialCoinDetailsData = {
+  dataType: InitialDataType.COIN_DETAILS;
+  data: IFormattedCoinDetailsAPIResponse;
+};
+
 export type TInitialPageDataOptions =
-  | {
-      dataType: InitialDataType.POPULAR_COINS;
-      data: IFormattedPopularCoinsApiResponse;
-    }
-  | {
-      dataType: InitialDataType.COIN_DETAILS;
-      data: IFormattedCoinDetailsAPIResponse;
-    }
-  | null;
+  | TInitialPopularCoinsData
+  | TInitialCoinDetailsData
+  | undefined;
 
 export type TInitialReduxDataOptions = { currencyPreference: TCurrencyString };
 

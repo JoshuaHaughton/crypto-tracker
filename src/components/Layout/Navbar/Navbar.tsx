@@ -46,7 +46,7 @@ const Navbar = () => {
     <>
       <nav className={styles.nav}>
         <div className={styles.container}>
-          <Link href="/" passHref className={styles.logo_container}>
+          <Link href="/" className={styles.logo_container} prefetch>
             <Image
               src={logo}
               alt="Logo"
@@ -56,7 +56,7 @@ const Navbar = () => {
           </Link>
 
           <div className={styles.nav_list}>
-            <Link href="/" passHref className={styles.link_wrapper}>
+            <Link href="/" className={styles.link_wrapper} prefetch>
               <HomeIcon /> {!isBreakpoint555 && `Home`}
             </Link>
 

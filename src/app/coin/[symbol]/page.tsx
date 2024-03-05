@@ -1,50 +1,25 @@
 import CoinDetailsPage from "@/components/pages/CoinDetailsPage/CoinDetailsPage";
 import StoreHydrator from "@/components/Initializers/StoreHydrator/StoreHydrator";
+import { PageProvider } from "@/lib/contexts/pageContext";
+import { getCoinDetailsPageInitialData } from "@/lib/utils/dataFormat.utils";
 import { cookies } from "next/headers";
-import { INITIAL_CURRENCY } from "@/lib/constants/globalConstants";
-import { E_COOKIE_NAMES } from "@/lib/types/cookieTypes";
-import { fetchAndFormatCoinDetailsData } from "@/lib/utils/server.utils";
-import {
-  InitialDataType,
-  TInitialPageDataOptions,
-} from "@/lib/types/apiRequestTypes";
-import CoinDetailsServer from "@/components/pages/CoinDetailsServerLogic";
 
-// Define props type for the page
 interface ICoinPageProps {
   params: { symbol: string };
 }
 
 export default async function CoinPage({ params }: ICoinPageProps) {
-  // // Access cookies in server components
-  // const cookieStore = cookies();
-
-  // // Retrieve currency preference from cookies or use default
-  // const currencyPreference =
-  //   (cookieStore.get(E_COOKIE_NAMES.CURRENT_CURRENCY)
-  //     ?.value as TCurrencyString) || INITIAL_CURRENCY;
-
-  // const coinDetailsResponseData = await fetchAndFormatCoinDetailsData(
-  //   params.symbol,
-  //   currencyPreference,
-  //   { useCache: true },
-  // );
-
-  // // Ensure coinDetails is not null before rendering CoinDetailsPage
-  // if (!coinDetailsResponseData?.coinDetails) {
-  //   // Handle the null case by rendering a placeholder
-  //   return <div>No coin details available</div>;
-  // }
-
-  // const formattedinitialData: TInitialPageDataOptions = {
-  //   dataType: InitialDataType.COIN_DETAILS,
-  //   data: coinDetailsResponseData,
-  // };
+  const initialData = await getCoinDetailsPageInitialData(
+    cookies(),
+    params.symbol,
+  );
 
   return (
     <>
-      {/* <StoreHydrator initialData={formattedinitialData} /> */}
-      <CoinDetailsPage  />
+      <StoreHydrator initialData={initialData?.dataToHydrate} />
+      <PageProvider value={initialData?.initialPageData}>
+        <CoinDetailsPage />
+      </PageProvider>
     </>
   );
 }

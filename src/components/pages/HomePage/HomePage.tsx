@@ -1,11 +1,11 @@
 "use client";
 
+import styles from "./HomePage.module.scss";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
-import styles from "./HomePage.module.scss";
+import { selectPopularCoinsPageNumber } from "@/lib/store/appInfo/appInfoSelectors";
 import Banner from "@/components/UI/Banner/Banner";
 import PopularCoinsList from "@/components/UI/PopularCoinsList/PopularCoinsList";
-import { selectPopularCoinsPageNumber } from "@/lib/store/appInfo/appInfoSelectors";
 
 export default function HomePage() {
   console.log("HomePage render");
