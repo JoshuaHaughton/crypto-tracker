@@ -33,15 +33,16 @@ import { Dispatch } from "@reduxjs/toolkit";
 import { ENumericThresholds } from "@/lib/types/numericTypes";
 import { E_COOKIE_NAMES } from "../types/cookieTypes";
 import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
-import { fetchAndFormatPopularCoinsData } from "./api.utils";
 import {
   TInitialPageDataOptions,
   InitialDataType,
   TInitialPopularCoinsData,
   TInitialCoinDetailsData,
 } from "../types/apiRequestTypes";
-import { fetchAndFormatCoinDetailsData } from "./server.utils";
-import { IPageData } from "../contexts/pageContext";
+import {
+  fetchAndFormatCoinDetailsData,
+  fetchAndFormatPopularCoinsData,
+} from "./server.utils";
 
 // Formatting CoinDetails after retrieval from the API
 
@@ -653,6 +654,7 @@ interface IInitialHomePageData {
   popularCoins: ICoinOverview[];
   popularCoinsMap: Record<string, ICoinOverview>;
   carouselSymbolList: string[];
+  currencyExchangeRates: TCurrencyExchangeRates;
 }
 
 export interface IHomePageInitialDataType {
@@ -711,6 +713,7 @@ export async function getHomePageInitialData(
       {} as Record<string, ICoinOverview>,
     ),
     carouselSymbolList: popularCoinsResponseData.carouselSymbolList,
+    currencyExchangeRates: popularCoinsResponseData.currencyExchangeRates,
   };
 
   console.log(
@@ -726,7 +729,7 @@ export async function getHomePageInitialData(
 
 interface IInitialCoinDetailsPageData {
   selectedCoinDetails: ICoinDetails;
-  currencyExchanceRates: TCurrencyExchangeRates;
+  currencyExchangeRates: TCurrencyExchangeRates;
 }
 
 export interface ICoinDetailsPageInitialDataType {
@@ -775,7 +778,7 @@ export async function getCoinDetailsPageInitialData(
   // Prepare page data for the HomePage component. This will be what we show before hydration, and should be the same values
   const initialPageData: IInitialCoinDetailsPageData = {
     selectedCoinDetails: coinDetailsResponseData.coinDetails,
-    currencyExchanceRates: coinDetailsResponseData.currencyExchangeRates,
+    currencyExchangeRates: coinDetailsResponseData.currencyExchangeRates,
   };
 
   // Return the formatted initial data and page data for rendering

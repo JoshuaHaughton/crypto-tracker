@@ -23,6 +23,7 @@ const useStoreHydrator = (initialData: TInitialPageDataOptions) => {
   useEffect(() => {
     // Dispatch actions based on the type of initial data provided.
     if (initialData) {
+      console.log("initialData - StoreHydrator", initialData);
       switch (initialData.dataType) {
         case InitialDataType.POPULAR_COINS:
           // Dispatch popular coins and carousel data if available.
@@ -100,7 +101,9 @@ const useStoreHydrator = (initialData: TInitialPageDataOptions) => {
         );
       }
     }
-  }, [dispatch, initialData]);
+    // Should only run on the initial load
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 };
 
 export default useStoreHydrator;

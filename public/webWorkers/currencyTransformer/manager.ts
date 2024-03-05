@@ -39,11 +39,11 @@ export function initializeCurrencyTransformerWorker(dispatch: Dispatch) {
 
   // Ensure the worker can be initialized (i.e., running in a browser environment)
   if (typeof window === "undefined") return;
-  console.log("creating currencyTransformerWorker");
+  console.warn("creating currencyTransformerWorker");
   currencyTransformerWorker = new Worker(
     new URL("./worker.ts", import.meta.url),
   );
-  console.log("currencyTransformerWorker created");
+  console.warn("currencyTransformerWorker created");
 
   currencyTransformerWorker.onmessage = (event) =>
     handleTransformedCurrencyResponse(event, dispatch, callbacksMap);
@@ -59,6 +59,7 @@ export function initializeCurrencyTransformerWorker(dispatch: Dispatch) {
 export function postMessageToCurrencyTransformerWorker<
   T extends CTWMessageRequestType,
 >(message: CTWRequestMessage<T>) {
+  console.error("currencyTransformerWorker", currencyTransformerWorker);
   if (!currencyTransformerWorker) return;
   const { requestData, requestType, onComplete } = message;
 
@@ -68,6 +69,9 @@ export function postMessageToCurrencyTransformerWorker<
   if (onCompleteCallbackId && onComplete != null) {
     callbacksMap.set(onCompleteCallbackId, onComplete as CTWCallback);
   }
+
+  console.error("post message", requestType);
+  console.error("post message", requestData);
 
   currencyTransformerWorker.postMessage({
     requestData,

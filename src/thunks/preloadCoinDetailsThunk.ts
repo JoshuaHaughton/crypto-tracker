@@ -1,12 +1,11 @@
-import { TAppDispatch, TRootState } from "@/lib/store";
+import { TRootState } from "@/lib/store";
 import { coinsActions } from "@/lib/store/coins/coinsSlice";
 import { appInfoActions } from "@/lib/store/appInfo/appInfoSlice";
 import { ICoinDetails } from "@/lib/types/coinTypes";
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import { fetchAndFormatCoinDetailsData } from "@/lib/utils/server.utils";
 import { postMessageToCurrencyTransformerWorker } from "../../public/webWorkers/currencyTransformer/manager";
 import { CTWMessageRequestType } from "../../public/webWorkers/currencyTransformer/types";
-import apiSlice from "@/lib/store/api/apiSlice";
-import { createAsyncThunk } from "@reduxjs/toolkit";
-import { mergeCoinDetails } from "@/lib/utils/dataFormat.utils";
 
 /**
  * Exclusive parameters for fetching coin details. If provided, `handleFetch` must be true,
@@ -54,7 +53,6 @@ export const preloadCoinDetailsThunk = createAsyncThunk<
   // Determine parameters based on the provided action type
   // Based on the scenario, we then declare our variables and provide default values as needed.
   const isFetchingScenario = "handleFetch" in params && params.handleFetch;
-  let handleFetch = isFetchingScenario;
   let symbolToFetch: string | undefined;
   let selectCoinAfterFetch = false; // Default value for optional property
   let detailsToPreload: ICoinDetails | undefined;
@@ -81,18 +79,15 @@ export const preloadCoinDetailsThunk = createAsyncThunk<
   dispatch(appInfoActions.addCoinBeingPreloaded({ coinId: coinSymbol }));
   console.warn(`Preloading started for coin: ${coinSymbol}`);
 
-  if (handleFetch) {
+  if (isFetchingScenario) {
     try {
-      const fetchedDetails = await dispatch(
-        apiSlice.endpoints.fetchCoinDetailsData.initiate({
-          symbol: symbolToFetch,
-          targetCurrency: currentCurrency,
-        }),
-      ).unwrap();
-      detailsToPreload = fetchedDetails.coinDetails;
-      coinSymbol = detailsToPreload.id;
+      const fetchedDetails = await fetchAndFormatCoinDetailsData(
+        coinSymbol,
+        currentCurrency,
+      );
+      detailsToPreload = fetchedDetails?.coinDetails;
     } catch (error) {
-      console.error(`Error fetching coin details for ${symbolToFetch}:`, error);
+      console.error(`Error fetching coin details for ${coinSymbol}:`, error);
       dispatch(appInfoActions.removeCoinBeingPreloaded({ coinId: coinSymbol }));
       return;
     }
@@ -118,5 +113,23 @@ export const preloadCoinDetailsThunk = createAsyncThunk<
       currency: currentCurrency,
     }),
   );
-  dispatch(appInfoActions.removeCoinBeingPreloaded({ coinId: coinSymbol }));
+
+  // Sending current Popular Coins data to the web worker for currency transformation
+  postMessageToCurrencyTransformerWorker<CTWMessageRequestType.COIN_DETAILS_ALL_CURRENCIES>(
+    {
+      requestType: CTWMessageRequestType.COIN_DETAILS_ALL_CURRENCIES,
+      requestData: {
+        coinToTransform: detailsToPreload,
+        fromCurrency: currentCurrency,
+        currencyExchangeRates: currencyRates,
+        // We start off with the initial details for the current currency, so we can exclude it to avoid
+        // an unnecessary computation
+        currenciesToExclude: [currentCurrency],
+      },
+      onComplete: () =>
+        dispatch(
+          appInfoActions.removeCoinBeingPreloaded({ coinId: coinSymbol }),
+        ),
+    },
+  );
 });

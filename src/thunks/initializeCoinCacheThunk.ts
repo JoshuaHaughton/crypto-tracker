@@ -1,14 +1,10 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { postMessageToCurrencyTransformerWorker } from "../../public/webWorkers/currencyTransformer/manager";
-import { transformAndDispatchPopularCoinsToShallow } from "../lib/utils/dataFormat.utils";
-import {
-  CTWAllPopularCoinsListsExternalResponseData,
-  CTWMessageRequestType,
-} from "../../public/webWorkers/currencyTransformer/types";
+import { CTWMessageRequestType } from "../../public/webWorkers/currencyTransformer/types";
 import { TRootState } from "@/lib/store";
 import { appInfoActions } from "@/lib/store/appInfo/appInfoSlice";
 import { coinsActions } from "@/lib/store/coins/coinsSlice";
-import apiSlice from "@/lib/store/api/apiSlice";
+import { fetchAndFormatPopularCoinsData } from "@/lib/utils/server.utils";
 
 // Define two separate types for the distinct scenarios.
 type TFetchPopularCoins = {
@@ -50,10 +46,10 @@ export const initializeCoinCache = createAsyncThunk<
     if (handleFetch) {
       // Conditionally fetch popular coins data from the API if handleFetch is true
       console.warn("Fetching popular coins data from API for initialization.");
-      const response = await dispatch(
-        apiSlice.endpoints.fetchPopularCoinsData.initiate(currentCurrency),
-      ).unwrap();
-      popularCoinsToUse = response.popularCoins;
+      const response = await fetchAndFormatPopularCoinsData(currentCurrency, {
+        useCache: true,
+      });
+      popularCoinsToUse = response?.popularCoins ?? [];
     } else if (popularCoins) {
       // If popularCoins are provided, use these and ensure handleFetch is false.
       console.warn("Using provided popular coins data for initialization.");
@@ -70,14 +66,6 @@ export const initializeCoinCache = createAsyncThunk<
         currency: currentCurrency,
         coinList: popularCoinsToUse,
       }),
-    );
-
-    // Calls `transformAndDispatchPopularCoinsToShallow` with the transformed data from the web worker and the Redux dispatch function.
-    // This function processes each currency's popular coins data into a shallow format and updates the Redux store accordingly
-    transformAndDispatchPopularCoinsToShallow(
-      dispatch,
-      popularCoinsToUse,
-      currentCurrency,
     );
 
     // Sending current Popular Coins data to the web worker for currency transformation

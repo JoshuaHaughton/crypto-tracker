@@ -12,7 +12,6 @@ import appInfoReducer from "./appInfo/appInfoSlice";
 import mediaQueryReducer from "./mediaQuery/mediaQuerySlice";
 import modalsReducer from "./modals/modalsSlice";
 import searchReducer from "./search/searchSlice";
-import { apiReducer, apiMiddleware } from "./api/apiSlice";
 import loggerMiddleware from "./middleware/logger";
 
 /**
@@ -27,7 +26,6 @@ const rootReducer = combineReducers({
   mediaQuery: mediaQueryReducer,
   modals: modalsReducer,
   search: searchReducer,
-  api: apiReducer,
 });
 
 /**
@@ -68,7 +66,7 @@ export const makeStore = (
   const store = configureStore({
     reducer: rootReducer,
     middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware().concat(apiMiddleware).concat(loggerMiddleware),
+      getDefaultMiddleware().concat(loggerMiddleware),
     preloadedState: initialStates,
   });
 

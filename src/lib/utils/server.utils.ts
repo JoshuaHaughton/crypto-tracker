@@ -13,8 +13,14 @@ import {
   IAssetDataApiResponse,
   IHistoricalDataApiResponse,
   IFormattedCoinDetailsAPIResponse,
+  IFormattedPopularCoinsApiResponse,
+  IRawPopularCoinsApiResponse,
+  ITopMarketCapApiResponse,
 } from "../types/apiResponseTypes";
-import { formatCoinDetailsApiResponse } from "./dataFormat.utils";
+import {
+  formatCoinDetailsApiResponse,
+  formatPopularCoinsApiResponse,
+} from "./dataFormat.utils";
 
 // Define valid SameSite options for type checking
 type TSameSiteOptions = "strict" | "lax" | "none";
@@ -83,6 +89,113 @@ interface IFetchOptions {
 
 // 30 seconds
 const DEFAULT_REVALIDATION_TIME = 30;
+
+/**
+ * Fetches raw data for the top 100 coins and currency exchange rates.
+ * This function directly interacts with the API to retrieve raw data.
+ *
+ * @param {TCurrencyString} targetCurrency - The currency against which market data is compared.
+ * @returns {Promise<IRawPopularCoinsApiResponse>} A Promise resolving to an object containing raw currency rates and top 100 market cap coins.
+ */
+async function fetchRawPopularCoinsData(
+  targetCurrency: TCurrencyString,
+  options: IFetchOptions = {
+    useCache: false,
+    revalidateTime: DEFAULT_REVALIDATION_TIME,
+  },
+): Promise<IRawPopularCoinsApiResponse> {
+  // API Key for authorization header
+  const apiKey = process.env.NEXT_PUBLIC_CRYPTOCOMPARE_API_KEY;
+  const fetchOptions = {
+    headers: { Authorization: `Apikey ${apiKey}` },
+  };
+
+  // Constructing URLs for concurrent API requests
+  const currencyExchangeURL = `${
+    API_ENDPOINTS.CURRENCY_EXCHANGE
+  }?fsym=${targetCurrency}&tsyms=${ALL_CURRENCIES.join(",")}`;
+  const top100MarketCapCoinsURL = `${API_ENDPOINTS.TOP_100_MARKET_CAP_OVERVIEW}?limit=100&tsym=${targetCurrency}`;
+
+  const cacheOptions: RequestInit = options.useCache
+    ? {
+        cache: "force-cache" as RequestCache,
+        next: {
+          revalidate: options.revalidateTime || DEFAULT_REVALIDATION_TIME,
+        },
+      }
+    : { cache: "no-store" as RequestCache };
+
+  // Setting up promises for concurrent API requests
+  // Revalidates currency exchange data every 600 seconds (10 minutes)
+  const exchangeRatePromise = fetch(currencyExchangeURL, {
+    ...fetchOptions,
+    next: { revalidate: 600 },
+  }).then((response) => response.json() as Promise<TCurrencyRates>);
+
+  // Fetching top 100 market cap coins data with an optional cache header
+  const top100MarketCapCoinsPromise = fetch(top100MarketCapCoinsURL, {
+    ...fetchOptions,
+    ...cacheOptions,
+  }).then((response) => response.json() as Promise<ITopMarketCapApiResponse>);
+
+  try {
+    // Await both promises concurrently and return the raw data
+    const [exchangeData, top100MarketCapData] = await Promise.all([
+      exchangeRatePromise,
+      top100MarketCapCoinsPromise,
+    ]);
+    return { exchangeData, top100MarketCapData };
+  } catch (error) {
+    console.error("Error fetching raw popular coins data:", error);
+    throw error;
+  }
+}
+
+/**
+ * Fetches and formats the data for the top 100 coins, including trending carousel coins and currency exchange rates.
+ * This function first fetches the raw data and then formats it into a more usable structure.
+ *
+ * @param {TCurrencyString} targetCurrency - The currency against which the market data is compared.
+ * @returns {Promise<IFormattedPopularCoinsApiResponse| null>} A Promise resolving to an object containing formatted data including currency rates, popular coins list, and carousel symbols.
+ */
+export async function fetchAndFormatPopularCoinsData(
+  targetCurrency: TCurrencyString,
+  options: IFetchOptions = {
+    useCache: false,
+    revalidateTime: DEFAULT_REVALIDATION_TIME,
+  },
+): Promise<IFormattedPopularCoinsApiResponse | null> {
+  console.log(
+    "fetchAndFormatPopularCoinsData: Fetching and formatting popular coins data.",
+  );
+
+  try {
+    // Fetching raw data from the API
+    const rawData: IRawPopularCoinsApiResponse = await fetchRawPopularCoinsData(
+      targetCurrency,
+      options,
+    );
+
+    // Validating the fetched raw data
+    if (!rawData.exchangeData || !rawData.top100MarketCapData) {
+      throw new Error(
+        "Invalid response from the API endpoint for Popular Coins",
+      );
+    }
+
+    // Formatting the raw data into a more structured and usable format
+    const formattedData: IFormattedPopularCoinsApiResponse =
+      formatPopularCoinsApiResponse(rawData, targetCurrency);
+
+    console.log(
+      "fetchAndFormatPopularCoinsData: Successfully fetched and formatted popular coins data.",
+    );
+    return formattedData;
+  } catch (error) {
+    console.error("Error in fetchAndFormatPopularCoinsData:", error);
+    return null;
+  }
+}
 
 /**
  * Fetches and potentially preloads raw data for a specific coin's details and historical data.

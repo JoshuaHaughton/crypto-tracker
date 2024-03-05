@@ -1,7 +1,7 @@
 "use client";
 
 import { TInitialPageDataOptions } from "@/lib/types/apiRequestTypes";
-import useInitializeAndHydrateData from "./useStoreHydrator"; // Adjust the path as necessary
+import useStoreHydrator from "./useStoreHydrator";
 
 /**
  * Custom type for the props expected by the StoreHydrator component.
@@ -20,7 +20,8 @@ interface IStoreHydratorProps {
 const StoreHydrator: React.FC<IStoreHydratorProps> = ({
   initialData,
 }: IStoreHydratorProps) => {
-  useInitializeAndHydrateData(initialData);
+  console.log("StoreHydrator Render");
+  useStoreHydrator(initialData);
 
   return null; // This component does not render anything
 };

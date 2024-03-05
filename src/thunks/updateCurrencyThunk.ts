@@ -301,10 +301,7 @@ async function processCoinDataUpdates({
   dispatch,
 }: IProcessCoinDataUpdatesParams): Promise<void> {
   // Update for selected coin details if necessary
-  const isPreloaded =
-    selectedCoinDetails?.priceChartDataset != null &&
-    cachedSelectedCoinDetailsByCurrency[updatedCurrency]?.priceChartDataset !=
-      null;
+  const isPreloaded = selectedCoinDetails?.priceChartDataset != null;
   if (isPreloaded) {
     const preloadedCache = cachedSelectedCoinDetailsByCurrency[
       updatedCurrency
