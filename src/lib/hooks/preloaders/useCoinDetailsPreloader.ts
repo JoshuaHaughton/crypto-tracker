@@ -28,8 +28,8 @@ const useCoinDetailsPreloader = (): IUseCoinDetailsPreloaderState => {
   const currentCurrency = useAppSelector(selectCurrentCurrency);
   const preloadedCoinDetailsRef = useRef<Map<string, ICoinDetails>>(new Map());
 
-  // Batch update for preloaded coin details
-  const updatePreloadedCoinDetails = useRef(
+  // Batch update for preloaded coin details in global store
+  const updateGlobalPreloadedCoinDetails = useRef(
     debounce((updates: Map<string, ICoinDetails | null>) => {
       const batchedDetails = Array.from(
         updates.entries(),
@@ -73,7 +73,9 @@ const useCoinDetailsPreloader = (): IUseCoinDetailsPreloaderState => {
 
         if (coinDetails != null) {
           preloadedCoinDetailsRef.current.set(symbol, coinDetails);
-          updatePreloadedCoinDetails.current(preloadedCoinDetailsRef.current);
+          updateGlobalPreloadedCoinDetails.current(
+            preloadedCoinDetailsRef.current,
+          );
           console.log(`preload complete for ${symbol}`);
           console.log(
             `state of preloadedCoinDetailsRef`,
@@ -91,18 +93,10 @@ const useCoinDetailsPreloader = (): IUseCoinDetailsPreloaderState => {
   // Handles navigation to the coin detail page for a given symbol. Preloads details if they haven't been preloaded.
   const handleNavigation = useCallback(
     async (symbol: string) => {
-      let coinDetails = preloadedCoinDetailsRef.current.get(symbol);
-      // If details are not preloaded, fetch them before navigating
-      if (!coinDetails) {
-        console.warn("FETCHING VIA CLICK");
-        coinDetails = await handlePreload(symbol);
-      }
-
-      dispatch(coinsActions.setSelectedCoinDetails({ coinDetails }));
-      router.push(`/coin/${symbol}`); // Navigate to the detailed page of the coin
+      router.push(`/coin/${symbol}`);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dispatch, handlePreload, router],
+    [router],
   );
 
   return { handlePreload, handleNavigation };

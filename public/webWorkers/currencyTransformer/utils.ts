@@ -31,7 +31,7 @@ function handleCTWTransformedCoinDetailsForCurrency(
     transformedData,
   );
   dispatch(
-    coinsActions.setOrUpdatePreloadedCoinDetails({
+    coinsActions.setCachedSelectedCoinDetails({
       currency: toCurrency,
       coinDetails: transformedData,
     }),
@@ -56,7 +56,7 @@ function handleCTWTransformedCoinDetailsForMultipleCurrencies(
       transformedData[currency as TCurrencyString],
     );
     dispatch(
-      coinsActions.setOrUpdatePreloadedCoinDetails({
+      coinsActions.setCachedSelectedCoinDetails({
         currency: currency as TCurrencyString,
         coinDetails: transformedData[currency as TCurrencyString],
       }),

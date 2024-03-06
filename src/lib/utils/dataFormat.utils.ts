@@ -654,7 +654,6 @@ interface IInitialHomePageData {
   popularCoins: ICoinOverview[];
   popularCoinsMap: Record<string, ICoinOverview>;
   carouselSymbolList: string[];
-  currencyExchangeRates: TCurrencyExchangeRates;
 }
 
 export interface IHomePageInitialDataType {
@@ -700,6 +699,7 @@ export async function getHomePageInitialData(
   const dataToHydrate: TInitialPageDataOptions = {
     dataType: InitialDataType.POPULAR_COINS,
     data: popularCoinsResponseData,
+    currentCurrency: currencyPreference,
   };
 
   // Prepare page data for the HomePage component. This will be what we show before hydration, and should be the same values
@@ -773,6 +773,7 @@ export async function getCoinDetailsPageInitialData(
   const dataToHydrate: TInitialCoinDetailsData = {
     dataType: InitialDataType.COIN_DETAILS,
     data: coinDetailsResponseData,
+    currentCurrency: currencyPreference,
   };
 
   // Prepare page data for the HomePage component. This will be what we show before hydration, and should be the same values

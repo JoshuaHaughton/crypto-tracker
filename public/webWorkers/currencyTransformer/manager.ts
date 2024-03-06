@@ -59,7 +59,6 @@ export function initializeCurrencyTransformerWorker(dispatch: Dispatch) {
 export function postMessageToCurrencyTransformerWorker<
   T extends CTWMessageRequestType,
 >(message: CTWRequestMessage<T>) {
-  console.error("currencyTransformerWorker", currencyTransformerWorker);
   if (!currencyTransformerWorker) return;
   const { requestData, requestType, onComplete } = message;
 
@@ -69,9 +68,6 @@ export function postMessageToCurrencyTransformerWorker<
   if (onCompleteCallbackId && onComplete != null) {
     callbacksMap.set(onCompleteCallbackId, onComplete as CTWCallback);
   }
-
-  console.error("post message", requestType);
-  console.error("post message", requestData);
 
   currencyTransformerWorker.postMessage({
     requestData,

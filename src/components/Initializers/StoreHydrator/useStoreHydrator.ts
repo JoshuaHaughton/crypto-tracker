@@ -24,6 +24,19 @@ const useStoreHydrator = (initialData: TInitialPageDataOptions) => {
     // Dispatch actions based on the type of initial data provided.
     if (initialData) {
       console.log("initialData - StoreHydrator", initialData);
+
+      // Dispatch initial currency & exchange rates if available. These should be populated first as they're used down the line in other preloading/initialization methods
+      dispatch(
+        currencyActions.setCurrencyRates({
+          currencyRates: initialData.data.currencyExchangeRates,
+        }),
+      );
+      dispatch(
+        currencyActions.setDisplayedCurrency({
+          currency: initialData.currentCurrency,
+        }),
+      );
+
       switch (initialData.dataType) {
         case InitialDataType.POPULAR_COINS:
           // Dispatch popular coins and carousel data if available.
@@ -67,15 +80,6 @@ const useStoreHydrator = (initialData: TInitialPageDataOptions) => {
           // Log or handle unknown data types.
           console.warn(`Unhandled initial data type: ${initialData}`);
           break;
-      }
-
-      // Dispatch currency exchange rates if available.
-      if (initialData.data.currencyExchangeRates) {
-        dispatch(
-          currencyActions.setCurrencyRates({
-            currencyRates: initialData.data.currencyExchangeRates,
-          }),
-        );
       }
 
       // Always initialize the coin cache, regardless of the page type.

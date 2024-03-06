@@ -9,7 +9,15 @@ import { currencyActions } from "@/lib/store/currency/currencySlice";
 import { postMessageToCurrencyTransformerWorker } from "../../public/webWorkers/currencyTransformer/manager";
 import { isEmpty } from "lodash";
 import { TRootState } from "@/lib/store";
-import { CTWMessageRequestType } from "../../public/webWorkers/currencyTransformer/types";
+import {
+  CTWCallback,
+  CTWCallbackResponse,
+  CTWCoinDetailsExternalResponseData,
+  CTWCoinDetailsRequestData,
+  CTWMessageRequestType,
+  CTWPopularCoinsListExternalResponseData,
+  CTWPopularCoinsListRequestData,
+} from "../../public/webWorkers/currencyTransformer/types";
 
 /**
  * Payload for updating currency.
@@ -141,6 +149,7 @@ function handleCacheNotUsed({
     currentCurrency,
     updatedCurrency,
     currencyRates,
+    dispatch,
   );
   // Determine the request types for single and all currency updates
   const { singleCurrencyRequestType, allCurrenciesRequestType } =
@@ -152,13 +161,7 @@ function handleCacheNotUsed({
   > = {
     requestType: singleCurrencyRequestType,
     requestData: requestData.singleRequestData,
-    onComplete: () => {
-      dispatch(
-        currencyActions.setDisplayedCurrency({
-          currency: updatedCurrency,
-        }),
-      );
-    },
+    onComplete: requestData.onComplete,
   };
   postMessageToCurrencyTransformerWorker(singleCurrencyRequestMessage);
 
@@ -177,6 +180,7 @@ interface IFormattedUpdateCurrencyRequestData {
   allRequestData:
     | CTWAllCoinDetailsRequestData
     | CTWAllPopularCoinsListsRequestData;
+  onComplete?: CTWCallback;
 }
 
 /**
@@ -186,6 +190,7 @@ interface IFormattedUpdateCurrencyRequestData {
  * @param {TCurrencyString} currentCurrency - The current currency before update.
  * @param {TCurrencyString} updatedCurrency - The new currency to update to.
  * @param {TCurrencyExchangeRates} currencyRates - The current currency exchange rates.
+ * @param {Dispatch<any>} dispatch - Redux dispatch function for state management.
  * @returns An object containing the single and all currency request data.
  */
 function prepareRequestData(
@@ -194,6 +199,7 @@ function prepareRequestData(
   currentCurrency: TCurrencyString,
   updatedCurrency: TCurrencyString,
   currencyRates: TCurrencyExchangeRates,
+  dispatch: Dispatch,
 ): IFormattedUpdateCurrencyRequestData {
   // Generate common data for both single and all currency updates
   const commonData = {
@@ -212,9 +218,26 @@ function prepareRequestData(
       ...commonData,
       coinToTransform: coinData as ICoinDetails,
     };
-    return { singleRequestData, allRequestData };
+
+    // Encapsulate 'onComplete' within the request data structure for handling web worker responses
+    const onComplete = (response: CTWCallbackResponse) => {
+      const { transformedData } = response;
+
+      const transformedCoinDetails =
+        transformedData as CTWCoinDetailsExternalResponseData["transformedData"];
+      dispatch(
+        coinsActions.setSelectedCoinDetails({
+          coinDetails: transformedCoinDetails,
+        }),
+      );
+
+      // Update currency state once transformation is complete
+      dispatch(
+        currencyActions.setDisplayedCurrency({ currency: updatedCurrency }),
+      );
+    };
+    return { singleRequestData, allRequestData, onComplete };
   } else {
-    // E_CACHE_TYPE.POPULAR_COINS_LIST
     const singleRequestData: CTWPopularCoinsListRequestData = {
       ...commonData,
       coinsToTransform: coinData as ICoinOverview[],
@@ -224,7 +247,23 @@ function prepareRequestData(
       ...commonData,
       coinsToTransform: coinData as ICoinOverview[],
     };
-    return { singleRequestData, allRequestData };
+
+    // Encapsulate 'onComplete' within the request data structure for handling web worker responses
+    const onComplete = (response: CTWCallbackResponse) => {
+      const { transformedData } = response;
+
+      const transformedPopularCoins =
+        transformedData as CTWPopularCoinsListExternalResponseData["transformedData"];
+      dispatch(
+        coinsActions.setPopularCoins({ coinList: transformedPopularCoins }),
+      );
+
+      // Update currency state once transformation is complete
+      dispatch(
+        currencyActions.setDisplayedCurrency({ currency: updatedCurrency }),
+      );
+    };
+    return { singleRequestData, allRequestData, onComplete };
   }
 }
 
@@ -301,15 +340,15 @@ async function processCoinDataUpdates({
   dispatch,
 }: IProcessCoinDataUpdatesParams): Promise<void> {
   // Update for selected coin details if necessary
-  const isPreloaded = selectedCoinDetails?.priceChartDataset != null;
-  if (isPreloaded) {
-    const preloadedCache = cachedSelectedCoinDetailsByCurrency[
+  const coinIsSelected = selectedCoinDetails != null;
+  if (coinIsSelected) {
+    const selectedCoinCache = cachedSelectedCoinDetailsByCurrency[
       updatedCurrency
     ] as ICoinDetails;
     await updateCurrencyAndCache({
       type: E_CACHE_TYPE.COIN_DETAILS,
       coinData: selectedCoinDetails,
-      cache: preloadedCache,
+      cache: selectedCoinCache,
       currentCurrency,
       updatedCurrency,
       currencyRates,
@@ -363,10 +402,10 @@ async function updateCurrencyAndCache({
   type,
   coinData,
   cache,
-  dispatch,
   updatedCurrency,
   currentCurrency,
   currencyRates,
+  dispatch,
 }: IUpdateCurrencyAndCacheParams): Promise<void> {
   if (cache && !isEmpty(cache)) {
     // Use the cache to update the state immediately without fetching new data
@@ -374,6 +413,10 @@ async function updateCurrencyAndCache({
     console.log(`CACHE -`, cache);
     console.log(`CURRENT COINDATA -`, coinData);
     handleCacheUsed({ type, cache, dispatch });
+    // For the situation where the cache isnt used, we dispatch after the CTW job is complete by passing it an onCompleteCallback
+    dispatch(
+      currencyActions.setDisplayedCurrency({ currency: updatedCurrency }),
+    );
   } else {
     // No relevant cache available, request new data
     console.log(`CACHE NOT USED - ${type}`);
@@ -386,5 +429,4 @@ async function updateCurrencyAndCache({
       dispatch,
     });
   }
-  dispatch(currencyActions.setDisplayedCurrency({ currency: updatedCurrency }));
 }

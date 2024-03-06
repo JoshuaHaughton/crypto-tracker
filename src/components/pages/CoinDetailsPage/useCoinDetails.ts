@@ -1,3 +1,5 @@
+"use client";
+
 import { useSelector } from "react-redux";
 import { isEmpty } from "lodash";
 import { usePageData } from "@/lib/contexts/pageContext";

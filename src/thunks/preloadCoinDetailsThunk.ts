@@ -9,12 +9,11 @@ import { CTWMessageRequestType } from "../../public/webWorkers/currencyTransform
 
 /**
  * Exclusive parameters for fetching coin details. If provided, `handleFetch` must be true,
- * and `symbolToFetch` must be specified. `selectCoinAfterFetch` is optional.
+ * and `symbolToFetch` must be specified.
  */
 interface IFetchAndPreloadCoinDetailsParams {
   handleFetch: true;
   symbolToFetch: string;
-  selectCoinAfterFetch?: boolean;
 }
 
 /**
@@ -54,7 +53,6 @@ export const preloadCoinDetailsThunk = createAsyncThunk<
   // Based on the scenario, we then declare our variables and provide default values as needed.
   const isFetchingScenario = "handleFetch" in params && params.handleFetch;
   let symbolToFetch: string | undefined;
-  let selectCoinAfterFetch = false; // Default value for optional property
   let detailsToPreload: ICoinDetails | undefined;
 
   // Assign values based on the type of operation. We ensure symbolToFetch gets a value only when appropriate.
@@ -62,7 +60,6 @@ export const preloadCoinDetailsThunk = createAsyncThunk<
     // In the fetching scenario, we assert params as IFetchAndPreloadCoinDetailsParams to satisfy TypeScript's type checking.
     const fetchParams = params as IFetchAndPreloadCoinDetailsParams;
     symbolToFetch = fetchParams.symbolToFetch; // Now it's guaranteed to be available.
-    selectCoinAfterFetch = fetchParams.selectCoinAfterFetch ?? false; // Use existing value or default to false.
   } else {
     // In the preloading scenario, we assert params as IPreloadExistingCoinDetailsParams.
     const preloadParams = params as IPreloadExistingCoinDetailsParams;
@@ -71,8 +68,8 @@ export const preloadCoinDetailsThunk = createAsyncThunk<
   }
 
   let coinSymbol = symbolToFetch;
-
   if (!currencyRates) {
+    console.error(`currencyRates don't exist`, currencyRates);
     return;
   }
 
@@ -98,23 +95,15 @@ export const preloadCoinDetailsThunk = createAsyncThunk<
     return; // Exit the function as there's nothing to preload.
   }
 
-  // If specified, select the coin details after fetching them, updating the state accordingly.
-  if (selectCoinAfterFetch) {
-    dispatch(
-      coinsActions.setSelectedCoinDetails({
-        coinDetails: detailsToPreload,
-      }),
-    );
-  }
-
+  // Update the cache with the existing details
   dispatch(
-    coinsActions.setPreloadedCoinForCurrency({
+    coinsActions.setCachedSelectedCoinDetails({
       coinDetails: detailsToPreload,
       currency: currentCurrency,
     }),
   );
 
-  // Sending current Popular Coins data to the web worker for currency transformation
+  // Sending data to the web worker for currency transformation for all other currencies
   postMessageToCurrencyTransformerWorker<CTWMessageRequestType.COIN_DETAILS_ALL_CURRENCIES>(
     {
       requestType: CTWMessageRequestType.COIN_DETAILS_ALL_CURRENCIES,

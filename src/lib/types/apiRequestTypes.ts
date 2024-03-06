@@ -1,3 +1,4 @@
+import { TCurrencyString } from "../constants/globalConstants";
 import {
   IFormattedPopularCoinsApiResponse,
   IFormattedCoinDetailsAPIResponse,
@@ -13,11 +14,13 @@ export enum InitialDataType {
 export type TInitialPopularCoinsData = {
   dataType: InitialDataType.POPULAR_COINS;
   data: IFormattedPopularCoinsApiResponse;
+  currentCurrency: TCurrencyString;
 };
 
 export type TInitialCoinDetailsData = {
   dataType: InitialDataType.COIN_DETAILS;
   data: IFormattedCoinDetailsAPIResponse;
+  currentCurrency: TCurrencyString;
 };
 
 export type TInitialPageDataOptions =
