@@ -1,5 +1,5 @@
-import { usePopularCoinsSearch } from "../../../lib/hooks/ui/usePopularCoinsSearch";
-import useCurrentPageCoins from "../../../lib/hooks/ui/useCurrentPageCoins";
+import { usePopularCoinsSearch } from "./usePopularCoinsSearch";
+import useCurrentPageCoins from "./useCurrentPageCoins";
 import {
   selectInitialPopularCoinsStatus,
   selectPopularCoinsPageNumber,

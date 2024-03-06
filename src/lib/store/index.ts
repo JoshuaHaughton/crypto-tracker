@@ -10,7 +10,6 @@ import currencyReducer from "./currency/currencySlice";
 import coinsReducer from "./coins/coinsSlice";
 import appInfoReducer from "./appInfo/appInfoSlice";
 import mediaQueryReducer from "./mediaQuery/mediaQuerySlice";
-import modalsReducer from "./modals/modalsSlice";
 import searchReducer from "./search/searchSlice";
 import loggerMiddleware from "./middleware/logger";
 
@@ -24,7 +23,6 @@ const rootReducer = combineReducers({
   coins: coinsReducer,
   appInfo: appInfoReducer,
   mediaQuery: mediaQueryReducer,
-  modals: modalsReducer,
   search: searchReducer,
 });
 

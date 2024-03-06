@@ -118,7 +118,6 @@ async function fetchRawPopularCoinsData(
 
   const cacheOptions: RequestInit = options.useCache
     ? {
-        cache: "force-cache" as RequestCache,
         next: {
           revalidate: options.revalidateTime || DEFAULT_REVALIDATION_TIME,
         },
@@ -237,7 +236,6 @@ async function fetchRawCoinDetailsData(
 
   const cacheOptions: RequestInit = options.useCache
     ? {
-        cache: "force-cache" as RequestCache,
         next: {
           revalidate: options.revalidateTime || DEFAULT_REVALIDATION_TIME,
         },

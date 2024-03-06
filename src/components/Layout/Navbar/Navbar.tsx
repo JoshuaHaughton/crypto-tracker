@@ -51,7 +51,8 @@ const Navbar = () => {
             <Image
               src={logo}
               alt="Logo"
-              layout="fill"
+              fill
+              objectFit="contain"
               className={styles.logo}
               onMouseEnter={handleHomepagePreload}
             />

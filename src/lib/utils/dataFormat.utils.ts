@@ -241,8 +241,6 @@ export function formatCoinDetailsFromApi(
     targetCurrency,
   );
 
-  console.log("assetDataDetails", assetDataDetails);
-
   const priceChanges: IPeriodicPriceChanges = calculatePriceChanges(yearData);
   const priceChangePercentages: IPeriodicPriceChangePercentages =
     calculatePriceChangePercentages(priceChanges, yearData);
@@ -535,48 +533,6 @@ export function formatCoinDetailsApiResponse(
 
   return { coinDetails, currencyExchangeRates };
 }
-/**
- * Transforms popular coins into shallow coin details for each currency and updates the Redux store with the result.
- * This function can handle both a single set of popular coins data or a map of them.
- *
- * @param popularCoinsOrMap - Either a single array of popular coins data or a map of currencies to their respective popular coins data.
- * @param dispatch - The Redux dispatch function.
- * @param [currentCurrency] - The current currency context, required if popularCoinsOrMap is a single set of popular coins data.
- */
-export function transformAndDispatchPopularCoinsToShallow(
-  dispatch: Dispatch,
-  popularCoinsOrMap: ICoinOverview[] | Record<TCurrencyString, ICoinOverview[]>,
-  currentCurrency?: TCurrencyString,
-): void {
-  // Check if the input is a map or a single set of data
-  if (!Array.isArray(popularCoinsOrMap) && currentCurrency === undefined) {
-    // Handle map of popular coins
-    Object.entries(popularCoinsOrMap).forEach(([currentCurrency, coins]) => {
-      const shallowCoinDetails =
-        mapPopularCoinsToShallowDetailedAttributes(coins);
-      dispatch(
-        coinsActions.setPreloadedCoinsMapForCurrency({
-          currency: currentCurrency as TCurrencyString,
-          coinDetailsMap: shallowCoinDetails,
-        }),
-      );
-    });
-  } else if (Array.isArray(popularCoinsOrMap) && currentCurrency) {
-    // Handle a single set of popular coins
-    const shallowCoinDetails =
-      mapPopularCoinsToShallowDetailedAttributes(popularCoinsOrMap);
-    dispatch(
-      coinsActions.setPreloadedCoinsMapForCurrency({
-        currency: currentCurrency,
-        coinDetailsMap: shallowCoinDetails,
-      }),
-    );
-  } else {
-    throw new Error(
-      "Invalid arguments passed to transformAndDispatchPopularCoinsToShallow",
-    );
-  }
-}
 
 /**
  * Filters out properties with undefined values from an object.
@@ -760,8 +716,6 @@ export async function getCoinDetailsPageInitialData(
   const currencyPreference: TCurrencyString =
     (cookieStore.get(E_COOKIE_NAMES.CURRENT_CURRENCY)
       ?.value as TCurrencyString) || INITIAL_CURRENCY;
-
-  console.log(`Currency Preference set to: ${currencyPreference}`);
 
   // Fetch popular coins data based on the user's currency preference
   console.warn("Fetching Coin Details data");

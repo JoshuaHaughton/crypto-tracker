@@ -1,10 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: [
-      "assets.coingecko.com",
-      "cryptocompare.com",
-      "resources.cryptocompare.com",
+    remotePatterns: [
+      { hostname: "assets.coingecko.com" },
+      { hostname: "cryptocompare.com" },
+      { hostname: "resources.cryptocompare.com" },
     ],
   },
   typescript: {

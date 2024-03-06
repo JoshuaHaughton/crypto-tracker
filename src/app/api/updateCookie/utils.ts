@@ -12,19 +12,22 @@ import { E_COOKIE_NAMES } from "@/lib/types/cookieTypes";
  * updateCurrencyCookie('USD');
  */
 export function updateCurrencyCookie(newCurrency: string): void {
-  try {
-    // Fire and forget, don't wait for the response
-    fetch("/api/updateCookie", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: E_COOKIE_NAMES.CURRENT_CURRENCY,
-        value: newCurrency,
-      }),
+  fetch("/api/updateCookie", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name: E_COOKIE_NAMES.CURRENT_CURRENCY,
+      value: newCurrency,
+    }),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`Server responded with status ${response.status}`);
+      }
+    })
+    .catch((error) => {
+      console.error("Error updating currency cookie:", error);
     });
-  } catch (error) {
-    console.error("Error updating currency cookie:", error);
-  }
 }

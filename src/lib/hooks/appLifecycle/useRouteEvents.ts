@@ -1,25 +1,17 @@
 import { useEffect } from "react";
+import { Router } from "next/router";
 import {
+  terminateProgressBar,
   startProgressBar,
   completeProgressBar,
-  terminateProgressBar,
-} from "../../utils/progressBar";
-import { Router } from "next/router";
-import { validateAndReinitializeCacheOnRouteChange } from "../../utils/cache.utils";
+} from "@/lib/utils/services/progressBar.utils";
 
 /**
  * Custom hook to handle route events.
  *
- * @param {Object} store - The Redux store.
- * @param {Object} initialReduxState - The Initial Redux state.
- * @param {string} serverGlobalCacheVersion - The global cache version from the server (optional, and should not be
  * provided by the client cookie).
  */
-export const useRouteEvents = (
-  store,
-  initialReduxState,
-  serverGlobalCacheVersion,
-) => {
+export const useRouteEvents = () => {
   useEffect(() => {
     // Setup event listeners for route changes
     window.addEventListener("beforeunload", terminateProgressBar);
@@ -39,11 +31,6 @@ export const useRouteEvents = (
   useEffect(() => {
     const routeChangeCompleteHandler = () => {
       completeProgressBar();
-      validateAndReinitializeCacheOnRouteChange(
-        store,
-        initialReduxState,
-        serverGlobalCacheVersion,
-      );
     };
 
     Router.events.on("routeChangeComplete", routeChangeCompleteHandler);
@@ -52,5 +39,5 @@ export const useRouteEvents = (
     return () => {
       Router.events.off("routeChangeComplete", routeChangeCompleteHandler);
     };
-  }, [store, initialReduxState, serverGlobalCacheVersion]);
+  }, []);
 };

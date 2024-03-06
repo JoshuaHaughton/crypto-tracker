@@ -57,60 +57,6 @@ export const selectSelectedCoinDetails = (state: TRootState) =>
   state.coins.selectedCoinDetails;
 
 /**
- * Selector for preloaded coin details.
- * Avoids `createSelector` as it simply accesses a specific slice of state without performing any complex operations or data transformations.
- * @param state - The current state of the application.
- * @returns Cached details of coins.
- */
-export const selectPreloadedCoinDetails = (state: TRootState) =>
-  state.coins.preloadedCoinDetailsByCurrency;
-
-/**
- * Enhanced memoized selector to get preloaded coin details by the current currency.
- * Uses `createSelector` to memoize results, optimizing performance by avoiding unnecessary recalculations.
- * Automatically retrieves the current currency from the state.
- *
- * @param state - The current state of the application.
- * @returns An object of coin details for the current currency.
- */
-export const selectPreloadedCoinDetailsByCurrentCurrency = createSelector(
-  [
-    (state: TRootState) => state.coins.preloadedCoinDetailsByCurrency,
-    (state: TRootState) => state.currency.currentCurrency,
-  ],
-  (
-    preloadedCoinDetailsByCurrency,
-    currentCurrency,
-  ): Record<string, TShallowOrFullCoinDetails> | null =>
-    preloadedCoinDetailsByCurrency[currentCurrency] ?? null,
-);
-
-/**
- * Memoized selector to get preloaded coin details by the current currency and coin ID.
- * Utilizes `createSelector` for efficient memoization to prevent redundant recalculations.
- * Automatically retrieves the current currency from the state.
- *
- * @param state - The current state of the application.
- * @param id - The unique identifier of the coin.
- * @returns The details of the specified coin within the current currency, or undefined if not found.
- */
-export const selectPreloadedCoinDetailsByCurrentCurrencyAndId = createSelector(
-  [
-    (state: TRootState) => state.coins.preloadedCoinDetailsByCurrency,
-    (state: TRootState) => state.currency.currentCurrency,
-    (_: TRootState, id: string) => id,
-  ],
-  (
-    preloadedCoinDetailsByCurrency,
-    currentCurrency,
-    id,
-  ): TShallowOrFullCoinDetails | undefined => {
-    const coinDetails = preloadedCoinDetailsByCurrency[currentCurrency][id];
-    return coinDetails?.priceChartDataset != null ? coinDetails : undefined;
-  },
-);
-
-/**
  * Memoized selector for a specific coin's details by the current currency.
  * Utilizes `createSelector` for efficient memoization to prevent redundant recalculations.
  * Automatically retrieves the current currency from the state.
