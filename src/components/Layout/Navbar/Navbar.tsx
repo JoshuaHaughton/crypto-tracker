@@ -40,6 +40,7 @@ const Navbar = () => {
     isBreakpoint555,
     setOpenNotificationBar,
     handleCurrencyChange,
+    handleHomepagePreload,
   } = useNavbar();
 
   return (
@@ -52,12 +53,14 @@ const Navbar = () => {
               alt="Logo"
               layout="fill"
               className={styles.logo}
+              onMouseEnter={handleHomepagePreload}
             />
           </Link>
 
           <div className={styles.nav_list}>
             <Link href="/" className={styles.link_wrapper} prefetch>
-              <HomeIcon /> {!isBreakpoint555 && `Home`}
+              <HomeIcon onMouseEnter={handleHomepagePreload} />
+              {!isBreakpoint555 && `Home`}
             </Link>
 
             <StyledSelect

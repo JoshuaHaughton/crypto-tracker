@@ -13,8 +13,9 @@ const removeHTML = (str: string) => str.replace(/<\/?[^>]+(>|$)/g, "");
  * Props for the CoinInfo component.
  */
 export interface ICoinInfoProps {
-  coinAttributes: ICoinDetailAttributes | undefined;
+  coinAttributes: ICoinDetailAttributes;
   currentSymbol: string;
+  handleHomepagePreload: () => void;
 }
 
 /**
@@ -26,22 +27,15 @@ export interface ICoinInfoProps {
 const CoinInfo: React.FC<ICoinInfoProps> = ({
   coinAttributes,
   currentSymbol,
+  handleHomepagePreload,
 }: ICoinInfoProps): JSX.Element => {
-  // Handle loading state or incomplete data
-  if (!coinAttributes) {
-    // Render skeleton component
-    return (
-      <CoinInfoSkeleton
-        coinAttributes={coinAttributes}
-        currentSymbol={currentSymbol}
-      />
-    );
-  }
-
   return (
     <div className={styles.coin_info}>
       <Link href="/" className={styles.back_link} prefetch>
-        <FontAwesomeIcon icon={faArrowLeft} />
+        <FontAwesomeIcon
+          icon={faArrowLeft}
+          onMouseEnter={handleHomepagePreload}
+        />
       </Link>
       <header className={styles.header}>
         <div className={styles.title_wrapper}>

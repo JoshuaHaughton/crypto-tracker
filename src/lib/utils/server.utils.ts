@@ -300,7 +300,7 @@ export async function fetchAndFormatCoinDetailsData(
     useCache: false,
     revalidateTime: DEFAULT_REVALIDATION_TIME,
   },
-): Promise<IFormattedCoinDetailsAPIResponse | null> {
+): Promise<IFormattedCoinDetailsAPIResponse> {
   console.log(
     "fetchAndFormatCoinDetailsData: Fetching and formatting coin details data for",
     id,
@@ -322,6 +322,6 @@ export async function fetchAndFormatCoinDetailsData(
     return formattedData;
   } catch (error) {
     console.error("Error in fetchAndFormatCoinDetailsData:", error);
-    return null;
+    throw error;
   }
 }

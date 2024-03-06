@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { SelectChangeEvent } from "@mui/material/Select";
 import { updateCurrency } from "@/thunks/updateCurrencyThunk";
 import {
@@ -8,6 +8,17 @@ import {
 import { selectIsBreakpoint555 } from "@/lib/store/mediaQuery/mediaQuerySelectors";
 import { useAppDispatch, useAppSelector } from "@/lib/store";
 import { updateCurrencyCookie } from "@/app/api/updateCookie/utils";
+import usePopularCoinsPreloader from "@/lib/hooks/preloaders/usePopularCoinsPreloader";
+
+interface IUseNavbarState {
+  openNotificationBar: boolean;
+  currentCurrency: TCurrencyString;
+  currentSymbol: string;
+  isBreakpoint555: boolean;
+  setOpenNotificationBar: Dispatch<SetStateAction<boolean>>;
+  handleCurrencyChange: (e: SelectChangeEvent<unknown>) => Promise<void>;
+  handleHomepagePreload: () => void;
+}
 
 /**
  * Custom hook to encapsulate the Navbar's stateful logic.
@@ -17,7 +28,7 @@ import { updateCurrencyCookie } from "@/app/api/updateCookie/utils";
  *
  * @returns An object containing properties and functions required by the Navbar component.
  */
-export const useNavbar = () => {
+export const useNavbar = (): IUseNavbarState => {
   console.log("useNavbar render");
   const dispatch = useAppDispatch();
   const [openNotificationBar, setOpenNotificationBar] =
@@ -25,6 +36,8 @@ export const useNavbar = () => {
   const currentCurrency = useAppSelector(selectCurrentCurrency);
   const currentSymbol = useAppSelector(selectCurrentSymbol);
   const isBreakpoint555 = useAppSelector(selectIsBreakpoint555);
+
+  const { handlePreload } = usePopularCoinsPreloader();
 
   /**
    * Handles currency changes initiated by user interactions in the UI.
@@ -61,5 +74,6 @@ export const useNavbar = () => {
     isBreakpoint555,
     setOpenNotificationBar,
     handleCurrencyChange,
+    handleHomepagePreload: handlePreload,
   };
 };

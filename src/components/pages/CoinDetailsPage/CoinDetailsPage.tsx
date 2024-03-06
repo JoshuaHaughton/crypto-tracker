@@ -7,11 +7,13 @@ import CoinDetailsChart from "@/components/UI/CoinDetailsChart/CoinDetailsChart"
 import { IInitialCoinDetailsPageData } from "@/lib/utils/dataFormat.utils";
 
 interface ICoinDetailsPage {
-  initialPageData: IInitialCoinDetailsPageData | undefined;
+  initialPageData: IInitialCoinDetailsPageData;
 }
 
 const CoinDetails = ({ initialPageData }: ICoinDetailsPage) => {
-  const { currentSymbol, coinDetails } = useCoinDetails({ initialPageData });
+  const { currentSymbol, coinDetails, handleHomepagePreload } = useCoinDetails({
+    initialPageData,
+  });
 
   return (
     <div className={styles.container}>
@@ -19,6 +21,7 @@ const CoinDetails = ({ initialPageData }: ICoinDetailsPage) => {
         <CoinInfo
           coinAttributes={coinDetails?.coinAttributes}
           currentSymbol={currentSymbol}
+          handleHomepagePreload={handleHomepagePreload}
         />
 
         <hr />

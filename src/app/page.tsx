@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 
 export default async function Home() {
   const initialData = await getHomePageInitialData(cookies());
+
   return (
     <>
       <StoreHydrator initialData={initialData?.dataToHydrate} />

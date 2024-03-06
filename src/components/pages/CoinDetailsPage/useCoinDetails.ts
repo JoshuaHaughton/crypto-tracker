@@ -1,19 +1,19 @@
-"use client";
-
 import { useSelector } from "react-redux";
 import { ICoinDetails } from "@/lib/types/coinTypes";
 import { selectSelectedCoinDetails } from "@/lib/store/coins/coinsSelectors";
 import { selectCurrentSymbol } from "@/lib/store/currency/currencySelectors";
 import { TCurrencySymbol } from "@/lib/constants/globalConstants";
 import { IInitialCoinDetailsPageData } from "@/lib/utils/dataFormat.utils";
+import usePopularCoinsPreloader from "@/lib/hooks/preloaders/usePopularCoinsPreloader";
 
 interface IuseCoinDetalsParams {
-  initialPageData: IInitialCoinDetailsPageData | undefined;
+  initialPageData: IInitialCoinDetailsPageData;
 }
 
 interface ICoinDetailsState {
   currentSymbol: TCurrencySymbol;
-  coinDetails: ICoinDetails | undefined;
+  coinDetails: ICoinDetails;
+  handleHomepagePreload: () => void;
 }
 
 /**
@@ -30,6 +30,7 @@ const useCoinDetails = ({
   // Accessing current symbol and global coin details from the Redux store.
   const currentSymbol = useSelector(selectCurrentSymbol);
   const globalCoinDetails = useSelector(selectSelectedCoinDetails);
+  const { handlePreload } = usePopularCoinsPreloader();
 
   // Accessing initial coin details
   const initialCoinDetails = initialPageData?.selectedCoinDetails;
@@ -43,6 +44,7 @@ const useCoinDetails = ({
   return {
     currentSymbol,
     coinDetails,
+    handleHomepagePreload: handlePreload,
   };
 };
 

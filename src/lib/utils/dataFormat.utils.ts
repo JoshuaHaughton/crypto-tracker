@@ -755,7 +755,7 @@ export interface ICoinDetailsPageInitialDataType {
 export async function getCoinDetailsPageInitialData(
   cookieStore: ReadonlyRequestCookies,
   symbol: string,
-): Promise<ICoinDetailsPageInitialDataType | null> {
+): Promise<ICoinDetailsPageInitialDataType> {
   // Retrieve currency preference from cookies or use default
   const currencyPreference: TCurrencyString =
     (cookieStore.get(E_COOKIE_NAMES.CURRENT_CURRENCY)
@@ -770,12 +770,6 @@ export async function getCoinDetailsPageInitialData(
     currencyPreference,
     { useCache: true },
   );
-
-  // Ensure coinDetails is not null before rendering CoinDetailsPage
-  if (!coinDetailsResponseData?.coinDetails) {
-    // Handle the null case by rendering a placeholder
-    return null;
-  }
 
   // Format the initial data for the StoreHydrator
   const dataToHydrate: TInitialCoinDetailsData = {
