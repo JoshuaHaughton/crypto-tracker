@@ -9,6 +9,7 @@ export const tenYearsInFuture = new Date(
 export const fiveMinutesInFuture = new Date(
   new Date().getTime() + FIVE_MINUTES_IN_MS,
 );
+export const FETCH_INTERVAL_MS = 30000;
 
 // URLs and Host Information
 export const CLIENT_HOST_URL = "https://cryptotracker.haughtonprojects.ca";

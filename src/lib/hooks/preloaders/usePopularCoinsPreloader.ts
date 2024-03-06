@@ -1,8 +1,9 @@
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/lib/store";
 import { fetchAndFormatPopularCoinsData } from "@/lib/utils/server.utils";
 import { selectCurrentCurrency } from "@/lib/store/currency/currencySelectors";
+import { FETCH_INTERVAL_MS } from "@/lib/constants/globalConstants";
 
 interface IUsePopularCoinsPreloaderState {
   handlePreload: () => void;
@@ -18,18 +19,24 @@ interface IUsePopularCoinsPreloaderState {
 const usePopularCoinsPreloader = (): IUsePopularCoinsPreloaderState => {
   const router = useRouter();
   const currentCurrency = useAppSelector(selectCurrentCurrency);
+  const lastFetchTimeRef = useRef<Date | null>(null);
 
-  // Preloads coin details for a given symbol. It fetches and stores them if they are not already preloaded.
   const handlePreload = useCallback(async (): Promise<void> => {
-    console.log(`Initiating preload for PopularCoins`);
+    const now = new Date();
+    if (
+      !lastFetchTimeRef.current ||
+      now.getTime() - lastFetchTimeRef.current.getTime() > FETCH_INTERVAL_MS
+    ) {
+      console.log(`Initiating preload for PopularCoins`);
 
-    // Prefetch the page for smoother navigation experience
-    router.prefetch(`/`);
-    // Fetch coin details to cache the results with Nextjs for 30 seconds. If the HomePage is accessed that cache will be used.
-    // Wee use 30 seconds so that we still have up to date data
-    await fetchAndFormatPopularCoinsData(currentCurrency, {
-      useCache: true,
-    });
+      // Prefetch the page for a smoother navigation experience
+      router.prefetch(`/`);
+      // Fetch coin details and store them, utilizing Next.js caching
+      await fetchAndFormatPopularCoinsData(currentCurrency, { useCache: true });
+
+      // Update last fetch time
+      lastFetchTimeRef.current = now;
+    }
   }, [router, currentCurrency]);
 
   // Handles navigation to the coin detail page for a given symbol. Preloads details if they haven't been preloaded.
