@@ -1,12 +1,15 @@
 "use client";
 
 import { useSelector } from "react-redux";
-import { isEmpty } from "lodash";
-import { usePageData } from "@/lib/contexts/pageContext";
 import { ICoinDetails } from "@/lib/types/coinTypes";
 import { selectSelectedCoinDetails } from "@/lib/store/coins/coinsSelectors";
 import { selectCurrentSymbol } from "@/lib/store/currency/currencySelectors";
 import { TCurrencySymbol } from "@/lib/constants/globalConstants";
+import { IInitialCoinDetailsPageData } from "@/lib/utils/dataFormat.utils";
+
+interface IuseCoinDetalsParams {
+  initialPageData: IInitialCoinDetailsPageData | undefined;
+}
 
 interface ICoinDetailsState {
   currentSymbol: TCurrencySymbol;
@@ -21,24 +24,20 @@ interface ICoinDetailsState {
  * @returns {object} - An object containing the current symbol, the full coin details,
  * and a boolean indicating whether the details are fully preloaded.
  */
-const useCoinDetails = (): ICoinDetailsState => {
+const useCoinDetails = ({
+  initialPageData,
+}: IuseCoinDetalsParams): ICoinDetailsState => {
   // Accessing current symbol and global coin details from the Redux store.
   const currentSymbol = useSelector(selectCurrentSymbol);
   const globalCoinDetails = useSelector(selectSelectedCoinDetails);
 
-  // Accessing initial coin details from the page's context.
-  const { selectedCoinDetails: initialCoinDetails } = usePageData();
+  // Accessing initial coin details
+  const initialCoinDetails = initialPageData?.selectedCoinDetails;
 
   // Determining which coin details to use based on the global state or initial context.
-  const coinDetails =
-    !globalCoinDetails || isEmpty(globalCoinDetails)
-      ? initialCoinDetails
-      : globalCoinDetails;
-
-  // Logging statements for debugging and verification.
-  console.warn("INITIAL COINDETAILS ON PAGE", initialCoinDetails);
-  console.warn("GLOBAL COINDETAILS ON PAGE", globalCoinDetails);
-  console.warn("FINAL COINDETAILS ON PAGE", coinDetails);
+  const coinDetails = !globalCoinDetails
+    ? initialCoinDetails
+    : globalCoinDetails;
 
   // Returning the relevant data for use in the component.
   return {

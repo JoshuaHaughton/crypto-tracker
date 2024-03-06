@@ -17,9 +17,7 @@ export default async function CoinPage({ params }: ICoinPageProps) {
   return (
     <>
       <StoreHydrator initialData={initialData?.dataToHydrate} />
-      <PageProvider value={initialData?.initialPageData}>
-        <CoinDetailsPage />
-      </PageProvider>
+      <CoinDetailsPage initialPageData={initialData?.initialPageData} />
     </>
   );
 }

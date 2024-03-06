@@ -316,44 +316,46 @@ export function formatCoinOverviewCoinFromApi(
 // Formatting Currency rates after retrieval from the API
 
 /**
- * Extracts and formats currency conversion rates for all currencies using the given exchange data.
+ * Extracts and formats currency conversion rates relative to the specified base currency.
+ * Adjusts exchange rates dynamically based on the current base currency, ensuring accurate conversions.
+ *
  * @param exchangeData - The raw exchange data from the API.
- * @returns An object containing formatted currency rates.
+ * @param currentCurrency - The currency code to be used as the base for conversion rates.
+ * @returns An object containing formatted currency rates for each currency relative to the base.
  */
 export function formatCurrencyRates(
   exchangeData: TCurrencyRates,
+  currentCurrency: TCurrencyString,
 ): TCurrencyExchangeRates {
-  // Using the default conversion rates for CAD
-  const cadRates: TCurrencyRates = exchangeData;
-
-  // Extracting conversion rates for other currencies using CAD as the base
-  const usdRates: TCurrencyRates = {
-    CAD: 1 / cadRates.USD,
-    USD: 1,
-    AUD: cadRates.AUD / cadRates.USD,
-    GBP: cadRates.GBP / cadRates.USD,
+  // Initialize formattedRates with all possible currencies set to a default value
+  const formattedRates: TCurrencyExchangeRates = {
+    CAD: { CAD: 1, USD: 0, AUD: 0, GBP: 0 }, // Initialize with CAD to CAD conversion as 1
+    USD: { CAD: 0, USD: 1, AUD: 0, GBP: 0 }, // Initialize with USD to USD conversion as 1
+    AUD: { CAD: 0, USD: 0, AUD: 1, GBP: 0 }, // Initialize with AUD to AUD conversion as 1
+    GBP: { CAD: 0, USD: 0, AUD: 0, GBP: 1 }, // Initialize with GBP to GBP conversion as 1
   };
 
-  const audRates: TCurrencyRates = {
-    CAD: 1 / cadRates.AUD,
-    USD: cadRates.USD / cadRates.AUD,
-    AUD: 1,
-    GBP: cadRates.GBP / cadRates.AUD,
-  };
+  // Calculate conversion rates for each currency relative to the current currency
+  Object.keys(formattedRates).forEach((baseCurrencyKey) => {
+    const baseCurrency = baseCurrencyKey as TCurrencyString;
 
-  const gbpRates: TCurrencyRates = {
-    CAD: 1 / cadRates.GBP,
-    USD: cadRates.USD / cadRates.GBP,
-    AUD: cadRates.AUD / cadRates.GBP,
-    GBP: 1,
-  };
+    Object.keys(formattedRates[baseCurrency]).forEach((toCurrencyKey) => {
+      const toCurrency = toCurrencyKey as TCurrencyString;
 
-  return {
-    CAD: cadRates,
-    USD: usdRates,
-    AUD: audRates,
-    GBP: gbpRates,
-  };
+      if (baseCurrency === currentCurrency) {
+        formattedRates[baseCurrency][toCurrency] =
+          exchangeData[toCurrency] / exchangeData[currentCurrency];
+      } else if (toCurrency === currentCurrency) {
+        formattedRates[baseCurrency][toCurrency] =
+          1 / (exchangeData[baseCurrency] / exchangeData[currentCurrency]);
+      } else {
+        formattedRates[baseCurrency][toCurrency] =
+          exchangeData[toCurrency] / exchangeData[baseCurrency];
+      }
+    });
+  });
+
+  return formattedRates;
 }
 
 /**
@@ -485,7 +487,10 @@ export function formatPopularCoinsApiResponse(
   const { exchangeData, top100MarketCapData } = rawData;
 
   // Format currency exchange rates
-  const currencyExchangeRates = formatCurrencyRates(exchangeData);
+  const currencyExchangeRates = formatCurrencyRates(
+    exchangeData,
+    targetCurrency,
+  );
 
   // Format popular coins list
   const popularCoins = top100MarketCapData.Data.map((entry, index) =>
@@ -502,12 +507,12 @@ export function formatPopularCoinsApiResponse(
  * Formats the raw coin details data into a structured and usable format.
  *
  * @param rawData - The raw API response data.
- * @param targetCurrency - The target currency for conversions.
+ * @param currentCurrency - The target currency for conversions.
  * @returns {IFormattedCoinDetailsAPIResponse} Formatted coin details including historical data.
  */
 export function formatCoinDetailsApiResponse(
   rawData: IRawCoinDetailsApiResponse,
-  targetCurrency: TCurrencyString,
+  currentCurrency: TCurrencyString,
 ): IFormattedCoinDetailsAPIResponse {
   const {
     exchangeRateResponse,
@@ -516,9 +521,12 @@ export function formatCoinDetailsApiResponse(
     historicalResponse365d,
   } = rawData;
 
-  const currencyExchangeRates = formatCurrencyRates(exchangeRateResponse);
+  const currencyExchangeRates = formatCurrencyRates(
+    exchangeRateResponse,
+    currentCurrency,
+  );
   const coinDetails: ICoinDetails = formatCoinDetailsFromApi(
-    targetCurrency,
+    currentCurrency,
     currencyExchangeRates,
     assetDetailsResponse,
     historicalResponse24h,
@@ -727,7 +735,7 @@ export async function getHomePageInitialData(
   };
 }
 
-interface IInitialCoinDetailsPageData {
+export interface IInitialCoinDetailsPageData {
   selectedCoinDetails: ICoinDetails;
   currencyExchangeRates: TCurrencyExchangeRates;
 }
@@ -781,6 +789,7 @@ export async function getCoinDetailsPageInitialData(
     selectedCoinDetails: coinDetailsResponseData.coinDetails,
     currencyExchangeRates: coinDetailsResponseData.currencyExchangeRates,
   };
+  console.log("initialPageData", initialPageData);
 
   // Return the formatted initial data and page data for rendering
   return {
