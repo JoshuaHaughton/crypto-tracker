@@ -9,7 +9,9 @@ import { ICoinDetails, ICoinOverview } from "../../types/coinTypes";
 export interface ICoinsState {
   // Popular Coins List
   popularCoins: ICoinOverview[];
+  // Used as an index for the carouselSymbolList
   popularCoinsMap: Record<string, ICoinOverview>;
+  // Used to cache popular coins for other currencies for quick transitions
   cachedPopularCoinMapsByCurrency: Record<
     TCurrencyString,
     Record<string, ICoinOverview>
@@ -20,6 +22,7 @@ export interface ICoinsState {
 
   // Selected Coin Details
   selectedCoinDetails: ICoinDetails | null;
+  // Used to cache selected coin details for other currencies for quick transitions
   cachedSelectedCoinDetailsByCurrency: Record<
     TCurrencyString,
     ICoinDetails | null

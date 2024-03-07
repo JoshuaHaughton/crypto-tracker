@@ -1,4 +1,4 @@
-import CoinDetails from "@/components/pages/CoinDetailsPage/CoinDetailsPage";
+import CoinDetails from "@/components/Pages/CoinDetailsPage/CoinDetailsPage";
 
 export default async function Loading() {
   return <CoinDetails />;

@@ -1,4 +1,4 @@
-import HomePage from "@/components/pages/HomePage/HomePage";
+import HomePage from "@/components/Pages/HomePage/HomePage";
 import StoreHydrator from "@/components/Initializers/StoreHydrator/StoreHydrator";
 import { PageProvider } from "@/lib/contexts/pageContext";
 import { getHomePageInitialData } from "@/lib/utils/dataFormat.utils";

@@ -74,6 +74,136 @@ export const updateCurrency = createAsyncThunk<
   },
 );
 
+interface IProcessCoinDataUpdatesParams {
+  selectedCoinDetails: TShallowOrFullCoinDetails | null;
+  cachedSelectedCoinDetailsByCurrency: Record<
+    TCurrencyString,
+    TShallowOrFullCoinDetails | null
+  >;
+  popularCoins: ICoinOverview[];
+  cachedPopularCoinMapsByCurrency: Record<
+    TCurrencyString,
+    Record<string, ICoinOverview>
+  >;
+  currentCurrency: TCurrencyString;
+  updatedCurrency: TCurrencyString;
+  currencyRates: TCurrencyExchangeRates;
+  dispatch: Dispatch;
+}
+
+/**
+ * Updates the process for coin data, integrating directly with updateCurrencyAndCache.
+ * This approach optimizes performance by utilizing available cache or requesting new updates.
+ *
+ * @param params - Parameters for processing coin data updates:
+ * @param params.selectedCoinDetails - Details of the selected coin.
+ * @param params.cachedSelectedCoinDetailsByCurrency - Cached coin details by currency.
+ * @param params.popularCoins - List of popular coins.
+ * @param params.cachedPopularCoinMapsByCurrency - Cached popular coins by currency.
+ * @param params.updatedCurrency - The new currency to update to.
+ */
+async function processCoinDataUpdates({
+  selectedCoinDetails,
+  cachedSelectedCoinDetailsByCurrency,
+  popularCoins,
+  cachedPopularCoinMapsByCurrency,
+  currentCurrency,
+  updatedCurrency,
+  currencyRates,
+  dispatch,
+}: IProcessCoinDataUpdatesParams): Promise<void> {
+  // Update for selected coin details if necessary
+  const coinIsSelected = selectedCoinDetails != null;
+  if (coinIsSelected) {
+    const selectedCoinCache = cachedSelectedCoinDetailsByCurrency[
+      updatedCurrency
+    ] as ICoinDetails;
+    await updateCurrencyAndCache({
+      type: E_CACHE_TYPE.COIN_DETAILS,
+      coinData: selectedCoinDetails,
+      cache: selectedCoinCache,
+      currentCurrency,
+      updatedCurrency,
+      currencyRates,
+      dispatch,
+    });
+  }
+
+  // Update for popular coins list
+  if (popularCoins.length > 0) {
+    const popularCoinsCache = Object.values(
+      cachedPopularCoinMapsByCurrency[updatedCurrency] || {},
+    );
+    await updateCurrencyAndCache({
+      type: E_CACHE_TYPE.POPULAR_COINS_LIST,
+      coinData: popularCoins,
+      cache: popularCoinsCache,
+      currentCurrency,
+      updatedCurrency,
+      currencyRates,
+      dispatch,
+    });
+  }
+}
+
+interface IUpdateCurrencyAndCacheParams {
+  type: E_CACHE_TYPE;
+  coinData: ICoinOverview[] | TShallowOrFullCoinDetails;
+  cache: ICoinOverview[] | ICoinDetails;
+  dispatch: Dispatch<any>;
+  updatedCurrency: TCurrencyString;
+  currentCurrency: TCurrencyString;
+  currencyRates: TCurrencyExchangeRates;
+}
+
+/**
+ * Function to update currency and cache based on provided type and data.
+ * This function decides whether to use the cache or request new data based on the current state.
+ * It updates the relevant coin details or popular coins list based on the cache availability.
+ *
+ * @param params - Object containing parameters for the update:
+ * @param params.type - The type of cache to update (coin details or popular coins list).
+ * @param params.coinData - The coin data to use for the update.
+ * @param params.cache - The current cache data.
+ * @param params.dispatch - The Redux dispatch function.
+ * @param params.updatedCurrency - The currency to update to.
+ * @param params.currentCurrency - The current currency before the update.
+ * @param params.currencyRates - The current currency exchange rates.
+ * @returns A promise resolved once the update is completed.
+ */
+async function updateCurrencyAndCache({
+  type,
+  coinData,
+  cache,
+  updatedCurrency,
+  currentCurrency,
+  currencyRates,
+  dispatch,
+}: IUpdateCurrencyAndCacheParams): Promise<void> {
+  if (cache && !isEmpty(cache)) {
+    // Use the cache to update the state immediately without fetching new data
+    console.log(`CACHE USED - ${type}`);
+    console.log(`CACHE -`, cache);
+    console.log(`CURRENT COINDATA -`, coinData);
+    handleCacheUsed({ type, cache, dispatch });
+    // For the situation where the cache isnt used, we dispatch after the CTW job is complete by passing it an onCompleteCallback
+    dispatch(
+      currencyActions.setDisplayedCurrency({ currency: updatedCurrency }),
+    );
+  } else {
+    // No relevant cache available, request new data
+    console.log(`CACHE NOT USED - ${type}`);
+    handleCacheNotUsed({
+      type,
+      coinData,
+      currentCurrency,
+      updatedCurrency,
+      currencyRates,
+      dispatch,
+    });
+  }
+}
+
 interface IHandleCacheUsedParams {
   type: E_CACHE_TYPE;
   cache: ICoinOverview[] | ICoinDetails;
@@ -298,135 +428,5 @@ function getRequestTypes(type: E_CACHE_TYPE): IGetRequestTypeResponse {
       };
     default:
       throw new Error("Unsupported cache type");
-  }
-}
-
-interface IProcessCoinDataUpdatesParams {
-  selectedCoinDetails: TShallowOrFullCoinDetails | null;
-  cachedSelectedCoinDetailsByCurrency: Record<
-    TCurrencyString,
-    TShallowOrFullCoinDetails | null
-  >;
-  popularCoins: ICoinOverview[];
-  cachedPopularCoinMapsByCurrency: Record<
-    TCurrencyString,
-    Record<string, ICoinOverview>
-  >;
-  currentCurrency: TCurrencyString;
-  updatedCurrency: TCurrencyString;
-  currencyRates: TCurrencyExchangeRates;
-  dispatch: Dispatch;
-}
-
-/**
- * Updates the process for coin data, integrating directly with updateCurrencyAndCache.
- * This approach optimizes performance by utilizing available cache or requesting new updates.
- *
- * @param params - Parameters for processing coin data updates:
- * @param params.selectedCoinDetails - Details of the selected coin.
- * @param params.cachedSelectedCoinDetailsByCurrency - Cached coin details by currency.
- * @param params.popularCoins - List of popular coins.
- * @param params.cachedPopularCoinMapsByCurrency - Cached popular coins by currency.
- * @param params.updatedCurrency - The new currency to update to.
- */
-async function processCoinDataUpdates({
-  selectedCoinDetails,
-  cachedSelectedCoinDetailsByCurrency,
-  popularCoins,
-  cachedPopularCoinMapsByCurrency,
-  currentCurrency,
-  updatedCurrency,
-  currencyRates,
-  dispatch,
-}: IProcessCoinDataUpdatesParams): Promise<void> {
-  // Update for selected coin details if necessary
-  const coinIsSelected = selectedCoinDetails != null;
-  if (coinIsSelected) {
-    const selectedCoinCache = cachedSelectedCoinDetailsByCurrency[
-      updatedCurrency
-    ] as ICoinDetails;
-    await updateCurrencyAndCache({
-      type: E_CACHE_TYPE.COIN_DETAILS,
-      coinData: selectedCoinDetails,
-      cache: selectedCoinCache,
-      currentCurrency,
-      updatedCurrency,
-      currencyRates,
-      dispatch,
-    });
-  }
-
-  // Update for popular coins list
-  if (popularCoins.length > 0) {
-    const popularCoinsCache = Object.values(
-      cachedPopularCoinMapsByCurrency[updatedCurrency] || {},
-    );
-    await updateCurrencyAndCache({
-      type: E_CACHE_TYPE.POPULAR_COINS_LIST,
-      coinData: popularCoins,
-      cache: popularCoinsCache,
-      currentCurrency,
-      updatedCurrency,
-      currencyRates,
-      dispatch,
-    });
-  }
-}
-
-interface IUpdateCurrencyAndCacheParams {
-  type: E_CACHE_TYPE;
-  coinData: ICoinOverview[] | TShallowOrFullCoinDetails;
-  cache: ICoinOverview[] | ICoinDetails;
-  dispatch: Dispatch<any>;
-  updatedCurrency: TCurrencyString;
-  currentCurrency: TCurrencyString;
-  currencyRates: TCurrencyExchangeRates;
-}
-
-/**
- * Function to update currency and cache based on provided type and data.
- * This function decides whether to use the cache or request new data based on the current state.
- * It updates the relevant coin details or popular coins list based on the cache availability.
- *
- * @param params - Object containing parameters for the update:
- * @param params.type - The type of cache to update (coin details or popular coins list).
- * @param params.coinData - The coin data to use for the update.
- * @param params.cache - The current cache data.
- * @param params.dispatch - The Redux dispatch function.
- * @param params.updatedCurrency - The currency to update to.
- * @param params.currentCurrency - The current currency before the update.
- * @param params.currencyRates - The current currency exchange rates.
- * @returns A promise resolved once the update is completed.
- */
-async function updateCurrencyAndCache({
-  type,
-  coinData,
-  cache,
-  updatedCurrency,
-  currentCurrency,
-  currencyRates,
-  dispatch,
-}: IUpdateCurrencyAndCacheParams): Promise<void> {
-  if (cache && !isEmpty(cache)) {
-    // Use the cache to update the state immediately without fetching new data
-    console.log(`CACHE USED - ${type}`);
-    console.log(`CACHE -`, cache);
-    console.log(`CURRENT COINDATA -`, coinData);
-    handleCacheUsed({ type, cache, dispatch });
-    // For the situation where the cache isnt used, we dispatch after the CTW job is complete by passing it an onCompleteCallback
-    dispatch(
-      currencyActions.setDisplayedCurrency({ currency: updatedCurrency }),
-    );
-  } else {
-    // No relevant cache available, request new data
-    console.log(`CACHE NOT USED - ${type}`);
-    handleCacheNotUsed({
-      type,
-      coinData,
-      currentCurrency,
-      updatedCurrency,
-      currencyRates,
-      dispatch,
-    });
   }
 }

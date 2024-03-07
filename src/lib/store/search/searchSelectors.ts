@@ -4,14 +4,6 @@ import { IPopularCoinSearchItem } from "@/lib/types/coinTypes";
 import { selectPopularCoins } from "../coins/coinsSelectors";
 
 /**
- * Selector to see if the search has been initialized yet.
- * @param state - The current state of the application.
- * @returns The fuzzy search instance or null if not set.
- */
-export const selectIsSearchInitialized = (state: TRootState): boolean =>
-  state.search.isSearchInitialized;
-
-/**
  * Selector to get the current search query.
  * Directly retrieves the query from the state without additional computation.
  * @param state - The current state of the application.
