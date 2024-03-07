@@ -54,14 +54,17 @@ export const useNavbar = (): IUseNavbarState => {
     setOpenNotificationBar(true); // Open the notification bar to indicate the currency change.
 
     try {
+      // Update the currency cookie with the new currency value.
+      // We update the server first so that there isn't a race condition when invalidating caches for the previous currency on the client,
+      // since it uses data from the server to dictate what currency is correct.
+      // useAppInitialization handles the router.refresh() call to do that invalidation in response to the clientside currency change from Redux
+      await updateCurrencyCookie(newCurrency);
+
       // Update the Redux store with the new currency.
       await dispatch(updateCurrency({ updatedCurrency: newCurrency }));
 
       // Close the notification bar to indicate the currency change completion.
       setOpenNotificationBar(false);
-
-      // Update the currency cookie with the new currency value.
-      updateCurrencyCookie(newCurrency);
     } catch (error) {
       console.error("Error updating currency:", error);
     }

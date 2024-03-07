@@ -4,8 +4,6 @@ import { PageProvider } from "@/lib/contexts/pageContext";
 import { getHomePageInitialData } from "@/lib/utils/dataFormat.utils";
 import { cookies } from "next/headers";
 
-export const dynamic = "force-dynamic";
-
 export default async function Home() {
   const initialData = await getHomePageInitialData(cookies());
 

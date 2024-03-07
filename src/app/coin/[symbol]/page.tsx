@@ -7,8 +7,6 @@ interface ICoinPageProps {
   params: { symbol: string };
 }
 
-export const dynamic = "force-dynamic";
-
 export default async function CoinPage({ params }: ICoinPageProps) {
   const initialData = await getCoinDetailsPageInitialData(
     cookies(),

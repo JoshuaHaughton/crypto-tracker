@@ -54,12 +54,14 @@ const CoinInfo: React.FC<ICoinInfoProps> = ({
         </div>
         <div className={styles.description}>
           <p>
-            {coinAttributes.description.split(".").length > 2
-              ? `${removeHTML(coinAttributes.description)
-                  .split(".")
-                  .slice(0, 2)
-                  .join(". ")}.`
-              : `${removeHTML(coinAttributes.description).slice(0, 170)}...`}
+            {coinAttributes?.description?.length > 2
+              ? coinAttributes?.description.split(".").length > 2
+                ? `${removeHTML(coinAttributes.description)
+                    .split(".")
+                    .slice(0, 2)
+                    .join(". ")}.`
+                : `${removeHTML(coinAttributes.description).slice(0, 170)}...`
+              : "none"}
           </p>
         </div>
       </header>

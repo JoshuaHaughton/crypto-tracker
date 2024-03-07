@@ -1,10 +1,9 @@
 import { useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { useAppDispatch, useAppSelector } from "@/lib/store";
+import { useAppSelector } from "@/lib/store";
 import { fetchAndFormatPopularCoinsData } from "@/lib/utils/server.utils";
 import { selectCurrentCurrency } from "@/lib/store/currency/currencySelectors";
 import { FETCH_INTERVAL_MS } from "@/lib/constants/globalConstants";
-import { coinsActions } from "@/lib/store/coins/coinsSlice";
 
 interface IUsePopularCoinsPreloaderState {
   handlePreload: () => void;
@@ -19,7 +18,6 @@ interface IUsePopularCoinsPreloaderState {
  */
 const usePopularCoinsPreloader = (): IUsePopularCoinsPreloaderState => {
   const router = useRouter();
-  const dispatch = useAppDispatch();
   const currentCurrency = useAppSelector(selectCurrentCurrency);
   const lastFetchTimeRef = useRef<Date | null>(null);
 
@@ -32,11 +30,11 @@ const usePopularCoinsPreloader = (): IUsePopularCoinsPreloaderState => {
       console.log(`Initiating preload for PopularCoins`);
 
       // Prefetch the page for a smoother navigation experience
-      // router.prefetch(`/`);
+      router.prefetch(`/`);
       // Fetch coin details and store them, utilizing Next.js caching
-      // await fetchAndFormatPopularCoinsData(currentCurrency, {
-      //   useCache: false,
-      // });
+      await fetchAndFormatPopularCoinsData(currentCurrency, {
+        useCache: true,
+      });
 
       // Update last fetch time
       lastFetchTimeRef.current = now;
@@ -46,9 +44,7 @@ const usePopularCoinsPreloader = (): IUsePopularCoinsPreloaderState => {
   // Handles navigation to the coin detail page for a given symbol. Preloads details if they haven't been preloaded.
   const handleNavigation = useCallback(() => {
     router.push(`/`);
-    
-    // dispatch(coinsActions.setSelectedCoinDetails({ coinDetails: null }));
-  }, [dispatch, router]);
+  }, [router]);
 
   return { handlePreload, handleNavigation };
 };

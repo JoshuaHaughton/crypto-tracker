@@ -89,6 +89,8 @@ interface IFetchOptions {
 
 // 30 seconds
 const DEFAULT_REVALIDATION_TIME = 30;
+// Revalidates data every 10 minutes since it doesn't need to be as fresh
+const EXCHANGE_RATE_REVALIDATION_TIME = 600;
 
 /**
  * Fetches raw data for the top 100 coins and currency exchange rates.
@@ -116,7 +118,11 @@ async function fetchRawPopularCoinsData(
   }?fsym=${targetCurrency}&tsyms=${ALL_CURRENCIES.join(",")}`;
   const top100MarketCapCoinsURL = `${API_ENDPOINTS.TOP_100_MARKET_CAP_OVERVIEW}?limit=100&tsym=${targetCurrency}`;
 
-  const cacheOptions: RequestInit = options.useCache
+  const exchangeRateCacheOptions = options.useCache
+    ? { next: { revalidate: EXCHANGE_RATE_REVALIDATION_TIME } }
+    : { cache: "no-store" as RequestCache };
+
+  const defaultCacheOptions: RequestInit = options.useCache
     ? {
         next: {
           revalidate: options.revalidateTime || DEFAULT_REVALIDATION_TIME,
@@ -124,21 +130,17 @@ async function fetchRawPopularCoinsData(
       }
     : { cache: "no-store" as RequestCache };
 
-  const otherCache = options.useCache
-    ? { next: { revalidate: 600 } }
-    : { cache: "no-store" as RequestCache };
-
   // Setting up promises for concurrent API requests
   // Revalidates currency exchange data every 600 seconds (10 minutes)
   const exchangeRatePromise = fetch(currencyExchangeURL, {
     ...fetchOptions,
-    ...otherCache,
+    ...exchangeRateCacheOptions,
   }).then((response) => response.json() as Promise<TCurrencyRates>);
 
   // Fetching top 100 market cap coins data with an optional cache header
   const top100MarketCapCoinsPromise = fetch(top100MarketCapCoinsURL, {
     ...fetchOptions,
-    ...cacheOptions,
+    ...defaultCacheOptions,
   }).then((response) => response.json() as Promise<ITopMarketCapApiResponse>);
 
   try {
@@ -232,17 +234,11 @@ async function fetchRawCoinDetailsData(
   const historical24hURL = `${API_ENDPOINTS.HISTORICAL_HOUR}?fsym=${id}&tsym=${targetCurrency}&limit=24`;
   const historical365dURL = `${API_ENDPOINTS.HISTORICAL_DAY}?fsym=${id}&tsym=${targetCurrency}&limit=365`;
 
-  const otherCache = options.useCache
-    ? { next: { revalidate: 600 } } // Revalidates data every 10 minutes since it doesn't need to be as fresh
+  const exchangeRateCacheOptions = options.useCache
+    ? { next: { revalidate: EXCHANGE_RATE_REVALIDATION_TIME } }
     : { cache: "no-store" as RequestCache };
 
-  // Fetching with revalidation logic specific to Next.js 14
-  const exchangeRatePromise = fetch(currencyExchangeURL, {
-    ...authHeaders,
-    ...otherCache,
-  }).then((res) => res.json() as Promise<TCurrencyRates>);
-
-  const cacheOptions: RequestInit = options.useCache
+  const defaultCacheOptions: RequestInit = options.useCache
     ? {
         next: {
           revalidate: options.revalidateTime || DEFAULT_REVALIDATION_TIME,
@@ -250,19 +246,25 @@ async function fetchRawCoinDetailsData(
       }
     : { cache: "no-store" as RequestCache };
 
+  // Fetching with revalidation logic specific to Next.js 14
+  const exchangeRatePromise = fetch(currencyExchangeURL, {
+    ...authHeaders,
+    ...exchangeRateCacheOptions,
+  }).then((res) => res.json() as Promise<TCurrencyRates>);
+
   const assetDetailsPromise = fetch(assetDetailsURL, {
     ...authHeaders,
-    ...cacheOptions,
+    ...defaultCacheOptions,
   }).then((res) => res.json() as Promise<IAssetDataApiResponse>);
 
   const historical24hPromise = fetch(historical24hURL, {
     ...authHeaders,
-    ...cacheOptions,
+    ...defaultCacheOptions,
   }).then((res) => res.json() as Promise<IHistoricalDataApiResponse>);
 
   const historical365dPromise = fetch(historical365dURL, {
     ...authHeaders,
-    ...cacheOptions,
+    ...defaultCacheOptions,
   }).then((res) => res.json() as Promise<IHistoricalDataApiResponse>);
 
   try {

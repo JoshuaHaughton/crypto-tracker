@@ -47,6 +47,7 @@ const Navbar = () => {
     <>
       <nav className={styles.nav}>
         <div className={styles.container}>
+          {/* The prefetch field prop for Link to break the router.refresh / currency update logic. */}
           <Link href="/" className={styles.logo_container}>
             <Image
               src={logo}

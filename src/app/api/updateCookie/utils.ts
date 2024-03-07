@@ -14,6 +14,7 @@ import { E_COOKIE_NAMES } from "@/lib/types/cookieTypes";
 export async function updateCurrencyCookie(newCurrency: string): Promise<void> {
   fetch("/api/updateCookie", {
     method: "POST",
+    cache: "no-store",
     headers: {
       "Content-Type": "application/json",
     },

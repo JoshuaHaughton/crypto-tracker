@@ -60,20 +60,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   // Merge user-provided options with default options
   const cookieOptions = { ...defaultCookieOptions, ...options };
 
-  // Revalidate the paths so that we don't return invalid cached data from the previous currency
-  revalidatePath("/");
-  revalidatePath("/coin/[symbol]");
-  revalidatePath("/", "page");
-  revalidatePath("/coin/[symbol]", "page");
-  revalidatePath("/", "layout");
-
   // Update the cookie with the new value and options
   cookieHandler.set(name, value, cookieOptions);
 
-  revalidatePath("/");
-  revalidatePath("/coin/[symbol]");
-  revalidatePath("/", "page");
-  revalidatePath("/coin/[symbol]", "page");
+  // Revalidate all paths so that we don't return invalid cached data
+  // from the previous currency (https://nextjs.org/docs/app/api-reference/functions/revalidatePath#revalidating-all-data)
+  // Should be revalidated on client via router.refresh() inside of useAppInitialization. Without that we still get invalid caches
   revalidatePath("/", "layout");
 
   // Respond with success status and the name of the updated cookie.

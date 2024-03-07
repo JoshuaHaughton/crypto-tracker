@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/lib/store";
 import { fetchAndFormatCoinDetailsData } from "@/lib/utils/server.utils";
@@ -44,27 +44,27 @@ const useCoinDetailsPreloader = (): IUseCoinDetailsPreloaderState => {
         currentTime - existingDetails.timestamp > FETCH_INTERVAL_MS
       ) {
         console.log(`Initiating preload for ${symbol}`);
-        // router.prefetch(`/coin/${symbol}`); // Prefetch the page for a smoother navigation experience.
+        router.prefetch(`/coin/${symbol}`); // Prefetch the page for a smoother navigation experience.
 
-        // const coinDetailsResponse = await fetchAndFormatCoinDetailsData(
-        //   symbol,
-        //   currentCurrency,
-        //   { useCache: false },
-        // );
+        const coinDetailsResponse = await fetchAndFormatCoinDetailsData(
+          symbol,
+          currentCurrency,
+          { useCache: true },
+        );
         currentTime = Date.now();
-        // const { coinDetails } = coinDetailsResponse;
+        const { coinDetails } = coinDetailsResponse;
 
-        // // Update the ref with new details and their fetch time if successfully fetched.
-        // preloadedCoinDetailsRef.current.set(symbol, {
-        //   details: coinDetails,
-        //   timestamp: currentTime,
-        // });
-        // console.log(`Preload complete for ${symbol}`);
-        // return coinDetails;
+        // Update the ref with new details and their fetch time if successfully fetched.
+        preloadedCoinDetailsRef.current.set(symbol, {
+          details: coinDetails,
+          timestamp: currentTime,
+        });
+        console.log(`Preload complete for ${symbol}`);
+        return coinDetails;
       }
 
       // Return existing details if available.
-      // return existingDetails.details;
+      return existingDetails.details;
     },
     [router, currentCurrency],
   );
@@ -72,23 +72,9 @@ const useCoinDetailsPreloader = (): IUseCoinDetailsPreloaderState => {
   // Handles navigation to the coin detail page for a given symbol. Preloads details if they haven't been preloaded.
   const handleNavigation = useCallback(
     async (symbol: string) => {
-      const preloadedCoin = preloadedCoinDetailsRef.current.get(symbol);
-
       router.push(`/coin/${symbol}`);
-      // if (preloadedCoin?.details != null) {
-      //   dispatch(
-      //     coinsActions.setSelectedCoinDetails({
-      //       coinDetails: preloadedCoin.details,
-      //     }),
-      //   );
-      //   dispatch(
-      //     coinsActions.setPopularCoins({
-      //       coinList: []
-      //     }),
-      //   );
-      // }
     },
-    [dispatch, router],
+    [router],
   );
 
   return { handlePreload, handleNavigation };
