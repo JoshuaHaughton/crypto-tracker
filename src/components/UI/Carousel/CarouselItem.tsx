@@ -46,7 +46,7 @@ const CarouselItem: React.FC<ICarouselItemParams> = ({
       {showFallback ? (
         <div className={`${styles.image} ${shimmerClass}`}></div>
       ) : (
-        <Link href={`/coin/${coin.symbol}`} prefetch>
+        <Link href={`/coin/${coin.symbol}`}>
           <Image
             src={coin.image}
             alt={coin.name}

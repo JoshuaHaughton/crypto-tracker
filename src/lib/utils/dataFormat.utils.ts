@@ -722,7 +722,7 @@ export async function getCoinDetailsPageInitialData(
   const coinDetailsResponseData = await fetchAndFormatCoinDetailsData(
     symbol,
     currencyPreference,
-    { useCache: true },
+    { useCache: false },
   );
 
   // Format the initial data for the StoreHydrator

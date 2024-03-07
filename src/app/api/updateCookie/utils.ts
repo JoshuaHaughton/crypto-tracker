@@ -11,7 +11,7 @@ import { E_COOKIE_NAMES } from "@/lib/types/cookieTypes";
  * // Update the currency cookie to 'USD'
  * updateCurrencyCookie('USD');
  */
-export function updateCurrencyCookie(newCurrency: string): void {
+export async function updateCurrencyCookie(newCurrency: string): Promise<void> {
   fetch("/api/updateCookie", {
     method: "POST",
     headers: {

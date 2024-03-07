@@ -47,7 +47,7 @@ export const initializeCoinCache = createAsyncThunk<
       // Conditionally fetch popular coins data from the API if handleFetch is true
       console.warn("Fetching popular coins data from API for initialization.");
       const response = await fetchAndFormatPopularCoinsData(currentCurrency, {
-        useCache: true,
+        useCache: false,
       });
       popularCoinsToUse = response?.popularCoins ?? [];
     } else if (popularCoins) {

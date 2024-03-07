@@ -31,7 +31,7 @@ const CoinInfo: React.FC<ICoinInfoProps> = ({
 }: ICoinInfoProps): JSX.Element => {
   return (
     <div className={styles.coin_info}>
-      <Link href="/" className={styles.back_link} prefetch>
+      <Link href="/" className={styles.back_link}>
         <FontAwesomeIcon
           icon={faArrowLeft}
           onMouseEnter={handleHomepagePreload}

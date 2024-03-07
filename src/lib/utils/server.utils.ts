@@ -124,11 +124,15 @@ async function fetchRawPopularCoinsData(
       }
     : { cache: "no-store" as RequestCache };
 
+  const otherCache = options.useCache
+    ? { next: { revalidate: 600 } }
+    : { cache: "no-store" as RequestCache };
+
   // Setting up promises for concurrent API requests
   // Revalidates currency exchange data every 600 seconds (10 minutes)
   const exchangeRatePromise = fetch(currencyExchangeURL, {
     ...fetchOptions,
-    next: { revalidate: 600 },
+    ...otherCache,
   }).then((response) => response.json() as Promise<TCurrencyRates>);
 
   // Fetching top 100 market cap coins data with an optional cache header
@@ -228,10 +232,14 @@ async function fetchRawCoinDetailsData(
   const historical24hURL = `${API_ENDPOINTS.HISTORICAL_HOUR}?fsym=${id}&tsym=${targetCurrency}&limit=24`;
   const historical365dURL = `${API_ENDPOINTS.HISTORICAL_DAY}?fsym=${id}&tsym=${targetCurrency}&limit=365`;
 
+  const otherCache = options.useCache
+    ? { next: { revalidate: 600 } } // Revalidates data every 10 minutes since it doesn't need to be as fresh
+    : { cache: "no-store" as RequestCache };
+
   // Fetching with revalidation logic specific to Next.js 14
   const exchangeRatePromise = fetch(currencyExchangeURL, {
     ...authHeaders,
-    next: { revalidate: 600 }, // Revalidates data every 10 minutes since it doesn't need to be as fresh
+    ...otherCache,
   }).then((res) => res.json() as Promise<TCurrencyRates>);
 
   const cacheOptions: RequestInit = options.useCache

@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { E_COOKIE_NAMES } from "@/lib/types/cookieTypes";
+import { revalidatePath } from "next/cache";
 
 interface ICookieOptions {
   path?: string;
@@ -59,12 +60,31 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   // Merge user-provided options with default options
   const cookieOptions = { ...defaultCookieOptions, ...options };
 
+  // Revalidate the paths so that we don't return invalid cached data from the previous currency
+  revalidatePath("/");
+  revalidatePath("/coin/[symbol]");
+  revalidatePath("/", "page");
+  revalidatePath("/coin/[symbol]", "page");
+  revalidatePath("/", "layout");
+
   // Update the cookie with the new value and options
   cookieHandler.set(name, value, cookieOptions);
 
+  revalidatePath("/");
+  revalidatePath("/coin/[symbol]");
+  revalidatePath("/", "page");
+  revalidatePath("/coin/[symbol]", "page");
+  revalidatePath("/", "layout");
+
   // Respond with success status and the name of the updated cookie.
   return new NextResponse(
-    JSON.stringify({ status: "success", cookieName: name, newValue: value }),
+    JSON.stringify({
+      status: "success",
+      cookieName: name,
+      newValue: value,
+      revalidated: true,
+      now: Date.now(),
+    }),
     { status: 200, headers: { "Content-Type": "application/json" } },
   );
 }
