@@ -1,5 +1,6 @@
 import useWebWorker from "./useWebWorker";
 import useBreakpointSync from "../ui/useBreakpointSync";
+import useRouteEvents from "./useRouteEvents";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { useAppSelector } from "@/lib/store";
@@ -16,6 +17,7 @@ export const useAppInitialization = () => {
 
   useWebWorker();
   useBreakpointSync();
+  useRouteEvents();
 
   // When we update the currency, we update the cookie on the server so that we can use that currency on subsequent page navigations.
   // We need to use router.refresh() here to update the Client so that it is aware of the cookie udpates, and doesn't use invalidated data

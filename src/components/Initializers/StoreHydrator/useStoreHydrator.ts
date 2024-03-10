@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useAppDispatch } from "@/lib/store";
+import { useAppDispatch, useAppSelector } from "@/lib/store";
 import { coinsActions } from "@/lib/store/coins/coinsSlice";
 import { currencyActions } from "@/lib/store/currency/currencySlice";
 import {
@@ -9,6 +9,7 @@ import {
 import { initializeCoinCache } from "@/thunks/initializeCoinCacheThunk";
 import { preloadCoinDetailsThunk } from "@/thunks/preloadCoinDetailsThunk";
 import { appInfoActions } from "@/lib/store/appInfo/appInfoSlice";
+import { selectIsStoreHydrated } from "@/lib/store/appInfo/appInfoSelectors";
 
 /**
  * Custom hook to initialize and hydrate application data based on initial server-side fetched data.
@@ -19,10 +20,17 @@ import { appInfoActions } from "@/lib/store/appInfo/appInfoSlice";
  */
 const useStoreHydrator = (initialData: TInitialPageDataOptions) => {
   const dispatch = useAppDispatch();
+  const isStoreAlreadyHyrdated = useAppSelector(selectIsStoreHydrated);
 
   useEffect(() => {
-    // Dispatch actions based on the type of initial data provided.
+    // We only want to hydrate the store once with the initial data.
+    // From then on out, we should fetch via server actions from the client to preload coin data,
+    // and control navigation through there since NextJs' native navigation features
+    // aren't ready to handle the dynamic logic I'm looking for here
+    if (isStoreAlreadyHyrdated) return;
+
     if (initialData) {
+      // Dispatch actions based on the type of initial data provided.
       console.log("initialData - StoreHydrator", initialData);
 
       // Dispatch initial currency & exchange rates if available. These should be populated first as they're used down the line in other preloading/initialization methods
@@ -104,6 +112,9 @@ const useStoreHydrator = (initialData: TInitialPageDataOptions) => {
           "Dispatching initializeCoinCache to fetch popular coins data.",
         );
       }
+
+      // Set the store as hydrated so we don't do this process again. We will update the data on the client via Server actions for a smoother experience
+      dispatch(appInfoActions.completeStoreHydration());
     }
     // Should only run on the initial load
     // eslint-disable-next-line react-hooks/exhaustive-deps

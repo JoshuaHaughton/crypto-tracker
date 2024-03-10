@@ -2,6 +2,14 @@ import { createSelector } from "@reduxjs/toolkit";
 import { TRootState } from "..";
 
 /**
+ * Selector for the current state of isStoreHydrated.
+ * @param state - The current state of the application.
+ * @returns The current state of isStoreHydrated.
+ */
+export const selectIsStoreHydrated = (state: TRootState) =>
+  state.appInfo.isStoreHydrated;
+
+/**
  * Selector for the current page number of popular coins.
  * @param state - The current state of the application.
  * @returns The current page number.

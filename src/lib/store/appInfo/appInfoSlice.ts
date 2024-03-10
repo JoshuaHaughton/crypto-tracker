@@ -9,6 +9,7 @@ import {
  * Interface representing the state structure for the appInfo slice.
  */
 export interface IAppInfoState {
+  isStoreHydrated: boolean;
   popularCoinsPageNumber: number;
   coinsBeingPreloaded: Record<string, boolean>;
   coinsBeingPreloadedOrder: string[];
@@ -34,6 +35,7 @@ export interface CoinPreloadPayload {
  * Initial state for the appInfo slice.
  */
 export const initialAppInfoState: IAppInfoState = {
+  isStoreHydrated: false,
   popularCoinsPageNumber: 1,
   coinsBeingPreloaded: {},
   coinsBeingPreloadedOrder: [],
@@ -45,6 +47,14 @@ const appInfoSlice = createSlice({
   name: "appInfo",
   initialState: initialAppInfoState,
   reducers: {
+    /**
+     * Sets isStoreHydrated to true.
+     * @param state - Current state of appInfo.
+     */
+    completeStoreHydration(state: IAppInfoState) {
+      state.isStoreHydrated = true;
+    },
+
     /**
      * Set the current page number of the popular coins list.
      * @param state - Current state of appInfo.

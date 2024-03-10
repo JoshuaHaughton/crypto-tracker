@@ -17,6 +17,7 @@ const Carousel: React.FC = () => {
     currencySymbol,
     isLoading,
     handleItemMouseEnter,
+    handleItemClick,
   } = useCarousel();
 
   return (
@@ -33,6 +34,7 @@ const Carousel: React.FC = () => {
                 currencySymbol={currencySymbol}
                 showFallback={isLoading}
                 handleMouseEnter={() => handleItemMouseEnter(coinSymbol)}
+                handleClick={() => handleItemClick(coinSymbol)}
               />
             </div>
           );

@@ -12,6 +12,7 @@ interface ICarouselItemParams {
   currencySymbol: TCurrencySymbol;
   showFallback: boolean;
   handleMouseEnter: () => void;
+  handleClick: () => void;
 }
 
 /**
@@ -31,6 +32,7 @@ const CarouselItem: React.FC<ICarouselItemParams> = ({
   currencySymbol,
   showFallback,
   handleMouseEnter,
+  handleClick,
 }) => {
   // Determine if the price change is positive (profit) or negative.
   let isProfit = coin.price_change_percentage_24h >= 0;
@@ -46,17 +48,16 @@ const CarouselItem: React.FC<ICarouselItemParams> = ({
       {showFallback ? (
         <div className={`${styles.image} ${shimmerClass}`}></div>
       ) : (
-        <Link href={`/coin/${coin.symbol}`}>
-          <Image
-            src={coin.image}
-            alt={coin.name}
-            width={CAROUSEL_ITEM_IMG_SIZE}
-            height={CAROUSEL_ITEM_IMG_SIZE}
-            quality={100}
-            onMouseEnter={handleMouseEnter}
-            priority
-          />
-        </Link>
+        <Image
+          src={coin.image}
+          alt={coin.name}
+          width={CAROUSEL_ITEM_IMG_SIZE}
+          height={CAROUSEL_ITEM_IMG_SIZE}
+          quality={100}
+          onMouseEnter={handleMouseEnter}
+          onClick={handleClick}
+          priority
+        />
       )}
       <p className={shimmerClass}>
         {!showFallback

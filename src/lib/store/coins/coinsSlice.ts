@@ -1,5 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { TCurrencyString } from "../../constants/globalConstants";
+import {
+  ALL_CURRENCIES,
+  TCurrencyString,
+} from "../../constants/globalConstants";
 import { ICoinDetails, ICoinOverview } from "../../types/coinTypes";
 
 /**
@@ -118,7 +121,6 @@ const coinsSlice = createSlice({
         }, {} as Record<string, ICoinOverview>),
       );
     },
-
     /**
      * Sets the cached map of popular coins for a specific currency.
      * @param state - The current state of the coins slice.
@@ -139,7 +141,18 @@ const coinsSlice = createSlice({
         {} as Record<string, ICoinOverview>,
       );
     },
+    /**
+     * Resets the popularCoins, popularCoinsMap, and popularCoinsCache for all currencies.
+     * @param state - The current state of the coins slice.
+     */
+    resetPopularCoins(state: ICoinsState) {
+      state.popularCoins = [];
+      state.popularCoinsMap = {};
 
+      ALL_CURRENCIES.forEach((currency) => {
+        state.cachedPopularCoinMapsByCurrency[currency] = {};
+      });
+    },
     /**
      * Sets the list of carousel coins.
      * @param state - The current state of the coins slice.
@@ -153,7 +166,6 @@ const coinsSlice = createSlice({
 
       state.carouselSymbolList = carouselSymbols;
     },
-
     /**
      * Sets the details of the selected coin.
      * @param state - The current state of the coins slice.
@@ -179,6 +191,17 @@ const coinsSlice = createSlice({
       const { currency, coinDetails } = action.payload;
 
       state.cachedSelectedCoinDetailsByCurrency[currency] = coinDetails;
+    },
+    /**
+     * Resets the details and cache of the selected coin for all currencies.
+     * @param state - The current state of the coins slice.
+     */
+    resetSelectedCoinDetails(state: ICoinsState) {
+      state.selectedCoinDetails = null;
+
+      ALL_CURRENCIES.forEach((currency) => {
+        state.cachedSelectedCoinDetailsByCurrency[currency] = null;
+      });
     },
   },
 });
