@@ -5,7 +5,7 @@ import { ICoinDetails, ICoinOverview } from "../types/coinTypes";
 import { TCurrencyExchangeRates } from "../types/currencyTypes";
 
 // Define the shape of your page-specific data.
-export interface IPageData {
+export interface IInitialPageData {
   popularCoins?: ICoinOverview[];
   popularCoinsMap?: Record<string, ICoinOverview>;
   carouselSymbolList?: string[];
@@ -17,26 +17,30 @@ export interface IPageData {
  * Creates a context for page-specific data with an undefined initial value.
  * This context will be used to provide and consume data specific to a page.
  */
-const PageContext = createContext<IPageData | undefined>(undefined);
+const InitialPageDataContext = createContext<IInitialPageData | undefined>(
+  undefined,
+);
 
 /**
- * Custom hook to use the PageContext.
+ * Custom hook to use the InitialPageDataContext.
  * This hook simplifies access to the context data and ensures the context is used properly.
  *
- * @throws Will throw an error if used outside of a PageProvider.
+ * @throws Will throw an error if used outside of a InitialPageDataProvider.
  * @returns The context data.
  */
-export const usePageData = (): IPageData => {
-  const context = useContext(PageContext);
+export const useInitialPageData = (): IInitialPageData => {
+  const context = useContext(InitialPageDataContext);
   if (context === undefined) {
-    throw new Error("usePageData must be used within a PageProvider");
+    throw new Error(
+      "useInitialPageData must be used within a InitialPageDataProvider",
+    );
   }
   return context;
 };
 
-interface IPageProviderProps {
+interface IInitialPageDataProviderProps {
   children: ReactNode;
-  value: IPageData | undefined;
+  value: IInitialPageData | undefined;
 }
 
 /**
@@ -44,11 +48,14 @@ interface IPageProviderProps {
  * Utilize this provider at the top level of any page to pass down specific data to all child components,
  * enabling a modular and clean approach to handling page-specific data.
  *
- * @param {IPageProviderProps} props - Contains children and the contextual value to be provided.
+ * @param {IInitialPageDataProviderProps} props - Contains children and the contextual value to be provided.
  */
-export const PageProvider: React.FC<IPageProviderProps> = ({
-  children,
-  value,
-}: IPageProviderProps) => {
-  return <PageContext.Provider value={value}>{children}</PageContext.Provider>;
+export const InitialPageDataProvider: React.FC<
+  IInitialPageDataProviderProps
+> = ({ children, value }: IInitialPageDataProviderProps) => {
+  return (
+    <InitialPageDataContext.Provider value={value}>
+      {children}
+    </InitialPageDataContext.Provider>
+  );
 };

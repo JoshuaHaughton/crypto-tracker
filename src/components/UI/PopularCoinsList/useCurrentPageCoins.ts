@@ -3,7 +3,7 @@ import { ICoinOverview, IPopularCoinSearchItem } from "@/lib/types/coinTypes";
 import { POPULAR_COINS_PAGE_SIZE } from "@/lib/constants/globalConstants";
 import { useAppSelector } from "@/lib/store";
 import { selectPopularCoins } from "@/lib/store/coins/coinsSelectors";
-import { usePageData } from "@/lib/contexts/pageContext";
+import { useInitialPageData } from "@/lib/contexts/initialPageDataContext";
 
 /**
  * Defines the shape of the params used by useCoinsForCurrentPage.
@@ -37,7 +37,7 @@ export const useCurrentPageCoins = ({
   // Redux state selectors.
   const reduxPopularCoins = useAppSelector(selectPopularCoins);
   // Fallback to page specific data if Redux store doesn't have carousel coins yet.
-  const { popularCoins: initialPopularCoins } = usePageData();
+  const { popularCoins: initialPopularCoins } = useInitialPageData();
   const popularCoins: ICoinOverview[] =
     reduxPopularCoins.length > 0
       ? reduxPopularCoins

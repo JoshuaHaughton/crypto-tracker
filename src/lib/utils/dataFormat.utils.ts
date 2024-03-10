@@ -621,7 +621,7 @@ interface IInitialHomePageData {
 }
 
 export interface IHomePageInitialDataType {
-  dataToHydrate: TInitialPopularCoinsData;
+  dateForGlobalStore: TInitialPopularCoinsData;
   initialPageData: IInitialHomePageData;
 }
 
@@ -660,7 +660,7 @@ export async function getHomePageInitialData(
   );
 
   // Format the initial data for the StoreHydrator
-  const dataToHydrate: TInitialPageDataOptions = {
+  const dateForGlobalStore: TInitialPageDataOptions = {
     dataType: InitialDataType.POPULAR_COINS,
     data: popularCoinsResponseData,
     currentCurrency: currencyPreference,
@@ -686,7 +686,7 @@ export async function getHomePageInitialData(
 
   // Return the formatted initial data and page data for rendering
   return {
-    dataToHydrate,
+    dateForGlobalStore,
     initialPageData,
   };
 }
@@ -697,7 +697,7 @@ export interface IInitialCoinDetailsPageData {
 }
 
 export interface ICoinDetailsPageInitialDataType {
-  dataToHydrate: TInitialCoinDetailsData;
+  dateForGlobalStore: TInitialCoinDetailsData;
   initialPageData: IInitialCoinDetailsPageData;
 }
 
@@ -726,7 +726,7 @@ export async function getCoinDetailsPageInitialData(
   );
 
   // Format the initial data for the StoreHydrator
-  const dataToHydrate: TInitialCoinDetailsData = {
+  const dateForGlobalStore: TInitialCoinDetailsData = {
     dataType: InitialDataType.COIN_DETAILS,
     data: coinDetailsResponseData,
     currentCurrency: currencyPreference,
@@ -741,7 +741,7 @@ export async function getCoinDetailsPageInitialData(
 
   // Return the formatted initial data and page data for rendering
   return {
-    dataToHydrate,
+    dateForGlobalStore,
     initialPageData,
   };
 }

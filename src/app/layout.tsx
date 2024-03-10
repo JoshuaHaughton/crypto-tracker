@@ -1,7 +1,7 @@
 import "../styles/globals.scss";
 import { Inter } from "next/font/google";
 import { Metadata } from "next";
-import { StoreProvider } from "@/lib/store/storeProvider";
+import { GlobalStoreProvider } from "@/lib/store/storeProvider";
 import { AppInitializer } from "../components/Initializers/AppInitializer/AppInitializer";
 import { cookies } from "next/headers";
 import MainLayout from "@/components/Layout/MainLayout/MainLayout";
@@ -26,10 +26,10 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <StoreProvider initialData={initialData}>
+        <GlobalStoreProvider initialData={initialData}>
           <AppInitializer />
           <MainLayout>{children}</MainLayout>
-        </StoreProvider>
+        </GlobalStoreProvider>
       </body>
     </html>
   );

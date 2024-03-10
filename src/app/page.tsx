@@ -1,6 +1,6 @@
 import HomePage from "@/components/Pages/HomePage/HomePage";
-import StoreHydrator from "@/components/Initializers/StoreHydrator/StoreHydrator";
-import { PageProvider } from "@/lib/contexts/pageContext";
+import GlobalStoreHydrator from "@/components/Initializers/GlobalStoreHydrator/GlobalStoreHydrator";
+import { InitialPageDataProvider } from "@/lib/contexts/initialPageDataContext";
 import { getHomePageInitialData } from "@/lib/utils/dataFormat.utils";
 import { cookies } from "next/headers";
 
@@ -9,10 +9,10 @@ export default async function Home() {
 
   return (
     <>
-      <StoreHydrator initialData={initialData?.dataToHydrate} />
-      <PageProvider value={initialData?.initialPageData}>
+      <GlobalStoreHydrator initialData={initialData?.dateForGlobalStore} />
+      <InitialPageDataProvider value={initialData?.initialPageData}>
         <HomePage />
-      </PageProvider>
+      </InitialPageDataProvider>
     </>
   );
 }

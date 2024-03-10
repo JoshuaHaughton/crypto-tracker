@@ -16,7 +16,7 @@ import { IPopularCoinSearchItem } from "@/lib/types/coinTypes";
 import { LoadingStatus } from "@/lib/types/apiRequestTypes";
 import { useAppSelector } from "@/lib/store";
 import useCoinDetailsPreloader from "@/lib/hooks/preloaders/useCoinDetailsPreloader";
-import { usePageData } from "@/lib/contexts/pageContext";
+import { useInitialPageData } from "@/lib/contexts/initialPageDataContext";
 import { selectPopularCoins } from "@/lib/store/coins/coinsSelectors";
 
 /**
@@ -53,7 +53,7 @@ export function usePopularCoinsList(): IUsePopularCoinsListState {
   const currentSymbol = useAppSelector(selectCurrentSymbol);
   const allReduxPopularCoins = useAppSelector(selectPopularCoins);
   // Fallback to page specific data if Redux store doesn't have carousel coins yet due to initial hydration.
-  const { popularCoins } = usePageData();
+  const { popularCoins } = useInitialPageData();
 
   const allPopularCoins: ICoinOverview[] =
     allReduxPopularCoins.length > 0

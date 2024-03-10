@@ -3,9 +3,8 @@ import { ICoinDetails } from "@/lib/types/coinTypes";
 import { selectSelectedCoinDetails } from "@/lib/store/coins/coinsSelectors";
 import { selectCurrentSymbol } from "@/lib/store/currency/currencySelectors";
 import { TCurrencySymbol } from "@/lib/constants/globalConstants";
-import { IInitialCoinDetailsPageData } from "@/lib/utils/dataFormat.utils";
 import usePopularCoinsPreloader from "@/lib/hooks/preloaders/usePopularCoinsPreloader";
-import { usePageData } from "@/lib/contexts/pageContext";
+import { useInitialPageData } from "@/lib/contexts/initialPageDataContext";
 
 interface ICoinDetailsState {
   currentSymbol: TCurrencySymbol;
@@ -26,13 +25,17 @@ const useCoinDetails = (): ICoinDetailsState => {
   // Accessing current symbol and global coin details from the Redux store.
   const currentSymbol = useSelector(selectCurrentSymbol);
   const globalCoinDetails = useSelector(selectSelectedCoinDetails);
-  const { selectedCoinDetails: initialCoinDetails } = usePageData();
+  const { selectedCoinDetails: initialCoinDetails } = useInitialPageData();
   const { handlePreload, handleNavigation } = usePopularCoinsPreloader();
 
   // Determining which coin details to use based on the global state or initial context.
   const coinDetails = !globalCoinDetails
     ? initialCoinDetails
     : globalCoinDetails;
+
+  if (coinDetails == null) {
+    throw new Error("Coin Details are null");
+  }
 
   // Returning the relevant data for use in the component.
   return {

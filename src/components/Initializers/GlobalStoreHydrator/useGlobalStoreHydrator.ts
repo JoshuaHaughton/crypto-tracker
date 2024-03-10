@@ -18,7 +18,7 @@ import { selectIsStoreHydrated } from "@/lib/store/appInfo/appInfoSelectors";
  *
  * @param initialData - The initial data fetched server-side, containing either popular coins or specific coin details, along with currency exchange rates.
  */
-const useStoreHydrator = (initialData: TInitialPageDataOptions) => {
+const useGlobalStoreHydrator = (initialData: TInitialPageDataOptions) => {
   const dispatch = useAppDispatch();
   const isStoreAlreadyHyrdated = useAppSelector(selectIsStoreHydrated);
 
@@ -121,4 +121,4 @@ const useStoreHydrator = (initialData: TInitialPageDataOptions) => {
   }, []);
 };
 
-export default useStoreHydrator;
+export default useGlobalStoreHydrator;
