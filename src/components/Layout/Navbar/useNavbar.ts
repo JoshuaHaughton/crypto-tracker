@@ -18,6 +18,7 @@ interface IUseNavbarState {
   setOpenNotificationBar: Dispatch<SetStateAction<boolean>>;
   handleCurrencyChange: (e: SelectChangeEvent<unknown>) => Promise<void>;
   handleHomepagePreload: () => void;
+  handleHomepageNavigation: () => void;
 }
 
 /**
@@ -37,7 +38,7 @@ export const useNavbar = (): IUseNavbarState => {
   const currentSymbol = useAppSelector(selectCurrentSymbol);
   const isBreakpoint555 = useAppSelector(selectIsBreakpoint555);
 
-  const { handlePreload } = usePopularCoinsPreloader();
+  const { handlePreload, handleNavigation } = usePopularCoinsPreloader();
 
   /**
    * Handles currency changes initiated by user interactions in the UI.
@@ -78,5 +79,6 @@ export const useNavbar = (): IUseNavbarState => {
     setOpenNotificationBar,
     handleCurrencyChange,
     handleHomepagePreload: handlePreload,
+    handleHomepageNavigation: handleNavigation,
   };
 };

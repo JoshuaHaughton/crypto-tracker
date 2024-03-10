@@ -107,6 +107,7 @@ const coinsSlice = createSlice({
       action: PayloadAction<SetCoinListPayload>,
     ) {
       const { coinList } = action.payload;
+      console.log('coinList', coinList)
 
       state.popularCoins = coinList;
       state.popularCoinsMap = coinList.reduce((acc, coin) => {

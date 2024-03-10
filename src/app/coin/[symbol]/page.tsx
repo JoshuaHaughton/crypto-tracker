@@ -1,5 +1,6 @@
 import CoinDetailsPage from "@/components/Pages/CoinDetailsPage/CoinDetailsPage";
 import StoreHydrator from "@/components/Initializers/StoreHydrator/StoreHydrator";
+import { PageProvider } from "@/lib/contexts/pageContext";
 import { getCoinDetailsPageInitialData } from "@/lib/utils/dataFormat.utils";
 import { cookies } from "next/headers";
 
@@ -15,8 +16,10 @@ export default async function CoinPage({ params }: ICoinPageProps) {
 
   return (
     <>
-      <StoreHydrator initialData={initialData.dataToHydrate} />
-      <CoinDetailsPage initialPageData={initialData.initialPageData} />
+      <StoreHydrator initialData={initialData?.dataToHydrate} />
+      <PageProvider value={initialData?.initialPageData}>
+        <CoinDetailsPage />
+      </PageProvider>
     </>
   );
 }

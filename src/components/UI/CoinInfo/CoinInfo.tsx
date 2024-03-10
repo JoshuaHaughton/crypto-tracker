@@ -16,6 +16,7 @@ export interface ICoinInfoProps {
   coinAttributes: ICoinDetailAttributes;
   currentSymbol: string;
   handleHomepagePreload: () => void;
+  handleHomepageNavigation: () => void;
 }
 
 /**
@@ -28,15 +29,15 @@ const CoinInfo: React.FC<ICoinInfoProps> = ({
   coinAttributes,
   currentSymbol,
   handleHomepagePreload,
+  handleHomepageNavigation,
 }: ICoinInfoProps): JSX.Element => {
   return (
     <div className={styles.coin_info}>
-      <Link href="/" className={styles.back_link}>
-        <FontAwesomeIcon
-          icon={faArrowLeft}
-          onMouseEnter={handleHomepagePreload}
-        />
-      </Link>
+      <FontAwesomeIcon
+        icon={faArrowLeft}
+        onMouseEnter={handleHomepagePreload}
+        onClick={handleHomepageNavigation}
+      />
       <header className={styles.header}>
         <div className={styles.title_wrapper}>
           <Image

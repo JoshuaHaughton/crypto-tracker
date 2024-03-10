@@ -6,14 +6,13 @@ import CoinInfo from "@/components/UI/CoinInfo/CoinInfo";
 import CoinDetailsChart from "@/components/UI/CoinDetailsChart/CoinDetailsChart";
 import { IInitialCoinDetailsPageData } from "@/lib/utils/dataFormat.utils";
 
-interface ICoinDetailsPage {
-  initialPageData: IInitialCoinDetailsPageData;
-}
-
-const CoinDetails = ({ initialPageData }: ICoinDetailsPage) => {
-  const { currentSymbol, coinDetails, handleHomepagePreload } = useCoinDetails({
-    initialPageData,
-  });
+const CoinDetails = () => {
+  const {
+    currentSymbol,
+    coinDetails,
+    handleHomepagePreload,
+    handleHomepageNavigation,
+  } = useCoinDetails();
 
   return (
     <div className={styles.container}>
@@ -22,6 +21,7 @@ const CoinDetails = ({ initialPageData }: ICoinDetailsPage) => {
           coinAttributes={coinDetails?.coinAttributes}
           currentSymbol={currentSymbol}
           handleHomepagePreload={handleHomepagePreload}
+          handleHomepageNavigation={handleHomepageNavigation}
         />
 
         <hr />

@@ -5,15 +5,13 @@ import { selectCurrentSymbol } from "@/lib/store/currency/currencySelectors";
 import { TCurrencySymbol } from "@/lib/constants/globalConstants";
 import { IInitialCoinDetailsPageData } from "@/lib/utils/dataFormat.utils";
 import usePopularCoinsPreloader from "@/lib/hooks/preloaders/usePopularCoinsPreloader";
-
-interface IuseCoinDetalsParams {
-  initialPageData: IInitialCoinDetailsPageData;
-}
+import { usePageData } from "@/lib/contexts/pageContext";
 
 interface ICoinDetailsState {
   currentSymbol: TCurrencySymbol;
   coinDetails: ICoinDetails;
   handleHomepagePreload: () => void;
+  handleHomepageNavigation: () => void;
 }
 
 /**
@@ -24,16 +22,12 @@ interface ICoinDetailsState {
  * @returns {object} - An object containing the current symbol, the full coin details,
  * and a boolean indicating whether the details are fully preloaded.
  */
-const useCoinDetails = ({
-  initialPageData,
-}: IuseCoinDetalsParams): ICoinDetailsState => {
+const useCoinDetails = (): ICoinDetailsState => {
   // Accessing current symbol and global coin details from the Redux store.
   const currentSymbol = useSelector(selectCurrentSymbol);
   const globalCoinDetails = useSelector(selectSelectedCoinDetails);
-  const { handlePreload } = usePopularCoinsPreloader();
-
-  // Accessing initial coin details
-  const initialCoinDetails = initialPageData?.selectedCoinDetails;
+  const { selectedCoinDetails: initialCoinDetails } = usePageData();
+  const { handlePreload, handleNavigation } = usePopularCoinsPreloader();
 
   // Determining which coin details to use based on the global state or initial context.
   const coinDetails = !globalCoinDetails
@@ -45,6 +39,7 @@ const useCoinDetails = ({
     currentSymbol,
     coinDetails,
     handleHomepagePreload: handlePreload,
+    handleHomepageNavigation: handleNavigation,
   };
 };
 

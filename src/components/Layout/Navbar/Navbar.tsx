@@ -41,6 +41,7 @@ const Navbar = () => {
     setOpenNotificationBar,
     handleCurrencyChange,
     handleHomepagePreload,
+    handleHomepageNavigation,
   } = useNavbar();
 
   return (
@@ -48,22 +49,22 @@ const Navbar = () => {
       <nav className={styles.nav}>
         <div className={styles.container}>
           {/* The prefetch field prop for Link to break the router.refresh / currency update logic. */}
-          <Link href="/" className={styles.logo_container}>
-            <Image
-              src={logo}
-              alt="Logo"
-              fill
-              objectFit="contain"
-              className={styles.logo}
-              onMouseEnter={handleHomepagePreload}
-            />
-          </Link>
+          <Image
+            src={logo}
+            alt="Logo"
+            fill
+            objectFit="contain"
+            className={styles.logo}
+            onMouseEnter={handleHomepagePreload}
+            onClick={handleHomepageNavigation}
+          />
 
           <div className={styles.nav_list}>
-            <Link href="/" className={styles.link_wrapper}>
-              <HomeIcon onMouseEnter={handleHomepagePreload} />
-              {!isBreakpoint555 && `Home`}
-            </Link>
+            <HomeIcon
+              onMouseEnter={handleHomepagePreload}
+              onClick={handleHomepageNavigation}
+            />
+            {!isBreakpoint555 && `Home`}
 
             <StyledSelect
               variant="outlined"
