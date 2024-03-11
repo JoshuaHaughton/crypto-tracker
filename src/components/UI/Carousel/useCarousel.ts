@@ -70,7 +70,10 @@ const useCarousel = (): IUseCarouselState => {
           if (coin) acc.push(coin); // Add coin to array only if it's not undefined
           return acc;
         }, []) ?? [];
-  console.log("carouselCoins", carouselCoins);
+  console.warn("carouselCoins", carouselCoins);
+  console.warn("reduxCarouselCoins", reduxCarouselCoins);
+  console.warn("carouselSymbolList", carouselSymbolList);
+  console.warn("popularCoinsMap", popularCoinsMap);
   const coinsStatus = useAppSelector(selectInitialPopularCoinsStatus);
   const currencySymbol = useAppSelector(selectCurrentSymbol);
 

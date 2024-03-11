@@ -41,9 +41,11 @@ export const selectCarouselCoins = createSelector(
     (state: TRootState) => state.coins.carouselSymbolList,
     (state: TRootState) => state.coins.popularCoinsMap,
   ],
-  (carouselCoinSymbols, popularCoinsMap): ICoinOverview[] => {
+  (carouselSymbolList, popularCoinsMap): ICoinOverview[] => {
     console.log("selectCarouselCoins");
-    return carouselCoinSymbols.map((symbol) => popularCoinsMap[symbol]);
+    console.log("selectCarouselCoins - carouselSymbolList", carouselSymbolList);
+    console.log("selectCarouselCoins - popularCoinsMap", popularCoinsMap);
+    return carouselSymbolList.map((symbol) => popularCoinsMap[symbol]);
   },
 );
 

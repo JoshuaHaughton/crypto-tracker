@@ -55,6 +55,7 @@ const useGlobalStoreHydrator = (initialData: TInitialPageDataOptions) => {
                 coinList: initialData.data.popularCoins,
               }),
             );
+            console.warn("CAROUSEL RESET BY useGlobalStoreHydrator");
             dispatch(
               coinsActions.setCarouselSymbolList({
                 carouselSymbols: initialData.data.carouselSymbolList,

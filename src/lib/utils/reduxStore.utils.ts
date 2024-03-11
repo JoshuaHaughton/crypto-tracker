@@ -42,6 +42,7 @@ export function initializeStore(
   }
 
   if (carouselSymbolList) {
+    console.warn("CAROUSEL RESET BY INITIALIZE STORE");
     store.dispatch(
       coinsActions.setCarouselSymbolList({
         carouselSymbols: carouselSymbolList,
@@ -85,7 +86,7 @@ export function initializeStoreDispatch(
     currencyExchangeRates,
   } = initOptions;
 
-  console.log('boutta dispatch!')
+  console.log("boutta dispatch!");
   // Dispatch actions based on the presence of each option
   if (popularCoins) {
     dispatch(coinsActions.setPopularCoins({ coinList: popularCoins }));
@@ -96,6 +97,7 @@ export function initializeStoreDispatch(
   }
 
   if (carouselSymbolList) {
+    console.warn("CAROUSEL RESET BY initializeStoreDispatch");
     dispatch(
       coinsActions.setCarouselSymbolList({
         carouselSymbols: carouselSymbolList,

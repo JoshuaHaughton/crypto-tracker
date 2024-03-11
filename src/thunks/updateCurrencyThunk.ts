@@ -59,6 +59,7 @@ export const updateCurrency = createAsyncThunk<
       );
       return;
     }
+    console.warn('coins', coins)
 
     await processCoinDataUpdates({
       selectedCoinDetails: coins.selectedCoinDetails,

@@ -30,9 +30,11 @@ const useRouteChange = () => {
       dispatch(preloadCoinDetailsThunk({ handleFetch: false }));
     } else {
       console.warn("ON POPULARCOINS PAGE");
-      initializeCoinCache({
-        handleFetch: false,
-      });
+      dispatch(
+        initializeCoinCache({
+          handleFetch: false,
+        }),
+      );
     }
   }, [pathname, onDetailsPage, dispatch]); // React to changes in pathname and onDetailsPage
 };

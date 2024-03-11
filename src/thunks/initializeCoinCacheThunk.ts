@@ -66,9 +66,13 @@ export const initializeCoinCache = createAsyncThunk<
       } else {
         // If we aren't given coins, attempt to use ones from state
         const { popularCoins } = state.coins;
+        console.warn("Using popular coins data from state for initialization.");
         popularCoinsToUse = popularCoins;
       }
     }
+
+    console.warn("popularCoins to use for initializtion", popularCoinsToUse);
+    console.warn("currentCurrency to use for initializtion", currentCurrency);
 
     // Update the Redux store with the initial popular coins data
     dispatch(

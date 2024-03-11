@@ -20,7 +20,7 @@ interface IGlobalStoreHydratorProps {
 const GlobalStoreHydrator: React.FC<IGlobalStoreHydratorProps> = ({
   initialData,
 }: IGlobalStoreHydratorProps) => {
-  console.log("GlobalStoreHydrator Render");
+  console.log("GlobalStoreHydrator Render", initialData);
   useGlobalStoreHydrator(initialData);
 
   return null; // This component does not render anything

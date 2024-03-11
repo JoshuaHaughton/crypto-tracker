@@ -17,6 +17,9 @@ interface IFetchStatus {
   isFetching: boolean;
   data: ICoinOverview[] | null;
 }
+
+type FetchStatusByCurrency = Map<string, IFetchStatus>;
+
 /**
  * A hook designed to preload coin details data.
  * This hook uses a server actions for preloading and setting coin details before navigation.
@@ -28,21 +31,24 @@ const usePopularCoinsPreloader = (): IUsePopularCoinsPreloaderState => {
   const dispatch = useAppDispatch();
   const currentCurrency = useAppSelector(selectCurrentCurrency);
   const lastFetchTimeRef = useRef<Date | null>(null);
-  const fetchStatusRef = useRef<IFetchStatus>({
-    lastFetched: 0,
-    isFetching: false,
-    data: null,
-  });
+  const fetchStatusRef = useRef<FetchStatusByCurrency>(new Map());
 
   const handlePreload = useCallback(async (): Promise<void> => {
+    let status = fetchStatusRef.current.get(currentCurrency) || {
+      lastFetched: 0,
+      isFetching: false,
+      data: null,
+    };
     const now = new Date();
-    const { lastFetched, isFetching, data } = fetchStatusRef.current;
 
     if (
-      !isFetching &&
-      (now.getTime() - lastFetched > FETCH_INTERVAL_MS || !data)
+      !status.isFetching &&
+      (now.getTime() - status.lastFetched > FETCH_INTERVAL_MS || !status.data)
     ) {
-      fetchStatusRef.current.isFetching = true;
+      fetchStatusRef.current.set(currentCurrency, {
+        ...status,
+        isFetching: true,
+      });
       console.log(`Initiating preload for PopularCoins`);
 
       try {
@@ -56,16 +62,19 @@ const usePopularCoinsPreloader = (): IUsePopularCoinsPreloaderState => {
           // }
         );
         console.log("preload for popular coins complete", newData);
-        fetchStatusRef.current = {
+        fetchStatusRef.current.set(currentCurrency, {
           lastFetched: Date.now(),
           isFetching: false,
           data: newData?.popularCoins ?? null,
-        };
+        });
       } catch (error) {
         console.error("Error fetching popular coins data:", error);
         // Keep the old data if there is any, but update fetching status and time
-        fetchStatusRef.current.isFetching = false;
-        fetchStatusRef.current.lastFetched = Date.now();
+        fetchStatusRef.current.set(currentCurrency, {
+          ...status,
+          isFetching: false,
+          lastFetched: Date.now(),
+        });
       }
 
       // Update last fetch time
@@ -75,7 +84,8 @@ const usePopularCoinsPreloader = (): IUsePopularCoinsPreloaderState => {
 
   const handleNavigation = useCallback(() => {
     const navigate = () => {
-      const currentPopularCoins = fetchStatusRef.current.data;
+      const status = fetchStatusRef.current.get(currentCurrency);
+      const currentPopularCoins = status?.data;
       if (currentPopularCoins != null) {
         dispatch(
           coinsActions.reinitializePopularCoins({
@@ -87,15 +97,14 @@ const usePopularCoinsPreloader = (): IUsePopularCoinsPreloaderState => {
       router.push("/");
     };
 
-    const { isFetching } = fetchStatusRef.current;
-    console.log("fetchStatusRef.current", fetchStatusRef.current);
-
-    if (!isFetching) {
+    const status = fetchStatusRef.current.get(currentCurrency);
+    if (status && !status.isFetching) {
       console.log("navigating");
       navigate();
     } else {
       const interval = setInterval(() => {
-        if (!fetchStatusRef.current.isFetching) {
+        const updateStatus = fetchStatusRef.current.get(currentCurrency);
+        if (updateStatus && !updateStatus.isFetching) {
           console.log("waiting for fetch to complete");
           clearInterval(interval);
           navigate();
