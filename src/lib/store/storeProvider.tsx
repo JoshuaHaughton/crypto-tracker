@@ -35,7 +35,6 @@ export const GlobalStoreProvider: React.FC<IGlobalStoreProviderProps> = ({
     console.log("initializing store");
     let initialState = {};
 
-    let coinsInitialState = { ...initialCoinsState };
     let currencyInitialState = { ...initialCurrencyState };
 
     if (initialData) {
@@ -47,7 +46,6 @@ export const GlobalStoreProvider: React.FC<IGlobalStoreProviderProps> = ({
     }
 
     initialState = {
-      coins: coinsInitialState,
       currency: currencyInitialState,
     };
 

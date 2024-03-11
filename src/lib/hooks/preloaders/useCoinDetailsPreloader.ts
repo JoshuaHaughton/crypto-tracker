@@ -15,13 +15,13 @@ interface IUseCoinDetailsPreloaderState {
   handleNavigation: (symbol: string) => void;
 }
 
-interface ICoinDetailsWithTimestamp {
+interface ICoinPreloadingDetails {
   details: ICoinDetails | null;
   timestamp: number;
   isFetching: boolean;
 }
 
-type TCoinDetailsCache = Map<string, ICoinDetailsWithTimestamp>;
+type TCoinDetailsCache = Map<string, ICoinPreloadingDetails>;
 
 /**
  * A hook designed to preload coin details data.
@@ -30,13 +30,10 @@ type TCoinDetailsCache = Map<string, ICoinDetailsWithTimestamp>;
  * @returns {IUseCoinDetailsPreloaderState} Object containing methods for preloading coin data and handling navigation.
  */
 const useCoinDetailsPreloader = (): IUseCoinDetailsPreloaderState => {
-  const router = useRouter();
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const currentCurrency = useAppSelector(selectCurrentCurrency);
-  // State to manage the navigation after fetching
-  const [isFetchingComplete, setIsFetchingComplete] = useState<
-    Map<TCurrencyString, Map<string, boolean>>
-  >(new Map());
+  const [isNavigating, setIsNavigating] = useState<boolean>(false);
 
   // Ref to store coin details along with their fetch timestamp.
   const preloadedCoinDetailsRef = useRef<
@@ -53,12 +50,10 @@ const useCoinDetailsPreloader = (): IUseCoinDetailsPreloaderState => {
         preloadedCoinDetailsRef.current.set(currentCurrency, currencyCache);
       }
 
-      let existingDetails = currencyCache.get(symbol);
-      let currentTime = Date.now();
+      const existingDetails = currencyCache.get(symbol);
+      const currentTime = Date.now();
       console.log("preloadedCoinDetailsRef", preloadedCoinDetailsRef);
-      console.log("currencyCache", currencyCache);
       console.log("existingDetails", existingDetails);
-      console.log("currentTime", currentTime);
 
       // Check if details need to be fetched. Conditions for fetching:
       // 1. There are no existing details.
@@ -102,26 +97,28 @@ const useCoinDetailsPreloader = (): IUseCoinDetailsPreloaderState => {
             isFetching: false,
           });
           coinDetails = null;
-        } finally {
-          let fetchingStatusMap =
-            isFetchingComplete.get(currentCurrency) || new Map();
-          fetchingStatusMap.set(symbol, true);
-          setIsFetchingComplete(
-            new Map(isFetchingComplete.set(currentCurrency, fetchingStatusMap)),
-          );
         }
+
         return coinDetails;
       }
 
       // Return existing details if available.
       return existingDetails.details;
     },
-    [router, currentCurrency, isFetchingComplete],
+    [router, currentCurrency],
   );
 
   // Handles navigation to the coin detail page for a given symbol. Preloads details if they haven't been preloaded, and waits for existing details to finish preloading if the process has already started
   const handleNavigation = useCallback(
     async (symbol: string) => {
+      if (isNavigating) {
+        console.log(
+          "Already navigating. Waiting for existing navigation to complete",
+        );
+        return;
+      }
+
+      setIsNavigating(true);
       console.warn("HANDLING NAVIGATION FOR", symbol);
       const currencyCache =
         preloadedCoinDetailsRef.current.get(currentCurrency);
@@ -139,15 +136,15 @@ const useCoinDetailsPreloader = (): IUseCoinDetailsPreloaderState => {
           const coinDetails = updatedDetails.details;
           if (coinDetails) {
             console.log("FETCHING COMPLETED FOR", symbol);
-            dispatch(coinsActions.setSelectedCoinDetails({ coinDetails }));
             dispatch(
-              coinsActions.setCachedSelectedCoinDetails({
+              coinsActions.reinitializeSelectedCoinDetails({
                 coinDetails,
                 currency: currentCurrency,
               }),
             );
-            router.push(`/coin/${symbol}`);
             currencyCache?.delete(symbol);
+            router.push(`/coin/${symbol}`);
+            setIsNavigating(false);
           }
         } else {
           setTimeout(checkIfFetchingCompleted, 100); // Check again after a delay
@@ -161,9 +158,8 @@ const useCoinDetailsPreloader = (): IUseCoinDetailsPreloaderState => {
         // Immediately navigate if details are available and not fetching
         const coinDetails = coinDetailsStatus.details;
         if (coinDetails) {
-          dispatch(coinsActions.setSelectedCoinDetails({ coinDetails }));
           dispatch(
-            coinsActions.setCachedSelectedCoinDetails({
+            coinsActions.reinitializeSelectedCoinDetails({
               coinDetails,
               currency: currentCurrency,
             }),
@@ -173,7 +169,7 @@ const useCoinDetailsPreloader = (): IUseCoinDetailsPreloaderState => {
         }
       }
     },
-    [dispatch, router, currentCurrency, handlePreload],
+    [isNavigating, currentCurrency, handlePreload, dispatch, router],
   );
 
   return { handlePreload, handleNavigation };

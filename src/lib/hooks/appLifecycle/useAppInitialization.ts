@@ -1,6 +1,6 @@
 import useWebWorker from "./useWebWorker";
 import useBreakpointSync from "../ui/useBreakpointSync";
-import useRouteEvents from "./useRouteEvents";
+import useRouteChange from "./useRouteChange";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { useAppSelector } from "@/lib/store";
@@ -17,19 +17,19 @@ export const useAppInitialization = () => {
 
   useWebWorker();
   useBreakpointSync();
-  useRouteEvents();
+  useRouteChange();
 
   // When we update the currency, we update the cookie on the server so that we can use that currency on subsequent page navigations.
   // We need to use router.refresh() here to update the Client so that it is aware of the cookie udpates, and doesn't use invalidated data
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false; // Mark as mounted (no refresh on initial load)
-    } else {
-      console.warn(
-        "Currency changed, refreshing the page for updated content.",
-      );
-      router.refresh();
+      return;
     }
+
+    console.warn("Currency changed, refreshing the page for updated content.");
+    router.refresh();
+
     // Refresh only when currency changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentCurrency]);

@@ -107,7 +107,7 @@ const coinsSlice = createSlice({
       action: PayloadAction<SetCoinListPayload>,
     ) {
       const { coinList } = action.payload;
-      console.log('coinList', coinList)
+      console.log("coinList", coinList);
 
       state.popularCoins = coinList;
       state.popularCoinsMap = coinList.reduce((acc, coin) => {
@@ -143,12 +143,20 @@ const coinsSlice = createSlice({
       );
     },
     /**
-     * Resets the popularCoins, popularCoinsMap, and popularCoinsCache for all currencies.
-     * @param state - The current state of the coins slice.
+     * Reinitializes PopularCoins by setting the new state for the current currency, and resetting the cache.
+     * @param action - The action payload containing the list of coins and currency.
      */
-    resetPopularCoins(state: ICoinsState) {
-      state.popularCoins = [];
-      state.popularCoinsMap = {};
+    reinitializePopularCoins(
+      state: ICoinsState,
+      action: PayloadAction<SetCachedCoinListPayload>,
+    ) {
+      const { currency: currentCurrency, coinList } = action.payload;
+
+      state.popularCoins = coinList;
+      state.popularCoinsMap = coinList.reduce((acc, coin) => {
+        acc[coin.symbol] = coin;
+        return acc;
+      }, {} as Record<string, ICoinOverview>);
 
       ALL_CURRENCIES.forEach((currency) => {
         state.cachedPopularCoinMapsByCurrency[currency] = {};
@@ -192,6 +200,22 @@ const coinsSlice = createSlice({
       const { currency, coinDetails } = action.payload;
 
       state.cachedSelectedCoinDetailsByCurrency[currency] = coinDetails;
+    },
+    /**
+     * Reinitializes Selected CoinDetails by setting the new state for the current currency, and resetting the cache for all other currencies.
+     * @param action - The action payload containing the list of coins and currency.
+     */
+    reinitializeSelectedCoinDetails(
+      state: ICoinsState,
+      action: PayloadAction<SetCachedCoinDetailsPayload>,
+    ) {
+      const { currency: currentCurrency, coinDetails } = action.payload;
+
+      state.selectedCoinDetails = coinDetails;
+
+      ALL_CURRENCIES.forEach((currency) => {
+        state.cachedPopularCoinMapsByCurrency[currency] = {};
+      });
     },
     /**
      * Resets the details and cache of the selected coin for all currencies.

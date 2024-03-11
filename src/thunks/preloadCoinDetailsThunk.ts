@@ -21,7 +21,7 @@ interface IFetchAndPreloadCoinDetailsParams {
  * `detailsToPreload` must be specified.
  */
 interface IPreloadExistingCoinDetailsParams {
-  detailsToPreload: ICoinDetails;
+  detailsToPreload?: ICoinDetails;
   handleFetch?: false;
 }
 
@@ -53,7 +53,7 @@ export const preloadCoinDetailsThunk = createAsyncThunk<
   // Based on the scenario, we then declare our variables and provide default values as needed.
   const isFetchingScenario = "handleFetch" in params && params.handleFetch;
   let symbolToFetch: string | undefined;
-  let detailsToPreload: ICoinDetails | undefined;
+  let detailsToPreload: ICoinDetails | undefined | null;
 
   // Assign values based on the type of operation. We ensure symbolToFetch gets a value only when appropriate.
   if (isFetchingScenario) {
@@ -63,8 +63,16 @@ export const preloadCoinDetailsThunk = createAsyncThunk<
   } else {
     // In the preloading scenario, we assert params as IPreloadExistingCoinDetailsParams.
     const preloadParams = params as IPreloadExistingCoinDetailsParams;
+
     detailsToPreload = preloadParams.detailsToPreload;
-    symbolToFetch = detailsToPreload.id; // We take the id from the preloaded details.
+
+    // If we weren't given detals, check the cache to see if they exist there
+    if (!detailsToPreload) {
+      const { selectedCoinDetails } = state.coins;
+      detailsToPreload = selectedCoinDetails;
+    }
+
+    symbolToFetch = detailsToPreload!.id; // We take the id from the preloaded details.
   }
 
   let coinSymbol = symbolToFetch;

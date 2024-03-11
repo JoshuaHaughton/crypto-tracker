@@ -15,7 +15,7 @@ interface IUsePopularCoinsPreloaderState {
 interface IFetchStatus {
   lastFetched: number;
   isFetching: boolean;
-  data: ICoinOverview[] | null; // Replace 'any' with the actual data type you expect
+  data: ICoinOverview[] | null;
 }
 /**
  * A hook designed to preload coin details data.
@@ -59,7 +59,7 @@ const usePopularCoinsPreloader = (): IUsePopularCoinsPreloaderState => {
         fetchStatusRef.current = {
           lastFetched: Date.now(),
           isFetching: false,
-          data: newData?.popularCoins ??null,
+          data: newData?.popularCoins ?? null,
         };
       } catch (error) {
         console.error("Error fetching popular coins data:", error);
@@ -75,15 +75,15 @@ const usePopularCoinsPreloader = (): IUsePopularCoinsPreloaderState => {
 
   const handleNavigation = useCallback(() => {
     const navigate = () => {
-      dispatch(
-        coinsActions.setPopularCoins({ coinList: fetchStatusRef.current.data }),
-      ); // Assuming this is the action to set popular coins
-      dispatch(
-        coinsActions.setCachedPopularCoinsMap({
-          coinList: fetchStatusRef.current.data,
-          currency: currentCurrency,
-        }),
-      ); // Assuming this is the action to set popular coins
+      const currentPopularCoins = fetchStatusRef.current.data;
+      if (currentPopularCoins != null) {
+        dispatch(
+          coinsActions.reinitializePopularCoins({
+            coinList: currentPopularCoins,
+            currency: currentCurrency,
+          }),
+        );
+      }
       router.push("/");
     };
 

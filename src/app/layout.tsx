@@ -21,12 +21,12 @@ export default async function RootLayout({
 }) {
   console.warn("LAYOUT RENDER");
   // We initialize the global store with the relative data we have
-  const initialData = getInitialData(cookies());
+  const initialAppData = getInitialData(cookies());
 
   return (
     <html lang="en">
       <body className={inter.className}>
-        <GlobalStoreProvider initialData={initialData}>
+        <GlobalStoreProvider initialData={initialAppData}>
           <AppInitializer />
           <MainLayout>{children}</MainLayout>
         </GlobalStoreProvider>

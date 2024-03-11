@@ -1,4 +1,9 @@
-import { createAsyncThunk } from "@reduxjs/toolkit";
+import {
+  AnyAction,
+  ThunkDispatch,
+  UnknownAction,
+  createAsyncThunk,
+} from "@reduxjs/toolkit";
 import { postMessageToCurrencyTransformerWorker } from "../../public/webWorkers/currencyTransformer/manager";
 import { CTWMessageRequestType } from "../../public/webWorkers/currencyTransformer/types";
 import { TRootState } from "@/lib/store";
@@ -14,7 +19,7 @@ type TFetchPopularCoins = {
 
 type TProvidePopularCoins = {
   handleFetch: false;
-  popularCoins: ICoinOverview[];
+  popularCoins?: ICoinOverview[];
 };
 
 // Combine these types into a single type that accepts either scenario.
@@ -31,7 +36,10 @@ type TInitializeCoinCacheParams = TFetchPopularCoins | TProvidePopularCoins;
 export const initializeCoinCache = createAsyncThunk<
   void,
   TInitializeCoinCacheParams,
-  { state: TRootState }
+  {
+    state: TRootState;
+    dispatch: ThunkDispatch<TRootState, void, UnknownAction>;
+  }
 >("coins/initializeCoinCache", async (params, { dispatch, getState }) => {
   try {
     const { handleFetch, popularCoins } = params;
@@ -50,14 +58,16 @@ export const initializeCoinCache = createAsyncThunk<
         useCache: true,
       });
       popularCoinsToUse = response?.popularCoins ?? [];
-    } else if (popularCoins) {
-      // If popularCoins are provided, use these and ensure handleFetch is false.
-      console.warn("Using provided popular coins data for initialization.");
-      popularCoinsToUse = popularCoins;
     } else {
-      throw new Error(
-        "Invalid parameters: must either fetch data or provide popular coins.",
-      );
+      if (popularCoins) {
+        // If popularCoins are provided, use these and ensure handleFetch is false.
+        console.warn("Using provided popular coins data for initialization.");
+        popularCoinsToUse = popularCoins;
+      } else {
+        // If we aren't given coins, attempt to use ones from state
+        const { popularCoins } = state.coins;
+        popularCoinsToUse = popularCoins;
+      }
     }
 
     // Update the Redux store with the initial popular coins data
