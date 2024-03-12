@@ -23,12 +23,6 @@ export const uFuzzyOptions: Options = {
   // matching approach is suited for scenarios where precision is critical.
   intraMode: 1,
 
-  // intraSlice: Defines the range within terms where errors are allowed, from the second character
-  // to the end of the word. This prevents the first character of a word from being altered by
-  // the error tolerance mechanism, ensuring that the beginning of the term remains as the user
-  // intended, which is often critical for the search's context and accuracy.
-  // intraSlice: [1, Infinity],
-
   // intraSub, intraTrn, intraDel: Specifically enable the algorithm to tolerate
   // single-character substitutions, transpositions, and deletions within terms.
   // These settings work together to robustly handle various common typing errors,

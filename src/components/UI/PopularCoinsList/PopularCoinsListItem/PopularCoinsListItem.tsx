@@ -89,8 +89,6 @@ const PopularCoinListItem: React.FC<IPopularCoinListItemProps> = ({
               height={LIST_ITEM_IMG_SIZE}
               width={LIST_ITEM_IMG_SIZE}
               alt={`${name} image`}
-              placeholder="blur"
-              blurDataURL={BLUR_IMG_URL}
               quality={100}
               priority
             />

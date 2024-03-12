@@ -42,16 +42,8 @@ interface ICurrentSearchData {
   queryMatchDetails: TDetailsByOriginalIndex;
 }
 
-interface IUpdateGlobalSearchStateParams {
-  searchTerm?: string;
-  formattedResults?: IPopularCoinSearchItem[];
-}
-
-// The OUT_OF_ORDER parameter in the uFuzzy search function enables the
-// fuzzy search algorithm to match search terms in the input query
-// even if they appear in a different order in the target strings.
-const OUT_OF_ORDER = 1;
-// Perform the search using the uFuzzy instance.
+// OUT_OF_ORDER: Allows search terms to match in any order up to five terms.
+const OUT_OF_ORDER = 5;
 // Max 1000 results (Should only be 80-200 here)
 const MAX_INFO_THRESHOLD = 1000;
 
@@ -124,7 +116,7 @@ export function usePopularCoinsSearch({
         return;
       }
 
-      const [matchedIndices, matchInfo] = searchInstance.search(
+      const [matchedIndices, matchInfo, hm] = searchInstance.search(
         searchItemsHaystack,
         query,
         OUT_OF_ORDER,
