@@ -15,11 +15,13 @@ import { fetchAndFormatPopularCoinsData } from "@/lib/utils/server.utils";
 type TFetchPopularCoins = {
   handleFetch: true;
   popularCoins?: never;
+  carouselSymbolList?: never;
 };
 
 type TProvidePopularCoins = {
   handleFetch: false;
   popularCoins?: ICoinOverview[];
+  carouselSymbolList?: string[];
 };
 
 // Combine these types into a single type that accepts either scenario.
@@ -42,7 +44,7 @@ export const initializeCoinCache = createAsyncThunk<
   }
 >("coins/initializeCoinCache", async (params, { dispatch, getState }) => {
   try {
-    const { handleFetch, popularCoins } = params;
+    const { handleFetch, popularCoins, carouselSymbolList } = params;
     const state = getState();
     const { currentCurrency, currencyRates } = state.currency;
 
@@ -50,30 +52,32 @@ export const initializeCoinCache = createAsyncThunk<
     dispatch(appInfoActions.startPopularCoinsPreloading());
 
     let popularCoinsToUse: ICoinOverview[];
+    let carouselSymbolsToUse: string[];
 
     if (handleFetch) {
-      // Conditionally fetch popular coins data from the API if handleFetch is true
+      // Fetch popular coins data from the API if handleFetch is true
       console.warn("Fetching popular coins data from API for initialization.");
       const response = await fetchAndFormatPopularCoinsData(currentCurrency, {
         useCache: true,
       });
       popularCoinsToUse = response?.popularCoins ?? [];
+      carouselSymbolsToUse = response?.carouselSymbolList ?? [];
     } else {
-      if (popularCoins) {
-        // If popularCoins are provided, use these and ensure handleFetch is false.
-        console.warn("Using provided popular coins data for initialization.");
-        popularCoinsToUse = popularCoins;
-      } else {
-        // If we aren't given coins, attempt to use ones from state
-        const { popularCoins } = state.coins;
-        console.warn("Using popular coins data from state for initialization.");
-        popularCoinsToUse = popularCoins;
-      }
+      // Use provided popularCoins or carouselSymbolList if available, else use data from state
+      console.warn("Using provided/popular coins data for initialization.");
+      popularCoinsToUse = popularCoins || state.coins.popularCoins;
+      carouselSymbolsToUse =
+        carouselSymbolList || state.coins.carouselSymbolList;
     }
 
     console.warn("popularCoins to use for initializtion", popularCoinsToUse);
     console.warn("currentCurrency to use for initializtion", currentCurrency);
 
+    dispatch(
+      coinsActions.setCarouselSymbolList({
+        carouselSymbols: carouselSymbolsToUse,
+      }),
+    );
     // Update the Redux store with the initial popular coins data
     dispatch(
       coinsActions.setCachedPopularCoinsMap({
