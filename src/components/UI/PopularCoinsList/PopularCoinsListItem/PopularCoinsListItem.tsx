@@ -6,6 +6,7 @@ import {
   IPopularCoinMatchDetails,
 } from "@/lib/types/coinTypes";
 import HighlightMatchedText from "../../HighlightMatchedText/HighlightMatchedText";
+import { BLUR_IMG_URL } from "@/lib/constants/globalConstants";
 
 const LIST_ITEM_IMG_SIZE = 38;
 
@@ -88,6 +89,8 @@ const PopularCoinListItem: React.FC<IPopularCoinListItemProps> = ({
               height={LIST_ITEM_IMG_SIZE}
               width={LIST_ITEM_IMG_SIZE}
               alt={`${name} image`}
+              placeholder="blur"
+              blurDataURL={BLUR_IMG_URL}
               quality={100}
               priority
             />

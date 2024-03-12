@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import CoinInfoSkeleton from "../Skeletons/CoinInfoSkeleton/CoinInfoSkeleton";
 import { formatBigNumber } from "@/lib/utils/dataFormat.utils";
+import { BLUR_IMG_URL } from "@/lib/constants/globalConstants";
 
 const removeHTML = (str: string) => str.replace(/<\/?[^>]+(>|$)/g, "");
 
@@ -46,6 +47,8 @@ const CoinInfo: React.FC<ICoinInfoProps> = ({
             width={88}
             height={88}
             className={styles.image}
+            placeholder="blur"
+            blurDataURL={BLUR_IMG_URL}
             quality={100}
             priority
           />

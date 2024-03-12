@@ -20,6 +20,7 @@ export const POPULARCOINSLISTS_TABLENAME = "popularCoinsLists";
 export const COINDETAILS_TABLENAME = "coinDetails";
 export const CURRENCYRATES_TABLENAME = "currencyRates";
 export const GLOBALCACHEINFO_TABLENAME = "globalCacheInfo";
+export const BLUR_IMG_URL = "/skeleton.png";
 
 // Currency and Financial Constants
 export const ALL_CURRENCIES = ["CAD", "USD", "AUD", "GBP"] as const;

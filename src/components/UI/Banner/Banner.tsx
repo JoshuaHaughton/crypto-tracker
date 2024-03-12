@@ -1,17 +1,21 @@
 import { memo } from "react";
 import Image from "next/image";
 import Carousel from "../Carousel/Carousel";
+import BannerImage from "../../../../public/BannerPic.png";
 import styles from "./Banner.module.scss";
+import { BLUR_IMG_URL } from "@/lib/constants/globalConstants";
 
 const Banner = () => {
   console.log("Banner render");
   return (
     <div className={styles.container}>
       <Image
-        src="/BannerPic.png"
+        src={BannerImage}
         alt="Banner background"
         fill
         objectFit="cover"
+        placeholder="blur"
+        // blurDataUrl will use static src here
         quality={100}
         priority
       />

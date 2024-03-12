@@ -10,6 +10,7 @@ import Snackbar from "@mui/material/Snackbar";
 import styled from "@mui/system/styled";
 import { outlinedInputClasses } from "@mui/material";
 import Link from "next/link";
+import { BLUR_IMG_URL } from "@/lib/constants/globalConstants";
 
 const vertical = "bottom";
 const horizontal = "center";
@@ -55,10 +56,12 @@ const Navbar = () => {
             fill
             objectFit="contain"
             className={styles.logo}
-            quality={100}
-            priority
             onMouseEnter={handleHomepagePreload}
             onClick={handleHomepageNavigation}
+            placeholder="blur"
+            blurDataURL={BLUR_IMG_URL}
+            quality={100}
+            priority
           />
 
           <div className={styles.nav_list}>
