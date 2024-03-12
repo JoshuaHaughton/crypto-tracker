@@ -50,20 +50,21 @@ const Navbar = () => {
       <nav className={styles.nav}>
         <div className={styles.container}>
           {/* The prefetch field prop for Link to break the router.refresh / currency update logic. */}
-          <Image
-            src={logo}
-            alt="Logo"
-            fill
-            style={{
-              objectFit: "contain",
-            }}
-            className={styles.logo}
-            onMouseEnter={handleHomepagePreload}
-            onClick={handleHomepageNavigation}
-            quality={100}
-            priority
-          />
-
+          <Link href={"/"}>
+            <Image
+              src={logo}
+              alt="Logo"
+              fill
+              style={{
+                objectFit: "contain",
+              }}
+              className={styles.logo}
+              onMouseEnter={handleHomepagePreload}
+              // onClick={handleHomepageNavigation}
+              quality={100}
+              priority
+            />
+          </Link>
           <div className={styles.nav_list}>
             <HomeIcon
               onMouseEnter={handleHomepagePreload}

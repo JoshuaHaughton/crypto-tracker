@@ -83,7 +83,8 @@ export async function manageCookies({
 }
 
 interface IFetchOptions {
-  useCache: boolean; // Determines whether to use cache for preloading or to fetch new data
+  useCache?: boolean; // Determines whether to use cache for preloading or to fetch new data
+  updateCache?: boolean; // Determines whether to update cache for preloading or to ignore it
   revalidateTime?: number; // Time in seconds for revalidating cached data. Defaults to 30 seconds if useCache is true to ensure fresh data is fetched
 }
 
@@ -103,6 +104,7 @@ async function fetchRawPopularCoinsData(
   targetCurrency: TCurrencyString,
   options: IFetchOptions = {
     useCache: false,
+    updateCache: false,
     revalidateTime: DEFAULT_REVALIDATION_TIME,
   },
 ): Promise<IRawPopularCoinsApiResponse> {
@@ -120,6 +122,8 @@ async function fetchRawPopularCoinsData(
 
   const exchangeRateCacheOptions = options.useCache
     ? { next: { revalidate: EXCHANGE_RATE_REVALIDATION_TIME } }
+    : options.updateCache
+    ? { cache: "no-cache" as RequestCache }
     : { cache: "no-store" as RequestCache };
 
   const defaultCacheOptions: RequestInit = options.useCache
@@ -128,6 +132,8 @@ async function fetchRawPopularCoinsData(
           revalidate: options.revalidateTime || DEFAULT_REVALIDATION_TIME,
         },
       }
+    : options.updateCache
+    ? { cache: "no-cache" as RequestCache }
     : { cache: "no-store" as RequestCache };
 
   // Setting up promises for concurrent API requests
@@ -167,6 +173,7 @@ export async function fetchAndFormatPopularCoinsData(
   targetCurrency: TCurrencyString,
   options: IFetchOptions = {
     useCache: false,
+    updateCache: false,
     revalidateTime: DEFAULT_REVALIDATION_TIME,
   },
 ): Promise<IFormattedPopularCoinsApiResponse | null> {
@@ -216,6 +223,7 @@ async function fetchRawCoinDetailsData(
   targetCurrency: TCurrencyString = INITIAL_CURRENCY,
   options: IFetchOptions = {
     useCache: false,
+    updateCache: false,
     revalidateTime: DEFAULT_REVALIDATION_TIME,
   },
 ): Promise<IRawCoinDetailsApiResponse> {
@@ -236,6 +244,8 @@ async function fetchRawCoinDetailsData(
 
   const exchangeRateCacheOptions = options.useCache
     ? { next: { revalidate: EXCHANGE_RATE_REVALIDATION_TIME } }
+    : options.updateCache
+    ? { cache: "no-cache" as RequestCache }
     : { cache: "no-store" as RequestCache };
 
   const defaultCacheOptions: RequestInit = options.useCache
@@ -244,6 +254,8 @@ async function fetchRawCoinDetailsData(
           revalidate: options.revalidateTime || DEFAULT_REVALIDATION_TIME,
         },
       }
+    : options.updateCache
+    ? { cache: "no-cache" as RequestCache }
     : { cache: "no-store" as RequestCache };
 
   // Fetching with revalidation logic specific to Next.js 14
@@ -306,6 +318,7 @@ export async function fetchAndFormatCoinDetailsData(
   targetCurrency: TCurrencyString = INITIAL_CURRENCY,
   options: IFetchOptions = {
     useCache: false,
+    updateCache: false,
     revalidateTime: DEFAULT_REVALIDATION_TIME,
   },
 ): Promise<IFormattedCoinDetailsAPIResponse> {

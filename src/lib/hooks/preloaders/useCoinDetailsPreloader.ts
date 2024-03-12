@@ -77,7 +77,7 @@ const useCoinDetailsPreloader = (): IUseCoinDetailsPreloaderState => {
           const coinDetailsResponse = await fetchAndFormatCoinDetailsData(
             symbol,
             currentCurrency,
-            // { useCache: false },
+            { updateCache: true },
           );
 
           coinDetails = coinDetailsResponse.coinDetails;
@@ -124,11 +124,6 @@ const useCoinDetailsPreloader = (): IUseCoinDetailsPreloaderState => {
         preloadedCoinDetailsRef.current.get(currentCurrency);
       const coinDetailsStatus = currencyCache?.get(symbol);
 
-      // If details don't exist or fetching hasn't started, call handlePreload
-      if (!coinDetailsStatus || !coinDetailsStatus.isFetching) {
-        await handlePreload(symbol);
-      }
-
       // Check if fetching is completed
       const checkIfFetchingCompleted = () => {
         let updatedDetails = currencyCache?.get(symbol);
@@ -153,21 +148,13 @@ const useCoinDetailsPreloader = (): IUseCoinDetailsPreloaderState => {
       // Only wait if currently fetching
       if (coinDetailsStatus && coinDetailsStatus.isFetching) {
         checkIfFetchingCompleted();
-      } else if (coinDetailsStatus && !coinDetailsStatus.isFetching) {
+      } else {
         // Immediately navigate if details are available and not fetching
-        const coinDetails = coinDetailsStatus.details;
-        if (coinDetails) {
-          dispatch(
-            coinsActions.reinitializeSelectedCoinDetails({
-              coinDetails,
-            }),
-          );
-          currencyCache?.delete(symbol);
-          router.push(`/coin/${symbol}`);
-        }
+        currencyCache?.delete(symbol);
+        router.push(`/coin/${symbol}`);
       }
     },
-    [isNavigating, currentCurrency, handlePreload, dispatch, router],
+    [dispatch, router, isNavigating, currentCurrency],
   );
 
   return { handlePreload, handleNavigation };

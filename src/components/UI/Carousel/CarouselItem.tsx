@@ -10,9 +10,7 @@ const CAROUSEL_ITEM_IMG_SIZE = 80;
 interface ICarouselItemParams {
   coin: ICoinOverview;
   currencySymbol: TCurrencySymbol;
-  showFallback: boolean;
   handleMouseEnter: () => void;
-  handleClick: () => void;
 }
 
 /**
@@ -22,16 +20,13 @@ interface ICarouselItemParams {
  *
  * @param coin - The coin data to display.
  * @param currencySymbol - The current currency symbol for price display.
- * @param showFallback - Indicates if the content is loading.
  * @param handleMouseEnter - Function to execute on mouse enter event.
- * @param handleClick - Function to execute on click event.
  * @returns A React component representing a single carousel item.
  */
 const CarouselItem: React.FC<ICarouselItemParams> = ({
   coin,
   currencySymbol,
   handleMouseEnter,
-  handleClick,
 }) => {
   // Determine if the price change is positive (profit) or negative.
   let isProfit = coin.price_change_percentage_24h >= 0;
@@ -41,17 +36,17 @@ const CarouselItem: React.FC<ICarouselItemParams> = ({
 
   return (
     <div className={`${styles.carouselItem}`}>
-      <Image
-        src={coin.image}
-        alt={coin.name}
-        width={CAROUSEL_ITEM_IMG_SIZE}
-        height={CAROUSEL_ITEM_IMG_SIZE}
-        onMouseEnter={handleMouseEnter}
-        onClick={handleClick}
-        quality={100}
-        priority
-      />
-
+      <Link href={`/coin/${coin.symbol}`}>
+        <Image
+          src={coin.image}
+          alt={coin.name}
+          width={CAROUSEL_ITEM_IMG_SIZE}
+          height={CAROUSEL_ITEM_IMG_SIZE}
+          onMouseEnter={handleMouseEnter}
+          quality={100}
+          priority
+        />
+      </Link>
       <p>
         `${coin.symbol.toUpperCase()} (${currencySymbol}${coin.current_price})`
       </p>

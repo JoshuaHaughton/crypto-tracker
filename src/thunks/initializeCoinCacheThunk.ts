@@ -1,5 +1,4 @@
 import {
-  AnyAction,
   ThunkDispatch,
   UnknownAction,
   createAsyncThunk,

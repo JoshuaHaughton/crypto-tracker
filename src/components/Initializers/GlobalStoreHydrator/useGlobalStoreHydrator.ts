@@ -20,15 +20,8 @@ import { selectIsStoreHydrated } from "@/lib/store/appInfo/appInfoSelectors";
  */
 const useGlobalStoreHydrator = (initialData: TInitialPageDataOptions) => {
   const dispatch = useAppDispatch();
-  const isStoreAlreadyHyrdated = useAppSelector(selectIsStoreHydrated);
 
   useEffect(() => {
-    // We only want to hydrate the store once with the initial data.
-    // From then on out, we should fetch via server actions from the client to preload coin data,
-    // and control navigation through there since NextJs' native navigation features
-    // aren't ready to handle the dynamic logic I'm looking for here
-    if (isStoreAlreadyHyrdated) return;
-
     if (initialData) {
       // Dispatch actions based on the type of initial data provided.
       console.log("initialData - StoreHydrator", initialData);
@@ -47,6 +40,9 @@ const useGlobalStoreHydrator = (initialData: TInitialPageDataOptions) => {
 
       switch (initialData.dataType) {
         case InitialDataType.POPULAR_COINS:
+          // Clean up state from previous page if necessary
+          dispatch(coinsActions.resetSelectedCoinDetails());
+
           // Dispatch popular coins and carousel data if available.
           dispatch(appInfoActions.startInitialPopularCoinsLoading());
           if (initialData.data.popularCoins) {
@@ -69,6 +65,9 @@ const useGlobalStoreHydrator = (initialData: TInitialPageDataOptions) => {
           break;
 
         case InitialDataType.COIN_DETAILS:
+          // Clean up state from previous page if necessary
+          dispatch(coinsActions.resetPopularCoins());
+
           // Dispatch selected coin details if available.
           if (initialData.data.coinDetails) {
             dispatch(

@@ -45,7 +45,9 @@ export const selectCarouselCoins = createSelector(
     console.log("selectCarouselCoins");
     console.log("selectCarouselCoins - carouselSymbolList", carouselSymbolList);
     console.log("selectCarouselCoins - popularCoinsMap", popularCoinsMap);
-    return carouselSymbolList.map((symbol) => popularCoinsMap[symbol]);
+    return carouselSymbolList
+      .map((symbol) => popularCoinsMap[symbol])
+      .filter(Boolean);
   },
 );
 

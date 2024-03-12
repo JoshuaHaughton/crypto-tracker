@@ -7,8 +7,6 @@ import { ICoinOverview } from "@/lib/types/coinTypes";
 import { useAppSelector } from "@/lib/store";
 import { selectCarouselCoins } from "@/lib/store/coins/coinsSelectors";
 import { selectCurrentSymbol } from "@/lib/store/currency/currencySelectors";
-import { selectInitialPopularCoinsStatus } from "@/lib/store/appInfo/appInfoSelectors";
-import { LoadingStatus } from "@/lib/types/apiRequestTypes";
 import useCoinDetailsPreloader from "@/lib/hooks/preloaders/useCoinDetailsPreloader";
 import { useInitialPageData } from "@/lib/contexts/initialPageDataContext";
 
@@ -24,7 +22,6 @@ interface IUseCarouselState {
   carouselCoins: ICoinOverview[];
   currencySymbol: TCurrencySymbol;
   handleItemMouseEnter: (id: string) => void;
-  handleItemClick: (id: string) => void;
 }
 
 // Set global options for all Embla Carousels
@@ -81,7 +78,7 @@ const useCarousel = (): IUseCarouselState => {
     WheelGesturesPlugin(),
   ]);
 
-  const { handlePreload, handleNavigation } = useCoinDetailsPreloader();
+  const { handlePreload } = useCoinDetailsPreloader();
 
   return {
     emblaRef,
@@ -89,7 +86,6 @@ const useCarousel = (): IUseCarouselState => {
     carouselCoins,
     currencySymbol,
     handleItemMouseEnter: handlePreload,
-    handleItemClick: handleNavigation,
   };
 };
 

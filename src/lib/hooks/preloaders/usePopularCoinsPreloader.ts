@@ -28,7 +28,6 @@ type FetchStatusByCurrency = Map<string, IFetchStatus>;
  */
 const usePopularCoinsPreloader = (): IUsePopularCoinsPreloaderState => {
   const router = useRouter();
-  const dispatch = useAppDispatch();
   const currentCurrency = useAppSelector(selectCurrentCurrency);
   const lastFetchTimeRef = useRef<Date | null>(null);
   const fetchStatusRef = useRef<FetchStatusByCurrency>(new Map());
@@ -55,12 +54,9 @@ const usePopularCoinsPreloader = (): IUsePopularCoinsPreloaderState => {
         // Prefetch the page for a smoother navigation experience
         router.prefetch(`/`);
         // Fetch coin details and store them, utilizing Next.js caching
-        const newData = await fetchAndFormatPopularCoinsData(
-          currentCurrency,
-          //   {
-          //   useCache: true,
-          // }
-        );
+        const newData = await fetchAndFormatPopularCoinsData(currentCurrency, {
+          updateCache: true,
+        });
         console.log("preload for popular coins complete", newData);
         fetchStatusRef.current.set(currentCurrency, {
           lastFetched: Date.now(),
@@ -84,33 +80,25 @@ const usePopularCoinsPreloader = (): IUsePopularCoinsPreloaderState => {
 
   const handleNavigation = useCallback(() => {
     const navigate = () => {
-      const status = fetchStatusRef.current.get(currentCurrency);
-      const currentPopularCoins = status?.data;
-      if (currentPopularCoins != null) {
-        dispatch(
-          coinsActions.reinitializePopularCoins({
-            coinList: currentPopularCoins,
-          }),
-        );
-      }
+      console.log("navigating");
       router.push("/");
     };
 
+    // Navigate when clicked. If we're in the middle of fetching, let the preload finish and then navigate.
     const status = fetchStatusRef.current.get(currentCurrency);
-    if (status && !status.isFetching) {
-      console.log("navigating");
+    if (!status?.isFetching) {
       navigate();
     } else {
       const interval = setInterval(() => {
         const updateStatus = fetchStatusRef.current.get(currentCurrency);
         if (updateStatus && !updateStatus.isFetching) {
-          console.log("waiting for fetch to complete");
+          console.warn("WAITING FOR PRELOAD TO FINISH", updateStatus.data);
           clearInterval(interval);
           navigate();
         }
       }, 100); // Check every 100 ms
     }
-  }, [currentCurrency, dispatch, router]);
+  }, [router, currentCurrency]);
 
   return { handlePreload, handleNavigation };
 };

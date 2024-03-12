@@ -142,6 +142,20 @@ const coinsSlice = createSlice({
         {} as Record<string, ICoinOverview>,
       );
     },
+
+    /**
+     * Resets the details and cache of the selected coin for all currencies.
+     * @param state - The current state of the coins slice.
+     */
+    resetPopularCoins(state: ICoinsState) {
+      state.popularCoins = [];
+      state.popularCoinsMap = {};
+
+      ALL_CURRENCIES.forEach((currency) => {
+        state.cachedPopularCoinMapsByCurrency[currency] = {};
+      });
+    },
+
     /**
      * Reinitializes PopularCoins by setting the new state for the current currency, and resetting the cache.
      * @param action - The action payload containing the list of coins and currency.

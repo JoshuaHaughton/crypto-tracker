@@ -47,8 +47,6 @@ const CoinInfo: React.FC<ICoinInfoProps> = ({
             width={88}
             height={88}
             className={styles.image}
-            placeholder="blur"
-            blurDataURL={BLUR_IMG_URL}
             quality={100}
             priority
           />

@@ -3,7 +3,6 @@ import Image from "next/image";
 import Carousel from "../Carousel/Carousel";
 import BannerImage from "../../../../public/BannerPic.png";
 import styles from "./Banner.module.scss";
-import { BLUR_IMG_URL } from "@/lib/constants/globalConstants";
 
 const Banner = () => {
   console.log("Banner render");
