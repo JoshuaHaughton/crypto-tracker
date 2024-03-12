@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/lib/store";
 import { fetchAndFormatCoinDetailsData } from "@/lib/utils/server.utils";
@@ -125,7 +125,7 @@ const useCoinDetailsPreloader = (): IUseCoinDetailsPreloaderState => {
       const coinDetailsStatus = currencyCache?.get(symbol);
 
       // If details don't exist or fetching hasn't started, call handlePreload
-      if (!coinDetailsStatus || coinDetailsStatus.isFetching === false) {
+      if (!coinDetailsStatus || !coinDetailsStatus.isFetching) {
         await handlePreload(symbol);
       }
 
