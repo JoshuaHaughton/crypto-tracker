@@ -55,6 +55,8 @@ const Navbar = () => {
             fill
             objectFit="contain"
             className={styles.logo}
+            quality={100}
+            priority
             onMouseEnter={handleHomepagePreload}
             onClick={handleHomepageNavigation}
           />

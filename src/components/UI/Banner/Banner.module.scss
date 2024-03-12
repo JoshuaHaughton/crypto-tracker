@@ -1,18 +1,20 @@
 .container {
-  width: 100vw;
-  background-image: url(../../../../public/BannerPic.png);
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
 }
 
 .banner {
-  min-height: fit-content;
-  min-height: 400px;
+  height: 400px;
   padding: 24px 0 40px 0;
   /* padding: 40px 0; */
   width: 100%;
   /* height: 100%; */
+  position: relative; /* Ensure this content sits above the background image */
   display: flex;
   flex-direction: column;
   justify-content: space-around;
