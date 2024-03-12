@@ -21,7 +21,6 @@ import { useInitialPageData } from "@/lib/contexts/initialPageDataContext";
 interface IUseCarouselState {
   emblaRef: ReturnType<typeof useEmblaCarousel>[0] | null; // Reference to the carousel container
   emblaApi: ReturnType<typeof useEmblaCarousel>[1] | null; // API object for controlling the carousel
-  isLoading: boolean;
   carouselCoins: ICoinOverview[];
   currencySymbol: TCurrencySymbol;
   handleItemMouseEnter: (id: string) => void;
@@ -74,12 +73,7 @@ const useCarousel = (): IUseCarouselState => {
   console.warn("reduxCarouselCoins", reduxCarouselCoins);
   console.warn("carouselSymbolList", carouselSymbolList);
   console.warn("popularCoinsMap", popularCoinsMap);
-  const coinsStatus = useAppSelector(selectInitialPopularCoinsStatus);
   const currencySymbol = useAppSelector(selectCurrentSymbol);
-
-  // Determine loading state based on coin availability and their loading status.
-  const isLoading =
-    coinsStatus === LoadingStatus.LOADING && carouselCoins.length < 1;
 
   // Combine EmblaCarousel with the default options, Autoplay and Wheel Gestures plugins.
   const [emblaRef, emblaApi] = useEmblaCarousel(defaultCarouselOptions, [
@@ -92,7 +86,6 @@ const useCarousel = (): IUseCarouselState => {
   return {
     emblaRef,
     emblaApi,
-    isLoading,
     carouselCoins,
     currencySymbol,
     handleItemMouseEnter: handlePreload,

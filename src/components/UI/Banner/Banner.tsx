@@ -13,7 +13,9 @@ const Banner = () => {
         src={BannerImage}
         alt="Banner background"
         fill
-        objectFit="cover"
+        style={{
+          objectFit: "cover",
+        }}
         placeholder="blur"
         // blurDataUrl will use static src here
         quality={100}

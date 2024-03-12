@@ -62,6 +62,12 @@ export const initializeCoinCache = createAsyncThunk<
       });
       popularCoinsToUse = response?.popularCoins ?? [];
       carouselSymbolsToUse = response?.carouselSymbolList ?? [];
+
+      dispatch(
+        coinsActions.setCarouselSymbolList({
+          carouselSymbols: carouselSymbolsToUse,
+        }),
+      );
     } else {
       // Use provided popularCoins or carouselSymbolList if available, else use data from state
       console.warn("Using provided/popular coins data for initialization.");
@@ -73,11 +79,6 @@ export const initializeCoinCache = createAsyncThunk<
     console.warn("popularCoins to use for initializtion", popularCoinsToUse);
     console.warn("currentCurrency to use for initializtion", currentCurrency);
 
-    dispatch(
-      coinsActions.setCarouselSymbolList({
-        carouselSymbols: carouselSymbolsToUse,
-      }),
-    );
     // Update the Redux store with the initial popular coins data
     dispatch(
       coinsActions.setCachedPopularCoinsMap({

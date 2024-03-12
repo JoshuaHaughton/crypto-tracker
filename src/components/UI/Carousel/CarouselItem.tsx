@@ -30,7 +30,6 @@ interface ICarouselItemParams {
 const CarouselItem: React.FC<ICarouselItemParams> = ({
   coin,
   currencySymbol,
-  showFallback,
   handleMouseEnter,
   handleClick,
 }) => {
@@ -40,39 +39,26 @@ const CarouselItem: React.FC<ICarouselItemParams> = ({
   // CSS class for profit/loss indicator based on the coin's price change percentage.
   const priceChangeClass = isProfit ? styles.green : styles.red;
 
-  // Apply shimmer effect class if loading.
-  const shimmerClass = showFallback ? styles.shimmer : "";
-
   return (
-    <div className={`${styles.carouselItem} ${shimmerClass}`}>
-      {showFallback ? (
-        <div className={`${styles.image} ${shimmerClass}`}></div>
-      ) : (
-        <Image
-          src={coin.image}
-          alt={coin.name}
-          width={CAROUSEL_ITEM_IMG_SIZE}
-          height={CAROUSEL_ITEM_IMG_SIZE}
-          onMouseEnter={handleMouseEnter}
-          onClick={handleClick}
-          placeholder="blur"
-          blurDataURL={BLUR_IMG_URL}
-          quality={100}
-          priority
-        />
-      )}
-      <p className={shimmerClass}>
-        {!showFallback
-          ? `${coin.symbol.toUpperCase()} (${currencySymbol}${
-              coin.current_price
-            })`
-          : ""}
+    <div className={`${styles.carouselItem}`}>
+      <Image
+        src={coin.image}
+        alt={coin.name}
+        width={CAROUSEL_ITEM_IMG_SIZE}
+        height={CAROUSEL_ITEM_IMG_SIZE}
+        onMouseEnter={handleMouseEnter}
+        onClick={handleClick}
+        quality={100}
+        priority
+      />
+
+      <p>
+        `${coin.symbol.toUpperCase()} (${currencySymbol}${coin.current_price})`
       </p>
-      {!showFallback && (
-        <span className={priceChangeClass}>
-          {coin.price_change_percentage_24h.toFixed(2)}%
-        </span>
-      )}
+
+      <span className={priceChangeClass}>
+        {coin.price_change_percentage_24h.toFixed(2)}%
+      </span>
     </div>
   );
 };

@@ -15,10 +15,10 @@ const Carousel: React.FC = () => {
     emblaRef,
     carouselCoins,
     currencySymbol,
-    isLoading,
     handleItemMouseEnter,
     handleItemClick,
   } = useCarousel();
+  console.warn("carousel render");
 
   return (
     <div className={styles.embla} ref={emblaRef}>
@@ -31,13 +31,14 @@ const Carousel: React.FC = () => {
           .filter((coin) => coin != null) // Filter out undefined or null values
           .map((coin, index) => {
             const coinSymbol = coin.symbol;
+            console.error("IN THE CAROUSEL MAP");
 
             return (
               <div className={styles.embla__slide} key={index}>
                 <CarouselItem
+                  key={index}
                   coin={coin}
                   currencySymbol={currencySymbol}
-                  showFallback={isLoading}
                   handleMouseEnter={() => handleItemMouseEnter(coinSymbol)}
                   handleClick={() => handleItemClick(coinSymbol)}
                 />

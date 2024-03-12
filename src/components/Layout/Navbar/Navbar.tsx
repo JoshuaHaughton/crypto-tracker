@@ -54,12 +54,12 @@ const Navbar = () => {
             src={logo}
             alt="Logo"
             fill
-            objectFit="contain"
+            style={{
+              objectFit: "contain",
+            }}
             className={styles.logo}
             onMouseEnter={handleHomepagePreload}
             onClick={handleHomepageNavigation}
-            placeholder="blur"
-            blurDataURL={BLUR_IMG_URL}
             quality={100}
             priority
           />
