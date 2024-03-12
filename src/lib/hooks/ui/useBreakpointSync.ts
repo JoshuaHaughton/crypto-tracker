@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import { useDispatch } from "react-redux";
 import { debounce } from "lodash";
 import {
   BREAKPOINT_KEYS,
@@ -7,6 +6,7 @@ import {
   TMediaQueryState,
   updateAllBreakpoints,
 } from "@/lib/store/mediaQuery/mediaQuerySlice";
+import { useAppDispatch } from "@/lib/store";
 
 const DEBOUNCE_DELAY = 250;
 
@@ -35,7 +35,7 @@ const determineInitialState = (): TMediaQueryState => {
  */
 const useBreakpointSync = () => {
   console.log("useBreakpointSync");
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   // Cache for previous breakpoint states to prevent unnecessary updates
   const prevBreakpointsRef = useRef<TMediaQueryState>(determineInitialState());
 
@@ -86,7 +86,7 @@ const useBreakpointSync = () => {
 export default useBreakpointSync;
 
 // export const MediaQueryHandler = ({ children }) => {
-//   const dispatch = useDispatch();
+//   const dispatch = useAppDispatch();
 
 //   useEffect(() => {
 //     const setMediaQueries = () => {

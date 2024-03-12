@@ -11,7 +11,7 @@ import {
   Legend,
 } from "chart.js";
 import Chart from "chart.js/auto";
-import { useSelector } from "react-redux";
+import { useAppSelector } from "@/lib/store";
 // import faker from "faker";
 
 ChartJS.register(
@@ -59,7 +59,7 @@ export const data = {
 
 const HistoryChart = ({ chartData, currentChartPeriod }) => {
   let maxTicks = 20;
-  const isBreakpoint520 = useSelector(
+  const isBreakpoint520 = useAppSelector(
     (state) => state.mediaQuery.isBreakpoint520,
   );
   console.log(chartData);

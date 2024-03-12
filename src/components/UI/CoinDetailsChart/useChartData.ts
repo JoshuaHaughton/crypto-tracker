@@ -1,5 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
-import { useSelector } from "react-redux";
+import { useState, useMemo } from "react";
 import { cloneDeep } from "lodash";
 import {
   EChartPeriodInterval,
@@ -9,6 +8,7 @@ import {
 } from "@/lib/types/coinTypes";
 import { selectCurrentCurrency } from "@/lib/store/currency/currencySelectors";
 import { isFullCoinDetails } from "@/lib/utils/global.utils";
+import { useAppSelector } from "@/lib/store";
 
 /**
  * Defines the structure for a single chart period.
@@ -80,7 +80,7 @@ interface IChartDataState {
  */
 function useChartData(coinDetails: ICoinDetails | undefined): IChartDataState {
   // Retrieve the current currency from the Redux store
-  const currentCurrency = useSelector(selectCurrentCurrency);
+  const currentCurrency = useAppSelector(selectCurrentCurrency);
 
   // State to manage the current chart period
   const [currentChartPeriod, setCurrentChartPeriod] =

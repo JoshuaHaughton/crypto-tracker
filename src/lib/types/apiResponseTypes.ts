@@ -62,6 +62,9 @@ export interface IAssetDataApiResponse {
 
 interface IAssetDetails {
   NAME: string;
+  LAUNCH_DATE: number;
+  SUPPLY_TOTAL: number;
+  WEBSITE_URL: string;
   SYMBOL: string;
   LOGO_URL: string;
   ASSET_DESCRIPTION_SUMMARY: string;

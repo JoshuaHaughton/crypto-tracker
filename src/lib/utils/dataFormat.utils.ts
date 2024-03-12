@@ -250,6 +250,9 @@ export function formatCoinDetailsFromApi(
     symbol: assetDataDetails.SYMBOL,
     image: assetDataDetails.LOGO_URL,
     description: assetDataDetails.ASSET_DESCRIPTION_SUMMARY,
+    website_url: assetDataDetails.WEBSITE_URL,
+    launch_date: assetDataDetails.LAUNCH_DATE,
+    total_supply: assetDataDetails.SUPPLY_TOTAL,
     current_price:
       assetDataDetails.PRICE_USD * currencyExchangeRates.USD[targetCurrency],
     total_market_cap:

@@ -400,6 +400,9 @@ interface ICoinDetails {
 
 interface ICoinDetailAttributes extends ICoinOverview {
   description: string;
+  website_url: string;
+  launch_date: number;
+  total_supply: number;
   price_change_24h: number;
   price_change_7d: number;
   price_change_30d: number;

@@ -90,7 +90,6 @@ const usePopularCoinsPreloader = (): IUsePopularCoinsPreloaderState => {
         dispatch(
           coinsActions.reinitializePopularCoins({
             coinList: currentPopularCoins,
-            currency: currentCurrency,
           }),
         );
       }

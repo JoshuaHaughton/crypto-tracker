@@ -148,9 +148,9 @@ const coinsSlice = createSlice({
      */
     reinitializePopularCoins(
       state: ICoinsState,
-      action: PayloadAction<SetCachedCoinListPayload>,
+      action: PayloadAction<SetCoinListPayload>,
     ) {
-      const { currency: currentCurrency, coinList } = action.payload;
+      const { coinList } = action.payload;
 
       state.popularCoins = coinList;
       state.popularCoinsMap = coinList.reduce((acc, coin) => {
@@ -188,6 +188,19 @@ const coinsSlice = createSlice({
 
       state.selectedCoinDetails = coinDetails;
     },
+
+    /**
+     * Resets the details and cache of the selected coin for all currencies.
+     * @param state - The current state of the coins slice.
+     */
+    resetSelectedCoinDetails(state: ICoinsState) {
+      state.selectedCoinDetails = null;
+
+      ALL_CURRENCIES.forEach((currency) => {
+        state.cachedSelectedCoinDetailsByCurrency[currency] = null;
+      });
+    },
+
     /**
      * Sets the cached details of the selected coin for a specific currency.
      * @param state - The current state of the coins slice.
@@ -201,31 +214,21 @@ const coinsSlice = createSlice({
 
       state.cachedSelectedCoinDetailsByCurrency[currency] = coinDetails;
     },
+
     /**
      * Reinitializes Selected CoinDetails by setting the new state for the current currency, and resetting the cache for all other currencies.
      * @param action - The action payload containing the list of coins and currency.
      */
     reinitializeSelectedCoinDetails(
       state: ICoinsState,
-      action: PayloadAction<SetCachedCoinDetailsPayload>,
+      action: PayloadAction<SetCoinDetailsPayload>,
     ) {
-      const { currency: currentCurrency, coinDetails } = action.payload;
+      const { coinDetails } = action.payload;
 
       state.selectedCoinDetails = coinDetails;
 
       ALL_CURRENCIES.forEach((currency) => {
         state.cachedPopularCoinMapsByCurrency[currency] = {};
-      });
-    },
-    /**
-     * Resets the details and cache of the selected coin for all currencies.
-     * @param state - The current state of the coins slice.
-     */
-    resetSelectedCoinDetails(state: ICoinsState) {
-      state.selectedCoinDetails = null;
-
-      ALL_CURRENCIES.forEach((currency) => {
-        state.cachedSelectedCoinDetailsByCurrency[currency] = null;
       });
     },
   },

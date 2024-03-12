@@ -1,10 +1,10 @@
-import { useSelector } from "react-redux";
 import { ICoinDetails } from "@/lib/types/coinTypes";
 import { selectSelectedCoinDetails } from "@/lib/store/coins/coinsSelectors";
 import { selectCurrentSymbol } from "@/lib/store/currency/currencySelectors";
 import { TCurrencySymbol } from "@/lib/constants/globalConstants";
 import usePopularCoinsPreloader from "@/lib/hooks/preloaders/usePopularCoinsPreloader";
 import { useInitialPageData } from "@/lib/contexts/initialPageDataContext";
+import { useAppSelector } from "@/lib/store";
 
 interface ICoinDetailsState {
   currentSymbol: TCurrencySymbol;
@@ -23,8 +23,8 @@ interface ICoinDetailsState {
  */
 const useCoinDetails = (): ICoinDetailsState => {
   // Accessing current symbol and global coin details from the Redux store.
-  const currentSymbol = useSelector(selectCurrentSymbol);
-  const globalCoinDetails = useSelector(selectSelectedCoinDetails);
+  const currentSymbol = useAppSelector(selectCurrentSymbol);
+  const globalCoinDetails = useAppSelector(selectSelectedCoinDetails);
   const { selectedCoinDetails: initialCoinDetails } = useInitialPageData();
   const { handlePreload, handleNavigation } = usePopularCoinsPreloader();
 

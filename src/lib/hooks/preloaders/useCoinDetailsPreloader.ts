@@ -139,7 +139,6 @@ const useCoinDetailsPreloader = (): IUseCoinDetailsPreloaderState => {
             dispatch(
               coinsActions.reinitializeSelectedCoinDetails({
                 coinDetails,
-                currency: currentCurrency,
               }),
             );
             currencyCache?.delete(symbol);
@@ -161,11 +160,10 @@ const useCoinDetailsPreloader = (): IUseCoinDetailsPreloaderState => {
           dispatch(
             coinsActions.reinitializeSelectedCoinDetails({
               coinDetails,
-              currency: currentCurrency,
             }),
           );
-          router.push(`/coin/${symbol}`);
           currencyCache?.delete(symbol);
+          router.push(`/coin/${symbol}`);
         }
       }
     },

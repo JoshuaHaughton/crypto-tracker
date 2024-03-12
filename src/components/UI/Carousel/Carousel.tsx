@@ -24,21 +24,26 @@ const Carousel: React.FC = () => {
     <div className={styles.embla} ref={emblaRef}>
       <div className={styles.embla__container}>
         {/* Render either a set number of skeletons or actual coin items based on the loading state */}
-        {Array.from({ length: CAROUSEL_COIN_COUNT }, (_, index) => {
-          const coinSymbol = carouselCoins[index]?.symbol;
+        {Array.from(
+          { length: CAROUSEL_COIN_COUNT },
+          (_, index) => carouselCoins[index],
+        )
+          .filter((coin) => coin != null) // Filter out undefined or null values
+          .map((coin, index) => {
+            const coinSymbol = coin.symbol;
 
-          return (
-            <div className={styles.embla__slide} key={index}>
-              <CarouselItem
-                coin={carouselCoins[index]}
-                currencySymbol={currencySymbol}
-                showFallback={isLoading}
-                handleMouseEnter={() => handleItemMouseEnter(coinSymbol)}
-                handleClick={() => handleItemClick(coinSymbol)}
-              />
-            </div>
-          );
-        })}
+            return (
+              <div className={styles.embla__slide} key={index}>
+                <CarouselItem
+                  coin={coin}
+                  currencySymbol={currencySymbol}
+                  showFallback={isLoading}
+                  handleMouseEnter={() => handleItemMouseEnter(coinSymbol)}
+                  handleClick={() => handleItemClick(coinSymbol)}
+                />
+              </div>
+            );
+          })}
       </div>
     </div>
   );
