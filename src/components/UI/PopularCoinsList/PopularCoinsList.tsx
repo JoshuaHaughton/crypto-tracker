@@ -30,9 +30,9 @@ const PopularCoinsList: React.FC = () => {
     popularCoinsAreLoading,
     currentPageNumber,
     currentSymbol,
-    isBreakpoint1250,
-    isBreakpoint680,
-    isBreakpoint380,
+    isDesktop,
+    isTablet,
+    isMobile,
     handleInputChange,
     handleItemMouseEnter,
     handleNavigation,
@@ -47,7 +47,7 @@ const PopularCoinsList: React.FC = () => {
       totalItemsCount > 0
         ? mapCoinsToComponents(
             coinsForCurrentPage,
-            isBreakpoint1250,
+            isDesktop,
             currentPageNumber,
             currentSymbol,
             handleItemMouseEnter,
@@ -60,8 +60,8 @@ const PopularCoinsList: React.FC = () => {
 
   return (
     <>
-      <div className={styles.container}>
-        <h2>Crypto Prices</h2>
+      <div className={styles.list}>
+        <h2 className={styles.list__title}>Crypto Prices</h2>
         <TextField
           label="Search for a cryptocurrency"
           variant="outlined"
@@ -89,18 +89,24 @@ const PopularCoinsList: React.FC = () => {
             input: { color: "white" },
           }}
           value={searchQuery}
-          className={styles.input}
+          className={styles.list__search}
           onChange={handleInputChange}
         />
-        <div className={styles.listContainer}>
+        <div className={styles.list__body}>
           <table className={styles.table}>
-            <thead>
+            <thead className={styles.table__head}>
               <tr>
-                <th className={styles.nameHeader}>Name</th>
-                <th className={styles.priceHeader}>Price</th>
-                <th className={styles.dayVolumeHeader}>24hr Volume</th>
-                <th className={styles.dayPriceChangeHeader}>24hr Change</th>
-                <th className={styles.marketCapHeader}>Market Cap</th>
+                <th className={styles["table__head-cell__name"]}>Name</th>
+                <th className={styles["table__head-cell__price"]}>Price</th>
+                <th className={styles["table__head-cell__volume"]}>
+                  24hr Volume
+                </th>
+                <th className={styles["table__head-cell__change"]}>
+                  24hr Change
+                </th>
+                <th className={styles["table__head-cell__market-cap"]}>
+                  Market Cap
+                </th>
               </tr>
             </thead>
             <tbody>{contentToDisplay}</tbody>
@@ -120,7 +126,7 @@ export default PopularCoinsList;
 function renderEmptyState() {
   return (
     <tr>
-      <td colSpan={5} className={styles.emptyState}>
+      <td colSpan={5} className={styles.emptystate}>
         No coins found.
       </td>
     </tr>
@@ -134,14 +140,14 @@ function renderEmptyState() {
  * enriches the coin data with additional display-specific properties such as market cap rank.
  *
  * @param {IPopularCoinSearchItem[]} coinsForCurrentPage - Array of coins for the current page.
- * @param {boolean} isBreakpoint1250 - True if the current screen width is above 1250 pixels.
+ * @param {boolean} isDesktop - True if the current screen width is above 1250 pixels.
  * @param {number} currentPageNumber - Current page number in pagination.
  * @param {TCurrencySymbol} currentSymbol - The current currency symbol used for price display.
  * @returns {JSX.Element[]} An array of PopularCoinsListItem components populated with formatted coin data.
  */
 function mapCoinsToComponents(
   coinsForCurrentPage: IPopularCoinSearchItem[],
-  isBreakpoint1250: boolean,
+  isDesktop: boolean,
   currentPageNumber: number,
   currentSymbol: TCurrencySymbol,
   handleItemMouseEnter: (id: string) => void,
@@ -153,21 +159,15 @@ function mapCoinsToComponents(
     // Define and format necessary properties from the coin data
     const marketCapRank =
       (currentPageNumber - 1) * POPULAR_COINS_PAGE_SIZE + index + 1;
-      console.log("coin.current_price", coin.current_price);
-      console.log("typeof coin.current_price", typeof coin.current_price);
-      console.log("isBreakpoint1250", isBreakpoint1250);
 
     const formattedCurrentPrice = formatCoinsListNumber(
       coin.current_price,
-      isBreakpoint1250,
+      false,
     );
-    const formattedVolume = formatCoinsListNumber(
-      coin.volume_24h,
-      isBreakpoint1250,
-    );
+    const formattedVolume = formatCoinsListNumber(coin.volume_24h, false);
     const formattedTotalMarketCap = formatCoinsListNumber(
       coin.total_market_cap,
-      isBreakpoint1250,
+      false,
     );
     const formattedPriceChangePercentage = `${coin.price_change_percentage_24h.toFixed(
       2,

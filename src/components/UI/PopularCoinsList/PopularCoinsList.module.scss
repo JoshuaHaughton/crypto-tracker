@@ -1,13 +1,21 @@
 @use "../../../styles/partials/mixins";
 
-.container {
+.list {
   width: 90%;
   max-width: 1200px;
   margin-top: 18px;
-}
 
-.listContainer {
-  min-height: 864px; // 80 * 10 items, + 64 header, + 120 Pagination height
+  // &__title {
+  //   // Styles for the title
+  // }
+
+  // &__search {
+  //   // Styles for the search input
+  // }
+
+  &__body {
+    min-height: 864px; // 80 * 10 items, + 64 header, + 120 Pagination height
+  }
 }
 
 .table {
@@ -16,7 +24,7 @@
   border-radius: 6px 6px 0 0;
   background-color: var(--card-bg);
 
-  thead {
+  &__head {
     height: 64px;
     background-color: var(--primary);
 
@@ -27,54 +35,67 @@
       &:last-child {
         border-top-right-radius: 6px;
       }
+      text-align: center;
+      padding-left: 24px;
+    }
 
+    &-cell {
       text-align: center;
       padding-left: 24px;
 
-      .nameHeader {
+      &__name {
         width: 25%;
       }
-
-      .priceHeader,
-      .dayPriceChangeHeader {
+      &__price {
         width: 16.25%;
       }
-
-      .dayVolumeHeader,
-      .marketCapHeader {
+      &__volume {
         width: 21.25%;
       }
-    }
-  }
+      &__change {
+        width: 16.25%;
+      }
+      &__marketCap {
+        width: 21.25%;
+      }
 
-  tbody .emptyState {
-    text-align: center;
-    padding: 20px;
-    color: var(--font-text-secondary);
-    font-size: 1.25rem;
-    border-bottom: 1px solid var(--border-color);
-  }
+      @include mixins.desktop {
+        &__name {
+          width: 30%;
+        }
+        &__price {
+          width: 17.5%;
+        }
+        &__volume {
+          width: 17.5%;
+        }
+        &__change {
+          width: 17.5%;
+        }
+        &__market-cap {
+          display: none;
+        }
+      }
 
-  @include mixins.desktop {
-    .marketCapHeader {
-      display: none;
-    }
+      @include mixins.tablet {
+        &__volume {
+          display: none;
+        }
+      }
 
-    th {
-      width: 17.5%;
-    }
-
-    thead th {
-      &:first-child {
-        width: 30%;
-        // width: 100%;
+      @include mixins.md {
+        &__change {
+          display: none;
+        }
       }
     }
   }
+}
 
-  @include mixins.tablet {
-    .dayVolumeHeader {
-      display: none;
-    }
-  }
+.emptystate {
+  text-align: center;
+  padding: 20px;
+  color: var(--font-text-secondary);
+  font-size: 1.25rem;
+  border-bottom: 1px solid var(--border-color);
 }

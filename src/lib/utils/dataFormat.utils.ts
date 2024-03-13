@@ -592,9 +592,9 @@ export const formatBigNumber = (num: number): string => {
     return (num / TRILLION).toFixed(1) + "T"; // Convert to 'T' format
   }
 
-  // Return the number as-is if it's less than 1000
+  // Return the number as-is if it's less than 1000. (Rounded to 6 decimal places)
   else {
-    return num.toString(); // No formatting needed
+    return num.toLocaleString(undefined, { maximumFractionDigits: 6 });
   }
 };
 

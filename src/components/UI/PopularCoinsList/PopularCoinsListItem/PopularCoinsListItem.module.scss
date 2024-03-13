@@ -18,19 +18,23 @@
     text-align: center;
     margin: auto;
   }
+}
 
-  @include mixins.desktop {
-    // If price and marketCap columns are hidden at this breakpoint
-    .marketCap {
-      display: none;
-    }
+@include mixins.desktop {
+  .marketCap {
+    display: none;
   }
+}
 
-  @include mixins.tablet {
-    // If dayVolume and dayPriceChange columns are hidden at this breakpoint
-    .dayVolume {
-      display: none;
-    }
+@include mixins.tablet {
+  .dayVolume {
+    display: none;
+  }
+}
+
+@include mixins.md {
+  .dayPriceChange {
+    display: none;
   }
 }
 

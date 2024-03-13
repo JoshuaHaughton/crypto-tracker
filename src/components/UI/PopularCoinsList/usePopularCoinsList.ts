@@ -6,9 +6,9 @@ import {
 } from "@/lib/store/appInfo/appInfoSelectors";
 import { selectCurrentSymbol } from "@/lib/store/currency/currencySelectors";
 import {
-  selectIsBreakpoint380,
-  selectIsBreakpoint680,
-  selectIsBreakpoint1250,
+  selectIsMobile,
+  selectIsTablet,
+  selectIsDesktop,
 } from "@/lib/store/mediaQuery/mediaQuerySelectors";
 import { ChangeEvent } from "react";
 import { TCurrencySymbol } from "@/lib/constants/globalConstants";
@@ -29,9 +29,9 @@ interface IUsePopularCoinsListState {
   totalItemsCount: number;
   currentSymbol: TCurrencySymbol;
   popularCoinsAreLoading: boolean;
-  isBreakpoint380: boolean;
-  isBreakpoint680: boolean;
-  isBreakpoint1250: boolean;
+  isMobile: boolean;
+  isTablet: boolean;
+  isDesktop: boolean;
   setSearchQuery: (searchTerm: string) => void;
   handleInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
   handleItemMouseEnter: (symbol: string) => void;
@@ -47,9 +47,9 @@ interface IUsePopularCoinsListState {
 export function usePopularCoinsList(): IUsePopularCoinsListState {
   console.log("usePopularCoinsList render");
   const currentPageNumber = useAppSelector(selectPopularCoinsPageNumber);
-  const isBreakpoint380 = useAppSelector(selectIsBreakpoint380);
-  const isBreakpoint680 = useAppSelector(selectIsBreakpoint680);
-  const isBreakpoint1250 = useAppSelector(selectIsBreakpoint1250);
+  const isMobile = useAppSelector(selectIsMobile);
+  const isTablet = useAppSelector(selectIsTablet);
+  const isDesktop = useAppSelector(selectIsDesktop);
   const currentSymbol = useAppSelector(selectCurrentSymbol);
   const allReduxPopularCoins = useAppSelector(selectPopularCoins);
   // Fallback to page specific data if Redux store doesn't have carousel coins yet due to initial hydration.
@@ -99,9 +99,9 @@ export function usePopularCoinsList(): IUsePopularCoinsListState {
     currentPageNumber,
     currentSymbol,
     popularCoinsAreLoading,
-    isBreakpoint380,
-    isBreakpoint680,
-    isBreakpoint1250,
+    isMobile,
+    isTablet,
+    isDesktop,
     setSearchQuery,
     handleInputChange,
     handleItemMouseEnter: handlePreload,
