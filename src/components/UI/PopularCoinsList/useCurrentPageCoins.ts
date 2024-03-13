@@ -4,6 +4,7 @@ import { POPULAR_COINS_PAGE_SIZE } from "@/lib/constants/globalConstants";
 import { useAppSelector } from "@/lib/store";
 import { selectPopularCoins } from "@/lib/store/coins/coinsSelectors";
 import { useInitialPageData } from "@/lib/contexts/initialPageDataContext";
+import { selectIsBreakpoint1250 } from "@/lib/store/mediaQuery/mediaQuerySelectors";
 
 /**
  * Defines the shape of the params used by useCoinsForCurrentPage.
@@ -36,6 +37,7 @@ export const useCurrentPageCoins = ({
   console.log("useCurrentPageCoins - Hook Invoked");
   // Redux state selectors.
   const reduxPopularCoins = useAppSelector(selectPopularCoins);
+  const isBreakpoint1250 = useAppSelector(selectIsBreakpoint1250);
   // Fallback to page specific data if Redux store doesn't have carousel coins yet.
   const { popularCoins: initialPopularCoins } = useInitialPageData();
   const popularCoins: ICoinOverview[] =
@@ -98,7 +100,7 @@ export const useCurrentPageCoins = ({
     updateCoinsForCurrentPage();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchResults, popularCoins]);
+  }, [searchResults, popularCoins, isBreakpoint1250]);
 
   // Effect for updating coins for the current page on pagination or query change, but not on initial render.
   useEffect(() => {

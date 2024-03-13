@@ -98,8 +98,8 @@ const PopularCoinsList: React.FC = () => {
               <tr>
                 <th className={styles.nameHeader}>Name</th>
                 <th className={styles.priceHeader}>Price</th>
-                <th className={styles.volumeHeader}>24hr Volume</th>
-                <th className={styles.dayChangeHeader}>24hr Change</th>
+                <th className={styles.dayVolumeHeader}>24hr Volume</th>
+                <th className={styles.dayPriceChangeHeader}>24hr Change</th>
                 <th className={styles.marketCapHeader}>Market Cap</th>
               </tr>
             </thead>
@@ -153,6 +153,9 @@ function mapCoinsToComponents(
     // Define and format necessary properties from the coin data
     const marketCapRank =
       (currentPageNumber - 1) * POPULAR_COINS_PAGE_SIZE + index + 1;
+      console.log("coin.current_price", coin.current_price);
+      console.log("typeof coin.current_price", typeof coin.current_price);
+      console.log("isBreakpoint1250", isBreakpoint1250);
 
     const formattedCurrentPrice = formatCoinsListNumber(
       coin.current_price,
@@ -207,5 +210,7 @@ function formatCoinsListNumber(value: number, isPassedThreshold: boolean) {
   if (!isNumber(value)) return "API Info Missing";
 
   // Format the number based on whether the threshold condition is met
-  return isPassedThreshold ? formatBigNumber(value) : value.toLocaleString();
+  return isPassedThreshold
+    ? formatBigNumber(value)
+    : value.toLocaleString(undefined, { maximumFractionDigits: 6 });
 }

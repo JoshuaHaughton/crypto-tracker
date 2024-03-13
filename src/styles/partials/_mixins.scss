@@ -1,4 +1,4 @@
-@import "./animations";
+@use "./animations" as *;
 
 // Shimmer Effect
 // This mixin creates a shimmer effect animation that can be applied to loading skeletons or placeholders.
@@ -49,13 +49,24 @@
   }
 }
 
+$breakpoints-mobile: 480px;
+$breakpoints-tablet: 768px;
+$breakpoints-desktop: 1024px;
+$breakpoints-largeDesktop: 1280px;
+$breakpoints-xs: 380px;
+$breakpoints-sm: 520px;
+$breakpoints-md: 555px;
+$breakpoints-lg: 680px;
+$breakpoints-xl: 1040px;
+$breakpoints-xxl: 1250px;
+
 // Breakpoints Mixins
 // These mixins allow for cleaner and more maintainable media queries in SCSS files.
 
 // Mobile Devices
 // Use this mixin for styles specific to mobile devices.
 @mixin mobile {
-  @media (max-width: var(--breakpoints-mobile)) {
+  @media (max-width: $breakpoints-mobile) {
     @content;
   }
 }
@@ -63,7 +74,7 @@
 // Tablet Devices
 // Use this mixin for styles specific to tablet devices.
 @mixin tablet {
-  @media (max-width: var(--breakpoints-tablet)) {
+  @media (max-width: $breakpoints-tablet) {
     @content;
   }
 }
@@ -71,7 +82,7 @@
 // Desktop Devices
 // Use this mixin for styles specific to desktop devices.
 @mixin desktop {
-  @media (max-width: var(--breakpoints-desktop)) {
+  @media (max-width: $breakpoints-desktop) {
     @content;
   }
 }
@@ -79,49 +90,49 @@
 // Large Desktop Devices
 // Use this mixin for styles specific to large desktop devices.
 @mixin largeDesktop {
-  @media (max-width: var(--breakpoints-largeDesktop)) {
+  @media (max-width: $breakpoints-largeDesktop) {
     @content;
   }
 }
 
 // Extra Small Devices
 @mixin xs {
-  @media (max-width: var(--breakpoints-xs)) {
+  @media (max-width: $breakpoints-xs) {
     @content;
   }
 }
 
 // Small Devices
 @mixin sm {
-  @media (max-width: var(--breakpoints-sm)) {
+  @media (max-width: $breakpoints-sm) {
     @content;
   }
 }
 
 // Medium Devices
 @mixin md {
-  @media (max-width: var(--breakpoints-md)) {
+  @media (max-width: $breakpoints-md) {
     @content;
   }
 }
 
 // Large Devices
 @mixin lg {
-  @media (max-width: var(--breakpoints-lg)) {
+  @media (max-width: $breakpoints-lg) {
     @content;
   }
 }
 
 // Extra Large Devices
 @mixin xl {
-  @media (max-width: var(--breakpoints-xl)) {
+  @media (max-width: $breakpoints-xl) {
     @content;
   }
 }
 
 // Extra Extra Large Devices
 @mixin xxl {
-  @media (max-width: var(--breakpoints-xxl)) {
+  @media (max-width: $breakpoints-xxl) {
     @content;
   }
 }

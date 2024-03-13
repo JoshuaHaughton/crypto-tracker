@@ -1,3 +1,5 @@
+@use "../../../../styles/partials/mixins";
+
 .item {
   height: 80px;
   border-bottom: 1px solid var(--border-color);
@@ -15,6 +17,20 @@
   td {
     text-align: center;
     margin: auto;
+  }
+
+  @include mixins.desktop {
+    // If price and marketCap columns are hidden at this breakpoint
+    .marketCap {
+      display: none;
+    }
+  }
+
+  @include mixins.tablet {
+    // If dayVolume and dayPriceChange columns are hidden at this breakpoint
+    .dayVolume {
+      display: none;
+    }
   }
 }
 
@@ -65,8 +81,8 @@
 }
 
 .price,
-.volume,
-.market_cap,
+.dayVolume,
+.marketCap,
 .red_percent,
 .green_percent {
   transition: all 300ms ease; // Apply transition for all for consistency, even if only .price changes
@@ -84,9 +100,9 @@
   .coin_wrapper,
   .name,
   .price,
-  .volume,
-  .dayChange,
-  .market_cap {
+  .dayVolume,
+  .dayPriceChange,
+  .marketCap {
     min-width: 17.5%;
     width: 17.5%;
   }

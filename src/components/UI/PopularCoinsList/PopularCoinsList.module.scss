@@ -1,4 +1,4 @@
-@import "../../../styles/partials/mixins";
+@use "../../../styles/partials/mixins";
 
 .container {
   width: 90%;
@@ -27,29 +27,23 @@
       &:last-child {
         border-top-right-radius: 6px;
       }
-    }
-  }
 
-  th,
-  .nameHeader,
-  .priceHeader,
-  .volumeHeader,
-  .dayChangeHeader,
-  .marketCapHeader {
-    text-align: center;
-    padding-left: 24px; // default padding
+      text-align: center;
+      padding-left: 24px;
 
-    // Default widths
-    &.nameHeader {
-      width: 25%;
-    }
-    &.priceHeader,
-    &.dayChangeHeader {
-      width: 16.25%;
-    }
-    &.volumeHeader,
-    &.marketCapHeader {
-      width: 21.25%;
+      .nameHeader {
+        width: 25%;
+      }
+
+      .priceHeader,
+      .dayPriceChangeHeader {
+        width: 16.25%;
+      }
+
+      .dayVolumeHeader,
+      .marketCapHeader {
+        width: 21.25%;
+      }
     }
   }
 
@@ -61,45 +55,26 @@
     border-bottom: 1px solid var(--border-color);
   }
 
-  @include lg {
-    .nameHeader {
-      width: 30%;
-    }
-    th {
-      width: 17.5%;
-    }
-  }
-
-  @include md {
-    .priceHeader,
+  @include mixins.desktop {
     .marketCapHeader {
       display: none;
     }
 
-    thead th {
-      &:first-child {
-        display: block;
-        width: 100%;
-      }
+    th {
+      width: 17.5%;
     }
 
-    tbody .emptyState {
-      padding: 10px;
-      font-size: 0.875rem;
+    thead th {
+      &:first-child {
+        width: 30%;
+        // width: 100%;
+      }
     }
   }
 
-  @include xs {
-    .volumeHeader,
-    .dayChangeHeader {
+  @include mixins.tablet {
+    .dayVolumeHeader {
       display: none;
-    }
-
-    thead th:first-child {
-      display: flex;
-      justify-content: center;
-      text-align: center;
-      width: 100%;
     }
   }
 }

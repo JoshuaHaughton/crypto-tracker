@@ -6,7 +6,6 @@ import {
   IPopularCoinMatchDetails,
 } from "@/lib/types/coinTypes";
 import HighlightMatchedText from "../../HighlightMatchedText/HighlightMatchedText";
-import { BLUR_IMG_URL } from "@/lib/constants/globalConstants";
 
 const LIST_ITEM_IMG_SIZE = 38;
 
@@ -99,13 +98,21 @@ const PopularCoinListItem: React.FC<IPopularCoinListItemProps> = ({
           </div>
         </div>
       </td>
-      <td>
+      <td className={styles.price}>
         {currentCurrencySymbol}
         {current_price}
       </td>
-      <td>{volume_24h}</td>
-      <td className={priceChangeClass}>{price_change_percentage_24h}</td>
-      <td>{total_market_cap}</td>
+      <td className={styles.dayVolume}>
+        {currentCurrencySymbol}
+        {volume_24h}
+      </td>
+      <td className={`${styles.dayPriceChange} ${priceChangeClass}`}>
+        {price_change_percentage_24h}
+      </td>
+      <td className={styles.marketCap}>
+        {currentCurrencySymbol}
+        {total_market_cap}
+      </td>
     </tr>
   );
 };
