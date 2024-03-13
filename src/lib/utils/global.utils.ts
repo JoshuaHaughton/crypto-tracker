@@ -26,3 +26,7 @@ export const getTenYearsInFuture = (): Date => {
 export const getFiveMinutesInFuture = (): Date => {
   return new Date(new Date().getTime() + FIVE_MINUTES_IN_MS);
 };
+
+export function isNumber(value: number) {
+  return typeof value === "number" && !isNaN(value);
+}

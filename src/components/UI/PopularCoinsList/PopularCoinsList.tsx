@@ -14,6 +14,7 @@ import {
   IDisplayedCoinOverview,
   IPopularCoinSearchItem,
 } from "@/lib/types/coinTypes";
+import { isNumber } from "../../../lib/utils/global.utils";
 
 /**
  * Displays a list of popular coins with pagination and search functionality.
@@ -152,26 +153,19 @@ function mapCoinsToComponents(
     // Define and format necessary properties from the coin data
     const marketCapRank =
       (currentPageNumber - 1) * POPULAR_COINS_PAGE_SIZE + index + 1;
-    const formattedCurrentPrice = isBreakpoint1250
-      ? formatBigNumber(coin.current_price)
-      : coin.current_price.toLocaleString("en-US", {
-          maximumFractionDigits: 8,
-          minimumFractionDigits: 2,
-        });
 
-    const formattedVolume =
-      coin.volume_24h > 0
-        ? isBreakpoint1250
-          ? formatBigNumber(coin.volume_24h)
-          : coin.volume_24h.toLocaleString()
-        : "Info Missing";
-
-    const formattedTotalMarketCap = coin.total_market_cap
-      ? isBreakpoint1250
-        ? formatBigNumber(coin.total_market_cap)
-        : coin.total_market_cap.toLocaleString()
-      : "N/A";
-
+    const formattedCurrentPrice = formatCoinsListNumber(
+      coin.current_price,
+      isBreakpoint1250,
+    );
+    const formattedVolume = formatCoinsListNumber(
+      coin.volume_24h,
+      isBreakpoint1250,
+    );
+    const formattedTotalMarketCap = formatCoinsListNumber(
+      coin.total_market_cap,
+      isBreakpoint1250,
+    );
     const formattedPriceChangePercentage = `${coin.price_change_percentage_24h.toFixed(
       2,
     )}%`;
@@ -197,4 +191,21 @@ function mapCoinsToComponents(
       />
     );
   });
+}
+
+/**
+ * Formats numeric values for display in the PopularCoinsList.
+ * If the value fails the number check, returns a default message.
+ * Otherwise, formats the number based on a threshold condition.
+ *
+ * @param value - The numeric value to format.
+ * @param isPassedThreshold - Boolean indicating whether the formatting threshold has been passed.
+ * @returns The formatted string or a message indicating missing information.
+ */
+function formatCoinsListNumber(value: number, isPassedThreshold: boolean) {
+  // Check if value is a number; return a default message if not
+  if (!isNumber(value)) return "API Info Missing";
+
+  // Format the number based on whether the threshold condition is met
+  return isPassedThreshold ? formatBigNumber(value) : value.toLocaleString();
 }

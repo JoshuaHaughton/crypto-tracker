@@ -43,6 +43,7 @@ import {
   fetchAndFormatCoinDetailsData,
   fetchAndFormatPopularCoinsData,
 } from "./server.utils";
+import { isNumber } from "./global.utils";
 
 // Formatting CoinDetails after retrieval from the API
 
