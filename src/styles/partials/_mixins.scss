@@ -57,8 +57,9 @@ $breakpoints-xs: 380px;
 $breakpoints-sm: 520px;
 $breakpoints-md: 555px;
 $breakpoints-lg: 680px;
-$breakpoints-xl: 1040px;
-$breakpoints-xxl: 1250px;
+$breakpoints-xl: 880px;
+$breakpoints-xxl: 1100px;
+$breakpoints-xxxl: 1250px;
 
 // Breakpoints Mixins
 // These mixins allow for cleaner and more maintainable media queries in SCSS files.
@@ -133,6 +134,13 @@ $breakpoints-xxl: 1250px;
 // Extra Extra Large Devices
 @mixin xxl {
   @media (max-width: $breakpoints-xxl) {
+    @content;
+  }
+}
+
+// Extra Extra Extra Large Devices
+@mixin xxxl {
+  @media (max-width: $breakpoints-xxxl) {
     @content;
   }
 }

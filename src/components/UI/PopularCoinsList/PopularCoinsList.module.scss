@@ -57,7 +57,7 @@
           width: 21.25%;
         }
 
-        @include mixins.desktop {
+        @include mixins.xxl {
           &Name {
             width: 30%;
           }
@@ -75,13 +75,13 @@
           }
         }
 
-        @include mixins.tablet {
+        @include mixins.xl {
           &Volume {
             display: none;
           }
         }
 
-        @include mixins.md {
+        @include mixins.lg {
           &Name {
             padding: 0;
           }

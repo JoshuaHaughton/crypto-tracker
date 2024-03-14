@@ -22,16 +22,16 @@
 
     &Info {
       display: flex;
-      flex-direction: column;
       align-items: flex-start;
+      gap: 16px;
 
-      & > span {
-        // Styles for direct child span elements
-      }
+      // & > span {
 
-      & > p {
-        // Styles for direct child p elements
-      }
+      // }
+
+      // & > p {
+
+      // }
 
       &Mobile {
         display: none;
@@ -43,6 +43,10 @@
         display: flex;
         justify-content: center;
         align-items: center;
+      }
+
+      &TextWrapper {
+        text-align: left;
       }
     }
 
@@ -75,19 +79,19 @@
     display: none; // Ensure these elements are not displayed normally
   }
 
-  @include mixins.desktop {
+  @include mixins.xxl {
     &MarketCap {
       display: none;
     }
   }
 
-  @include mixins.tablet {
+  @include mixins.xl {
     &DayVolume {
       display: none;
     }
   }
 
-  @include mixins.md {
+  @include mixins.lg {
     .coinCell {
       // Targeting the .coinCell specifically for mobile adjustments
       .coin {
@@ -102,10 +106,12 @@
         width: 100%;
 
         &Info {
+          flex-direction: column;
           align-items: center;
+          gap: 8px;
 
-          &ImageWrapper {
-            margin-bottom: 8px;
+          &TextWrapper {
+            text-align: center;
           }
 
           &Mobile {

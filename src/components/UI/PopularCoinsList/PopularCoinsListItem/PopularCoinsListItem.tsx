@@ -93,8 +93,10 @@ const PopularCoinListItem: React.FC<IPopularCoinListItemProps> = ({
                 priority
               />
             </figure>
-            <span className={styles.coinSymbol}>{renderedSymbol}</span>
-            <h3 className={styles.coinName}>{renderedName}</h3>
+            <div className={styles.coinInfoTextWrapper}>
+              <span className={styles.coinSymbol}>{renderedSymbol}</span>
+              <h3 className={styles.coinName}>{renderedName}</h3>
+            </div>
           </div>
 
           <div className={styles.coinMobileStats}>
