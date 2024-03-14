@@ -82,7 +82,7 @@ const PopularCoinListItem: React.FC<IPopularCoinListItemProps> = ({
     >
       <td>
         <div className={styles.coin}>
-          <figure className={styles.coin__image_wrapper}>
+          <figure className={styles.coinImageWrapper}>
             <Image
               src={image}
               height={LIST_ITEM_IMG_SIZE}
@@ -92,24 +92,24 @@ const PopularCoinListItem: React.FC<IPopularCoinListItemProps> = ({
               priority
             />
           </figure>
-          <div className={styles.coin__info}>
+          <div className={styles.coinInfo}>
             <p className={styles.symbol}>{renderedSymbol}</p>
             <h3>{renderedName}</h3>
           </div>
         </div>
       </td>
-      <td className={styles.price}>
+      <td className={styles.itemPrice}>
         {currentCurrencySymbol}
         {current_price}
       </td>
-      <td className={styles.dayVolume}>
+      <td className={styles.itemDayVolume}>
         {currentCurrencySymbol}
         {volume_24h}
       </td>
-      <td className={`${styles.dayPriceChange} ${priceChangeClass}`}>
+      <td className={`${styles.itemDayPriceChange} ${priceChangeClass}`}>
         {price_change_percentage_24h}
       </td>
-      <td className={styles.marketCap}>
+      <td className={styles.itemMarketCap}>
         {currentCurrencySymbol}
         {total_market_cap}
       </td>

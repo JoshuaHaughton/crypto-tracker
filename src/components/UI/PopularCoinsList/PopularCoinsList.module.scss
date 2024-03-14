@@ -5,94 +5,95 @@
   max-width: 1200px;
   margin-top: 18px;
 
-  // &__title {
+  // &Title {
   //   // Styles for the title
   // }
 
-  // &__search {
+  // &Search {
   //   // Styles for the search input
   // }
 
-  &__body {
+  &Body {
     min-height: 864px; // 80 * 10 items, + 64 header, + 120 Pagination height
   }
-}
 
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  border-radius: 6px 6px 0 0;
-  background-color: var(--card-bg);
+  &Table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 6px 6px 0 0;
+    background-color: var(--card-bg);
 
-  &__head {
-    height: 64px;
-    background-color: var(--primary);
+    &Head {
+      height: 64px;
+      background-color: var(--primary);
 
-    tr > th {
-      &:first-child {
-        border-top-left-radius: 6px;
-      }
-      &:last-child {
-        border-top-right-radius: 6px;
-      }
-      text-align: center;
-      padding-left: 24px;
-    }
-
-    &-cell {
-      text-align: center;
-      padding-left: 24px;
-
-      &__name {
-        width: 25%;
-      }
-      &__price {
-        width: 16.25%;
-      }
-      &__volume {
-        width: 21.25%;
-      }
-      &__change {
-        width: 16.25%;
-      }
-      &__marketCap {
-        width: 21.25%;
-      }
-
-      @include mixins.desktop {
-        &__name {
-          width: 30%;
+      tr > th {
+        &:first-child {
+          border-top-left-radius: 6px;
         }
-        &__price {
-          width: 17.5%;
+        &:last-child {
+          border-top-right-radius: 6px;
         }
-        &__volume {
-          width: 17.5%;
-        }
-        &__change {
-          width: 17.5%;
-        }
-        &__market-cap {
-          display: none;
-        }
+        text-align: center;
+        padding-left: 24px;
       }
 
-      @include mixins.tablet {
-        &__volume {
-          display: none;
-        }
-      }
+      &Cell {
+        text-align: center;
+        padding-left: 24px;
 
-      @include mixins.md {
-        &__change {
-          display: none;
+        &Name {
+          width: 25%;
+        }
+        &Price {
+          width: 16.25%;
+        }
+        &Volume {
+          width: 21.25%;
+        }
+        &Change {
+          width: 16.25%;
+        }
+        &Market_Cap {
+          width: 21.25%;
+        }
+
+        @include mixins.desktop {
+          &Name {
+            width: 30%;
+          }
+          &Price {
+            width: 17.5%;
+          }
+          &Volume {
+            width: 17.5%;
+          }
+          &Change {
+            width: 17.5%;
+          }
+          &Market_Cap {
+            display: none;
+          }
+        }
+
+        @include mixins.tablet {
+          &Volume {
+            display: none;
+          }
+        }
+        // Just make this change be a msetup change; so we'll show hamburger items instead of full width.
+        // After that, think about pagination
+        @include mixins.md {
+          &Change {
+            display: none;
+          }
         }
       }
     }
   }
 }
 
-.emptystate {
+.emptyState {
   text-align: center;
   padding: 20px;
   color: var(--font-text-secondary);

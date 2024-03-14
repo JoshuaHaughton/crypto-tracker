@@ -1,9 +1,6 @@
 import { usePopularCoinsSearch } from "./usePopularCoinsSearch";
 import useCurrentPageCoins from "./useCurrentPageCoins";
-import {
-  selectInitialPopularCoinsStatus,
-  selectPopularCoinsPageNumber,
-} from "@/lib/store/appInfo/appInfoSelectors";
+import { selectPopularCoinsPageNumber } from "@/lib/store/appInfo/appInfoSelectors";
 import { selectCurrentSymbol } from "@/lib/store/currency/currencySelectors";
 import {
   selectIsMobile,
@@ -13,7 +10,6 @@ import {
 import { ChangeEvent } from "react";
 import { TCurrencySymbol } from "@/lib/constants/globalConstants";
 import { IPopularCoinSearchItem } from "@/lib/types/coinTypes";
-import { LoadingStatus } from "@/lib/types/apiRequestTypes";
 import { useAppSelector } from "@/lib/store";
 import useCoinDetailsPreloader from "@/lib/hooks/preloaders/useCoinDetailsPreloader";
 import { useInitialPageData } from "@/lib/contexts/initialPageDataContext";
@@ -28,7 +24,6 @@ interface IUsePopularCoinsListState {
   currentPageNumber: number;
   totalItemsCount: number;
   currentSymbol: TCurrencySymbol;
-  popularCoinsAreLoading: boolean;
   isMobile: boolean;
   isTablet: boolean;
   isDesktop: boolean;
@@ -59,12 +54,6 @@ export function usePopularCoinsList(): IUsePopularCoinsListState {
     allReduxPopularCoins.length > 0
       ? allReduxPopularCoins
       : (popularCoins as ICoinOverview[]);
-
-  const popularCoinsLoadingStatus = useAppSelector(
-    selectInitialPopularCoinsStatus,
-  );
-  const popularCoinsAreLoading =
-    popularCoinsLoadingStatus === LoadingStatus.LOADING;
 
   // Manage search term via Redux, reducing local state management.
   const { searchQuery, setSearchQuery, searchResults } = usePopularCoinsSearch({
@@ -98,7 +87,6 @@ export function usePopularCoinsList(): IUsePopularCoinsListState {
     totalItemsCount,
     currentPageNumber,
     currentSymbol,
-    popularCoinsAreLoading,
     isMobile,
     isTablet,
     isDesktop,

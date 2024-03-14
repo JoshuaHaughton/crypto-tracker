@@ -1,7 +1,6 @@
 import React from "react";
 import styles from "./PopularCoinsList.module.scss";
 import PopularCoinsListItem from "./PopularCoinsListItem/PopularCoinsListItem";
-import PopularCoinsListSkeleton from "../Skeletons/PopularCoinsListSkeleton/PopularCoinsListSkeleton";
 import Pagination from "../Pagination/Pagination";
 import { TextField } from "@mui/material";
 import { formatBigNumber } from "@/lib/utils/dataFormat.utils";
@@ -27,7 +26,6 @@ const PopularCoinsList: React.FC = () => {
     searchQuery,
     coinsForCurrentPage,
     totalItemsCount,
-    popularCoinsAreLoading,
     currentPageNumber,
     currentSymbol,
     isDesktop,
@@ -39,29 +37,24 @@ const PopularCoinsList: React.FC = () => {
   } = usePopularCoinsList();
 
   // Determine which content to display based on the loading state and coinsForCurrentPage length
-  let contentToDisplay;
-  if (popularCoinsAreLoading) {
-    contentToDisplay = <PopularCoinsListSkeleton />;
-  } else {
-    contentToDisplay =
-      totalItemsCount > 0
-        ? mapCoinsToComponents(
-            coinsForCurrentPage,
-            isDesktop,
-            currentPageNumber,
-            currentSymbol,
-            handleItemMouseEnter,
-            handleNavigation,
-          )
-        : renderEmptyState();
-  }
+  let contentToDisplay =
+    totalItemsCount > 0
+      ? mapCoinsToComponents(
+          coinsForCurrentPage,
+          isDesktop,
+          currentPageNumber,
+          currentSymbol,
+          handleItemMouseEnter,
+          handleNavigation,
+        )
+      : renderEmptyState();
 
   console.log("coinsForCurrentPage - PopularCoinsList", coinsForCurrentPage);
 
   return (
     <>
       <div className={styles.list}>
-        <h2 className={styles.list__title}>Crypto Prices</h2>
+        <h2 className={styles.listTitle}>Crypto Prices</h2>
         <TextField
           label="Search for a cryptocurrency"
           variant="outlined"
@@ -89,22 +82,18 @@ const PopularCoinsList: React.FC = () => {
             input: { color: "white" },
           }}
           value={searchQuery}
-          className={styles.list__search}
+          className={styles.listSearch}
           onChange={handleInputChange}
         />
-        <div className={styles.list__body}>
-          <table className={styles.table}>
-            <thead className={styles.table__head}>
+        <div className={styles.listBody}>
+          <table className={styles.listTable}>
+            <thead className={styles.listTableHead}>
               <tr>
-                <th className={styles["table__head-cell__name"]}>Name</th>
-                <th className={styles["table__head-cell__price"]}>Price</th>
-                <th className={styles["table__head-cell__volume"]}>
-                  24hr Volume
-                </th>
-                <th className={styles["table__head-cell__change"]}>
-                  24hr Change
-                </th>
-                <th className={styles["table__head-cell__market-cap"]}>
+                <th className={styles.listTableHeadCellName}>Name</th>
+                <th className={styles.listTableHeadCellPrice}>Price</th>
+                <th className={styles.listTableHeadCellVolume}>24hr Volume</th>
+                <th className={styles.listTableHeadCellChange}>24hr Change</th>
+                <th className={styles.listTableHeadCellMarket_Cap}>
                   Market Cap
                 </th>
               </tr>
@@ -126,7 +115,7 @@ export default PopularCoinsList;
 function renderEmptyState() {
   return (
     <tr>
-      <td colSpan={5} className={styles.emptystate}>
+      <td colSpan={5} className={styles.emptyState}>
         No coins found.
       </td>
     </tr>

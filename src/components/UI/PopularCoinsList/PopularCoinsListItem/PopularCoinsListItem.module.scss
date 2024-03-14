@@ -18,23 +18,38 @@
     text-align: center;
     margin: auto;
   }
-}
 
-@include mixins.desktop {
-  .marketCap {
-    display: none;
+  &Price,
+  &DayVolume,
+  &MarketCap,
+  &RedPercent,
+  &GreenPercent {
+    transition: all 300ms ease;
+    width: 16.25%;
+    &.redpercent {
+      color: #f00606;
+    }
+    &.greenpercent {
+      color: #13c783;
+    }
   }
-}
 
-@include mixins.tablet {
-  .dayVolume {
-    display: none;
+  @include mixins.desktop {
+    &MarketCap {
+      display: none;
+    }
   }
-}
 
-@include mixins.md {
-  .dayPriceChange {
-    display: none;
+  @include mixins.tablet {
+    &DayVolume {
+      display: none;
+    }
+  }
+
+  @include mixins.md {
+    &DayPriceChange {
+      display: none;
+    }
   }
 }
 
@@ -44,7 +59,7 @@
   align-items: center;
   width: 80%;
 
-  &__image_wrapper {
+  &ImageWrapper {
     height: 38px;
     min-height: 38px;
     width: 38px;
@@ -55,106 +70,14 @@
     align-items: center;
   }
 
-  &__info {
+  &Info {
     display: flex;
     flex-direction: column;
     justify-content: center;
   }
 }
 
-.name_wrapper > h1,
-.name_wrapper > p {
-  font-size: 16px;
-  margin: 0;
-}
-
-.symbol {
-  text-transform: uppercase;
-}
-
-.data {
-  display: flex;
-  justify-content: space-between;
-  text-align: right;
-  width: 100%;
-}
-
 .highlight {
   background-color: yellow;
   color: black;
-}
-
-.price,
-.dayVolume,
-.marketCap,
-.red_percent,
-.green_percent {
-  transition: all 300ms ease; // Apply transition for all for consistency, even if only .price changes
-  width: 16.25%; // Set default width
-  &.red_percent {
-    color: #f00606;
-  }
-  &.green_percent {
-    color: #13c783;
-  }
-}
-
-// Adjust widths in response to screen size
-@media (max-width: 990px) {
-  .coin_wrapper,
-  .name,
-  .price,
-  .dayVolume,
-  .dayPriceChange,
-  .marketCap {
-    min-width: 17.5%;
-    width: 17.5%;
-  }
-}
-
-@media (max-width: 680px) {
-  .coin_wrapper {
-    width: 45%;
-  }
-  .price,
-  .red_percent,
-  .green_percent {
-    width: 27.5%;
-  }
-}
-
-@media (max-width: 380px) {
-  .container {
-    flex-direction: column;
-    align-items: center;
-    height: fit-content;
-    padding: 24px 0;
-  }
-
-  .image_wrapper {
-    margin-bottom: 8px;
-  }
-
-  .coin,
-  .coin_wrapper {
-    flex-direction: column;
-    width: 100%;
-    align-items: center;
-  }
-
-  .name_wrapper {
-    text-align: center;
-    width: 90%;
-    > h1,
-    > p {
-      font-size: 7vw;
-    }
-  }
-
-  .price,
-  .red_percent,
-  .green_percent {
-    font-size: 5vw;
-    width: 70%;
-  }
 }
