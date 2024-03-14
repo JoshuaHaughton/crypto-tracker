@@ -80,7 +80,7 @@ const PopularCoinListItem: React.FC<IPopularCoinListItemProps> = ({
       onMouseEnter={handleMouseEnter}
       onClick={handleClick}
     >
-      <td>
+      <td className={styles.coinCell}>
         <div className={styles.coin}>
           <figure className={styles.coinImageWrapper}>
             <Image
@@ -92,9 +92,25 @@ const PopularCoinListItem: React.FC<IPopularCoinListItemProps> = ({
               priority
             />
           </figure>
-          <div className={styles.coinInfo}>
-            <p className={styles.symbol}>{renderedSymbol}</p>
-            <h3>{renderedName}</h3>
+          {/* <div className={styles.coinInfoMobile}>
+              <p className={styles.coinSymbol}>{renderedSymbol}</p>
+              <h3 className={styles.coinName}>{renderedName}</h3>
+            </div> */}
+
+          <div className={styles.coinStats}>
+            <p className={styles.coinSymbol}>{renderedSymbol}</p>
+            <h3 className={styles.coinName}>{renderedName}</h3>
+            <p className={styles.itemPriceMobile}>
+              Price: {"\n"}
+              {currentCurrencySymbol}
+              {current_price}
+            </p>
+            <p
+              className={`${styles.itemDayPriceChangeMobile} ${priceChangeClass}`}
+            >
+              Price Percentage: {"\n"}
+              {price_change_percentage_24h}
+            </p>
           </div>
         </div>
       </td>

@@ -35,14 +35,13 @@
           border-top-right-radius: 6px;
         }
         text-align: center;
-        padding-left: 24px;
       }
 
       &Cell {
         text-align: center;
-        padding-left: 24px;
 
         &Name {
+          padding-left: 24px;
           width: 25%;
         }
         &Price {
@@ -81,10 +80,14 @@
             display: none;
           }
         }
-        // Just make this change be a msetup change; so we'll show hamburger items instead of full width.
-        // After that, think about pagination
+
         @include mixins.md {
-          &Change {
+          &Name {
+            padding: 0;
+          }
+
+          &Change,
+          &Price {
             display: none;
           }
         }

@@ -1,11 +1,9 @@
 @use "../../../../styles/partials/mixins";
 
 .item {
+  display: table-row;
   height: 80px;
   border-bottom: 1px solid var(--border-color);
-  width: 100%;
-  padding: 0 2rem;
-  overflow: hidden;
   white-space: nowrap;
 
   &:hover {
@@ -17,6 +15,38 @@
   td {
     text-align: center;
     margin: auto;
+  }
+
+  .coin {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 80%;
+
+    &ImageWrapper {
+      height: 38px;
+      width: 38px;
+      margin-right: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    &Info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    &InfoMobile {
+      display: none;
+    }
+
+    &Stats {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
   }
 
   &Price,
@@ -34,6 +64,13 @@
     }
   }
 
+  &PriceMobile,
+  &DayVolumeMobile,
+  &MarketCapMobile,
+  &DayPriceChangeMobile {
+    display: none; // Ensure these elements are not displayed normally
+  }
+
   @include mixins.desktop {
     &MarketCap {
       display: none;
@@ -47,33 +84,55 @@
   }
 
   @include mixins.md {
+    .coinCell {
+      // Targeting the .coinCell specifically for mobile adjustments
+      display: table-cell; // Keep it as table cell on mobile, ensuring it respects table layout
+      .coin {
+        display: flex;
+        // justify-content: space-between;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+
+        &ImageWrapper {
+          margin: 0;
+        }
+
+        &Info {
+          width: 30%;
+
+          &Mobile {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+          }
+        }
+
+        // &Stats > .coinSymbol,
+        // &Stats > .coinName {
+        //   display: none;
+        // }
+      }
+    }
+
+    // Mobile-specific styles for content within .coinCell
+    &PriceMobile,
+    &DayVolumeMobile,
+    &MarketCapMobile,
+    &DayPriceChangeMobile {
+      display: block; // Ensure these elements are displayed in a block layout
+      text-align: center; // Center-align text for readability
+      padding: 5px 0; // Add vertical padding for spacing between items
+    }
+
+    // Hide original desktop-specific data columns on mobile
+    &Price,
+    &DayVolume,
+    &MarketCap,
     &DayPriceChange {
       display: none;
     }
-  }
-}
-
-.coin {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  width: 80%;
-
-  &ImageWrapper {
-    height: 38px;
-    min-height: 38px;
-    width: 38px;
-    min-width: 38px;
-    margin-right: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  &Info {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
   }
 }
 
