@@ -7,7 +7,7 @@
   gap: 8px;
   padding: 44px 0;
 
-  @include mixins.lg {
+  @include mixins.tablet {
     justify-content: space-between;
   }
 
@@ -86,11 +86,11 @@
   gap: 8px;
   min-width: 352px; // 32 (item width) x 11 (max number of items showing at once)
 
-  @include mixins.lg {
+  @include mixins.tablet {
     gap: 0;
     min-width: auto;
 
     width: 65%;
-    justify-content: space-between;
+    justify-content: space-evenly;
   }
 }

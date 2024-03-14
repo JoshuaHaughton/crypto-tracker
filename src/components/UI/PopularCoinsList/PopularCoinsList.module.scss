@@ -81,7 +81,7 @@
           }
         }
 
-        @include mixins.lg {
+        @include mixins.tablet {
           &Name {
             padding: 0;
           }

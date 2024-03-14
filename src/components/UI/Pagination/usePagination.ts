@@ -7,8 +7,8 @@ import {
 import { range } from "lodash";
 import { useAppDispatch, useAppSelector } from "@/lib/store";
 import {
-  selectIsBreakpointLg,
   selectIsMobile,
+  selectIsTablet,
 } from "@/lib/store/mediaQuery/mediaQuerySelectors";
 
 /**
@@ -22,6 +22,7 @@ import {
  */
 const STATIC_PAGINATION_ELEMENTS = 5;
 const DEFAULT_SIBLING_COUNT = 2;
+const TABLET_SIBLING_COUNT = 1;
 const MOBILE_SIBLING_COUNT = 0;
 
 /**
@@ -66,14 +67,25 @@ const usePagination = ({
 }: IUsePaginationParams): IUsePaginationState => {
   const dispatch = useAppDispatch();
   const isMobile = useAppSelector(selectIsMobile);
+  const isTablet = useAppSelector(selectIsTablet);
   const [currentSiblingCount, setCurrentSiblingCount] = useState(
-    isMobile ? MOBILE_SIBLING_COUNT : siblingCount,
+    isMobile
+      ? MOBILE_SIBLING_COUNT
+      : isTablet
+      ? TABLET_SIBLING_COUNT
+      : siblingCount,
   );
 
   // Update the sibling count on smaller devices
   useEffect(() => {
-    setCurrentSiblingCount(isMobile ? MOBILE_SIBLING_COUNT : siblingCount);
-  }, [isMobile, siblingCount]);
+    setCurrentSiblingCount(
+      isMobile
+        ? MOBILE_SIBLING_COUNT
+        : isTablet
+        ? TABLET_SIBLING_COUNT
+        : siblingCount,
+    );
+  }, [isMobile, isTablet, siblingCount]);
 
   // Calculate the total number of pages.
   const totalPageCount = useMemo(
