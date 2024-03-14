@@ -83,8 +83,8 @@
       "darkValue": "210 40% 98%"
     },
     "border": {
-      "value": "214.3 31.8% 91.4%",
-      "darkValue": "217.2 32.6% 17.5%"
+      "value": "#fff",
+      "darkValue": "#fff"
     },
     "input": {
       "value": "214.3 31.8% 91.4%",

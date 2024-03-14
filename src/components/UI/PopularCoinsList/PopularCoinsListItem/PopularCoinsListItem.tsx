@@ -82,33 +82,31 @@ const PopularCoinListItem: React.FC<IPopularCoinListItemProps> = ({
     >
       <td className={styles.coinCell}>
         <div className={styles.coin}>
-          <figure className={styles.coinImageWrapper}>
-            <Image
-              src={image}
-              height={LIST_ITEM_IMG_SIZE}
-              width={LIST_ITEM_IMG_SIZE}
-              alt={`${name} image`}
-              quality={100}
-              priority
-            />
-          </figure>
-          {/* <div className={styles.coinInfoMobile}>
-              <p className={styles.coinSymbol}>{renderedSymbol}</p>
-              <h3 className={styles.coinName}>{renderedName}</h3>
-            </div> */}
-
-          <div className={styles.coinStats}>
+          <div className={styles.coinInfo}>
+            <figure className={styles.coinInfoImageWrapper}>
+              <Image
+                src={image}
+                height={LIST_ITEM_IMG_SIZE}
+                width={LIST_ITEM_IMG_SIZE}
+                alt={`${name} image`}
+                quality={100}
+                priority
+              />
+            </figure>
             <p className={styles.coinSymbol}>{renderedSymbol}</p>
             <h3 className={styles.coinName}>{renderedName}</h3>
+          </div>
+
+          <div className={styles.coinMobileStats}>
             <p className={styles.itemPriceMobile}>
-              Price: {"\n"}
+              <b>Price:</b> <br />
               {currentCurrencySymbol}
               {current_price}
             </p>
             <p
               className={`${styles.itemDayPriceChangeMobile} ${priceChangeClass}`}
             >
-              Price Percentage: {"\n"}
+              <b>24hr Change:</b> <br />
               {price_change_percentage_24h}
             </p>
           </div>

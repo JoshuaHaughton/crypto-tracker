@@ -23,26 +23,25 @@
     align-items: center;
     width: 80%;
 
-    &ImageWrapper {
-      height: 38px;
-      width: 38px;
-      margin-right: 10px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
     &Info {
       display: flex;
       flex-direction: column;
       align-items: center;
+
+      &Mobile {
+        display: none;
+      }
+
+      &ImageWrapper {
+        height: 38px;
+        width: 38px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
     }
 
-    &InfoMobile {
-      display: none;
-    }
-
-    &Stats {
+    &MobileStats {
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -86,20 +85,21 @@
   @include mixins.md {
     .coinCell {
       // Targeting the .coinCell specifically for mobile adjustments
-      display: table-cell; // Keep it as table cell on mobile, ensuring it respects table layout
       .coin {
         display: flex;
-        // justify-content: space-between;
         flex-direction: column;
+        justify-content: space-between;
         align-items: center;
+
+        padding: 24px 0;
+        height: 280px;
+
         width: 100%;
 
-        &ImageWrapper {
-          margin: 0;
-        }
-
         &Info {
-          width: 30%;
+          &ImageWrapper {
+            margin-bottom: 8px;
+          }
 
           &Mobile {
             display: flex;
@@ -109,24 +109,22 @@
           }
         }
 
-        // &Stats > .coinSymbol,
-        // &Stats > .coinName {
-        //   display: none;
-        // }
+        &MobileStats p b {
+          line-height: 1.5;
+          margin-bottom: 16px;
+        }
       }
     }
 
-    // Mobile-specific styles for content within .coinCell
     &PriceMobile,
     &DayVolumeMobile,
     &MarketCapMobile,
     &DayPriceChangeMobile {
-      display: block; // Ensure these elements are displayed in a block layout
-      text-align: center; // Center-align text for readability
-      padding: 5px 0; // Add vertical padding for spacing between items
+      display: block;
+      text-align: center;
+      padding: 5px 0;
     }
 
-    // Hide original desktop-specific data columns on mobile
     &Price,
     &DayVolume,
     &MarketCap,
