@@ -1,4 +1,4 @@
-@import "../../../styles//partials/mixins";
+@use "../../../styles//partials/mixins";
 
 .container {
   display: flex;
@@ -7,13 +7,13 @@
   gap: 8px;
   padding: 44px 0;
 
-  @media (max-width: 450px) {
-    flex-wrap: wrap;
+  @include mixins.lg {
+    justify-content: space-between;
   }
 
   .item {
     height: 32px;
-    width: 32px;
+    min-width: 32px;
     border-radius: 16px;
     font-size: 14px;
     display: flex;
@@ -54,7 +54,7 @@
   }
 
   .arrowButton {
-    @include removeDefaultButtonStyles;
+    @include mixins.removeDefaultButtonStyles;
   }
 
   .arrow {
@@ -86,10 +86,11 @@
   gap: 8px;
   min-width: 352px; // 32 (item width) x 11 (max number of items showing at once)
 
-  @media (max-width: 450px) {
-    max-width: 80%;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
+  @include mixins.lg {
+    gap: 0;
+    min-width: auto;
+
+    width: 65%;
+    justify-content: space-between;
   }
 }

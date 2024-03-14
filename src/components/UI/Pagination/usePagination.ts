@@ -1,11 +1,15 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { appInfoActions } from "@/lib/store/appInfo/appInfoSlice";
 import {
   ELLIPSES,
   POPULAR_COINS_PAGE_SIZE,
 } from "@/lib/constants/globalConstants";
 import { range } from "lodash";
-import { useAppDispatch } from "@/lib/store";
+import { useAppDispatch, useAppSelector } from "@/lib/store";
+import {
+  selectIsBreakpointLg,
+  selectIsMobile,
+} from "@/lib/store/mediaQuery/mediaQuerySelectors";
 
 /**
  * The constant STATIC_PAGINATION_ELEMENTS is used to account for the minimum number of elements
@@ -18,6 +22,7 @@ import { useAppDispatch } from "@/lib/store";
  */
 const STATIC_PAGINATION_ELEMENTS = 5;
 const DEFAULT_SIBLING_COUNT = 2;
+const MOBILE_SIBLING_COUNT = 0;
 
 /**
  * Type definition for the pagination hook parameters.
@@ -60,6 +65,15 @@ const usePagination = ({
   currentPageNumber,
 }: IUsePaginationParams): IUsePaginationState => {
   const dispatch = useAppDispatch();
+  const isMobile = useAppSelector(selectIsMobile);
+  const [currentSiblingCount, setCurrentSiblingCount] = useState(
+    isMobile ? MOBILE_SIBLING_COUNT : siblingCount,
+  );
+
+  // Update the sibling count on smaller devices
+  useEffect(() => {
+    setCurrentSiblingCount(isMobile ? MOBILE_SIBLING_COUNT : siblingCount);
+  }, [isMobile, siblingCount]);
 
   // Calculate the total number of pages.
   const totalPageCount = useMemo(
@@ -70,14 +84,17 @@ const usePagination = ({
   // Use useMemo to optimize the calculation of the pagination range, preventing unnecessary recalculations.
   const paginationRange: PaginationItem[] = useMemo(() => {
     // Simple case: If the total number of pages is less than the pages we want to show, return the full range.
-    if (totalPageCount <= siblingCount + STATIC_PAGINATION_ELEMENTS) {
+    if (totalPageCount <= currentSiblingCount + STATIC_PAGINATION_ELEMENTS) {
       return Array.from({ length: totalPageCount }, (_, i) => i + 1);
     }
 
     // Determine the indices for the left and right siblings of the current page.
-    const leftSiblingIndex = Math.max(currentPageNumber - siblingCount, 1);
+    const leftSiblingIndex = Math.max(
+      currentPageNumber - currentSiblingCount,
+      1,
+    );
     const rightSiblingIndex = Math.min(
-      currentPageNumber + siblingCount,
+      currentPageNumber + currentSiblingCount,
       totalPageCount,
     );
 
@@ -112,7 +129,7 @@ const usePagination = ({
     }
 
     return paginationItems;
-  }, [currentPageNumber, totalPageCount, siblingCount]);
+  }, [currentPageNumber, totalPageCount, currentSiblingCount]);
 
   // Automatically adjust currentPageNumber if it's out of the total page count range
   useEffect(() => {

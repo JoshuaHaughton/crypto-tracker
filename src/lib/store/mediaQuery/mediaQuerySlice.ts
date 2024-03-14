@@ -7,12 +7,13 @@ export const BREAKPOINT_KEYS = {
   isDesktop: "(max-width: 1024px)",
   isLargeDesktop: "(max-width: 1280px)",
 
-  isBreakpoint380: "(max-width: 380px)",
-  isBreakpoint520: "(max-width: 520px)",
-  isBreakpoint555: "(max-width: 555px)",
-  isBreakpoint680: "(max-width: 680px)",
-  isBreakpoint1040: "(max-width: 1040px)",
-  isBreakpoint1250: "(max-width: 1250px)",
+  isBreakpointXs: "(max-width: 380px)",
+  isBreakpointSm: "(max-width: 520px)",
+  isBreakpointMd: "(max-width: 555px)",
+  isBreakpointLg: "(max-width: 680px)",
+  isBreakpointXl: "(max-width: 880px)",
+  isBreakpointXXL: "(max-width: 1100px)",
+  isBreakpointXXXL: "(max-width: 1250px)",
 } as const;
 
 // Use this approach for TypeScript compatibility

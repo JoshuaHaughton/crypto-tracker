@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useAppSelector } from "@/lib/store";
 import { selectPopularCoinsPageNumber } from "@/lib/store/appInfo/appInfoSelectors";
+import { selectIsMobile } from "@/lib/store/mediaQuery/mediaQuerySelectors";
 
 /**
  * Custom hook for handling page behavior on the Home Page, specifically for popular coins pagination.
@@ -10,15 +11,16 @@ import { selectPopularCoinsPageNumber } from "@/lib/store/appInfo/appInfoSelecto
  * @returns {void}
  */
 const useHomePage = () => {
+  const isMobile = useAppSelector(selectIsMobile);
   const popularCoinsListPageNumber = useAppSelector(
     selectPopularCoinsPageNumber,
   );
 
   useEffect(() => {
-    if (popularCoinsListPageNumber !== 1) {
+    if (!isMobile && popularCoinsListPageNumber !== 1) {
       window.scrollTo(0, 448);
     }
-  }, [popularCoinsListPageNumber]);
+  }, [isMobile, popularCoinsListPageNumber]);
 };
 
 export default useHomePage;

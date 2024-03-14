@@ -4,29 +4,12 @@ import {
   BREAKPOINT_KEYS,
   TBreakpointKeys,
   TMediaQueryState,
+  initialMediaQueryState,
   updateAllBreakpoints,
 } from "@/lib/store/mediaQuery/mediaQuerySlice";
 import { useAppDispatch } from "@/lib/store";
 
 const DEBOUNCE_DELAY = 250;
-
-/**
- * Dynamically determines the initial state of media queries based on the current viewport size.
- * @returns {TMediaQueryState} The initial state with the current matches of breakpoints.
- */
-const determineInitialState = (): TMediaQueryState => {
-  // Check if running on client side
-  if (typeof window === "undefined") {
-    return {} as TMediaQueryState; // Return empty state or default values when on server side
-  }
-
-  const initialState: Partial<TMediaQueryState> = {};
-  Object.entries(BREAKPOINT_KEYS).forEach(([key, query]) => {
-    const matches = window?.matchMedia(query).matches;
-    initialState[key as TBreakpointKeys] = matches;
-  });
-  return initialState as TMediaQueryState;
-};
 
 /**
  * A utility hook that initializes media query listeners and updates the Redux state based on viewport changes.
@@ -37,7 +20,7 @@ const useBreakpointSync = () => {
   console.log("useBreakpointSync");
   const dispatch = useAppDispatch();
   // Cache for previous breakpoint states to prevent unnecessary updates
-  const prevBreakpointsRef = useRef<TMediaQueryState>(determineInitialState());
+  const prevBreakpointsRef = useRef<TMediaQueryState>(initialMediaQueryState);
 
   useEffect(() => {
     const checkAndUpdateBreakpoints = () => {

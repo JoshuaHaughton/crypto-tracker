@@ -2,52 +2,20 @@ import { TRootState } from "..";
 import { TBreakpointKeys } from "./mediaQuerySlice";
 
 /**
- * Selector for checking the state of breakpoint 380.
- * @param state - The current state of the application.
- * @returns The boolean state of breakpoint 380.
+ * A generic selector for checking the state of any defined breakpoint.
+ * This function abstracts the process of selecting a specific breakpoint's state from the Redux store,
+ * making it easier to access the state of various breakpoints dynamically.
+ *
+ * @param breakpoint - The key representing the breakpoint.
+ * @returns A function that takes the root state and returns the boolean state of the specified breakpoint.
+ *
+ * @example
+ * // Usage example in a component
+ * const isBreakpoint380 = useSelector(selectBreakpoint('isBreakpoint380'));
  */
-export const selectIsBreakpoint380 = (state: TRootState) =>
-  state.mediaQuery.isBreakpoint380;
-
-/**
- * Selector for checking the state of breakpoint 520.
- * @param state - The current state of the application.
- * @returns The boolean state of breakpoint 520.
- */
-export const selectIsBreakpoint520 = (state: TRootState) =>
-  state.mediaQuery.isBreakpoint520;
-
-/**
- * Selector for checking the state of breakpoint 555.
- * @param state - The current state of the application.
- * @returns The boolean state of breakpoint 555.
- */
-export const selectIsBreakpoint555 = (state: TRootState) =>
-  state.mediaQuery.isBreakpoint555;
-
-/**
- * Selector for checking the state of breakpoint 680.
- * @param state - The current state of the application.
- * @returns The boolean state of breakpoint 680.
- */
-export const selectIsBreakpoint680 = (state: TRootState) =>
-  state.mediaQuery.isBreakpoint680;
-
-/**
- * Selector for checking the state of breakpoint 1040.
- * @param state - The current state of the application.
- * @returns The boolean state of breakpoint 1040.
- */
-export const selectIsBreakpoint1040 = (state: TRootState) =>
-  state.mediaQuery.isBreakpoint1040;
-
-/**
- * Selector for checking the state of breakpoint 1250.
- * @param state - The current state of the application.
- * @returns The boolean state of breakpoint 1250.
- */
-export const selectIsBreakpoint1250 = (state: TRootState) =>
-  state.mediaQuery.isBreakpoint1250;
+export const selectBreakpoint =
+  (breakpoint: TBreakpointKeys) => (state: TRootState) =>
+    state.mediaQuery[breakpoint];
 
 /**
  * Selector for checking the state of the mobile breakpoint.
@@ -94,17 +62,57 @@ export const selectIsLargeDesktop = (state: TRootState): boolean =>
   state.mediaQuery.isLargeDesktop;
 
 /**
- * A generic selector for checking the state of any defined breakpoint.
- * This function abstracts the process of selecting a specific breakpoint's state from the Redux store,
- * making it easier to access the state of various breakpoints dynamically.
- *
- * @param breakpoint - The key representing the breakpoint.
- * @returns A function that takes the root state and returns the boolean state of the specified breakpoint.
- *
- * @example
- * // Usage example in a component
- * const isBreakpoint380 = useSelector(selectBreakpoint('isBreakpoint380'));
+ * Selector for checking the state of the extra small (xs) breakpoint.
+ * @param state - The current state of the application.
+ * @returns The boolean state indicating if the viewport is within the extra small breakpoint.
  */
-export const selectBreakpoint =
-  (breakpoint: TBreakpointKeys) => (state: TRootState) =>
-    state.mediaQuery[breakpoint];
+export const selectIsBreakpointXs = (state: TRootState): boolean =>
+  state.mediaQuery.isBreakpointXs;
+
+/**
+ * Selector for checking the state of the small (sm) breakpoint.
+ * @param state - The current state of the application.
+ * @returns The boolean state indicating if the viewport is within the small breakpoint.
+ */
+export const selectIsBreakpointSm = (state: TRootState): boolean =>
+  state.mediaQuery.isBreakpointSm;
+
+/**
+ * Selector for checking the state of the medium (md) breakpoint.
+ * @param state - The current state of the application.
+ * @returns The boolean state indicating if the viewport is within the medium breakpoint.
+ */
+export const selectIsBreakpointMd = (state: TRootState): boolean =>
+  state.mediaQuery.isBreakpointMd;
+
+/**
+ * Selector for checking the state of the large (lg) breakpoint.
+ * @param state - The current state of the application.
+ * @returns The boolean state indicating if the viewport is within the large breakpoint.
+ */
+export const selectIsBreakpointLg = (state: TRootState): boolean =>
+  state.mediaQuery.isBreakpointLg;
+
+/**
+ * Selector for checking the state of the extra-large (xl) breakpoint.
+ * @param state - The current state of the application.
+ * @returns The boolean state indicating if the viewport is within the extra-large breakpoint.
+ */
+export const selectIsBreakpointXl = (state: TRootState): boolean =>
+  state.mediaQuery.isBreakpointXl;
+
+/**
+ * Selector for checking the state of the double extra-large (xxl) breakpoint.
+ * @param state - The current state of the application.
+ * @returns The boolean state indicating if the viewport is within the double extra-large breakpoint.
+ */
+export const selectIsBreakpointXXL = (state: TRootState): boolean =>
+  state.mediaQuery.isBreakpointXXL;
+
+/**
+ * Selector for checking the state of the triple extra-large (xxxl) breakpoint.
+ * @param state - The current state of the application.
+ * @returns The boolean state indicating if the viewport is within the triple extra-large breakpoint.
+ */
+export const selectIsBreakpointXXXL = (state: TRootState): boolean =>
+  state.mediaQuery.isBreakpointXXXL;

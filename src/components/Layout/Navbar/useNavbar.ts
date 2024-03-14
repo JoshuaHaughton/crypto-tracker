@@ -5,7 +5,7 @@ import {
   selectCurrentCurrency,
   selectCurrentSymbol,
 } from "@/lib/store/currency/currencySelectors";
-import { selectIsBreakpoint555 } from "@/lib/store/mediaQuery/mediaQuerySelectors";
+import { selectIsBreakpointMd } from "@/lib/store/mediaQuery/mediaQuerySelectors";
 import { useAppDispatch, useAppSelector } from "@/lib/store";
 import { updateCurrencyCookie } from "@/app/api/updateCookie/utils";
 import usePopularCoinsPreloader from "@/lib/hooks/preloaders/usePopularCoinsPreloader";
@@ -36,7 +36,7 @@ export const useNavbar = (): IUseNavbarState => {
     useState<boolean>(false);
   const currentCurrency = useAppSelector(selectCurrentCurrency);
   const currentSymbol = useAppSelector(selectCurrentSymbol);
-  const isBreakpoint555 = useAppSelector(selectIsBreakpoint555);
+  const isBreakpoint555 = useAppSelector(selectIsBreakpointMd);
 
   const { handlePreload, handleNavigation } = usePopularCoinsPreloader();
 
