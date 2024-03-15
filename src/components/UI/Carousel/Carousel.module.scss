@@ -1,4 +1,4 @@
-@import "../../../styles/partials/mixins";
+@use "../../../styles/partials/mixins";
 
 .carousel {
   height: 50%;
@@ -6,14 +6,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-}
 
-.carousel_item {
-  display: flex !important;
-  flex-direction: column !important;
-  justify-content: center !important;
-  align-items: center !important;
-  overflow: show;
+  &Item {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    overflow: show;
+  }
 }
 
 .green {
@@ -25,43 +25,35 @@
 }
 
 .shimmer {
-  @include shimmer-effect;
+  @include mixins.shimmer-effect;
 }
 
 .embla {
   overflow: hidden;
-}
 
-.embla__container {
-  display: flex;
-}
-
-.embla__slide {
-  contain: layout;
-  min-width: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  // Default flex-basis for small screens
-  flex: 0 0 100%;
-
-  // Medium screens
-  @media (min-width: 360px) {
-    flex: 0 0 50%;
+  &__container {
+    display: flex;
   }
 
-  // Large screens
-  @media (min-width: 512px) {
-    flex: 0 0 33.33%;
-  }
+  &__slide {
+    contain: layout;
+    min-width: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-  // Extra large screens
-  @media (min-width: 750px) {
-    flex: 0 0 25%;
-  }
+    flex: 0 0 27%;
 
-  // Ultra large screens
-  @media (min-width: 1000px) {
-    flex: 0 0 20%;
+    @include mixins.xl {
+      flex: 0 0 33.33%;
+    }
+
+    @include mixins.tablet {
+      flex: 0 0 48%;
+    }
+
+    @include mixins.mobile {
+      flex: 0 0 60%;
+    }
   }
 }
