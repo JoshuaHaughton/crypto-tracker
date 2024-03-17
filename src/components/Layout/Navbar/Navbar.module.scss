@@ -1,95 +1,73 @@
+@use "../../../styles/partials/mixins";
+
 .nav {
-  width: 100vw;
-  max-width: 100vw;
-  overflow: hidden;
-  /* border-top: none; */
+  height: 74px;
+  width: 100%;
   position: sticky;
-  position: -webkit-sticky;
-  top: 0;
   background-color: #1a1b1d;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 100;
   box-shadow: 0 2px 16px 8px rgb(0 0 0 / 20%);
   transition: all 300ms ease;
-  height: 74px;
-}
 
-.nav:hover {
-  box-shadow: 0 2px 16px 8px rgb(0 0 0 / 40%);
+  &:hover {
+    box-shadow: 0 2px 16px 8px rgb(0 0 0 / 40%);
+  }
+
+  &__list {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+    width: 350px;
+    height: 100%;
+    list-style-type: none;
+
+    @include mixins.tablet {
+      &:first-of-type {
+        width: 220px;
+      }
+    }
+  }
+
+  &__link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    margin-left: 8px;
+    transition: all 300ms ease;
+    cursor: pointer;
+    font-size: 17px;
+
+    &:hover {
+      color: #ff9500;
+    }
+
+    & > svg {
+      margin-right: 4px;
+    }
+
+    @include mixins.tablet {
+      &:first-of-type {
+        display: none;
+      }
+    }
+  }
 }
 
 .container {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin: 0 auto;
   max-width: 1200px;
-  width: 100%;
+  width: 90%;
   height: 100%;
-  /* padding: 0 24px; */
-}
 
-.logo_container {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  color: white;
-  width: 120px;
-  height: 60px;
-  position: relative;
-}
-
-.logo_container > span > img {
-  width: fit-content !important;
-  /* min-width: auto !important; */
-}
-
-.title {
-  color: white;
-  margin-left: 12px;
-}
-
-.nav_list {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  text-align: left;
-  width: 35%;
-  max-width: 220px;
-  height: 100%;
-}
-
-.link_wrapper {
-  display: flex;
-  align-items: center;
-  color: #ff9500;
-  padding: 4px;
-  border-radius: 8px;
-}
-
-/* .link_wrapper:hover {
-  background-color: #141416;
-  cursor: pointer;
-} */
-
-.nav_link {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  margin-left: 8px;
-  transition: all 300ms ease;
-  cursor: pointer;
-  font-size: 17px;
-}
-
-.nav_link:hover {
-  color: #ff9500;
-}
-
-.nav_link > svg {
-  margin-right: 4px;
+  &__logo {
+    position: relative;
+    width: 120px;
+    height: 74px;
+  }
 }
 
 .css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root:hover {
@@ -126,57 +104,4 @@
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-@media (max-width: 1200px) {
-  .container {
-    width: 90%;
-  }
-}
-
-@media (max-width: 555px) {
-  .nav_list {
-    justify-content: space-evenly;
-  }
-  .nav_list > div {
-    width: 50% !important;
-    margin: 0 !important;
-  }
-
-  .link_wrapper {
-    justify-content: center;
-  }
-
-  .nav_link {
-    margin: 0 !important;
-  }
-
-  .nav_link > svg {
-    font-size: 34px;
-    margin: 0;
-  }
-}
-
-@media (max-width: 445px) {
-  .nav_list {
-    width: 50%;
-    justify-content: center;
-  }
-
-  .nav_list > div:last-child {
-    /* width: 450% !important; */
-    width: 75% !important;
-    font-size: 4vw;
-  }
-
-  .title {
-    width: fit-content;
-  }
-}
-
-@media (max-width: 320px) {
-  .nav_list {
-    width: 80%;
-    justify-content: center;
-  }
 }

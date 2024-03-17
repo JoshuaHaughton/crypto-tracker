@@ -50,54 +50,55 @@ const Navbar = () => {
       <nav className={styles.nav}>
         <div className={styles.container}>
           {/* The prefetch field prop for Link to break the router.refresh / currency update logic. */}
-          <Link href={"/"}>
+          <Link href={"/"} className={styles.container__logo}>
             <Image
               src={logo}
-              alt="Logo"
+              alt="CryptoTracker Logo"
               fill
-              style={{
-                objectFit: "contain",
-              }}
-              className={styles.logo}
               onMouseEnter={handleHomepagePreload}
               // onClick={handleHomepageNavigation}
               quality={100}
               priority
             />
           </Link>
-          <div className={styles.nav_list}>
-            <HomeIcon
-              onMouseEnter={handleHomepagePreload}
-              onClick={handleHomepageNavigation}
-            />
-            {!isBreakpoint555 && `Home`}
-
-            <StyledSelect
-              variant="outlined"
-              style={{
-                width: 100,
-                height: 40,
-                marginLeft: 15,
-                color: "white",
-              }}
-              value={`${currentCurrency.toUpperCase()},${currentSymbol}`}
-              defaultValue={`${currentCurrency.toUpperCase()},${currentSymbol}`}
-              onChange={handleCurrencyChange}
-            >
-              <MenuItem value={"CAD,$"} className={styles.menu_item}>
-                CAD
-              </MenuItem>
-              <MenuItem value={"USD,$"} className={styles.menu_item}>
-                USD
-              </MenuItem>
-              <MenuItem value={"GBP,£"} className={styles.menu_item}>
-                GBP
-              </MenuItem>
-              <MenuItem value={"AUD,AU$"} className={styles.menu_item}>
-                AUD
-              </MenuItem>
-            </StyledSelect>
-          </div>
+          <ul className={styles.nav__list}>
+            <li className={styles.nav__link}>
+              <Link
+                href={"/"}
+                aria-label="Go to the Home Page"
+                onMouseEnter={handleHomepagePreload}
+              >
+                Home
+              </Link>
+            </li>
+            <li className={styles.nav__link}>
+              <Link
+                href={"#market"}
+                aria-label="Go to the market section on the Home Page"
+              >
+                Market
+              </Link>
+            </li>
+            <li>
+              <StyledSelect
+                variant="outlined"
+                style={{
+                  width: 100,
+                  height: 40,
+                  marginLeft: 15,
+                  color: "white",
+                }}
+                value={`${currentCurrency.toUpperCase()},${currentSymbol}`}
+                defaultValue={`${currentCurrency.toUpperCase()},${currentSymbol}`}
+                onChange={handleCurrencyChange}
+              >
+                <MenuItem value={"CAD,$"}>CAD</MenuItem>
+                <MenuItem value={"USD,$"}>USD</MenuItem>
+                <MenuItem value={"GBP,£"}>GBP</MenuItem>
+                <MenuItem value={"AUD,AU$"}>AUD</MenuItem>
+              </StyledSelect>
+            </li>
+          </ul>
         </div>
       </nav>
       <Snackbar

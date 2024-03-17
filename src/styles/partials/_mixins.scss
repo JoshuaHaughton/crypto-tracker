@@ -49,17 +49,25 @@
   }
 }
 
+// adapted from https://webflow.com/blog/3-new-larger-breakpoints-in-webflow
+// x & below (max-width)
 $breakpoints-mobile: 480px;
 $breakpoints-tablet: 768px;
-$breakpoints-desktop: 1024px;
-$breakpoints-largeDesktop: 1280px;
+$breakpoints-laptop: 1024px;
+// Don't use yet. also, would conflict with $breakpoints-laptop
+// $breakpoints-largeTablet: 991px;
 $breakpoints-xs: 380px;
 $breakpoints-sm: 520px;
 $breakpoints-md: 555px;
 $breakpoints-lg: 680px;
 $breakpoints-xl: 880px;
 $breakpoints-xxl: 1100px;
-$breakpoints-xxxl: 1250px;
+$breakpoints-xxxl: 1350px;
+
+// x & up (min-width)
+$breakpoints-lgDesktop: 1280px;
+$breakpoints-xlDesktop: 1440px;
+$breakpoints-xxlDesktop: 1920px;
 
 // Breakpoints Mixins
 // These mixins allow for cleaner and more maintainable media queries in SCSS files.
@@ -88,10 +96,20 @@ $breakpoints-xxxl: 1250px;
   }
 }
 
-// Large Desktop Devices
-// Use this mixin for styles specific to large desktop devices.
-@mixin largeDesktop {
-  @media (max-width: $breakpoints-largeDesktop) {
+@mixin lgDesktop {
+  @media (min-width: $breakpoints-lgDesktop) {
+    @content;
+  }
+}
+
+@mixin xlDesktop {
+  @media (min-width: $breakpoints-xlDesktop) {
+    @content;
+  }
+}
+
+@mixin xxlDesktop {
+  @media (min-width: $breakpoints-xxlDesktop) {
     @content;
   }
 }
