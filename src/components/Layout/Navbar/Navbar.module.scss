@@ -1,4 +1,4 @@
-@use "../../../styles/partials/mixins";
+@use "../../../styles/partials/mixins/breakpoints";
 
 .nav {
   height: 74px;
@@ -21,13 +21,13 @@
     height: 100%;
     list-style-type: none;
 
-    @include mixins.tablet {
+    @include breakpoints.tablet {
       &:first-of-type {
         max-width: 280px;
       }
     }
 
-    @include mixins.mobile {
+    @include breakpoints.mobile {
       display: none;
     }
   }
@@ -54,12 +54,12 @@
   &__mobileMenuIcon {
     display: none;
 
-    @include mixins.mobile {
+    @include breakpoints.mobile {
       display: block;
     }
   }
 
-  @include mixins.mobile {
+  @include breakpoints.mobile {
     padding-right: 12px;
   }
 }

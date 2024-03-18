@@ -1,4 +1,4 @@
-@use "../../../../styles/partials/mixins";
+@use "../../../../styles/partials/mixins/breakpoints";
 
 .item {
   display: table-row;
@@ -79,19 +79,19 @@
     display: none; // Ensure these elements are not displayed normally
   }
 
-  @include mixins.xxl {
+  @include breakpoints.xxl {
     &MarketCap {
       display: none;
     }
   }
 
-  @include mixins.xl {
+  @include breakpoints.xl {
     &DayVolume {
       display: none;
     }
   }
 
-  @include mixins.tablet {
+  @include breakpoints.tablet {
     .coinCell {
       // Targeting the .coinCell specifically for mobile adjustments
       .coin {

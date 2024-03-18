@@ -1,4 +1,5 @@
-@use "../../../styles//partials/mixins";
+@use "../../../styles/partials/mixins/breakpoints";
+@use "../../../styles/partials/mixins/styles";
 
 .container {
   display: flex;
@@ -7,7 +8,7 @@
   gap: 8px;
   padding: 44px 0;
 
-  @include mixins.tablet {
+  @include breakpoints.tablet {
     justify-content: space-between;
   }
 
@@ -54,7 +55,7 @@
   }
 
   .arrowButton {
-    @include mixins.removeDefaultButtonStyles;
+    @include styles.removeDefaultButtonStyles;
   }
 
   .arrow {
@@ -86,7 +87,7 @@
   gap: 8px;
   min-width: 352px; // 32 (item width) x 11 (max number of items showing at once)
 
-  @include mixins.tablet {
+  @include breakpoints.tablet {
     gap: 0;
     min-width: auto;
 

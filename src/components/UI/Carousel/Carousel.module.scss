@@ -1,4 +1,4 @@
-@use "../../../styles/partials/mixins";
+@use "../../../styles/partials/mixins/breakpoints";
 
 .carousel {
   height: 50%;
@@ -24,10 +24,6 @@
   color: #f00606;
 }
 
-.shimmer {
-  @include mixins.shimmer-effect;
-}
-
 .embla {
   overflow: hidden;
 
@@ -44,15 +40,15 @@
 
     flex: 0 0 27%;
 
-    @include mixins.xl {
+    @include breakpoints.xl {
       flex: 0 0 33.33%;
     }
 
-    @include mixins.tablet {
+    @include breakpoints.tablet {
       flex: 0 0 48%;
     }
 
-    @include mixins.mobile {
+    @include breakpoints.mobile {
       flex: 0 0 60%;
     }
   }

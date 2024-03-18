@@ -1,12 +1,18 @@
-import { useEffect } from "react";
+import { RefObject, useEffect } from "react";
+
+interface IUseModalFocusParams {
+  dialogRef: RefObject<HTMLDialogElement>;
+  closeModal: () => void;
+}
 
 /**
  * A hook that sets up focus trapping within a dialog element and handles closing the dialog on Escape key press.
  *
- * @param {React.RefObject} dialogRef - A ref object pointing to the dialog element.
- * @param {Function} closeModal - A function to call when the dialog should be closed.
  */
-const useModalFocus = (dialogRef, closeModal) => {
+const useModalFocus = ({
+  dialogRef,
+  closeModal,
+}: IUseModalFocusParams): void => {
   useEffect(() => {
     // Get the current dialog element from the ref.
     const dialog = dialogRef.current;
@@ -22,12 +28,13 @@ const useModalFocus = (dialogRef, closeModal) => {
     );
 
     // Determine the first and last focusable elements for focus trapping.
-    const firstFocusableElement = focusableElements[0];
-    const lastFocusableElement =
-      focusableElements[focusableElements.length - 1];
+    const firstFocusableElement = focusableElements[0] as HTMLElement;
+    const lastFocusableElement = focusableElements[
+      focusableElements.length - 1
+    ] as HTMLElement;
 
     // func to trap the focus within the dialog.
-    const trapFocus = (event) => {
+    const trapFocus = (event: KeyboardEvent) => {
       if (event.key === "Tab") {
         // Shift + Tab pressed on the first focusable element.
         if (
@@ -49,7 +56,7 @@ const useModalFocus = (dialogRef, closeModal) => {
     };
 
     // func to close the dialog on Escape key press.
-    const handleEscape = (event) => {
+    const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         closeModal();
       }

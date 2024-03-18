@@ -29,7 +29,7 @@ const Modal: React.FC<IModalProps> = ({
   descId,
 }: IModalProps): JSX.Element => {
   const dialogRef = useRef<HTMLDialogElement>(null);
-  useModalFocus(dialogRef, closeModal);
+  useModalFocus({ dialogRef, closeModal });
 
   return (
     <>

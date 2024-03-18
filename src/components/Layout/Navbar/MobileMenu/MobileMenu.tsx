@@ -31,10 +31,14 @@ const MobileMenu: React.FC<IMobileMenuProps> = ({
     <Modal closeModal={closeMenu}>
       <ul className={styles.menu}>
         <li className={styles.nav__link}>
-          <Link href="/">Home</Link>
+          <Link href="/" onClick={closeMenu}>
+            Home
+          </Link>
         </li>
         <li className={styles.nav__link}>
-          <Link href="#market">Market</Link>
+          <Link href="#market" onClick={closeMenu}>
+            Market
+          </Link>
         </li>
         <li>
           <StyledSelect

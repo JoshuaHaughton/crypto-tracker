@@ -1,4 +1,4 @@
-@use "../../../styles/partials/mixins";
+@use "../../../styles/partials/mixins/breakpoints";
 
 .list {
   width: 90%;
@@ -57,7 +57,7 @@
           width: 21.25%;
         }
 
-        @include mixins.xxl {
+        @include breakpoints.xxl {
           &Name {
             width: 30%;
           }
@@ -75,13 +75,13 @@
           }
         }
 
-        @include mixins.xl {
+        @include breakpoints.xl {
           &Volume {
             display: none;
           }
         }
 
-        @include mixins.tablet {
+        @include breakpoints.tablet {
           &Name {
             padding: 0;
           }
