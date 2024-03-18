@@ -80,38 +80,36 @@ const PopularCoinListItem: React.FC<IPopularCoinListItemProps> = ({
       onMouseEnter={handleMouseEnter}
       onClick={handleClick}
     >
-      <td className={styles.coinCell}>
-        <div className={styles.coin}>
-          <div className={styles.coinInfo}>
-            <figure className={styles.coinInfoImageWrapper}>
-              <Image
-                src={image}
-                height={LIST_ITEM_IMG_SIZE}
-                width={LIST_ITEM_IMG_SIZE}
-                alt={`${name} image`}
-                quality={100}
-                priority
-              />
-            </figure>
-            <div className={styles.coinInfoTextWrapper}>
-              <span className={styles.coinSymbol}>{renderedSymbol}</span>
-              <h3 className={styles.coinName}>{renderedName}</h3>
-            </div>
+      <td className={styles.itemCoin}>
+        <div className={styles.itemCoinInfo}>
+          <figure className={styles.itemCoinInfoImageWrapper}>
+            <Image
+              src={image}
+              height={LIST_ITEM_IMG_SIZE}
+              width={LIST_ITEM_IMG_SIZE}
+              alt={`${name} image`}
+              quality={100}
+              priority
+            />
+          </figure>
+          <div className={styles.itemCoinInfoTextWrapper}>
+            <span className={styles.itemCoinSymbol}>{renderedSymbol}</span>
+            <h3 className={styles.itemCoinName}>{renderedName}</h3>
           </div>
+        </div>
 
-          <div className={styles.coinMobileStats}>
-            <p className={styles.itemPriceMobile}>
-              <b>Price:</b> <br />
-              {currentCurrencySymbol}
-              {current_price}
-            </p>
-            <p
-              className={`${styles.itemDayPriceChangeMobile} ${priceChangeClass}`}
-            >
-              <b>24hr Change:</b> <br />
-              {price_change_percentage_24h}
-            </p>
-          </div>
+        <div className={styles.itemCoinMobileStats}>
+          <p className={styles.itemPriceMobile}>
+            <b>Price:</b> <br />
+            {currentCurrencySymbol}
+            {current_price}
+          </p>
+          <p
+            className={`${styles.itemDayPriceChangeMobile} ${priceChangeClass}`}
+          >
+            <b>24hr Change:</b> <br />
+            {price_change_percentage_24h}
+          </p>
         </div>
       </td>
       <td className={styles.itemPrice}>

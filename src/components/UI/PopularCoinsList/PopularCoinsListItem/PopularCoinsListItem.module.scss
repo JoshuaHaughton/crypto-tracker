@@ -4,7 +4,6 @@
   display: table-row;
   height: 80px;
   border-bottom: 1px solid var(--border-color);
-  white-space: nowrap;
 
   &:hover {
     background: #171718;
@@ -16,22 +15,13 @@
     margin: auto;
   }
 
-  .coin {
-    display: flex;
-    width: 80%;
+  &Coin {
+    width: 25%;
 
     &Info {
       display: flex;
       align-items: flex-start;
       gap: 16px;
-
-      // & > span {
-
-      // }
-
-      // & > p {
-
-      // }
 
       &Mobile {
         display: none;
@@ -49,37 +39,38 @@
         text-align: left;
       }
     }
-
-    &MobileStats {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
   }
 
-  &Price,
-  &DayVolume,
-  &MarketCap,
-  &RedPercent,
-  &GreenPercent {
-    transition: all 300ms ease;
+  &Price {
     width: 16.25%;
-    &.redpercent {
-      color: #f00606;
-    }
-    &.greenpercent {
-      color: #13c783;
-    }
+  }
+  &DayVolume {
+    width: 21.25%;
+  }
+  &DayPriceChange {
+    width: 16.25%;
+  }
+  &MarketCap {
+    width: 21.25%;
   }
 
   &PriceMobile,
   &DayVolumeMobile,
-  &MarketCapMobile,
-  &DayPriceChangeMobile {
+  &DayPriceChangeMobile,
+  &MarketCapMobile {
     display: none; // Ensure these elements are not displayed normally
   }
 
   @include breakpoints.xxl {
+    &Coin {
+      width: 30%;
+    }
+    &Price,
+    &DayVolume,
+    &DayPriceChange {
+      width: 17.5%;
+    }
+
     &MarketCap {
       display: none;
     }
@@ -92,40 +83,37 @@
   }
 
   @include breakpoints.tablet {
-    .coinCell {
-      // Targeting the .coinCell specifically for mobile adjustments
-      .coin {
-        display: flex;
+    &Coin {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+
+      padding: 24px 0;
+      height: 280px;
+
+      width: 100%;
+
+      &Info {
         flex-direction: column;
-        justify-content: space-between;
         align-items: center;
+        gap: 8px;
 
-        padding: 24px 0;
-        height: 280px;
+        &TextWrapper {
+          text-align: center;
+        }
 
-        width: 100%;
-
-        &Info {
+        &Mobile {
+          display: flex;
           flex-direction: column;
+          justify-content: center;
           align-items: center;
-          gap: 8px;
-
-          &TextWrapper {
-            text-align: center;
-          }
-
-          &Mobile {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-          }
         }
+      }
 
-        &MobileStats p b {
-          line-height: 1.5;
-          margin-bottom: 16px;
-        }
+      &MobileStats p b {
+        line-height: 1.5;
+        margin-bottom: 16px;
       }
     }
 
@@ -150,4 +138,11 @@
 .highlight {
   background-color: yellow;
   color: black;
+}
+
+.redPercent {
+  color: #f00606;
+}
+.greenpPercent {
+  color: #13c783;
 }
