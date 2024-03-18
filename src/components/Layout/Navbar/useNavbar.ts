@@ -11,14 +11,17 @@ import { updateCurrencyCookie } from "@/app/api/updateCookie/utils";
 import usePopularCoinsPreloader from "@/lib/hooks/preloaders/usePopularCoinsPreloader";
 
 interface IUseNavbarState {
-  openNotificationBar: boolean;
+  isNotificationBarOpen: boolean;
   currentCurrency: TCurrencyString;
   currentSymbol: string;
+  isMobileMenuOpen: boolean;
   isBreakpoint555: boolean;
-  setOpenNotificationBar: Dispatch<SetStateAction<boolean>>;
+  closeNotificationBar: () => void;
   handleCurrencyChange: (e: SelectChangeEvent<unknown>) => Promise<void>;
   handleHomepagePreload: () => void;
   handleHomepageNavigation: () => void;
+  openMobileMenu: () => void;
+  closeMobileMenu: () => void;
 }
 
 /**
@@ -32,11 +35,12 @@ interface IUseNavbarState {
 export const useNavbar = (): IUseNavbarState => {
   console.log("useNavbar render");
   const dispatch = useAppDispatch();
-  const [openNotificationBar, setOpenNotificationBar] =
+  const [isNotificationBarOpen, setIsNotificationBarOpen] =
     useState<boolean>(false);
   const currentCurrency = useAppSelector(selectCurrentCurrency);
   const currentSymbol = useAppSelector(selectCurrentSymbol);
   const isBreakpoint555 = useAppSelector(selectIsBreakpointMd);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const { handlePreload, handleNavigation } = usePopularCoinsPreloader();
 
@@ -52,7 +56,7 @@ export const useNavbar = (): IUseNavbarState => {
       .toUpperCase() as TCurrencyString;
     if (!newCurrency) return; // Guard clause in case newCurrency is invalid
 
-    setOpenNotificationBar(true); // Open the notification bar to indicate the currency change.
+    setIsNotificationBarOpen(true); // Open the notification bar to indicate the currency change.
 
     try {
       // Update the currency cookie with the new currency value.
@@ -65,20 +69,28 @@ export const useNavbar = (): IUseNavbarState => {
       await dispatch(updateCurrency({ updatedCurrency: newCurrency }));
 
       // Close the notification bar to indicate the currency change completion.
-      setOpenNotificationBar(false);
+      setIsNotificationBarOpen(false);
     } catch (error) {
       console.error("Error updating currency:", error);
     }
   };
 
+  const closeNotificationBar = () => setIsNotificationBarOpen(false);
+
+  const openMobileMenu = () => setIsMobileMenuOpen(true);
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
+
   return {
-    openNotificationBar,
+    isNotificationBarOpen,
     currentCurrency,
     currentSymbol,
+    isMobileMenuOpen,
     isBreakpoint555,
-    setOpenNotificationBar,
     handleCurrencyChange,
     handleHomepagePreload: handlePreload,
     handleHomepageNavigation: handleNavigation,
+    closeNotificationBar,
+    openMobileMenu,
+    closeMobileMenu,
   };
 };

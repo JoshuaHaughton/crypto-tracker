@@ -1,0 +1,20 @@
+.menu {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  list-style-type: none;
+  margin-top: 25vh;
+  gap: calc((100vh / 3) / 4);
+  width: 100%;
+
+  & > li {
+    font-size: var(--typography-sizes-large);
+  }
+
+  &__closeIcon {
+    position: absolute;
+    top: 0;
+    right: 16px;
+  }
+}

@@ -3,19 +3,20 @@ import { useNavbar } from "./useNavbar";
 import styles from "./Navbar.module.scss";
 import logo from "../../../../public/Crypto.svg";
 import Image from "next/image";
-import HomeIcon from "@mui/icons-material/Home";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import Snackbar from "@mui/material/Snackbar";
 import styled from "@mui/system/styled";
 import { outlinedInputClasses } from "@mui/material";
 import Link from "next/link";
-import { BLUR_IMG_URL } from "@/lib/constants/globalConstants";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBars } from "@fortawesome/free-solid-svg-icons";
+import MobileMenu from "./MobileMenu/MobileMenu";
 
 const vertical = "bottom";
 const horizontal = "center";
 
-const StyledSelect = styled(Select)(`
+export const StyledSelect = styled(Select)(`
   & .${outlinedInputClasses.notchedOutline} {
     border-color: white;
     color: white;
@@ -35,14 +36,17 @@ const StyledSelect = styled(Select)(`
 const Navbar = () => {
   console.log("Navbar render");
   const {
-    openNotificationBar,
     currentCurrency,
     currentSymbol,
+    isMobileMenuOpen,
+    isNotificationBarOpen,
     isBreakpoint555,
-    setOpenNotificationBar,
+    closeNotificationBar,
     handleCurrencyChange,
     handleHomepagePreload,
     handleHomepageNavigation,
+    openMobileMenu,
+    closeMobileMenu,
   } = useNavbar();
 
   return (
@@ -99,14 +103,28 @@ const Navbar = () => {
               </StyledSelect>
             </li>
           </ul>
+          <FontAwesomeIcon
+            icon={faBars}
+            className={styles.nav__mobileMenuIcon}
+            onClick={openMobileMenu}
+            size="2xl"
+          />
+          {isMobileMenuOpen && (
+            <MobileMenu
+              currentCurrency={currentCurrency}
+              currentSymbol={currentSymbol}
+              handleCurrencyChange={handleCurrencyChange}
+              closeMenu={closeMobileMenu}
+            />
+          )}
         </div>
       </nav>
       <Snackbar
         anchorOrigin={{ vertical, horizontal }}
-        open={openNotificationBar}
-        onClose={() => setOpenNotificationBar(false)}
+        onClose={closeNotificationBar}
         message="Retrieving New Currency..."
         key={vertical + horizontal}
+        open={isNotificationBarOpen}
         ContentProps={{
           className: styles.snackbar,
           classes: {

@@ -23,8 +23,12 @@
 
     @include mixins.tablet {
       &:first-of-type {
-        width: 220px;
+        max-width: 280px;
       }
+    }
+
+    @include mixins.mobile {
+      display: none;
     }
   }
 
@@ -45,12 +49,18 @@
     & > svg {
       margin-right: 4px;
     }
+  }
 
-    @include mixins.tablet {
-      &:first-of-type {
-        display: none;
-      }
+  &__mobileMenuIcon {
+    display: none;
+
+    @include mixins.mobile {
+      display: block;
     }
+  }
+
+  @include mixins.mobile {
+    padding-right: 12px;
   }
 }
 

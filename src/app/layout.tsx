@@ -29,6 +29,8 @@ export default async function RootLayout({
         <GlobalStoreProvider initialData={initialAppData}>
           <AppInitializer />
           <MainLayout>{children}</MainLayout>
+          <div id="backdrop-root"></div> {/* Used for modal backdrop */}
+          <div id="overlay-root"></div> {/* Used for modal content */}
         </GlobalStoreProvider>
       </body>
     </html>
