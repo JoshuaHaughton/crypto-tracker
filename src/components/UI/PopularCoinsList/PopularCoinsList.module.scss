@@ -89,6 +89,7 @@
           }
           &Change {
             width: 17.5%;
+            border-top-right-radius: 6px;
           }
           &Market_Cap {
             display: none;
@@ -105,6 +106,7 @@
           &Coin {
             padding-left: 0;
             text-align: center !important;
+            border-top-right-radius: 6px;
           }
 
           &Change,
