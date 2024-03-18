@@ -1,10 +1,16 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { ICoinOverview, IPopularCoinSearchItem } from "@/lib/types/coinTypes";
-import { POPULAR_COINS_PAGE_SIZE } from "@/lib/constants/globalConstants";
+import {
+  MOBILE_POPULAR_COINS_PAGE_SIZE,
+  POPULAR_COINS_PAGE_SIZE,
+} from "@/lib/constants/globalConstants";
 import { useAppSelector } from "@/lib/store";
 import { selectPopularCoins } from "@/lib/store/coins/coinsSelectors";
 import { useInitialPageData } from "@/lib/contexts/initialPageDataContext";
-import { selectIsBreakpointXXXL } from "@/lib/store/mediaQuery/mediaQuerySelectors";
+import {
+  selectIsBreakpointXXXL,
+  selectIsTablet,
+} from "@/lib/store/mediaQuery/mediaQuerySelectors";
 
 /**
  * Defines the shape of the params used by useCoinsForCurrentPage.
@@ -37,6 +43,7 @@ export const useCurrentPageCoins = ({
   console.log("useCurrentPageCoins - Hook Invoked");
   // Redux state selectors.
   const reduxPopularCoins = useAppSelector(selectPopularCoins);
+  const isTablet = useAppSelector(selectIsTablet);
   const isBreakpoint1250 = useAppSelector(selectIsBreakpointXXXL);
   // Fallback to page specific data if Redux store doesn't have carousel coins yet.
   const { popularCoins: initialPopularCoins } = useInitialPageData();
@@ -54,6 +61,7 @@ export const useCurrentPageCoins = ({
       searchResults,
       popularCoins,
       currentPageNumber,
+      isTablet,
     ),
   );
 
@@ -79,6 +87,7 @@ export const useCurrentPageCoins = ({
         searchResults,
         popularCoins,
         currentPageNumber,
+        isTablet,
       );
 
       // Update cache with new results.
@@ -87,7 +96,7 @@ export const useCurrentPageCoins = ({
 
     // Set state with cached or newly computed coins.
     setCoinsForCurrentPage(pageCacheRef.current.get(cacheKey) || []);
-  }, [currentQuery, currentPageNumber, searchResults, popularCoins]);
+  }, [currentQuery, currentPageNumber, searchResults, popularCoins, isTablet]);
 
   // Clears cache when search results or popular coins list changes, but not on initial render.
   useEffect(() => {
@@ -112,7 +121,7 @@ export const useCurrentPageCoins = ({
     console.log("update effect - useCurrentPageCoins");
     updateCoinsForCurrentPage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentQuery, currentPageNumber]);
+  }, [currentQuery, currentPageNumber, isTablet]);
 
   return { coinsForCurrentPage };
 };
@@ -135,6 +144,7 @@ function prepareCoinsForDisplay(
   searchResults: IPopularCoinSearchItem[],
   popularCoins: ICoinOverview[],
   currentPageNumber: number,
+  isTablet: boolean,
 ): IPopularCoinSearchItem[] {
   // Check if there is an active search query to determine the source of the coins.
   const isSearchActive = currentQuery.length > 0;
@@ -148,9 +158,13 @@ function prepareCoinsForDisplay(
         // Omit matchDetails for popularCoins as they are not part of search results and don't require highlighting.
       }));
 
+  const pageSize = isTablet
+    ? MOBILE_POPULAR_COINS_PAGE_SIZE
+    : POPULAR_COINS_PAGE_SIZE;
+
   // Calculate the start and end indices for slicing the array based on the current page number and the predefined page size.
-  const startIndex = (currentPageNumber - 1) * POPULAR_COINS_PAGE_SIZE;
-  const endIndex = startIndex + POPULAR_COINS_PAGE_SIZE;
+  const startIndex = (currentPageNumber - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
 
   // Slice the initialSource array to get only the coins for the current page, ensuring efficient data loading and display.
   return initialSource.slice(startIndex, endIndex);

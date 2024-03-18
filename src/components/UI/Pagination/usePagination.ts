@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { appInfoActions } from "@/lib/store/appInfo/appInfoSlice";
 import {
   ELLIPSES,
+  MOBILE_POPULAR_COINS_PAGE_SIZE,
   POPULAR_COINS_PAGE_SIZE,
 } from "@/lib/constants/globalConstants";
 import { range } from "lodash";
@@ -78,10 +79,16 @@ const usePagination = ({
     [isMobile, isTablet],
   );
 
+  // Determine the page size based on device type using useMemo for optimization.
+  const pageSize = useMemo(
+    () => (isTablet ? MOBILE_POPULAR_COINS_PAGE_SIZE : POPULAR_COINS_PAGE_SIZE),
+    [isTablet],
+  );
+
   // Calculate the total number of pages.
   const totalPageCount = useMemo(
-    () => Math.ceil(totalItemsCount / POPULAR_COINS_PAGE_SIZE),
-    [totalItemsCount],
+    () => Math.ceil(totalItemsCount / pageSize),
+    [totalItemsCount, pageSize],
   );
 
   // Use useMemo to optimize the calculation of the pagination range, preventing unnecessary recalculations.

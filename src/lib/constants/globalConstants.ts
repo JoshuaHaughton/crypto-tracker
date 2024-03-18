@@ -37,6 +37,7 @@ export const SYMBOLS_BY_CURRENCIES = {
 
 // Application Behavior Constants
 export const MAXIMUM_PRELOADED_COIN_COUNT = 30;
+export const MOBILE_POPULAR_COINS_PAGE_SIZE = 5;
 export const POPULAR_COINS_PAGE_SIZE = 10;
 export const CAROUSEL_COIN_COUNT = 10;
 export const MAX_PRELOADING_COUNT = 5;
