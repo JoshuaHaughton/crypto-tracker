@@ -1,4 +1,4 @@
-@import "./Carousel.module.scss";
+@use "./Carousel.module.scss";
 
 .itemSkeleton {
   @extend .carousel_item; // Extend the main carousel item styles for consistency

@@ -1,11 +1,23 @@
 import "../styles/globals.scss";
-import { Inter } from "next/font/google";
+import { Heebo, Inter, Rubik } from "next/font/google";
 import { Metadata } from "next";
 import { GlobalStoreProvider } from "@/lib/store/storeProvider";
 import { AppInitializer } from "../components/Initializers/AppInitializer/AppInitializer";
 import { cookies } from "next/headers";
 import MainLayout from "@/components/Layout/MainLayout/MainLayout";
 import { getInitialData } from "@/lib/utils/dataFormat.utils";
+
+const heebo = Heebo({
+  weight: ["400", "600", "700"],
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const rubik = Rubik({
+  weight: ["400", "600", "700"],
+  subsets: ["latin"],
+  display: "swap",
+});
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,7 +37,9 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body
+        className={`${heebo.className} ${rubik.className} ${inter.className}`}
+      >
         <GlobalStoreProvider initialData={initialAppData}>
           <AppInitializer />
           <MainLayout>{children}</MainLayout>
