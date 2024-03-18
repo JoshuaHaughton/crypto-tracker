@@ -108,7 +108,7 @@ const PopularCoinsList: React.FC = () => {
           <table className={styles.listTable}>
             <thead className={styles.listTableHead}>
               <tr>
-                <th className={styles.listTableHeadCellName}>Name</th>
+                <th className={styles.listTableHeadCellCoin}>Coin</th>
                 <th className={styles.listTableHeadCellPrice}>Price</th>
                 <th className={styles.listTableHeadCellVolume}>24hr Volume</th>
                 <th className={styles.listTableHeadCellChange}>24hr Change</th>

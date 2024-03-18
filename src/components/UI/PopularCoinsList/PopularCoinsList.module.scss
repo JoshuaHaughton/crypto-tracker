@@ -47,21 +47,21 @@
       background-color: var(--primary);
 
       tr > th {
+        text-align: center;
+
         &:last-child {
           border-top-right-radius: 6px;
         }
 
         &:first-child {
+          text-align: left;
           border-top-left-radius: 6px;
         }
-        text-align: center;
       }
 
       &Cell {
-        text-align: center;
-
-        &Name {
-          padding-left: 24px;
+        &Coin {
+          padding-left: 54px;
           width: 25%;
         }
         &Price {
@@ -78,7 +78,7 @@
         }
 
         @include breakpoints.xxl {
-          &Name {
+          &Coin {
             width: 30%;
           }
           &Price {
@@ -102,8 +102,9 @@
         }
 
         @include breakpoints.tablet {
-          &Name {
-            padding: 0;
+          &Coin {
+            padding-left: 0;
+            text-align: center !important;
           }
 
           &Change,
