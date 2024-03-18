@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { appInfoActions } from "@/lib/store/appInfo/appInfoSlice";
 import {
   ELLIPSES,
@@ -21,6 +21,12 @@ import {
  * This constant helps in determining if the full range of pages should be displayed without ellipses.
  */
 const STATIC_PAGINATION_ELEMENTS = 5;
+/**
+ * Default sibling count on each side of the current page for pagination.
+ * SiblingCount of 1 is a sensible default, providing a balance between
+ * showing enough page links for quick navigation without overcrowding the pagination UI.
+ * It ensures the current page is always displayed with one page link on either side if available.
+ */
 const DEFAULT_SIBLING_COUNT = 2;
 const TABLET_SIBLING_COUNT = 1;
 const MOBILE_SIBLING_COUNT = 0;
@@ -55,37 +61,22 @@ interface IUsePaginationState {
  * @returns {TPaginationItem[]} The calculated range of pages, including dots for overflow indication.
  */
 const usePagination = ({
-  /**
-   * Default sibling count on each side of the current page for pagination.
-   * SiblingCount of 1 is a sensible default, providing a balance between
-   * showing enough page links for quick navigation without overcrowding the pagination UI.
-   * It ensures the current page is always displayed with one page link on either side if available.
-   */
-  siblingCount = DEFAULT_SIBLING_COUNT,
   totalItemsCount,
   currentPageNumber,
 }: IUsePaginationParams): IUsePaginationState => {
   const dispatch = useAppDispatch();
   const isMobile = useAppSelector(selectIsMobile);
   const isTablet = useAppSelector(selectIsTablet);
-  const [currentSiblingCount, setCurrentSiblingCount] = useState(
-    isMobile
-      ? MOBILE_SIBLING_COUNT
-      : isTablet
-      ? TABLET_SIBLING_COUNT
-      : siblingCount,
-  );
-
-  // Update the sibling count on smaller devices
-  useEffect(() => {
-    setCurrentSiblingCount(
+  // Determine the current sibling count based on device type using useMemo for optimization.
+  const currentSiblingCount = useMemo(
+    () =>
       isMobile
         ? MOBILE_SIBLING_COUNT
         : isTablet
         ? TABLET_SIBLING_COUNT
-        : siblingCount,
-    );
-  }, [isMobile, isTablet, siblingCount]);
+        : DEFAULT_SIBLING_COUNT,
+    [isMobile, isTablet],
+  );
 
   // Calculate the total number of pages.
   const totalPageCount = useMemo(
