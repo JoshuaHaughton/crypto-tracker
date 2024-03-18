@@ -1,12 +1,15 @@
 import React from "react";
 import styles from "./Pagination.module.scss";
-import usePagination from "@/components/UI/Pagination/usePagination";
+import { TPaginationItem } from "@/components/UI/Pagination/usePagination";
 import PaginationItem from "./PaginationItem";
 import PaginationArrow from "./PaginationArrow";
 
 interface IPaginationParams {
-  totalItemsCount: number;
+  paginationRange: TPaginationItem[];
   currentPageNumber: number;
+  goToPreviousPage: () => void;
+  goToNextPage: () => void;
+  goToPage: (pageNumber: number) => void;
 }
 
 /**
@@ -15,14 +18,12 @@ interface IPaginationParams {
  * @returns {React.ReactElement | null} The Pagination component or null if pagination is not needed.
  */
 const Pagination: React.FC<IPaginationParams> = ({
-  totalItemsCount,
+  paginationRange,
   currentPageNumber,
+  goToPreviousPage,
+  goToNextPage,
+  goToPage,
 }: IPaginationParams): React.ReactElement | null => {
-  const { paginationRange, onPrevious, onNext, goToPage } = usePagination({
-    totalItemsCount,
-    currentPageNumber,
-  });
-
   // Determine if the "Previous" and "Next" arrows should be disabled.
   const isFirstPage = currentPageNumber === 1;
   const isLastPage = currentPageNumber === paginationRange.at(-1);
@@ -32,7 +33,7 @@ const Pagination: React.FC<IPaginationParams> = ({
       {/* Previous page arrow, disabled if on the first page */}
       <PaginationArrow
         direction="left"
-        onClick={onPrevious}
+        onClick={goToPreviousPage}
         isDisabled={isFirstPage}
       />
 
@@ -52,7 +53,7 @@ const Pagination: React.FC<IPaginationParams> = ({
       {/* Next page arrow, disabled if on the last page */}
       <PaginationArrow
         direction="right"
-        onClick={onNext}
+        onClick={goToNextPage}
         isDisabled={isLastPage}
       />
     </div>

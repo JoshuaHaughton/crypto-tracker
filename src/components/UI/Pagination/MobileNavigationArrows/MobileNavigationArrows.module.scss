@@ -1,0 +1,49 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 180px;
+}
+
+.arrowButton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid #ff9500;
+  background-color: transparent;
+  cursor: pointer;
+  transition: background-color 0.3s;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  &:hover:enabled {
+    background-color: rgba(255, 149, 0, 0.2);
+  }
+}
+
+.arrow {
+  display: inline-block;
+  border: solid #ff9500;
+  border-width: 0 2px 2px 0;
+  padding: 3px;
+}
+
+.left {
+  transform: rotate(135deg);
+}
+
+.right {
+  transform: rotate(-45deg);
+}
+
+.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  border-color: #ccc;
+}

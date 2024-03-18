@@ -39,10 +39,10 @@ interface IUsePaginationParams {
  * Can be a page number or a string representing ellipsis.
  */
 
-type PaginationItem = number | typeof ELLIPSES;
+export type TPaginationItem = number | typeof ELLIPSES;
 
 interface IUsePaginationState {
-  paginationRange: PaginationItem[];
+  paginationRange: TPaginationItem[];
   onNext: () => void;
   onPrevious: () => void;
   goToPage: (pageNumber: number) => void;
@@ -52,7 +52,7 @@ interface IUsePaginationState {
  * Custom hook to calculate the pagination range for displaying pagination controls.
  *
  * @param {IUsePaginationParams} params Configuration options for the hook.
- * @returns {PaginationItem[]} The calculated range of pages, including dots for overflow indication.
+ * @returns {TPaginationItem[]} The calculated range of pages, including dots for overflow indication.
  */
 const usePagination = ({
   /**
@@ -94,7 +94,7 @@ const usePagination = ({
   );
 
   // Use useMemo to optimize the calculation of the pagination range, preventing unnecessary recalculations.
-  const paginationRange: PaginationItem[] = useMemo(() => {
+  const paginationRange: TPaginationItem[] = useMemo(() => {
     // Simple case: If the total number of pages is less than the pages we want to show, return the full range.
     if (totalPageCount <= currentSiblingCount + STATIC_PAGINATION_ELEMENTS) {
       return Array.from({ length: totalPageCount }, (_, i) => i + 1);
@@ -115,7 +115,7 @@ const usePagination = ({
     const shouldShowRightEllipses = rightSiblingIndex < totalPageCount - 1;
 
     // Construct the pagination range dynamically based on conditions.
-    const paginationItems: PaginationItem[] = [1]; // Always include the first page.
+    const paginationItems: TPaginationItem[] = [1]; // Always include the first page.
 
     // Include left dots and pages leading up to the current page if necessary.
     if (shouldShowLeftEllipses) {

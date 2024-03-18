@@ -14,6 +14,7 @@ import { useAppSelector } from "@/lib/store";
 import useCoinDetailsPreloader from "@/lib/hooks/preloaders/useCoinDetailsPreloader";
 import { useInitialPageData } from "@/lib/contexts/initialPageDataContext";
 import { selectPopularCoins } from "@/lib/store/coins/coinsSelectors";
+import usePagination, { TPaginationItem } from "../Pagination/usePagination";
 
 /**
  * Interface defining the structure for the state and setters returned by usePopularCoinsList hook.
@@ -22,6 +23,9 @@ interface IUsePopularCoinsListState {
   searchQuery: string;
   coinsForCurrentPage: IPopularCoinSearchItem[];
   currentPageNumber: number;
+  isPreviousDisabled: boolean;
+  isNextDisabled: boolean;
+  paginationRange: TPaginationItem[];
   totalItemsCount: number;
   currentSymbol: TCurrencySymbol;
   isMobile: boolean;
@@ -31,6 +35,9 @@ interface IUsePopularCoinsListState {
   handleInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
   handleItemMouseEnter: (symbol: string) => void;
   handleNavigation: (symbol: string) => void;
+  goToPreviousPage: () => void;
+  goToNextPage: () => void;
+  goToPage: (pageNumber: number) => void;
 }
 
 /**
@@ -72,6 +79,14 @@ export function usePopularCoinsList(): IUsePopularCoinsListState {
       ? searchResults.length
       : allPopularCoins.length;
 
+  const { paginationRange, onPrevious, onNext, goToPage } = usePagination({
+    totalItemsCount,
+    currentPageNumber,
+  });
+
+  const isFirstPage = currentPageNumber === 1;
+  const isLastPage = currentPageNumber === paginationRange.at(-1);
+
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     console.log("handleInputChange");
@@ -86,6 +101,9 @@ export function usePopularCoinsList(): IUsePopularCoinsListState {
     coinsForCurrentPage,
     totalItemsCount,
     currentPageNumber,
+    isPreviousDisabled: isFirstPage,
+    isNextDisabled: isLastPage,
+    paginationRange,
     currentSymbol,
     isMobile,
     isTablet,
@@ -94,5 +112,8 @@ export function usePopularCoinsList(): IUsePopularCoinsListState {
     handleInputChange,
     handleItemMouseEnter: handlePreload,
     handleNavigation,
+    goToPreviousPage: onPrevious,
+    goToNextPage: onNext,
+    goToPage,
   };
 }

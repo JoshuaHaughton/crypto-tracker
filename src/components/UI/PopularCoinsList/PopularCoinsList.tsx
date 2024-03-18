@@ -14,6 +14,7 @@ import {
   IPopularCoinSearchItem,
 } from "@/lib/types/coinTypes";
 import { isNumber } from "../../../lib/utils/global.utils";
+import MobileNavigationArrows from "../Pagination/MobileNavigationArrows/MobileNavigationArrows";
 
 /**
  * Displays a list of popular coins with pagination and search functionality.
@@ -27,6 +28,9 @@ const PopularCoinsList: React.FC = () => {
     coinsForCurrentPage,
     totalItemsCount,
     currentPageNumber,
+    isPreviousDisabled,
+    isNextDisabled,
+    paginationRange,
     currentSymbol,
     isDesktop,
     isTablet,
@@ -34,6 +38,9 @@ const PopularCoinsList: React.FC = () => {
     handleInputChange,
     handleItemMouseEnter,
     handleNavigation,
+    goToPreviousPage,
+    goToNextPage,
+    goToPage,
   } = usePopularCoinsList();
 
   // Determine which content to display based on the loading state and coinsForCurrentPage length
@@ -54,37 +61,49 @@ const PopularCoinsList: React.FC = () => {
   return (
     <>
       <div className={styles.list}>
-        <h2 className={styles.listTitle}>Crypto Prices</h2>
-        <TextField
-          label="Search for a cryptocurrency"
-          variant="outlined"
-          sx={{
-            "& .MuiInputLabel-root": { color: "#b2b2b2" },
-            "& .MuiOutlinedInput-root": {
-              "& > fieldset": { borderColor: "white", color: "white" },
-            },
-            "& .MuiOutlinedInput-root.Mui-focused": {
-              "& > fieldset": {
-                borderColor: "#ff9500",
-              },
-            },
-            "& .MuiOutlinedInput-root:hover": {
-              "& > fieldset": {
-                borderColor: "#ff9500",
-              },
-            },
-            "& .MuiInputLabel-root.Mui-focused": {
-              color: "white",
-            },
-            "& .MuiInputLabel-root.Mui-hover": {
-              color: "white",
-            },
-            input: { color: "white" },
-          }}
-          value={searchQuery}
-          className={styles.listSearch}
-          onChange={handleInputChange}
-        />
+        <div className={styles.listHead}>
+          <h2 className={styles.listTitle}>Crypto Prices</h2>
+          <div className={styles.listActions}>
+            <TextField
+              label="Search for a cryptocurrency"
+              variant="outlined"
+              sx={{
+                "& .MuiInputLabel-root": { color: "#b2b2b2" },
+                "& .MuiOutlinedInput-root": {
+                  "& > fieldset": { borderColor: "white", color: "white" },
+                },
+                "& .MuiOutlinedInput-root.Mui-focused": {
+                  "& > fieldset": {
+                    borderColor: "#ff9500",
+                  },
+                },
+                "& .MuiOutlinedInput-root:hover": {
+                  "& > fieldset": {
+                    borderColor: "#ff9500",
+                  },
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "white",
+                },
+                "& .MuiInputLabel-root.Mui-hover": {
+                  color: "white",
+                },
+                input: { color: "white" },
+              }}
+              value={searchQuery}
+              className={styles.listSearch}
+              onChange={handleInputChange}
+            />
+            {/* {isTablet && ( */}
+            <MobileNavigationArrows
+              onPrevious={goToPreviousPage}
+              onNext={goToNextPage}
+              isPreviousDisabled={isPreviousDisabled}
+              isNextDisabled={isNextDisabled}
+            />
+            {/* )} */}
+          </div>
+        </div>
         <div className={styles.listBody}>
           <table className={styles.listTable}>
             <thead className={styles.listTableHead}>
@@ -102,8 +121,11 @@ const PopularCoinsList: React.FC = () => {
           </table>
         </div>
         <Pagination
-          totalItemsCount={totalItemsCount}
+          paginationRange={paginationRange}
           currentPageNumber={currentPageNumber}
+          goToPreviousPage={goToPreviousPage}
+          goToNextPage={goToNextPage}
+          goToPage={goToPage}
         />
       </div>
     </>
