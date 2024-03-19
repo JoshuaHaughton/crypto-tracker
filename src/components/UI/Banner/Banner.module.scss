@@ -26,17 +26,16 @@
 }
 
 .title_wrapper > h2 {
-  font-size: 64px;
-  margin: 10px;
-  font-weight: 500;
+  // font-size: 64px;
+  // margin: 10px;
+  // font-weight: 500;
 }
 
 .title_wrapper > p {
-  font-size: 18px;
   margin: 0;
 }
 
 .orange {
-  color: #ff9500;
+  color: var(--primary);
   font-weight: 700;
 }

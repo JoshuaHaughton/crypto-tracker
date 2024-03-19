@@ -1,5 +1,5 @@
 import "../styles/globals.scss";
-import { Heebo, Inter, Rubik } from "next/font/google";
+import { Roboto, Inter, Rubik } from "next/font/google";
 import { Metadata } from "next";
 import { GlobalStoreProvider } from "@/lib/store/storeProvider";
 import { AppInitializer } from "../components/Initializers/AppInitializer/AppInitializer";
@@ -7,8 +7,8 @@ import { cookies } from "next/headers";
 import MainLayout from "@/components/Layout/MainLayout/MainLayout";
 import { getInitialData } from "@/lib/utils/dataFormat.utils";
 
-const heebo = Heebo({
-  weight: ["400", "600", "700"],
+const heebo = Roboto({
+  weight: ["400", "700"],
   subsets: ["latin"],
   display: "swap",
 });

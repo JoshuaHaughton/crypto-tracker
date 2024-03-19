@@ -16,7 +16,7 @@
     height: 32px;
     min-width: 32px;
     border-radius: 16px;
-    font-size: 14px;
+    font-size: var(--font-sizes-sm);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -34,7 +34,7 @@
     }
 
     &.selected {
-      background-color: #ff9500;
+      background-color: var(--primary);
       cursor: default;
     }
 
@@ -59,7 +59,7 @@
   }
 
   .arrow {
-    border: solid #ff9500;
+    border: solid var(--primary);
     border-width: 0 3px 3px 0;
     display: inline-block;
     padding: 3px;

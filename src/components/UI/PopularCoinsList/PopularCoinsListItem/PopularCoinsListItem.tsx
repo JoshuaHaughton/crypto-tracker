@@ -93,8 +93,8 @@ const PopularCoinListItem: React.FC<IPopularCoinListItemProps> = ({
             />
           </figure>
           <div className={styles.itemCoinInfoTextWrapper}>
-            <span className={styles.itemCoinSymbol}>{renderedSymbol}</span>
-            <h3 className={styles.itemCoinName}>{renderedName}</h3>
+            <small className={styles.itemCoinSymbol}>{renderedSymbol}</small>
+            <h6 className={styles.itemCoinName}>{renderedName}</h6>
           </div>
         </div>
 

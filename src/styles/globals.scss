@@ -1,6 +1,6 @@
-// These SASS imports are only made available in this file, not globally
 @use "partials/variables" as *;
 
+// Define css variables that may change over the course of the app (e.g. Spacing is only defined in _variables because the values won't change, but colors might if we set them to dark mode)
 :root {
   // Colors
   --primary: var(--colors-primary);
@@ -28,20 +28,6 @@
   --font-text-secondary: var(--colors-font-text-secondary);
   --link-hover: var(--colors-link-hover);
   --link-active: var(--colors-link-active);
-
-  // Typography
-  --primary-font-family: var(--typography-families-primary);
-  --secondary-font-family: var(--typography-families-secondary);
-  --font-size-xs: var(--typography-sizes-xsmall);
-  --font-size-sm: var(--typography-sizes-small);
-  --font-size-md: var(--typography-sizes-medium);
-  --font-size-lg: var(--typography-sizes-large);
-  --font-size-xl: var(--typography-sizes-extra-large);
-
-  // Spacing
-  --radius: var(--spacing-radius);
-  --padding: var(--spacing-padding);
-  --margin: var(--spacing-margin);
 }
 
 // Dark mode specific styles
@@ -105,6 +91,17 @@
   }
 }
 
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+}
+
+/* Specific dark mode adjustments based on class */
+.dark-mode html {
+  color-scheme: dark;
+}
+
 * {
   border-color: var(--border-color);
   box-sizing: border-box;
@@ -121,29 +118,158 @@ body {
 body {
   background-color: var(--background);
   color: var(--foreground);
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  // background: linear-gradient(
+  //     to bottom,
+  //     transparent,
+  //     rgb(var(--background-end-rgb))
+  //   )
+  //   rgb(var(--background-start-rgb));
+}
+
+/* Set primary font color for headings and other main text elements */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+a,
+strong,
+em,
+b,
+i,
+mark,
+time,
+abbr,
+cite {
+  color: var(--font-text-primary);
+  font-family: var(--font-families-primary);
+}
+
+/* Typography styles based on custom properties */
+h1 {
+  font-size: var(--font-sizes-h1);
+  font-weight: var(--font-weight-h1);
+}
+
+h2 {
+  font-size: var(--font-sizes-h2);
+  font-weight: var(--font-weight-h2);
+}
+
+h3 {
+  font-size: var(--font-sizes-h3);
+  font-weight: var(--font-weight-h3);
+}
+
+h4 {
+  font-size: var(--font-sizes-h4);
+  font-weight: var(--font-weight-h4);
+}
+
+h5 {
+  font-size: var(--font-sizes-h5);
+  font-weight: var(--font-weight-h5);
+}
+
+h6 {
+  font-size: var(--font-sizes-h6);
+  font-weight: var(--font-weight-h6);
+}
+
+/* Set secondary font color for all other text-containing elements */
+p,
+span,
+button,
+input,
+select,
+textarea,
+label,
+blockquote,
+dd,
+dl,
+dt,
+td,
+figcaption,
+figure,
+pre,
+code,
+small,
+q,
+del,
+ins,
+caption,
+ul,
+menu,
+menuitem {
+  color: var(--font-text-secondary);
+  font-family: var(--font-families-secondary);
+}
+
+figcaption {
+  font-size: var(--font-sizes-subtitle1);
+  font-weight: var(--font-weight-subtitle1);
+}
+
+small {
+  font-size: var(--font-sizes-subtitle2);
+  font-weight: var(--font-weight-subtitle2);
+}
+
+body,
+p,
+td {
+  font-size: var(--font-sizes-body1);
+  font-weight: var(--font-weight-body1);
 }
 
 a {
-  color: inherit;
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+a:hover {
+  color: #00a0c6;
+  text-decoration: none;
+  cursor: pointer;
 }
 
-/* Specific dark mode adjustments based on class */
-.dark-mode html {
-  color-scheme: dark;
+button {
+  // Remove default styles
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer; // Maintains the pointer to indicate it's clickable but removes other default styles.
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:focus {
+    outline: none;
+  }
+
+  font-size: var(--font-sizes-button);
+  font-weight: var(--font-weight-button);
+}
+
+.subtitle1 {
+  font-size: var(--font-sizes-subtitle1);
+  font-weight: var(--font-weight-subtitle1);
+}
+
+.subtitle2 {
+  font-size: var(--font-sizes-subtitle2);
+  font-weight: var(--font-weight-subtitle2);
+}
+
+.caption {
+  font-size: var(--font-sizes-caption);
+  font-weight: var(--font-weight-caption);
+}
+
+.overline {
+  font-size: var(--font-sizes-overline);
+  font-weight: var(--font-weight-overline);
 }
 
 /* Currency Select Dropdown */

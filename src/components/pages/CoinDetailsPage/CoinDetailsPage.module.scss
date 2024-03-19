@@ -21,7 +21,7 @@
   width: 1px;
   height: calc(100vh - 148px);
   margin: auto 0;
-  border-color: #ff9500;
+  border-color: var(--primary);
 }
 
 .coin_info {
@@ -113,7 +113,7 @@
 }
 
 .back_link:hover {
-  color: #ff9500;
+  color: var(--primary);
   transform: scale(1.05);
 }
 
@@ -188,7 +188,7 @@
   max-width: 23%;
   text-align: center;
   padding: 12px 8px;
-  border: 3px solid #ff9500;
+  border: 3px solid var(--primary);
   color: white;
   border-radius: 6px;
   cursor: pointer;
@@ -203,12 +203,12 @@
 
 .selected_button {
   border: 3px solid white !important;
-  background-color: #ff9500 !important;
+  background-color: var(--primary) !important;
 }
 
 .chart_buttons > button:hover {
   border: 3px solid white;
-  background-color: #ff9500;
+  background-color: var(--primary);
 }
 
 .chart_details {
@@ -290,7 +290,7 @@
 
 .selected_card {
   border: 3px solid #fff !important;
-  background-color: #ff9500 !important;
+  background-color: var(--primary) !important;
 }
 
 .selected_card > div > p {
@@ -355,7 +355,7 @@
     width: 80%;
     height: auto;
     margin: 24px 0;
-    border-color: #ff9500;
+    border-color: var(--primary);
   }
 
   .chart_wrapper {

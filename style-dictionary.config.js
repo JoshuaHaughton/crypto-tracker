@@ -22,6 +22,14 @@ function formatByCategory(allProperties) {
       if (prop.darkValue) {
         output += `  --${prop.name}-dark: ${prop.darkValue};\n`;
       }
+      if (prop.weight) {
+        // Check if 'prop.name' contains the term 'sizes', replace it with 'weight'
+        const propertyName = prop.name.includes("sizes")
+          ? prop.name.replace("sizes", "weight")
+          : `${prop.name}-weight`;
+
+        output += `  --${propertyName}: ${prop.weight};\n`;
+      }
     });
     output += `\n`; // Add a newline for spacing between categories
   }

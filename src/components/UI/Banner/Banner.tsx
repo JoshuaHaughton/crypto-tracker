@@ -22,10 +22,10 @@ const Banner = () => {
       />
       <div className={styles.banner}>
         <div className={styles.title_wrapper}>
-          <h2>
+          <h1>
             <span className={styles.orange}>CRYPTO</span> TRACKER
-          </h2>
-          <p>Get the latest info on your favourite crypto!</p>
+          </h1>
+          <h6>Get the latest info on your favourite crypto!</h6>
         </div>
         <Carousel />
       </div>

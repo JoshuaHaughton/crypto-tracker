@@ -1,10 +1,9 @@
 #nprogress {
-  --primary-color: #ff9500;
   pointer-events: none;
 }
 
 #nprogress .bar {
-  background: var(--primary-color);
+  background: var(--primary);
   position: fixed;
   z-index: 1031;
   /* top: 74px; */
@@ -22,12 +21,12 @@
   right: 0px;
   width: 100px;
   height: 100%;
-  box-shadow: 0 0 10px var(--primary-color), 0 0 5px var(--primary-color);
-  opacity: 1.0;
+  box-shadow: 0 0 10px var(--primary), 0 0 5px var(--primary);
+  opacity: 1;
 
   -webkit-transform: rotate(3deg) translate(0px, -4px);
-      -ms-transform: rotate(3deg) translate(0px, -4px);
-          transform: rotate(3deg) translate(0px, -4px);
+  -ms-transform: rotate(3deg) translate(0px, -4px);
+  transform: rotate(3deg) translate(0px, -4px);
 }
 
 /* Remove these to get rid of the spinner */
@@ -45,12 +44,12 @@
   height: 18px;
   box-sizing: border-box;
   border: solid 2px transparent;
-  border-top-color: var(--primary-color);
-  border-left-color: var(--primary-color);
+  border-top-color: var(--primary);
+  border-left-color: var(--primary);
   border-radius: 50%;
 
   -webkit-animation: nprogress-spinner 400ms linear infinite;
-          animation: nprogress-spinner 400ms linear infinite;
+  animation: nprogress-spinner 400ms linear infinite;
 }
 
 .nprogress-custom-parent {
@@ -64,10 +63,18 @@
 }
 
 @-webkit-keyframes nprogress-spinner {
-  0%   { -webkit-transform: rotate(0deg); }
-  100% { -webkit-transform: rotate(360deg); }
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
 }
 @keyframes nprogress-spinner {
-  0%   { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

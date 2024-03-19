@@ -43,7 +43,7 @@
     font-size: 17px;
 
     &:hover {
-      color: #ff9500;
+      color: var(--primary);
     }
 
     & > svg {
@@ -81,7 +81,7 @@
 }
 
 .css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root:hover {
-  background-color: #ff9500;
+  background-color: var(--primary);
 }
 
 .css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root > svg,
@@ -91,21 +91,21 @@
 
 .css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected:hover,
 .Mui-selected:hover {
-  background-color: #ff9500;
+  background-color: var(--primary);
 }
 
 .css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected,
 .Mui-selected {
-  background-color: #ff950094 !important;
+  background-color: var(--primary)94 !important;
 }
 
 .css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected:hover,
 .Mui-selected:hover {
-  background-color: #ff9500d8;
+  background-color: var(--primary)d8;
 }
 
 .menu_item:hover {
-  background-color: #ff9500;
+  background-color: var(--primary);
 }
 
 .snackbar {

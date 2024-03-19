@@ -1,5 +1,5 @@
 {
-  "typography": {
+  "font": {
     "families": {
       "primary": {
         "value": "Rubik, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', serif"
@@ -9,21 +9,19 @@
       }
     },
     "sizes": {
-      "xsmall": {
-        "value": "0.75rem"
-      },
-      "small": {
-        "value": "1rem"
-      },
-      "medium": {
-        "value": "1.5rem"
-      },
-      "large": {
-        "value": "2rem"
-      },
-      "extraLarge": {
-        "value": "5rem"
-      }
+      "h1": { "value": "6rem", "weight": "300" },
+      "h2": { "value": "3.75rem", "weight": "300" },
+      "h3": { "value": "3rem", "weight": "400" },
+      "h4": { "value": "2.125rem", "weight": "400" },
+      "h5": { "value": "1.5rem", "weight": "400" },
+      "h6": { "value": "1.25rem", "weight": "500" },
+      "subtitle1": { "value": "1rem", "weight": "400" },
+      "subtitle2": { "value": "0.875rem", "weight": "500" },
+      "body1": { "value": "1rem", "weight": "400" },
+      "body2": { "value": "0.875rem", "weight": "400" },
+      "button": { "value": "0.875rem", "weight": "500" },
+      "caption": { "value": "0.75rem", "weight": "400" },
+      "overline": { "value": "0.625rem", "weight": "400" }
     }
   }
 }

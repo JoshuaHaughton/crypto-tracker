@@ -1,13 +1,25 @@
 {
   "spacing": {
+    "xs": {
+      "value": "4px"
+    },
+    "sm": {
+      "value": "8px"
+    },
+    "md": {
+      "value": "16px"
+    },
+    "lg": {
+      "value": "32px"
+    },
+    "xl": {
+      "value": "64px"
+    },
+    "xxl": {
+      "value": "128px"
+    },
     "radius": {
-      "value": "0.5rem"
-    },
-    "padding": {
-      "value": "1rem"
-    },
-    "margin": {
-      "value": "1rem"
+      "value": "8px"
     }
   }
 }

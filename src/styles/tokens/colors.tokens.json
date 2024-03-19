@@ -34,12 +34,12 @@
     },
     "font": {
       "textPrimary": {
-        "value": "#333333",
+        "value": "#fff",
         "darkValue": "#f8f9fa"
       },
       "textSecondary": {
-        "value": "#555555",
-        "darkValue": "#cccccc"
+        "value": "#ccc",
+        "darkValue": "#fff"
       }
     },
     "linkHover": {
