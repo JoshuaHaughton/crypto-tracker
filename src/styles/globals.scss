@@ -298,7 +298,7 @@ button {
 @include breakpoints.tablet {
   :root {
     /* Adjust font sizes for mobile readability */
-    --font-sizes-h1: 4.5rem; /* Decrease from 6rem */
+    --font-sizes-h1: 4rem; /* Decrease from 5.5rem */
     --font-sizes-h2: 3rem; /* Decrease from 3.75rem */
     --font-sizes-h3: 2.25rem; /* Decrease from 3rem */
     // --font-sizes-h4: 1.875rem; /* Decrease from 2.125rem */

@@ -65,18 +65,22 @@
     justify-content: center;
     align-items: center;
 
-    flex: 0 0 27%;
+    flex: 0 0 38%;
+
+    @include breakpoints.xlDesktop {
+      flex: 0 0 20%;
+    }
 
     @include breakpoints.xl {
-      flex: 0 0 33.33%;
+      flex: 0 0 45%;
     }
 
     @include breakpoints.tablet {
-      flex: 0 0 48%;
+      flex: 0 0 50%;
     }
 
     @include breakpoints.mobile {
-      flex: 0 0 60%;
+      flex: 0 0 70%;
     }
   }
 }

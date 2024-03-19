@@ -10,7 +10,7 @@
     },
     "sizes": {
       "h1": {
-        "value": "6rem",
+        "value": "5.5rem",
         "weight": "300",
         "lineHeight": "1.1"
       },

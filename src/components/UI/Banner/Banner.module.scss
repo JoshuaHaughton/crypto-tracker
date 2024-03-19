@@ -22,18 +22,14 @@
 
   &__text {
     text-align: center;
-    margin-top: 24px;
 
     @include breakpoints.tablet {
-      & > h1 {
+      // & > h1 {
+      // }
 
-      }
-  
-      & > h6 {
-      }
-
+      // & > h6 {
+      // }
     }
-
   }
 }
 

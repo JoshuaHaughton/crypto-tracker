@@ -26,25 +26,25 @@ interface IUseCarouselState {
 
 // Set global options for all Embla Carousels
 useEmblaCarousel.globalOptions = {
-  loop: true, // Applies looping to all carousels
-  dragFree: false, // Disables free-scrolling drag behavior by default (snapping into place after dragging)
-  containScroll: "trimSnaps", // Prevents excessive scrolling at the ends
+  loop: true,
+  dragFree: true,
+  containScroll: "trimSnaps",
+  align: "start", // Align slides at the start of the viewport
 };
 
 // Default options for the Embla Carousel
 const defaultCarouselOptions: EmblaOptionsType = {
   loop: true,
-  containScroll: "trimSnaps",
   duration: 50,
 };
 
 // Default autoplay options
 const defaultAutoplayOptions = {
-  delay: 3000, // milliseconds between transitions
-  stopOnInteraction: false, // Autoplay continues even after user interacts with the carousel.
-  stopOnMouseEnter: false, // Autoplay continues even when the mouse enters the carousel area.
-  stopOnFocusIn: false, // Autoplay continues even when a carousel element gains focus.
-  playOnInit: true, // Autoplay starts automatically upon initialization
+  delay: 3000,
+  stopOnInteraction: false,
+  stopOnMouseEnter: true,
+  stopOnFocusIn: false,
+  playOnInit: true,
 };
 
 /**
