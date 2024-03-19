@@ -163,31 +163,37 @@ cite {
 h1 {
   font-size: var(--font-sizes-h1);
   font-weight: var(--font-weight-h1);
+  line-height: var(--font-lineHeight-h1);
 }
 
 h2 {
   font-size: var(--font-sizes-h2);
   font-weight: var(--font-weight-h2);
+  line-height: var(--font-lineHeight-h2);
 }
 
 h3 {
   font-size: var(--font-sizes-h3);
   font-weight: var(--font-weight-h3);
+  line-height: var(--font-lineHeight-h3);
 }
 
 h4 {
   font-size: var(--font-sizes-h4);
   font-weight: var(--font-weight-h4);
+  line-height: var(--font-lineHeight-h4);
 }
 
 h5 {
   font-size: var(--font-sizes-h5);
   font-weight: var(--font-weight-h5);
+  line-height: var(--font-lineHeight-h5);
 }
 
 h6 {
   font-size: var(--font-sizes-h6);
   font-weight: var(--font-weight-h6);
+  line-height: var(--font-lineHeight-h6);
 }
 
 /* Set secondary font color for all other text-containing elements */
@@ -217,6 +223,7 @@ menu,
 menuitem {
   color: var(--colors-font-text-secondary);
   font-family: var(--font-families-secondary);
+  line-height: var(--font-lineHeight-body1);
 }
 
 figcaption {
@@ -229,7 +236,6 @@ small {
   font-weight: var(--font-weight-subtitle2);
 }
 
-body,
 p,
 td {
   font-size: var(--font-sizes-body1);
@@ -268,21 +274,25 @@ button {
 .subtitle1 {
   font-size: var(--font-sizes-subtitle1);
   font-weight: var(--font-weight-subtitle1);
+  line-height: var(--font-lineHeight-subtitle1);
 }
 
 .subtitle2 {
   font-size: var(--font-sizes-subtitle2);
   font-weight: var(--font-weight-subtitle2);
+  line-height: var(--font-lineHeight-subtitle2);
 }
 
 .caption {
   font-size: var(--font-sizes-caption);
   font-weight: var(--font-weight-caption);
+  line-height: var(--font-lineHeight-caption);
 }
 
 .overline {
   font-size: var(--font-sizes-overline);
   font-weight: var(--font-weight-overline);
+  line-height: var(--font-lineHeight-overline);
 }
 
 @include breakpoints.tablet {
@@ -291,27 +301,9 @@ button {
     --font-sizes-h1: 4.5rem; /* Decrease from 6rem */
     --font-sizes-h2: 3rem; /* Decrease from 3.75rem */
     --font-sizes-h3: 2.25rem; /* Decrease from 3rem */
-    --font-sizes-h4: 1.875rem; /* Decrease from 2.125rem */
-    --font-sizes-h5: 1.25rem; /* Same as desktop */
-    --font-sizes-h6: 1.125rem; /* Decrease from 1.25rem */
-    --font-sizes-body1: 0.9375rem; /* Slightly decrease from 1rem */
-    --font-sizes-body2: 0.875rem; /* Same as desktop */
-    --font-sizes-button: 0.875rem; /* Same as desktop */
-    --font-sizes-caption: 0.75rem; /* Same as desktop */
-    --font-sizes-overline: 0.625rem; /* Same as desktop */
-
-    /* Adjust line heights for mobile to enhance readability */
-    --font-lineHeight-h1: 1.2; /* Increase for better readability */
-    --font-lineHeight-h2: 1.3;
-    --font-lineHeight-h3: 1.4;
-    --font-lineHeight-h4: 1.5;
-    --font-lineHeight-h5: 1.6;
-    --font-lineHeight-h6: 1.7;
-    --font-lineHeight-body1: 1.6; /* Slightly increase from 1.5 */
-    --font-lineHeight-body2: 1.7; /* Increase for better readability */
-    --font-lineHeight-button: 1.8; /* Increase to ensure buttons are easily tappable */
-    --font-lineHeight-caption: 1.6; /* Keep as is */
-    --font-lineHeight-overline: 1.8; /* Increase for clarity */
+    // --font-sizes-h4: 1.875rem; /* Decrease from 2.125rem */
+    // --font-sizes-h5: 1.25rem; /* Same as desktop */
+    // --font-sizes-h6: 1.125rem; /* Decrease from 1.25rem */
   }
 }
 
