@@ -39,25 +39,15 @@
         "weight": "500",
         "lineHeight": "1.6"
       },
-      "subtitle1": {
+      "subtitle": {
         "value": "1rem",
         "weight": "400",
         "lineHeight": "1.7"
       },
-      "subtitle2": {
-        "value": "0.875rem",
-        "weight": "500",
-        "lineHeight": "1.8"
-      },
-      "body1": {
+      "body": {
         "value": "1rem",
         "weight": "400",
         "lineHeight": "1.5"
-      },
-      "body2": {
-        "value": "0.875rem",
-        "weight": "400",
-        "lineHeight": "1.6"
       },
       "button": {
         "value": "0.875rem",

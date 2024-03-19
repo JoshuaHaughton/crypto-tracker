@@ -128,13 +128,26 @@ body {
 }
 
 html {
-  color: var(--colors-font-text-primary);
-  font-family: var(--font-families-primary);
+  // Apply secondary font styles globally first since it will be used in most text (p, body text, etc)
+  color: var(--colors-font-text-secondary);
+  font-family: var(--font-families-secondary);
+  line-height: var(--font-lineHeight-body);
 }
 
 body {
   background-color: var(--colors-background);
   color: var(--colors-foreground);
+}
+
+/* Set primary font color for headings and other main text elements */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--colors-font-text-primary);
+  font-family: var(--font-families-primary);
 }
 
 /* Typography styles based on custom properties */
@@ -174,50 +187,10 @@ h6 {
   line-height: var(--font-lineHeight-h6);
 }
 
-/* Set secondary font color for all other text-containing elements */
-p,
-span,
-button,
-input,
-select,
-textarea,
-label,
-blockquote,
-dd,
-dl,
-dt,
-td,
-figcaption,
-figure,
-pre,
-code,
-small,
-q,
-del,
-ins,
-caption,
-ul,
-menu,
-menuitem {
-  color: var(--colors-font-text-secondary);
-  font-family: var(--font-families-secondary);
-  line-height: var(--font-lineHeight-body1);
-}
-
-figcaption {
-  font-size: var(--font-sizes-subtitle1);
-  font-weight: var(--font-weight-subtitle1);
-}
-
-small {
-  font-size: var(--font-sizes-subtitle2);
-  font-weight: var(--font-weight-subtitle2);
-}
-
 p,
 td {
-  font-size: var(--font-sizes-body1);
-  font-weight: var(--font-weight-body1);
+  font-size: var(--font-sizes-body);
+  font-weight: var(--font-weight-body);
 }
 
 a {
@@ -249,16 +222,10 @@ button {
   font-weight: var(--font-weight-button);
 }
 
-.subtitle1 {
-  font-size: var(--font-sizes-subtitle1);
-  font-weight: var(--font-weight-subtitle1);
-  line-height: var(--font-lineHeight-subtitle1);
-}
-
-.subtitle2 {
-  font-size: var(--font-sizes-subtitle2);
-  font-weight: var(--font-weight-subtitle2);
-  line-height: var(--font-lineHeight-subtitle2);
+.subtitle {
+  font-size: var(--font-sizes-subtitle);
+  font-weight: var(--font-weight-subtitle);
+  line-height: var(--font-lineHeight-subtitle);
 }
 
 .caption {
