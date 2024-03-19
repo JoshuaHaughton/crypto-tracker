@@ -12,7 +12,7 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  border: 2px solid var(--primary);
+  border: 2px solid var(--colors-primary);
   background-color: transparent;
   cursor: pointer;
   transition: background-color 0.3s;
@@ -29,7 +29,7 @@
 
 .arrow {
   display: inline-block;
-  border: solid var(--primary);
+  border: solid var(--colors-primary);
   border-width: 0 2px 2px 0;
   padding: 3px;
 }

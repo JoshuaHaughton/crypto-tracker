@@ -3,7 +3,7 @@
 .item {
   display: table-row;
   height: 80px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--colors-border-color);
 
   &:hover {
     background: #171718;
@@ -135,14 +135,14 @@
   }
 }
 
-.highlight {
-  background-color: yellow;
+.highlighted {
+  background-color: var(--colors-primary);
   color: black;
 }
 
 .redPercent {
-  color: #f00606;
+  color: var(--colors-defaults-red);
 }
 .greenpPercent {
-  color: #13c783;
+  color: var(--colors-defaults-green);
 }

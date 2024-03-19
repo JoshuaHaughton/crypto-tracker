@@ -4,7 +4,7 @@
   height: 74px;
   width: 100%;
   position: sticky;
-  background-color: #1a1b1d;
+  background-color: var(--colors-background);
   box-shadow: 0 2px 16px 8px rgb(0 0 0 / 20%);
   transition: all 300ms ease;
 
@@ -43,7 +43,7 @@
     font-size: 17px;
 
     &:hover {
-      color: var(--primary);
+      color: var(--colors-primary);
     }
 
     & > svg {
@@ -81,7 +81,7 @@
 }
 
 .css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root:hover {
-  background-color: var(--primary);
+  background-color: var(--colors-primary);
 }
 
 .css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root > svg,
@@ -91,21 +91,23 @@
 
 .css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected:hover,
 .Mui-selected:hover {
-  background-color: var(--primary);
+  background-color: var(--colors-primary);
 }
 
 .css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected,
 .Mui-selected {
-  background-color: var(--primary)94 !important;
+  background-color: var(--colors-primary) 94 !important;
+  color: black;
 }
 
 .css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected:hover,
 .Mui-selected:hover {
-  background-color: var(--primary)d8;
+  background-color: var(--colors-primary) d8;
 }
 
 .menu_item:hover {
-  background-color: var(--primary);
+  background-color: var(--colors-primary);
+  color: black;
 }
 
 .snackbar {

@@ -1,5 +1,4 @@
 @use "../../../styles/partials/mixins/breakpoints";
-@use "../../../styles/partials/mixins/styles";
 
 .container {
   display: flex;
@@ -34,7 +33,7 @@
     }
 
     &.selected {
-      background-color: var(--primary);
+      background-color: var(--colors-primary);
       cursor: default;
     }
 
@@ -54,12 +53,8 @@
     }
   }
 
-  .arrowButton {
-    @include styles.removeDefaultButtonStyles;
-  }
-
   .arrow {
-    border: solid var(--primary);
+    border: solid var(--colors-primary);
     border-width: 0 3px 3px 0;
     display: inline-block;
     padding: 3px;

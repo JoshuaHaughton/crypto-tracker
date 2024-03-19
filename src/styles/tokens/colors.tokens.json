@@ -1,5 +1,5 @@
 {
-  "colors": {
+  "colorBank": {
     "primary": {
       "value": "#ff9500",
       "darkValue": "#ff9500"
@@ -25,8 +25,8 @@
       "darkValue": "210 40% 98%"
     },
     "background": {
-      "value": "0 0% 100%",
-      "darkValue": "222.2 84% 4.9%"
+      "value": "#1a1b1d",
+      "darkValue": "#1a1b1d"
     },
     "foreground": {
       "value": "222.2 84% 4.9%",
@@ -50,9 +50,9 @@
       "value": "#4b4fe2",
       "darkValue": "#3a3fe2"
     },
-    "card": {
-      "value": "0 0% 100%",
-      "darkValue": "222.2 84% 4.9%"
+    "cardBackground": {
+      "value": "rgba(0, 0, 0, 0.377)",
+      "darkValue": "rgba(0, 0, 0, 0.377)"
     },
     "cardForeground": {
       "value": "222.2 84% 4.9%",
@@ -102,6 +102,14 @@
       "lightGray": {
         "value": "#f8f8f8",
         "darkValue": "#737373"
+      },
+      "green": {
+        "value": "#358a24",
+        "darkValue": "#358a24"
+      },
+      "red": {
+        "value": "#f00606",
+        "darkValue": "#f00606"
       }
     }
   }

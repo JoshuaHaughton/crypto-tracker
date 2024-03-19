@@ -3,91 +3,103 @@
 // Define css variables that may change over the course of the app (e.g. Spacing is only defined in _variables because the values won't change, but colors might if we set them to dark mode)
 :root {
   // Colors
-  --primary: var(--colors-primary);
-  --primary-fg: var(--colors-primary-foreground);
-  --secondary: var(--colors-secondary);
-  --secondary-fg: var(--colors-secondary-foreground);
-  --background: var(--colors-background);
-  --foreground: var(--colors-foreground);
-  --card-bg: var(--colors-card);
-  --card-fg: var(--colors-card-foreground);
-  --popover-bg: var(--colors-popover);
-  --popover-fg: var(--colors-popover-foreground);
-  --muted: var(--colors-muted);
-  --muted-fg: var(--colors-muted-foreground);
-  --accent: var(--colors-accent);
-  --accent-fg: var(--colors-accent-foreground);
-  --destructive: var(--colors-destructive);
-  --destructive-fg: var(--colors-destructive-foreground);
-  --border-color: var(--colors-border);
-  --input-bg: var(--colors-input);
-  --ring-color: var(--colors-ring);
+  --colors-primary: var(--color-bank-primary);
+  --colors-primary-fg: var(--color-bank-primary-foreground);
+  --colors-secondary: var(--color-bank-secondary);
+  --colors-secondary-fg: var(--color-bank-secondary-foreground);
+  --colors-background: var(--color-bank-background);
+  --colors-foreground: var(--color-bank-foreground);
+  --colors-card-bg: var(--color-bank-card-background);
+  --colors-card-fg: var(--color-bank-card-foreground);
+  --colors-popover-bg: var(--color-bank-popover);
+  --colors-popover-fg: var(--color-bank-popover-foreground);
+  --colors-muted: var(--color-bank-muted);
+  --colors-muted-fg: var(--color-bank-muted-foreground);
+  --colors-accent: var(--color-bank-accent);
+  --colors-accent-fg: var(--color-bank-accent-foreground);
+  --colors-destructive: var(--color-bank-destructive);
+  --colors-destructive-fg: var(--color-bank-destructive-foreground);
+  --colors-border-color: var(--color-bank-border);
+  --colors-input-bg: var(--color-bank-input);
+  --colors-ring-color: var(--color-bank-ring);
+  --colors-defaults-gray: var(--color-bank-defaults-gray);
+  --colors-defaults-light-gray: var(--color-bank-defaults-light-gray);
+  --colors-defaults-green: var(--color-bank-defaults-green);
+  --colors-defaults-red: var(--color-bank-defaults-red);
 
   // Font colors
-  --font-text-primary: var(--colors-font-text-primary);
-  --font-text-secondary: var(--colors-font-text-secondary);
-  --link-hover: var(--colors-link-hover);
-  --link-active: var(--colors-link-active);
+  --colors-font-text-primary: var(--color-bank-font-text-primary);
+  --colors-font-text-secondary: var(--color-bank-font-text-secondary);
+  --colors-link-hover: var(--color-bank-link-hover);
+  --colors-link-active: var(--color-bank-link-active);
 }
 
 // Dark mode specific styles
 .dark-mode {
   // Colors
-  --primary: var(--colors-primary-dark);
-  --primary-fg: var(--colors-primary-foreground-dark);
-  --secondary: var(--colors-secondary-dark);
-  --secondary-fg: var(--colors-secondary-foreground-dark);
-  --background: var(--colors-background-dark);
-  --foreground: var(--colors-foreground-dark);
-  --card-bg: var(--colors-card-dark);
-  --card-fg: var(--colors-card-foreground-dark);
-  --popover-bg: var(--colors-popover-dark);
-  --popover-fg: var(--colors-popover-foreground-dark);
-  --muted: var(--colors-muted-dark);
-  --muted-fg: var(--colors-muted-foreground-dark);
-  --accent: var(--colors-accent-dark);
-  --accent-fg: var(--colors-accent-foreground-dark);
-  --destructive: var(--colors-destructive-dark);
-  --destructive-fg: var(--colors-destructive-foreground-dark);
-  --border-color: var(--colors-border-dark);
-  --input-bg: var(--colors-input-dark);
-  --ring-color: var(--colors-ring-dark);
+  --colors-primary: var(--color-bank-primary-dark);
+  --colors-primary-fg: var(--color-bank-primary-foreground-dark);
+  --colors-secondary: var(--color-bank-secondary-dark);
+  --colors-secondary-fg: var(--color-bank-secondary-foreground-dark);
+  --colors-background: var(--color-bank-background-dark);
+  --colors-foreground: var(--color-bank-foreground-dark);
+  --colors-card-bg: var(--color-bank-card-background-dark);
+  --colors-card-fg: var(--color-bank-card-foreground-dark);
+  --colors-popover-bg: var(--color-bank-popover-dark);
+  --colors-popover-fg: var(--color-bank-popover-foreground-dark);
+  --colors-muted: var(--color-bank-muted-dark);
+  --colors-muted-fg: var(--color-bank-muted-foreground-dark);
+  --colors-accent: var(--color-bank-accent-dark);
+  --colors-accent-fg: var(--color-bank-accent-foreground-dark);
+  --colors-destructive: var(--color-bank-destructive-dark);
+  --colors-destructive-fg: var(--color-bank-destructive-foreground-dark);
+  --colors-border-color: var(--color-bank-border-dark);
+  --colors-input-bg: var(--color-bank-input-dark);
+  --colors-ring-color: var(--color-bank-ring-dark);
+  --colors-defaults-gray: var(--color-bank-defaults-gray-dark);
+  --colors-defaults-light-gray: var(--color-bank-defaults-light-gray-dark);
+  --colors-defaults-green: var(--color-bank-defaults-green-dark);
+  --colors-defaults-red: var(--color-bank-defaults-red-dark);
 
   // Font colors
-  --font-text-primary: var(--colors-font-text-primary-dark);
-  --font-text-secondary: var(--colors-font-text-secondary-dark);
-  --link-hover: var(--colors-link-hover-dark);
-  --link-active: var(--colors-link-active-dark);
+  --colors-font-text-primary: var(--color-bank-font-text-primary-dark);
+  --colors-font-text-secondary: var(--color-bank-font-text-secondary-dark);
+  --colors-link-hover: var(--color-bank-link-hover-dark);
+  --colors-link-active: var(--color-bank-link-active-dark);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     // Colors
-    --primary: var(--colors-primary-dark);
-    --primary-fg: var(--colors-primary-foreground-dark);
-    --secondary: var(--colors-secondary-dark);
-    --secondary-fg: var(--colors-secondary-foreground-dark);
-    --background: var(--colors-background-dark);
-    --foreground: var(--colors-foreground-dark);
-    --card-bg: var(--colors-card-dark);
-    --card-fg: var(--colors-card-foreground-dark);
-    --popover-bg: var(--colors-popover-dark);
-    --popover-fg: var(--colors-popover-foreground-dark);
-    --muted: var(--colors-muted-dark);
-    --muted-fg: var(--colors-muted-foreground-dark);
-    --accent: var(--colors-accent-dark);
-    --accent-fg: var(--colors-accent-foreground-dark);
-    --destructive: var(--colors-destructive-dark);
-    --destructive-fg: var(--colors-destructive-foreground-dark);
-    --border-color: var(--colors-border-dark);
-    --input-bg: var(--colors-input-dark);
-    --ring-color: var(--colors-ring-dark);
+    --colors-primary: var(--color-bank-primary-dark);
+    --colors-primary-fg: var(--color-bank-primary-foreground-dark);
+    --colors-secondary: var(--color-bank-secondary-dark);
+    --colors-secondary-fg: var(--color-bank-secondary-foreground-dark);
+    --colors-background: var(--color-bank-background-dark);
+    --colors-foreground: var(--color-bank-foreground-dark);
+    --colors-card-bg: var(--color-bank-card-background-dark);
+    --colors-card-fg: var(--color-bank-card-foreground-dark);
+    --colors-popover-bg: var(--color-bank-popover-dark);
+    --colors-popover-fg: var(--color-bank-popover-foreground-dark);
+    --colors-muted: var(--color-bank-muted-dark);
+    --colors-muted-fg: var(--color-bank-muted-foreground-dark);
+    --colors-accent: var(--color-bank-accent-dark);
+    --colors-accent-fg: var(--color-bank-accent-foreground-dark);
+    --colors-destructive: var(--color-bank-destructive-dark);
+    --colors-destructive-fg: var(--color-bank-destructive-foreground-dark);
+    --colors-border-color: var(--color-bank-border-dark);
+    --colors-input-bg: var(--color-bank-input-dark);
+    --colors-ring-color: var(--color-bank-ring-dark);
+    --colors-defaults-gray: var(--color-bank-defaults-gray-dark);
+    --colors-defaults-light-gray: var(--color-bank-defaults-light-gray-dark);
+    --colors-defaults-green: var(--color-bank-defaults-green-dark);
+    --colors-defaults-red: var(--color-bank-defaults-red-dark);
 
     // Font colors
-    --font-text-primary: var(--colors-font-text-primary-dark);
-    --font-text-secondary: var(--colors-font-text-secondary-dark);
-    --link-hover: var(--colors-link-hover-dark);
-    --link-active: var(--colors-link-active-dark);
+    --colors-font-text-primary: var(--color-bank-font-text-primary-dark);
+    --colors-font-text-secondary: var(--color-bank-font-text-secondary-dark);
+    --colors-link-hover: var(--color-bank-link-hover-dark);
+    --colors-link-active: var(--color-bank-link-active-dark);
   }
 }
 
@@ -103,7 +115,7 @@
 }
 
 * {
-  border-color: var(--border-color);
+  border-color: var(--colors-border-color);
   box-sizing: border-box;
   padding: 0;
   margin: 0;
@@ -116,8 +128,8 @@ body {
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
+  background-color: var(--colors-background);
+  color: var(--colors-foreground);
   // background: linear-gradient(
   //     to bottom,
   //     transparent,
@@ -142,7 +154,7 @@ mark,
 time,
 abbr,
 cite {
-  color: var(--font-text-primary);
+  color: var(--colors-font-text-primary);
   font-family: var(--font-families-primary);
 }
 
@@ -202,7 +214,7 @@ caption,
 ul,
 menu,
 menuitem {
-  color: var(--font-text-secondary);
+  color: var(--colors-font-text-secondary);
   font-family: var(--font-families-secondary);
 }
 
@@ -297,6 +309,7 @@ button {
 .css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected,
 .css-1km1ehz.Mui-selected {
   background-color: #ff950094 !important;
+  color: black;
 }
 
 .css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected:hover,
@@ -310,12 +323,11 @@ button {
 
 /* Nprogress bar css */
 #nprogress {
-  --primary-color: #ff9500;
   pointer-events: none;
 }
 
 #nprogress .bar {
-  background: var(--primary-color);
+  background: var(--colors-primary);
   position: fixed;
   z-index: 1031;
   /* top: 74px; */
@@ -333,7 +345,7 @@ button {
   right: 0px;
   width: 100px;
   height: 100%;
-  box-shadow: 0 0 10px var(--primary-color), 0 0 5px var(--primary-color);
+  box-shadow: 0 0 10px var(--colors-primary), 0 0 5px var(--colors-primary);
   opacity: 1;
 
   -webkit-transform: rotate(3deg) translate(0px, -4px);
@@ -356,8 +368,8 @@ button {
   height: 18px;
   box-sizing: border-box;
   border: solid 2px transparent;
-  border-top-color: var(--primary-color);
-  border-left-color: var(--primary-color);
+  border-top-color: var(--colors-primary);
+  border-left-color: var(--colors-primary);
   border-radius: 50%;
 
   -webkit-animation: nprogress-spinner 400ms linear infinite;

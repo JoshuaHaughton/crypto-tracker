@@ -20,7 +20,7 @@
   width: 1px;
   height: calc(100vh - 148px);
   margin: auto 0;
-  border-color: var(--primary);
+  border-color: var(--colors-primary);
 }
 
 .coin_info {
@@ -35,7 +35,7 @@
   width: 30%;
   color: white;
   margin: auto 0;
-  background-color: rgba(0, 0, 0, 0.377);
+  background-color: var(--colors-card-bg);
   box-shadow: 0 4px 12px 0px rgba(0, 0, 0, 0.3);
   position: relative;
   transition: all 300ms ease;
@@ -95,7 +95,7 @@
   width: 100%;
   /* padding: 16px; */
   /* border-radius: 8px; */
-  /* background-color: rgba(0, 0, 0, 0.377);
+  /* background-color: var(--colors-card-bg);
   box-shadow: 0 4px 12px 0px rgba(0, 0, 0, 0.3); */
 }
 
@@ -110,7 +110,7 @@
 }
 
 .back_link:hover {
-  color: var(--primary);
+  color: var(--colors-primary);
   transform: scale(1.05);
 }
 
@@ -164,7 +164,7 @@
   justify-content: center;
   padding: 4px 24px 12px 24px;
   border-radius: 8px;
-  background-color: rgba(0, 0, 0, 0.377);
+  background-color: var(--colors-card-bg);
   box-shadow: 0 4px 12px 0px rgba(0, 0, 0, 0.3);
 }
 
@@ -185,7 +185,7 @@
   max-width: 23%;
   text-align: center;
   padding: 12px 8px;
-  border: 3px solid var(--primary);
+  border: 3px solid var(--colors-primary);
   color: white;
   border-radius: 6px;
   cursor: pointer;
@@ -200,16 +200,16 @@
 
 .selected_button {
   border: 3px solid white !important;
-  background-color: var(--primary) !important;
+  background-color: var(--colors-primary) !important;
 }
 
 .chart_buttons > button:hover {
   border: 3px solid white;
-  background-color: var(--primary);
+  background-color: var(--colors-primary);
 }
 
 .chart_details {
-  background-color: rgba(0, 0, 0, 0.377);
+  background-color: var(--colors-card-bg);
   border-radius: 8px;
   margin-top: 32px;
   padding: 24px 0;
@@ -287,7 +287,7 @@
 
 .selected_card {
   border: 3px solid #fff !important;
-  background-color: var(--primary) !important;
+  background-color: var(--colors-primary) !important;
 }
 
 .selected_card > div > p {
@@ -304,11 +304,11 @@
 }
 
 .green {
-  color: #358a24;
+  color: var(--colors-defaults-green);
 }
 
 .red {
-  color: #f00606;
+  color: var(--colors-defaults-red);
 }
 
 @media (max-width: 1250px) {
@@ -352,7 +352,7 @@
     width: 80%;
     height: auto;
     margin: 24px 0;
-    border-color: var(--primary);
+    border-color: var(--colors-primary);
   }
 
   .chart_wrapper {

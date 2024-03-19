@@ -39,12 +39,12 @@
     width: 100%;
     border-collapse: collapse;
     border-radius: 6px 6px 0 0;
-    background-color: var(--card-bg);
+    background-color: var(--colors-card-bg);
     table-layout: fixed;
 
     &Head {
       height: 64px;
-      background-color: var(--primary);
+      background-color: var(--colors-primary);
 
       tr > th {
         text-align: center;
@@ -122,6 +122,5 @@
 .emptyState {
   text-align: center;
   padding: 20px;
-  color: var(--font-text-secondary);
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--colors-border-color);
 }

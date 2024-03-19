@@ -26,10 +26,10 @@ export const StyledSelect = styled(Select)(`
     }
   }
   &:hover .${outlinedInputClasses.notchedOutline} {
-    border-color: var(--primary);
+    border-color: var(--colors-primary);
   }
   &.${outlinedInputClasses.focused} .${outlinedInputClasses.notchedOutline} {
-    border-color: var(--primary);
+    border-color: var(--colors-primary);
   }
 `);
 
