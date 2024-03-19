@@ -20,10 +20,10 @@ const Banner = () => {
         quality={100}
         priority
       />
-      <div className={styles.banner}>
-        <div className={styles.title_wrapper}>
+      <div className={styles.content}>
+        <div className={styles.content__text}>
           <h1>
-            <span className={styles.orange}>CRYPTO</span> TRACKER
+            <span className={styles.primary}>CRYPTO</span> TRACKER
           </h1>
           <h6>Get the latest info on your favourite crypto!</h6>
         </div>

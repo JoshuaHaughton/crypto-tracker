@@ -30,6 +30,14 @@ function formatByCategory(allProperties) {
 
         output += `  --${propertyName}: ${prop.weight};\n`;
       }
+      if (prop.lineHeight) {
+        // Check if 'prop.name' contains the term 'sizes', replace it with 'weight'
+        const propertyName = prop.name.includes("sizes")
+          ? prop.name.replace("sizes", "lineHeight")
+          : `${prop.name}-lineHeight`;
+
+        output += `  --${propertyName}: ${prop.lineHeight};\n`;
+      }
     });
     output += `\n`; // Add a newline for spacing between categories
   }

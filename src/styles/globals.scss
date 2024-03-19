@@ -1,4 +1,5 @@
-@use "partials/variables" as *;
+@use "./partials/variables" as *;
+@use "./partials/mixins/breakpoints";
 
 // Define css variables that may change over the course of the app (e.g. Spacing is only defined in _variables because the values won't change, but colors might if we set them to dark mode)
 :root {
@@ -282,6 +283,36 @@ button {
 .overline {
   font-size: var(--font-sizes-overline);
   font-weight: var(--font-weight-overline);
+}
+
+@include breakpoints.tablet {
+  :root {
+    /* Adjust font sizes for mobile readability */
+    --font-sizes-h1: 4.5rem; /* Decrease from 6rem */
+    --font-sizes-h2: 3rem; /* Decrease from 3.75rem */
+    --font-sizes-h3: 2.25rem; /* Decrease from 3rem */
+    --font-sizes-h4: 1.875rem; /* Decrease from 2.125rem */
+    --font-sizes-h5: 1.25rem; /* Same as desktop */
+    --font-sizes-h6: 1.125rem; /* Decrease from 1.25rem */
+    --font-sizes-body1: 0.9375rem; /* Slightly decrease from 1rem */
+    --font-sizes-body2: 0.875rem; /* Same as desktop */
+    --font-sizes-button: 0.875rem; /* Same as desktop */
+    --font-sizes-caption: 0.75rem; /* Same as desktop */
+    --font-sizes-overline: 0.625rem; /* Same as desktop */
+
+    /* Adjust line heights for mobile to enhance readability */
+    --font-lineHeight-h1: 1.2; /* Increase for better readability */
+    --font-lineHeight-h2: 1.3;
+    --font-lineHeight-h3: 1.4;
+    --font-lineHeight-h4: 1.5;
+    --font-lineHeight-h5: 1.6;
+    --font-lineHeight-h6: 1.7;
+    --font-lineHeight-body1: 1.6; /* Slightly increase from 1.5 */
+    --font-lineHeight-body2: 1.7; /* Increase for better readability */
+    --font-lineHeight-button: 1.8; /* Increase to ensure buttons are easily tappable */
+    --font-lineHeight-caption: 1.6; /* Keep as is */
+    --font-lineHeight-overline: 1.8; /* Increase for clarity */
+  }
 }
 
 /* Currency Select Dropdown */

@@ -1,3 +1,5 @@
+@use "../../../styles/partials/mixins/breakpoints";
+
 .container {
   position: relative;
   display: flex;
@@ -8,34 +10,34 @@
   height: 100%;
 }
 
-.banner {
-  height: 400px;
-  padding: 24px 0 40px 0;
-  /* padding: 40px 0; */
+.content {
+  height: 496px;
   width: 100%;
-  /* height: 100%; */
+  padding: 24px 0 40px 0;
+
   position: relative; /* Ensure this content sits above the background image */
   display: flex;
   flex-direction: column;
   justify-content: space-around;
+
+  &__text {
+    text-align: center;
+    margin-top: 24px;
+
+    @include breakpoints.tablet {
+      & > h1 {
+
+      }
+  
+      & > h6 {
+      }
+
+    }
+
+  }
 }
 
-.title_wrapper {
-  text-align: center;
-  margin-top: 24px;
-}
-
-.title_wrapper > h2 {
-  // font-size: 64px;
-  // margin: 10px;
-  // font-weight: 500;
-}
-
-.title_wrapper > p {
-  margin: 0;
-}
-
-.orange {
+.primary {
   color: var(--colors-primary);
   font-weight: 700;
 }
