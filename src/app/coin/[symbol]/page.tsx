@@ -1,7 +1,7 @@
 import CoinDetailsPage from "@/components/Pages/CoinDetailsPage/CoinDetailsPage";
 import GlobalStoreHydrator from "@/components/Initializers/GlobalStoreHydrator/GlobalStoreHydrator";
 import { InitialPageDataProvider } from "@/lib/contexts/initialPageDataContext";
-import { getCoinDetailsPageInitialData } from "@/lib/utils/dataFormat.utils";
+import { getCoinDetailsPageInitialData } from "@/lib/utils/api.utils";
 import { cookies } from "next/headers";
 
 interface ICoinPageProps {

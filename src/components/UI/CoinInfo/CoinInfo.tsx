@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import Image from "next/image";
 import CoinInfoSkeleton from "../Skeletons/CoinInfoSkeleton/CoinInfoSkeleton";
-import { formatBigNumber } from "@/lib/utils/dataFormat.utils";
+import { formatBigNumber } from "@/lib/utils/global.utils";
 import { BLUR_IMG_URL } from "@/lib/constants/globalConstants";
 
 const removeHTML = (str: string) => str.replace(/<\/?[^>]+(>|$)/g, "");

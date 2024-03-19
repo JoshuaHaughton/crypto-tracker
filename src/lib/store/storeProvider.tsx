@@ -3,7 +3,6 @@
 import { useRef } from "react";
 import { Provider } from "react-redux";
 import { TAppStore, makeStore } from ".";
-import { initialCoinsState } from "./coins/coinsSlice";
 import { initialCurrencyState } from "./currency/currencySlice";
 import { SYMBOLS_BY_CURRENCIES } from "../constants/globalConstants";
 import { TInitialReduxDataOptions } from "../types/apiRequestTypes";

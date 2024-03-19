@@ -9,7 +9,7 @@ import {
 } from "@/lib/store/mediaQuery/mediaQuerySlice";
 import { useAppDispatch } from "@/lib/store";
 
-const DEBOUNCE_DELAY = 250;
+const RESIZE_DEBOUNCE_DELAY = 250;
 
 /**
  * A utility hook that initializes media query listeners and updates the Redux state based on viewport changes.
@@ -49,7 +49,7 @@ const useBreakpointSync = () => {
 
     const debouncedCheckAndUpdateBreakpoints = debounce(
       checkAndUpdateBreakpoints,
-      DEBOUNCE_DELAY,
+      RESIZE_DEBOUNCE_DELAY,
     );
 
     // Initial check and setup
@@ -67,31 +67,3 @@ const useBreakpointSync = () => {
 };
 
 export default useBreakpointSync;
-
-// export const MediaQueryHandler = ({ children }) => {
-//   const dispatch = useAppDispatch();
-
-//   useEffect(() => {
-//     const setMediaQueries = () => {
-//       dispatch(mediaQueryActions.setBreakpoint380(window?.innerWidth <= 380));
-//       dispatch(mediaQueryActions.setBreakpoint520(window?.innerWidth <= 520));
-//       dispatch(mediaQueryActions.setBreakpoint555(window?.innerWidth <= 555));
-//       dispatch(mediaQueryActions.setBreakpoint680(window?.innerWidth <= 680));
-//       dispatch(mediaQueryActions.setBreakpoint1040(window?.innerWidth <= 1040));
-//       dispatch(mediaQueryActions.setBreakpoint1250(window?.innerWidth <= 1250));
-//     };
-
-//     setMediaQueries();
-
-//     const handleResize = debounce(() => {
-//       setMediaQueries();
-//     }, DEBOUNCE_DELAY); // 250ms delay for debouncing
-
-//     window?.addEventListener("resize", handleResize);
-//     return () => {
-//       window?.removeEventListener("resize", handleResize);
-//     };
-//   }, [dispatch]);
-
-//   return children;
-// };

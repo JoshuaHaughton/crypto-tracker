@@ -52,7 +52,6 @@ export type TAppDispatch = TAppStore["dispatch"] &
  *
  * The `initialStates` parameter provides the capability to initialize specific state slices with custom values.
  * This feature is beneficial for state hydration in SSR or initializing states from external sources.
- * The provided states partially overwrite the default initial states defined in the reducers.
  *
  * @param initialStates An optional object with initial states for specific slices. Keys correspond to state slice names,
  *                      and values are the desired initial states for those slices, merging with reducer-defined defaults.

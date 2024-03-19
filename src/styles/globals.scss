@@ -116,7 +116,6 @@
 }
 
 * {
-  border-color: var(--colors-border-color);
   box-sizing: border-box;
   padding: 0;
   margin: 0;
@@ -128,35 +127,14 @@ body {
   overflow-x: hidden;
 }
 
+html {
+  color: var(--colors-font-text-primary);
+  font-family: var(--font-families-primary);
+}
+
 body {
   background-color: var(--colors-background);
   color: var(--colors-foreground);
-  // background: linear-gradient(
-  //     to bottom,
-  //     transparent,
-  //     rgb(var(--background-end-rgb))
-  //   )
-  //   rgb(var(--background-start-rgb));
-}
-
-/* Set primary font color for headings and other main text elements */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-a,
-strong,
-em,
-b,
-i,
-mark,
-time,
-abbr,
-cite {
-  color: var(--colors-font-text-primary);
-  font-family: var(--font-families-primary);
 }
 
 /* Typography styles based on custom properties */

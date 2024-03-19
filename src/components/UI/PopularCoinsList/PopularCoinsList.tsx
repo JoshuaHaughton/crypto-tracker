@@ -3,7 +3,7 @@ import styles from "./PopularCoinsList.module.scss";
 import PopularCoinsListItem from "./PopularCoinsListItem/PopularCoinsListItem";
 import Pagination from "../Pagination/Pagination";
 import { TextField } from "@mui/material";
-import { formatBigNumber } from "@/lib/utils/dataFormat.utils";
+import { formatBigNumber } from "@/lib/utils/global.utils";
 import {
   POPULAR_COINS_PAGE_SIZE,
   TCurrencySymbol,

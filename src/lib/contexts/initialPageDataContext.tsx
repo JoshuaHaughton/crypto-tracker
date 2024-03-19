@@ -4,7 +4,6 @@ import React, { createContext, useContext, ReactNode } from "react";
 import { ICoinDetails, ICoinOverview } from "../types/coinTypes";
 import { TCurrencyExchangeRates } from "../types/currencyTypes";
 
-// Define the shape of your page-specific data.
 export interface IInitialPageData {
   popularCoins?: ICoinOverview[];
   popularCoinsMap?: Record<string, ICoinOverview>;

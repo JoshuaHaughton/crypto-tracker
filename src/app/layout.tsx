@@ -5,7 +5,7 @@ import { GlobalStoreProvider } from "@/lib/store/storeProvider";
 import { AppInitializer } from "../components/Initializers/AppInitializer/AppInitializer";
 import { cookies } from "next/headers";
 import MainLayout from "@/components/Layout/MainLayout/MainLayout";
-import { getInitialData } from "@/lib/utils/dataFormat.utils";
+import { getInitialData } from "@/lib/utils/api.utils";
 
 const heebo = Roboto({
   weight: ["400", "700"],
@@ -37,9 +37,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body
-        className={`${heebo.className} ${rubik.className} ${inter.className}`}
-      >
+      <body>
         <GlobalStoreProvider initialData={initialAppData}>
           <AppInitializer />
           <MainLayout>{children}</MainLayout>
