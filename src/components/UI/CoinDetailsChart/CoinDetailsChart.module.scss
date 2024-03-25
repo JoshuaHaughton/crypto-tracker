@@ -26,21 +26,21 @@
   padding: 24px 0;
   width: 100%;
   box-shadow: 0 4px 12px 0px rgba(0, 0, 0, 0.3);
-}
 
-.chart_details > div {
-  width: 100%;
-  display: flex;
-  justify-content: space-evenly;
-  color: whitesmoke;
-  display: flex;
-  justify-content: center;
-}
+  & > div {
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    color: whitesmoke;
+    display: flex;
+    justify-content: center;
+  }
 
-.chart_details > div > p {
-  margin: 0.25rem;
-  width: 40%;
-  text-align: center;
+  & > div > p {
+    margin: 0.25rem;
+    width: 40%;
+    text-align: center;
+  }
 }
 
 .chart_actions {
@@ -55,10 +55,12 @@
   align-items: center;
   gap: 16px;
   width: 25%;
+  transition: border-color 300ms ease, background-color 300ms ease;
 
   > button {
     width: fit-content;
     font-size: var(--font-sizes-h6);
+    transition: color 125ms ease;
 
     &:hover {
       color: var(--colors-primary);
@@ -68,10 +70,8 @@
   > div {
     width: 100%;
     border: 3px solid transparent;
-    // background-color: black;
     border-radius: 6px;
-    // transition: all 300ms ease;
-    // box-shadow: 0 4px 12px 0px rgba(0, 0, 0, 0.4);
+    padding: 6px;
   }
 }
 
@@ -87,18 +87,12 @@
   flex-direction: column;
   justify-content: space-evenly;
   align-items: center;
-}
 
-.card_description > p {
-  margin: 0;
-  color: white;
-  transition: all 300ms ease;
-}
-
-.card_description > h3 {
-  margin: 0;
-  font-size: 28px;
-  transition: all 300ms ease;
+  &Title {
+    margin: 0;
+    color: white;
+    transition: all 300ms ease;
+  }
 }
 
 .selected_action {
@@ -108,19 +102,19 @@
 .selected_card {
   border: 3px solid #fff !important;
   background-color: var(--colors-primary) !important;
-}
 
-.selected_card > div > p {
-  font-weight: bold;
-  color: white;
+  & > .card_descriptionTitle {
+    font-weight: bold;
+    color: white;
+  }
 }
 
 .selected_period {
   background-color: rgb(39, 39, 39);
-}
 
-.selected_period > p:first-child {
-  color: white;
+  & > p:first-child {
+    color: white;
+  }
 }
 
 .green {
