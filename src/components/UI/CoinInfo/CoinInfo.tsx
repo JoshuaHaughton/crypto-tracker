@@ -38,6 +38,8 @@ const CoinInfo: React.FC<ICoinInfoProps> = ({
         icon={faArrowLeft}
         onMouseEnter={handleHomepagePreload}
         onClick={handleHomepageNavigation}
+        size="2xl"
+        className={styles.backArrow}
       />
       <header className={styles.header}>
         <div className={styles.title_wrapper}>
@@ -52,7 +54,7 @@ const CoinInfo: React.FC<ICoinInfoProps> = ({
           />
 
           <h1 className={styles.name}>{coinAttributes.name}</h1>
-          <h4 className={styles.symbol}>{coinAttributes.symbol}</h4>
+          <p className={styles.symbol}>{coinAttributes.symbol}</p>
         </div>
         <div className={styles.description}>
           <p>
@@ -78,15 +80,6 @@ const CoinInfo: React.FC<ICoinInfoProps> = ({
             })}
           </p>
         </div>
-
-        <div className={styles.info_row}>
-          <h3>Market Cap:</h3>
-          <p className={styles.current}>
-            {currentSymbol}
-            {formatBigNumber(coinAttributes.total_market_cap)}
-          </p>
-        </div>
-
         <div className={styles.info_row}>
           <h3>24h Price Change:</h3>
           {+coinAttributes?.price_change_24h > 0 ? (
@@ -108,6 +101,33 @@ const CoinInfo: React.FC<ICoinInfoProps> = ({
                 ).toFixed(8)}`}
             </p>
           )}
+        </div>
+        <div className={styles.info_row}>
+          <h3>Market Cap:</h3>
+          <p className={styles.current}>
+            {currentSymbol}
+            {formatBigNumber(coinAttributes.total_market_cap)}
+          </p>
+        </div>
+        <div className={styles.info_row}>
+          <h3>Launch Date:</h3>
+          <p className={styles.current}>
+            {new Date(coinAttributes.launch_date).toLocaleDateString()}
+          </p>
+        </div>
+        <div className={styles.info_row}>
+          <h3>Total Supply:</h3>
+          <p className={styles.current}>
+            {currentSymbol}
+            {formatBigNumber(coinAttributes.total_supply)}
+          </p>
+        </div>
+        <div className={styles.info_row}>
+          <h3>Website URL:</h3>
+          <p className={styles.current}>
+            {currentSymbol}
+            {coinAttributes.website_url}
+          </p>
         </div>
       </div>
     </div>

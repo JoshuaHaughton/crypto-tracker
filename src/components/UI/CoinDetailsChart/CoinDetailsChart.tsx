@@ -33,212 +33,148 @@ const CoinDetailsChart: React.FC<ICoinDetailsChartProps> = ({
   return (
     <div className={styles.chart_wrapper}>
       <div className={styles.chart_card}>
-        <div className={styles.chart}>
-          <HistoryChart
-            chartData={chartData}
-            currentChartPeriod={currentChartPeriod}
-          />
+        <HistoryChart
+          chartData={chartData}
+          currentChartPeriod={currentChartPeriod}
+        />
+      </div>
+
+      <div className={styles.chart_actions}>
+        <div className={styles.chart_action}>
+          <button
+            className={
+              currentChartPeriod === EChartPeriodInterval.H24
+                ? styles.selected_action
+                : undefined
+            }
+            onClick={() => setCurrentChartPeriod(EChartPeriodInterval.H24)}
+          >
+            Day
+          </button>
+          <div
+            className={
+              currentChartPeriod === EChartPeriodInterval.H24
+                ? styles.selected_card
+                : undefined
+            }
+          >
+            <div className={styles.card_description}>
+              <p>Day Gain/Loss</p>
+              {/* <p>Past Day %:</p> */}
+              {coinAttributes?.price_change_percentage_24h >= 0 ? (
+                <h3 className={styles.green}>
+                  +{coinAttributes?.price_change_percentage_24h.toFixed(3)}%
+                </h3>
+              ) : (
+                <h3 className={styles.red}>
+                  {coinAttributes?.price_change_percentage_24h.toFixed(3)}%
+                </h3>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
-      <div className={styles.chart_buttons}>
-        {currentChartPeriod === EChartPeriodInterval.H24 ? (
-          <button
-            className={styles.selected_button}
-            onClick={() => setCurrentChartPeriod(EChartPeriodInterval.H24)}
-          >
-            Day
-          </button>
-        ) : (
-          <button
-            onClick={() => setCurrentChartPeriod(EChartPeriodInterval.H24)}
-          >
-            Day
-          </button>
-        )}
 
-        {currentChartPeriod === EChartPeriodInterval.WEEK ? (
+        <div className={styles.chart_action}>
           <button
-            className={styles.selected_button}
+            className={
+              currentChartPeriod === EChartPeriodInterval.WEEK
+                ? styles.selected_action
+                : undefined
+            }
             onClick={() => setCurrentChartPeriod(EChartPeriodInterval.WEEK)}
           >
             Week
           </button>
-        ) : (
-          <button
-            onClick={() => setCurrentChartPeriod(EChartPeriodInterval.WEEK)}
+          <div
+            className={
+              currentChartPeriod === EChartPeriodInterval.WEEK
+                ? styles.selected_card
+                : undefined
+            }
           >
-            Week
-          </button>
-        )}
+            <div className={styles.card_description}>
+              <p>Week Gain/Loss</p>
+              {/* <h3></h3> */}
+              {coinAttributes?.price_change_percentage_7d >= 0 ? (
+                <h3 className={styles.green}>
+                  +{coinAttributes?.price_change_percentage_7d.toFixed(3)}%
+                </h3>
+              ) : (
+                <h3 className={styles.red}>
+                  {coinAttributes?.price_change_percentage_7d.toFixed(3)}%
+                </h3>
+              )}
+            </div>
+          </div>
+        </div>
 
-        {currentChartPeriod === EChartPeriodInterval.MONTH ? (
+        <div className={styles.chart_action}>
           <button
-            className={styles.selected_button}
+            className={
+              currentChartPeriod === EChartPeriodInterval.MONTH
+                ? styles.selected_action
+                : undefined
+            }
             onClick={() => setCurrentChartPeriod(EChartPeriodInterval.MONTH)}
           >
-            Month
+            Month:
           </button>
-        ) : (
-          <button
-            onClick={() => setCurrentChartPeriod(EChartPeriodInterval.MONTH)}
-          >
-            Month
-          </button>
-        )}
 
-        {currentChartPeriod === EChartPeriodInterval.YEAR ? (
+          <div
+            className={
+              currentChartPeriod === EChartPeriodInterval.MONTH
+                ? styles.selected_card
+                : undefined
+            }
+          >
+            <div className={styles.card_description}>
+              <p>Month Gain/Loss:</p>
+              {coinAttributes?.price_change_percentage_30d >= 0 ? (
+                <h3 className={styles.green}>
+                  +{coinAttributes?.price_change_percentage_30d.toFixed(3)}%
+                </h3>
+              ) : (
+                <h3 className={styles.red}>
+                  {coinAttributes?.price_change_percentage_30d.toFixed(3)}%
+                </h3>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.chart_action}>
           <button
-            className={styles.selected_button}
+            className={
+              currentChartPeriod === EChartPeriodInterval.YEAR
+                ? styles.selected_action
+                : undefined
+            }
             onClick={() => setCurrentChartPeriod(EChartPeriodInterval.YEAR)}
           >
-            Year
+            Month:
           </button>
-        ) : (
-          <button
-            onClick={() => setCurrentChartPeriod(EChartPeriodInterval.YEAR)}
+          <div
+            className={
+              currentChartPeriod === EChartPeriodInterval.YEAR
+                ? styles.selected_card
+                : undefined
+            }
           >
-            Year
-          </button>
-        )}
-      </div>
-
-      <div className={styles.percentage_details}>
-        {/* <h3>Percentage Changes</h3> */}
-        <div className={styles.cards_wrapper}>
-          {currentChartPeriod === EChartPeriodInterval.H24 ? (
-            <div className={styles.selected_card}>
-              <div className={styles.card_description}>
-                <p>Day Gain/Loss</p>
-                {/* <p>Past Day %:</p> */}
-                {coinAttributes?.price_change_percentage_24h >= 0 ? (
-                  <h3 className={styles.green}>
-                    +{coinAttributes?.price_change_percentage_24h.toFixed(3)}%
-                  </h3>
-                ) : (
-                  <h3 className={styles.red}>
-                    {coinAttributes?.price_change_percentage_24h.toFixed(3)}%
-                  </h3>
-                )}
-              </div>
+            <div className={styles.card_description}>
+              {/* <p>Past Year:</p> */}
+              <p>Year Gain/Loss</p>
+              {/* <h3></h3> */}
+              {coinAttributes?.price_change_percentage_1y >= 0 ? (
+                <h3 className={styles.green}>
+                  +{coinAttributes?.price_change_percentage_1y.toFixed(3)}%
+                </h3>
+              ) : (
+                <h3 className={styles.red}>
+                  {coinAttributes?.price_change_percentage_1y.toFixed(3)}%
+                </h3>
+              )}
             </div>
-          ) : (
-            <div>
-              <div className={styles.card_description}>
-                <p>Day Gain/Loss</p>
-                {/* <p>Past Day %:</p> */}
-                {coinAttributes?.price_change_percentage_24h >= 0 ? (
-                  <h3 className={styles.green}>
-                    +{coinAttributes?.price_change_percentage_24h.toFixed(3)}%
-                  </h3>
-                ) : (
-                  <h3 className={styles.red}>
-                    {coinAttributes?.price_change_percentage_24h.toFixed(3)}%
-                  </h3>
-                )}
-              </div>
-            </div>
-          )}
-
-          {currentChartPeriod === EChartPeriodInterval.WEEK ? (
-            <div className={styles.selected_card}>
-              <div className={styles.card_description}>
-                <p>Week Gain/Loss</p>
-                {/* <h3></h3> */}
-                {coinAttributes?.price_change_percentage_7d >= 0 ? (
-                  <h3 className={styles.green}>
-                    +{coinAttributes?.price_change_percentage_7d.toFixed(3)}%
-                  </h3>
-                ) : (
-                  <h3 className={styles.red}>
-                    {coinAttributes?.price_change_percentage_7d.toFixed(3)}%
-                  </h3>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div>
-              <div className={styles.card_description}>
-                <p>Week Gain/Loss</p>
-                {/* <h3></h3> */}
-                {coinAttributes?.price_change_percentage_7d >= 0 ? (
-                  <h3 className={styles.green}>
-                    +{coinAttributes?.price_change_percentage_7d.toFixed(3)}%
-                  </h3>
-                ) : (
-                  <h3 className={styles.red}>
-                    {coinAttributes?.price_change_percentage_7d.toFixed(3)}%
-                  </h3>
-                )}
-              </div>
-            </div>
-          )}
-
-          {currentChartPeriod === EChartPeriodInterval.MONTH ? (
-            <div className={styles.selected_card}>
-              <div className={styles.card_description}>
-                <p>Month Gain/Loss:</p>
-                {coinAttributes?.price_change_percentage_30d >= 0 ? (
-                  <h3 className={styles.green}>
-                    +{coinAttributes?.price_change_percentage_30d.toFixed(3)}%
-                  </h3>
-                ) : (
-                  <h3 className={styles.red}>
-                    {coinAttributes?.price_change_percentage_30d.toFixed(3)}%
-                  </h3>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div>
-              <div className={styles.card_description}>
-                <p>Month Gain/Loss:</p>
-                {coinAttributes?.price_change_percentage_30d >= 0 ? (
-                  <h3 className={styles.green}>
-                    +{coinAttributes?.price_change_percentage_30d.toFixed(3)}%
-                  </h3>
-                ) : (
-                  <h3 className={styles.red}>
-                    {coinAttributes?.price_change_percentage_30d.toFixed(3)}%
-                  </h3>
-                )}
-              </div>
-            </div>
-          )}
-
-          {currentChartPeriod === EChartPeriodInterval.YEAR ? (
-            <div className={styles.selected_card}>
-              <div className={styles.card_description}>
-                {/* <p>Past Year:</p> */}
-                <p>Year Gain/Loss</p>
-                {/* <h3></h3> */}
-                {coinAttributes?.price_change_percentage_1y >= 0 ? (
-                  <h3 className={styles.green}>
-                    +{coinAttributes?.price_change_percentage_1y.toFixed(3)}%
-                  </h3>
-                ) : (
-                  <h3 className={styles.red}>
-                    {coinAttributes?.price_change_percentage_1y.toFixed(3)}%
-                  </h3>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div>
-              <div className={styles.card_description}>
-                <p>Year Gain/Loss</p>
-                {/* <h3></h3> */}
-                {coinAttributes?.price_change_percentage_1y >= 0 ? (
-                  <h3 className={styles.green}>
-                    +{coinAttributes?.price_change_percentage_1y.toFixed(3)}%
-                  </h3>
-                ) : (
-                  <h3 className={styles.red}>
-                    {coinAttributes?.price_change_percentage_1y.toFixed(3)}%
-                  </h3>
-                )}
-              </div>
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

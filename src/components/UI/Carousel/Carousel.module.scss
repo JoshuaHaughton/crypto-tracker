@@ -13,6 +13,20 @@
     justify-content: center !important;
     align-items: center !important;
     overflow: show;
+
+    > a {
+      height: 80px;
+    }
+
+    > p {
+      margin: 0;
+      line-height: 1.3;
+    }
+
+    > h6 {
+      line-height: 1;
+      padding: 8px 12px;
+    }
   }
 }
 

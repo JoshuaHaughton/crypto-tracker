@@ -47,13 +47,15 @@ const CarouselItem: React.FC<ICarouselItemParams> = ({
           priority
         />
       </Link>
+      <h6>{coin.symbol.toUpperCase()}</h6>
       <p>
-        `${coin.symbol.toUpperCase()} (${currencySymbol}${coin.current_price})`
+        {currencySymbol}
+        {coin.current_price}
       </p>
-
-      <span className={priceChangeClass}>
+      <p className={priceChangeClass}>
+        {currencySymbol}
         {coin.price_change_percentage_24h.toFixed(2)}%
-      </span>
+      </p>
     </div>
   );
 };
