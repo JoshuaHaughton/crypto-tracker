@@ -132,6 +132,7 @@ html {
   color: var(--colors-font-text-secondary);
   font-family: var(--font-families-secondary);
   line-height: var(--font-lineHeight-body);
+  scroll-behavior: smooth;
 }
 
 body {

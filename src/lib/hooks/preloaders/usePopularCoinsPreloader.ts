@@ -1,10 +1,9 @@
 import { useCallback, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { useAppDispatch, useAppSelector } from "@/lib/store";
+import { useRouter } from "next13-progressbar";
+import { useAppSelector } from "@/lib/store";
 import { fetchAndFormatPopularCoinsData } from "@/lib/utils/server.utils";
 import { selectCurrentCurrency } from "@/lib/store/currency/currencySelectors";
 import { FETCH_INTERVAL_MS } from "@/lib/constants/globalConstants";
-import { coinsActions } from "@/lib/store/coins/coinsSlice";
 import { ICoinOverview } from "@/lib/types/coinTypes";
 
 interface IUsePopularCoinsPreloaderState {

@@ -1,5 +1,8 @@
 import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
-import { INITIAL_CURRENCY } from "../constants/globalConstants";
+import {
+  INITIAL_CURRENCY,
+  TCurrencyString,
+} from "../constants/globalConstants";
 import {
   TInitialPopularCoinsData,
   TInitialPageDataOptions,
@@ -13,13 +16,19 @@ import {
 } from "./server.utils";
 import { ICoinDetails, ICoinOverview } from "@/lib/types/coinTypes";
 
+export interface IInitialAppData {
+  currencyPreference: TCurrencyString;
+}
+
 /**
  * Fetches initial data required for the application's root layout based on cookies.
  * This can include user preferences, settings, or any other initial data required globally.
  *
  * @param cookieStore - The cookie store object from which to retrieve data.
  */
-export function getInitialData(cookieStore: ReadonlyRequestCookies) {
+export function getInitialData(
+  cookieStore: ReadonlyRequestCookies,
+): IInitialAppData {
   console.warn("Fetching initial data for layout");
 
   // Retrieve currency preference from cookies or use default

@@ -1,13 +1,5 @@
 {
   "font": {
-    "families": {
-      "primary": {
-        "value": "Rubik, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', serif"
-      },
-      "secondary": {
-        "value": "Heebo, system-ui, -apple-system, 'Georgia', 'Times New Roman', 'Times', sans-serif"
-      }
-    },
     "sizes": {
       "h1": {
         "value": "5.5rem",

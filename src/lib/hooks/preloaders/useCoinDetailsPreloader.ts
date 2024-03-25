@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next13-progressbar";
 import { useAppDispatch, useAppSelector } from "@/lib/store";
 import { fetchAndFormatCoinDetailsData } from "@/lib/utils/server.utils";
 import { selectCurrentCurrency } from "@/lib/store/currency/currencySelectors";

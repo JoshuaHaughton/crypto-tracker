@@ -37,6 +37,10 @@
 
       &TextWrapper {
         text-align: left;
+
+        > * {
+          line-height: 1;
+        }
       }
     }
   }

@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { TCurrencyString } from "@/lib/constants/globalConstants";
 import { useAppSelector } from "@/lib/store";
 import { selectCurrentCurrency } from "@/lib/store/currency/currencySelectors";
 
@@ -13,7 +12,7 @@ import { selectCurrentCurrency } from "@/lib/store/currency/currencySelectors";
  *
  * This should be tied to a state or context value representing the user's selected currency.
  */
-function useCurrencySync(): void {
+const useCurrencySync = (): void => {
   const router = useRouter();
   const isInitialMount = useRef(true);
   const currentCurrency = useAppSelector(selectCurrentCurrency);
@@ -34,7 +33,8 @@ function useCurrencySync(): void {
     router.refresh();
 
     // This effect should only re-run when the currentCurrency changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentCurrency, router]);
-}
+};
 
 export default useCurrencySync;

@@ -77,7 +77,7 @@ const Navbar = () => {
             </li>
             <li className={styles.nav__link}>
               <Link
-                href={"#market"}
+                href={"/#market"}
                 aria-label="Go to the market section on the Home Page"
               >
                 Market

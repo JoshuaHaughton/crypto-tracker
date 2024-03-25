@@ -104,7 +104,7 @@ const PopularCoinsList: React.FC = () => {
             {/* )} */}
           </div>
         </div>
-        <div className={styles.listBody}>
+        <div className={styles.listBody} id="market">
           <table className={styles.listTable}>
             <thead className={styles.listTableHead}>
               <tr>
