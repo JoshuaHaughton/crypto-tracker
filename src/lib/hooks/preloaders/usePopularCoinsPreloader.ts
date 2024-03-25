@@ -1,10 +1,11 @@
 import { useCallback, useRef } from "react";
-import { useRouter } from "next13-progressbar";
+import { useRouter } from "next-nprogress-bar";
 import { useAppSelector } from "@/lib/store";
 import { fetchAndFormatPopularCoinsData } from "@/lib/utils/server.utils";
 import { selectCurrentCurrency } from "@/lib/store/currency/currencySelectors";
 import { FETCH_INTERVAL_MS } from "@/lib/constants/globalConstants";
 import { ICoinOverview } from "@/lib/types/coinTypes";
+import nProgress from "nprogress";
 
 interface IUsePopularCoinsPreloaderState {
   handlePreload: () => void;

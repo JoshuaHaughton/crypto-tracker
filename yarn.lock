@@ -532,7 +532,7 @@
   dependencies:
     undici-types "~5.26.4"
 
-"@types/nprogress@^0.2.0", "@types/nprogress@^0.2.3":
+"@types/nprogress@^0.2.3":
   version "0.2.3"
   resolved "https://registry.npmjs.org/@types/nprogress/-/nprogress-0.2.3.tgz"
   integrity sha512-k7kRA033QNtC+gLc4VPlfnue58CM1iQLgn1IMAU8VPHGOj7oIHPp9UlhedEnD/Gl8evoCjwkZjlBORtZ3JByUA==
@@ -2274,14 +2274,12 @@ natural-compare@^1.4.0:
   resolved "https://registry.npmjs.org/natural-compare/-/natural-compare-1.4.0.tgz"
   integrity sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==
 
-next13-progressbar@^1.2.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/next13-progressbar/-/next13-progressbar-1.2.1.tgz#b00e0aa817bb71832a31570263eafd1d74761618"
-  integrity sha512-VjO5eHSWa2TSPVX6EHFqdkPaJ4a8UrfK4QuUbjslkVkIxM2EQpg6LrIKmh9qKrlTLC0zOGenhjUoyYappVgOug==
+next-nprogress-bar@^2.3.8:
+  version "2.3.8"
+  resolved "https://registry.yarnpkg.com/next-nprogress-bar/-/next-nprogress-bar-2.3.8.tgz#0ecdf57b266177de0eef0accccdc73c5b34c6cc9"
+  integrity sha512-jwMvyMFzxHuaPSTW4CU2BxvAx7YgAVTpdN/2dXd8Cu7by0Xjlvh1rynr8wSoySIKveaNQUFD9oo1NuT7DDll+g==
   dependencies:
-    "@types/nprogress" "^0.2.0"
     nprogress "^0.2.0"
-    prop-types "^15.8.1"
 
 next@^14:
   version "14.1.0"

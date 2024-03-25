@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import { useRouter } from "next13-progressbar";
+import { useRouter } from "next-nprogress-bar";
 import { useAppDispatch, useAppSelector } from "@/lib/store";
 import { fetchAndFormatCoinDetailsData } from "@/lib/utils/server.utils";
 import { selectCurrentCurrency } from "@/lib/store/currency/currencySelectors";
@@ -9,6 +9,7 @@ import {
   TCurrencyString,
 } from "@/lib/constants/globalConstants";
 import { coinsActions } from "@/lib/store/coins/coinsSlice";
+import nProgress from "nprogress";
 
 interface IUseCoinDetailsPreloaderState {
   handlePreload: (symbol: string) => void;
@@ -119,6 +120,7 @@ const useCoinDetailsPreloader = (): IUseCoinDetailsPreloaderState => {
       }
 
       setIsNavigating(true);
+      nProgress.start();
       console.warn("HANDLING NAVIGATION FOR", symbol);
       const currencyCache =
         preloadedCoinDetailsRef.current.get(currentCurrency);

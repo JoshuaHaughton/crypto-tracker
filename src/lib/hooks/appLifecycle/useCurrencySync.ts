@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next-nprogress-bar";
 import { useAppSelector } from "@/lib/store";
 import { selectCurrentCurrency } from "@/lib/store/currency/currencySelectors";
 
