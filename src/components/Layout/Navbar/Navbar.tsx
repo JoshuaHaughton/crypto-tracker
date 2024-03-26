@@ -12,6 +12,7 @@ import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
 import MobileMenu from "./MobileMenu/MobileMenu";
+import CurrencySelector from "@/components/UI/CurrencySelector/CurrencySelector";
 
 const vertical = "bottom";
 const horizontal = "center";
@@ -37,7 +38,6 @@ const Navbar = () => {
   console.log("Navbar render");
   const {
     currentCurrency,
-    currentSymbol,
     isMobileMenuOpen,
     isNotificationBarOpen,
     isBreakpoint555,
@@ -84,23 +84,10 @@ const Navbar = () => {
               </Link>
             </li>
             <li>
-              <StyledSelect
-                variant="outlined"
-                style={{
-                  width: 100,
-                  height: 40,
-                  marginLeft: 15,
-                  color: "white",
-                }}
-                value={`${currentCurrency.toUpperCase()},${currentSymbol}`}
-                defaultValue={`${currentCurrency.toUpperCase()},${currentSymbol}`}
-                onChange={handleCurrencyChange}
-              >
-                <MenuItem value={"CAD,$"}>CAD</MenuItem>
-                <MenuItem value={"USD,$"}>USD</MenuItem>
-                <MenuItem value={"GBP,£"}>GBP</MenuItem>
-                <MenuItem value={"AUD,AU$"}>AUD</MenuItem>
-              </StyledSelect>
+              <CurrencySelector
+                currentCurrency={currentCurrency}
+                handleCurrencyChange={handleCurrencyChange}
+              />
             </li>
           </ul>
           <FontAwesomeIcon
@@ -112,7 +99,6 @@ const Navbar = () => {
           {isMobileMenuOpen && (
             <MobileMenu
               currentCurrency={currentCurrency}
-              currentSymbol={currentSymbol}
               handleCurrencyChange={handleCurrencyChange}
               closeMenu={closeMobileMenu}
             />

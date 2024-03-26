@@ -8,7 +8,7 @@ import {
   selectIsDesktop,
 } from "@/lib/store/mediaQuery/mediaQuerySelectors";
 import { ChangeEvent } from "react";
-import { TCurrencySymbol } from "@/lib/constants/globalConstants";
+import { COLORS, TCurrencySymbol } from "@/lib/constants/globalConstants";
 import { IPopularCoinSearchItem } from "@/lib/types/coinTypes";
 import { useAppSelector } from "@/lib/store";
 import useCoinDetailsPreloader from "@/lib/hooks/preloaders/useCoinDetailsPreloader";
@@ -28,9 +28,6 @@ interface IUsePopularCoinsListState {
   paginationRange: TPaginationItem[];
   totalItemsCount: number;
   currentSymbol: TCurrencySymbol;
-  isMobile: boolean;
-  isTablet: boolean;
-  isDesktop: boolean;
   setSearchQuery: (searchTerm: string) => void;
   handleInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
   handleItemMouseEnter: (symbol: string) => void;
@@ -49,9 +46,6 @@ interface IUsePopularCoinsListState {
 export function usePopularCoinsList(): IUsePopularCoinsListState {
   console.log("usePopularCoinsList render");
   const currentPageNumber = useAppSelector(selectPopularCoinsPageNumber);
-  const isMobile = useAppSelector(selectIsMobile);
-  const isTablet = useAppSelector(selectIsTablet);
-  const isDesktop = useAppSelector(selectIsDesktop);
   const currentSymbol = useAppSelector(selectCurrentSymbol);
   const allReduxPopularCoins = useAppSelector(selectPopularCoins);
   // Fallback to page specific data if Redux store doesn't have carousel coins yet due to initial hydration.
@@ -105,9 +99,6 @@ export function usePopularCoinsList(): IUsePopularCoinsListState {
     isNextDisabled: isLastPage,
     paginationRange,
     currentSymbol,
-    isMobile,
-    isTablet,
-    isDesktop,
     setSearchQuery,
     handleInputChange,
     handleItemMouseEnter: handlePreload,
@@ -117,3 +108,27 @@ export function usePopularCoinsList(): IUsePopularCoinsListState {
     goToPage,
   };
 }
+
+export const TEXT_FIELD_SX = {
+  "& .MuiInputLabel-root": { color: "#b2b2b2" },
+  "& .MuiOutlinedInput-root": {
+    "& > fieldset": { borderColor: COLORS.WHITE, color: COLORS.WHITE },
+  },
+  "& .MuiOutlinedInput-root.Mui-focused": {
+    "& > fieldset": {
+      borderColor: COLORS.PRIMARY,
+    },
+  },
+  "& .MuiOutlinedInput-root:hover": {
+    "& > fieldset": {
+      borderColor: COLORS.PRIMARY,
+    },
+  },
+  "& .MuiInputLabel-root.Mui-focused": {
+    color: COLORS.WHITE,
+  },
+  "& .MuiInputLabel-root.Mui-hover": {
+    color: COLORS.WHITE,
+  },
+  input: { color: COLORS.WHITE },
+};

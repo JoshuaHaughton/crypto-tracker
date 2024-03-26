@@ -8,7 +8,10 @@ import {
   POPULAR_COINS_PAGE_SIZE,
   TCurrencySymbol,
 } from "@/lib/constants/globalConstants";
-import { usePopularCoinsList } from "@/components/UI/PopularCoinsList/usePopularCoinsList";
+import {
+  TEXT_FIELD_SX,
+  usePopularCoinsList,
+} from "@/components/UI/PopularCoinsList/usePopularCoinsList";
 import {
   IDisplayedCoinOverview,
   IPopularCoinSearchItem,
@@ -32,9 +35,6 @@ const PopularCoinsList: React.FC = () => {
     isNextDisabled,
     paginationRange,
     currentSymbol,
-    isDesktop,
-    isTablet,
-    isMobile,
     handleInputChange,
     handleItemMouseEnter,
     handleNavigation,
@@ -48,7 +48,6 @@ const PopularCoinsList: React.FC = () => {
     totalItemsCount > 0
       ? mapCoinsToComponents(
           coinsForCurrentPage,
-          isDesktop,
           currentPageNumber,
           currentSymbol,
           handleItemMouseEnter,
@@ -67,41 +66,17 @@ const PopularCoinsList: React.FC = () => {
             <TextField
               label="Search for a cryptocurrency"
               variant="outlined"
-              sx={{
-                "& .MuiInputLabel-root": { color: "#b2b2b2" },
-                "& .MuiOutlinedInput-root": {
-                  "& > fieldset": { borderColor: "white", color: "white" },
-                },
-                "& .MuiOutlinedInput-root.Mui-focused": {
-                  "& > fieldset": {
-                    borderColor: "#ff9500",
-                  },
-                },
-                "& .MuiOutlinedInput-root:hover": {
-                  "& > fieldset": {
-                    borderColor: "#ff9500",
-                  },
-                },
-                "& .MuiInputLabel-root.Mui-focused": {
-                  color: "white",
-                },
-                "& .MuiInputLabel-root.Mui-hover": {
-                  color: "white",
-                },
-                input: { color: "white" },
-              }}
+              sx={TEXT_FIELD_SX}
               value={searchQuery}
               className={styles.listSearch}
               onChange={handleInputChange}
             />
-            {/* {isTablet && ( */}
             <MobileNavigationArrows
               onPrevious={goToPreviousPage}
               onNext={goToNextPage}
               isPreviousDisabled={isPreviousDisabled}
               isNextDisabled={isNextDisabled}
             />
-            {/* )} */}
           </div>
         </div>
         <div className={styles.listBody} id="market">
@@ -158,7 +133,6 @@ function renderEmptyState() {
  */
 function mapCoinsToComponents(
   coinsForCurrentPage: IPopularCoinSearchItem[],
-  isDesktop: boolean,
   currentPageNumber: number,
   currentSymbol: TCurrencySymbol,
   handleItemMouseEnter: (id: string) => void,

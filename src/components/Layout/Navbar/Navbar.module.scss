@@ -7,6 +7,7 @@
   background-color: var(--colors-background);
   box-shadow: 0 2px 16px 8px rgb(0 0 0 / 20%);
   transition: all 300ms ease;
+  z-index: 3;
 
   &:hover {
     box-shadow: 0 2px 16px 8px rgb(0 0 0 / 40%);
@@ -78,36 +79,6 @@
     width: 120px;
     height: 74px;
   }
-}
-
-.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root:hover {
-  background-color: var(--colors-primary);
-}
-
-.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root > svg,
-.MuiMenuItem-root > svg {
-  color: white !important;
-}
-
-.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected:hover,
-.Mui-selected:hover {
-  background-color: var(--colors-primary);
-}
-
-.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected,
-.Mui-selected {
-  background-color: var(--colors-primary) 94 !important;
-  color: black;
-}
-
-.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected:hover,
-.Mui-selected:hover {
-  background-color: var(--colors-primary) d8;
-}
-
-.menu_item:hover {
-  background-color: var(--colors-primary);
-  color: black;
 }
 
 .snackbar {

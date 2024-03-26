@@ -1,0 +1,82 @@
+.currencySelector {
+  position: relative;
+  display: inline-block;
+  user-select: none;
+
+  &Button {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 14px;
+    height: 40px;
+    width: 88px;
+    background-color: transparent;
+    color: var(--colors-primary);
+    border: 2px solid #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: #fff;
+      .arrow {
+        border-color: black;
+      }
+    }
+  }
+
+  &Options {
+    transform-origin: top center;
+    transform: scaleY(0);
+    opacity: 0;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #fff;
+    color: black;
+    border: 2px solid #fff;
+    border-radius: 4px;
+    width: 100%;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    transition-property: transform, opacity;
+    transition-duration: 0.3s;
+    transition-timing-function: ease;
+  }
+
+  &Option {
+    padding: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: #ccc;
+      border-color: var(--colors-primary);
+    }
+
+    &.selected {
+      background-color: var(--colors-primary);
+      color: #fff;
+    }
+  }
+}
+
+.open {
+  transform: scaleY(1);
+  opacity: 1;
+}
+
+.arrow {
+  margin-left: 14px;
+  border: solid #fff;
+  border-width: 0 3px 3px 0;
+  display: inline-block;
+  padding: 4px;
+  transition: transform 0.3s ease, border-color 0.2s ease;
+  transform: rotate(45deg) translateY(-10%);
+  align-self: center;
+}
+
+.right {
+  transform: rotate(-45deg) translateY(10%);
+}

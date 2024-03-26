@@ -43,7 +43,9 @@ export const CAROUSEL_COIN_COUNT = 10;
 export const MAX_PRELOADING_COUNT = 5;
 export const ELLIPSES = "...";
 export enum COLORS {
-  PRIMARY = "ff9500",
+  PRIMARY = "#ff9500",
+  WHITE = "#ffffff",
+  BLACK = "#000000",
 }
 export const isLocalDev = process.env.NODE_ENV !== "production";
 export const isLocalProd = process.env.NEXT_PUBLIC_IS_LOCAL === "true";

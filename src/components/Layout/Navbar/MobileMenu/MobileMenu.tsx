@@ -3,15 +3,13 @@ import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import React from "react";
-import { StyledSelect } from "../Navbar";
-import MenuItem from "@mui/material/MenuItem";
 import styles from "./MobileMenu.module.scss";
-import { SelectChangeEvent } from "@mui/material/Select";
+import { TCurrencyString } from "@/lib/constants/globalConstants";
+import CurrencySelector from "@/components/UI/CurrencySelector/CurrencySelector";
 
 interface IMobileMenuProps {
-  currentCurrency: string;
-  currentSymbol: string;
-  handleCurrencyChange: (e: SelectChangeEvent<unknown>) => Promise<void>;
+  currentCurrency: TCurrencyString;
+  handleCurrencyChange: (newCurrency: TCurrencyString) => Promise<void>;
   closeMenu: () => void;
 }
 
@@ -23,7 +21,6 @@ interface IMobileMenuProps {
  */
 const MobileMenu: React.FC<IMobileMenuProps> = ({
   currentCurrency,
-  currentSymbol,
   handleCurrencyChange,
   closeMenu,
 }: IMobileMenuProps): JSX.Element => {
@@ -41,24 +38,10 @@ const MobileMenu: React.FC<IMobileMenuProps> = ({
           </Link>
         </li>
         <li>
-          <StyledSelect
-            key="currency-selector"
-            variant="outlined"
-            style={{
-              width: 100,
-              height: 40,
-              marginLeft: 15,
-              color: "white",
-            }}
-            value={`${currentCurrency.toUpperCase()},${currentSymbol}`}
-            defaultValue={`${currentCurrency.toUpperCase()},${currentSymbol}`}
-            onChange={handleCurrencyChange}
-          >
-            <MenuItem value="CAD,$">CAD</MenuItem>
-            <MenuItem value="USD,$">USD</MenuItem>
-            <MenuItem value="GBP,£">GBP</MenuItem>
-            <MenuItem value="AUD,AU$">AUD</MenuItem>
-          </StyledSelect>
+          <CurrencySelector
+            handleCurrencyChange={handleCurrencyChange}
+            currentCurrency={currentCurrency}
+          />
         </li>
       </ul>
       <FontAwesomeIcon

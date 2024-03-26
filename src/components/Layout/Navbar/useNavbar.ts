@@ -1,10 +1,6 @@
-import { Dispatch, SetStateAction, useState } from "react";
-import { SelectChangeEvent } from "@mui/material/Select";
+import { useState } from "react";
 import { updateCurrency } from "@/thunks/updateCurrencyThunk";
-import {
-  selectCurrentCurrency,
-  selectCurrentSymbol,
-} from "@/lib/store/currency/currencySelectors";
+import { selectCurrentCurrency } from "@/lib/store/currency/currencySelectors";
 import { selectIsBreakpointMd } from "@/lib/store/mediaQuery/mediaQuerySelectors";
 import { useAppDispatch, useAppSelector } from "@/lib/store";
 import { updateCurrencyCookie } from "@/app/api/updateCookie/utils";
@@ -13,11 +9,10 @@ import usePopularCoinsPreloader from "@/lib/hooks/preloaders/usePopularCoinsPrel
 interface IUseNavbarState {
   isNotificationBarOpen: boolean;
   currentCurrency: TCurrencyString;
-  currentSymbol: string;
   isMobileMenuOpen: boolean;
   isBreakpoint555: boolean;
   closeNotificationBar: () => void;
-  handleCurrencyChange: (e: SelectChangeEvent<unknown>) => Promise<void>;
+  handleCurrencyChange: (newCurrency: TCurrencyString) => Promise<void>;
   handleHomepagePreload: () => void;
   handleHomepageNavigation: () => void;
   openMobileMenu: () => void;
@@ -38,7 +33,6 @@ export const useNavbar = (): IUseNavbarState => {
   const [isNotificationBarOpen, setIsNotificationBarOpen] =
     useState<boolean>(false);
   const currentCurrency = useAppSelector(selectCurrentCurrency);
-  const currentSymbol = useAppSelector(selectCurrentSymbol);
   const isBreakpoint555 = useAppSelector(selectIsBreakpointMd);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -50,10 +44,7 @@ export const useNavbar = (): IUseNavbarState => {
    *
    * @param e - The event triggered on currency selection change.
    */
-  const handleCurrencyChange = async (e: SelectChangeEvent<unknown>) => {
-    const newCurrency = (e.target.value as string)
-      .split(",")[0]
-      .toUpperCase() as TCurrencyString;
+  const handleCurrencyChange = async (newCurrency: TCurrencyString) => {
     if (!newCurrency) return; // Guard clause in case newCurrency is invalid
 
     setIsNotificationBarOpen(true); // Open the notification bar to indicate the currency change.
@@ -83,7 +74,6 @@ export const useNavbar = (): IUseNavbarState => {
   return {
     isNotificationBarOpen,
     currentCurrency,
-    currentSymbol,
     isMobileMenuOpen,
     isBreakpoint555,
     handleCurrencyChange,
