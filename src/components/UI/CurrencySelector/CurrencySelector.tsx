@@ -22,27 +22,33 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
 
   return (
     <div className={styles.currencySelector}>
-      <div className={styles.currencySelectorButton} onClick={toggleDropdown}>
+      <button
+        className={styles.currencySelectorButton}
+        onClick={toggleDropdown}
+        aria-expanded={isOpen}
+      >
         {currentCurrency}
         <span
           className={`${styles.arrow} ${isOpen ? styles.right : styles.down}`}
         />
-      </div>
+      </button>
       <div
         className={`${styles.currencySelectorOptions} ${
           isOpen ? styles.open : ""
         }`}
       >
         {ALL_CURRENCIES.map((currency) => (
-          <div
+          <button
             key={currency}
             className={`${styles.currencySelectorOption} ${
               currentCurrency === currency ? styles.selected : ""
             }`}
             onClick={() => selectCurrency(currency)}
+            onKeyDown={(e) => e.key === "Enter" && selectCurrency(currency)}
+            tabIndex={0}
           >
             {currency}
-          </div>
+          </button>
         ))}
       </div>
     </div>

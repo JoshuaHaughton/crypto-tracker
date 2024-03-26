@@ -42,7 +42,7 @@ const CoinInfo: React.FC<ICoinInfoProps> = ({
         className={styles.backArrow}
       />
       <header className={styles.header}>
-        <div className={styles.title_wrapper}>
+        <figure className={styles.title_wrapper}>
           <Image
             src={coinAttributes.image}
             alt={coinAttributes.name}
@@ -52,10 +52,11 @@ const CoinInfo: React.FC<ICoinInfoProps> = ({
             quality={100}
             priority
           />
-
-          <h1 className={styles.name}>{coinAttributes.name}</h1>
-          <p className={styles.symbol}>{coinAttributes.symbol}</p>
-        </div>
+          <figcaption>
+            <h1 className={styles.name}>{coinAttributes.name}</h1>
+            <p className={styles.symbol}>{coinAttributes.symbol}</p>
+          </figcaption>
+        </figure>
         <div className={styles.description}>
           <p>
             {coinAttributes?.description?.length > 2
@@ -111,9 +112,9 @@ const CoinInfo: React.FC<ICoinInfoProps> = ({
         </div>
         <div className={styles.info_row}>
           <h3>Launch Date:</h3>
-          <p className={styles.current}>
+          <time dateTime={new Date(coinAttributes.launch_date).toISOString()}>
             {new Date(coinAttributes.launch_date).toLocaleDateString()}
-          </p>
+          </time>
         </div>
         <div className={styles.info_row}>
           <h3>Total Supply:</h3>

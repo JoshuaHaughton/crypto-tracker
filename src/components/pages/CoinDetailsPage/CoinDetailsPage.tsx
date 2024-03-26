@@ -14,7 +14,7 @@ const CoinDetails = () => {
   } = useCoinDetails();
 
   return (
-    <div className={styles.container}>
+    <section className={styles.container}>
       <div className={styles.row}>
         <CoinInfo
           coinAttributes={coinDetails?.coinAttributes}
@@ -26,7 +26,7 @@ const CoinDetails = () => {
         <hr />
         <CoinDetailsChart coinDetails={coinDetails} />
       </div>
-    </div>
+    </section>
   );
 };
 
