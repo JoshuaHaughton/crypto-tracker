@@ -26,6 +26,7 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
         className={styles.currencySelectorButton}
         onClick={toggleDropdown}
         aria-expanded={isOpen}
+        aria-haspopup="listbox" // Indicates that the button has a popup list
       >
         {currentCurrency}
         <span
@@ -36,16 +37,21 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
         className={`${styles.currencySelectorOptions} ${
           isOpen ? styles.open : ""
         }`}
+        role="listbox" // Role "listbox" indicates this is a list of selectable options
+        aria-activedescendant={currentCurrency} // Points to the ID of the active option
       >
         {ALL_CURRENCIES.map((currency) => (
           <button
             key={currency}
+            id={currency}
             className={`${styles.currencySelectorOption} ${
               currentCurrency === currency ? styles.selected : ""
             }`}
             onClick={() => selectCurrency(currency)}
             onKeyDown={(e) => e.key === "Enter" && selectCurrency(currency)}
-            tabIndex={0}
+            tabIndex={isOpen ? 0 : -1} // Ensures that only options in the open dropdown are focusable
+            role="option"
+            aria-selected={currentCurrency === currency}
           >
             {currency}
           </button>

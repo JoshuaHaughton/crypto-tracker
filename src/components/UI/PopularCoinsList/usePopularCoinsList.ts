@@ -116,7 +116,7 @@ export const TEXT_FIELD_SX = {
   },
   "& .MuiOutlinedInput-root.Mui-focused": {
     "& > fieldset": {
-      borderColor: COLORS.PRIMARY,
+      borderColor: "#212121",
     },
   },
   "& .MuiOutlinedInput-root:hover": {

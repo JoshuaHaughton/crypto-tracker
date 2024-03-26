@@ -219,10 +219,6 @@ button {
   align-items: center;
   justify-content: center;
 
-  &:focus {
-    outline: none;
-  }
-
   font-size: var(--font-sizes-button);
   font-weight: var(--font-weight-button);
 }

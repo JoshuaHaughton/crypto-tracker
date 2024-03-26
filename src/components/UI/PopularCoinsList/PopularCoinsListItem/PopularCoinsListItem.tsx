@@ -79,6 +79,14 @@ const PopularCoinListItem: React.FC<IPopularCoinListItemProps> = ({
       className={styles.item}
       onMouseEnter={handleMouseEnter}
       onClick={handleClick}
+      tabIndex={0} // Makes the row focusable
+      role="button" // Communicates the role to assistive technologies
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          handleClick();
+        }
+      }} // Handles key events for accessibility
+      aria-label={`Details for ${coin.name}`} // Provides an accessible label
     >
       <td className={styles.itemCoin}>
         <div className={styles.itemCoinInfo}>

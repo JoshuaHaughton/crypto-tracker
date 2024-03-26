@@ -32,16 +32,14 @@ const PaginationItem: React.FC<IPaginationItemProps> = ({
 
   // Check if the key pressed is either Enter or Space
   const handleKeyPress = (event: React.KeyboardEvent) => {
-    if (event.key === "Enter" || event.key === " ") {
-      onClick();
-    }
+    if (event.key === "Enter" || event.key === " ") onClick();
   };
 
   return (
     <li
       className={itemClasses}
-      role={!isEllipsis ? "button" : undefined}
-      tabIndex={!isEllipsis ? 0 : undefined}
+      role={!isEllipsis ? "button" : "presentation"}
+      tabIndex={!isEllipsis ? 0 : -1}
       aria-current={isCurrent ? "page" : undefined}
       onClick={() => !isEllipsis && onClick()}
       onKeyDown={!isEllipsis ? handleKeyPress : undefined}

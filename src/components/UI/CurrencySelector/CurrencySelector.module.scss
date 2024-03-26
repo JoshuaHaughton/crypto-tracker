@@ -60,6 +60,11 @@
       border-color: var(--colors-primary);
     }
 
+    &:focus {
+      background-color: #ccc; /* Lighter background on focus or hover */
+      color: var(--colors-primary);
+    }
+
     &.selected {
       background-color: var(--colors-primary);
       color: #fff;
