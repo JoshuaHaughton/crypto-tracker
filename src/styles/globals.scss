@@ -194,13 +194,17 @@ td {
   font-weight: var(--font-weight-body);
 }
 
-a {
+a,
+a:visited,
+a:hover,
+a:active {
+  color: white;
   text-decoration: none;
+  transition: color 0.2s;
 }
 
 a:hover {
-  color: #00a0c6;
-  text-decoration: none;
+  color: var(--colors-primary);
   cursor: pointer;
 }
 
@@ -252,7 +256,6 @@ button {
     // --font-sizes-h6: 1.125rem; /* Decrease from 1.25rem */
   }
 }
-
 
 .errorClass,
 .MuiSnackbar-anchorOriginBottomCenter,

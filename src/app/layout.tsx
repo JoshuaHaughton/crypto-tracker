@@ -1,7 +1,7 @@
+import "../styles/globals.scss";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
 config.autoAddCss = false;
-import "../styles/globals.scss";
 import { Roboto, Inter } from "next/font/google";
 import { Metadata } from "next";
 import { Providers } from "@/components/Layout/Providers/Providers";
