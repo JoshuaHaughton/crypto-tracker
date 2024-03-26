@@ -20,8 +20,12 @@ export const Providers: React.FC<{
   return (
     <GlobalStoreProvider initialData={initialData}>
       <AppInitializer />
-      <ProgressBar color={COLORS.PRIMARY} options={{ showSpinner: true }} />
       <MainLayout>{children}</MainLayout>
+      <ProgressBar
+        color={COLORS.PRIMARY}
+        options={{ showSpinner: true, easing: "ease-out", speed: 850 }}
+        shallowRouting
+      />
       <div id="backdrop-root"></div> {/* Used for modal backdrop */}
       <div id="overlay-root"></div> {/* Used for modal content */}
     </GlobalStoreProvider>

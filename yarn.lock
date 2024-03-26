@@ -2275,9 +2275,9 @@ natural-compare@^1.4.0:
   integrity sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==
 
 next-nprogress-bar@^2.3.8:
-  version "2.3.8"
-  resolved "https://registry.yarnpkg.com/next-nprogress-bar/-/next-nprogress-bar-2.3.8.tgz#0ecdf57b266177de0eef0accccdc73c5b34c6cc9"
-  integrity sha512-jwMvyMFzxHuaPSTW4CU2BxvAx7YgAVTpdN/2dXd8Cu7by0Xjlvh1rynr8wSoySIKveaNQUFD9oo1NuT7DDll+g==
+  version "2.3.9"
+  resolved "https://registry.yarnpkg.com/next-nprogress-bar/-/next-nprogress-bar-2.3.9.tgz#f271abb7e1f6bc95b024256f8dcec041dd63bcdb"
+  integrity sha512-X4nJqpyXcqpXwcSyCzed8hKWnOCqzLaINVHdwokKpuJ76Qj8EGB9mPqwCcFhgXsvIdlzPLAKxq6ajPI9tSYmig==
   dependencies:
     nprogress "^0.2.0"
 
