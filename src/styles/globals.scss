@@ -1,120 +1,7 @@
 @use "./partials/reset";
-@use "./partials/variables" as *;
+@use "./partials/generatedCssVars";
+@use "./partials/themeManager";
 @use "./partials/mixins/breakpoints";
-
-// Define css variables that may change over the course of the app (e.g. Spacing is only defined in _variables because the values won't change, but colors might if we set them to dark mode)
-:root {
-  // Colors
-  --colors-primary: var(--color-bank-primary);
-  --colors-primary-fg: var(--color-bank-primary-foreground);
-  --colors-secondary: var(--color-bank-secondary);
-  --colors-secondary-fg: var(--color-bank-secondary-foreground);
-  --colors-background: var(--color-bank-background);
-  --colors-foreground: var(--color-bank-foreground);
-  --colors-card-bg: var(--color-bank-card-background);
-  --colors-card-fg: var(--color-bank-card-foreground);
-  --colors-popover-bg: var(--color-bank-popover);
-  --colors-popover-fg: var(--color-bank-popover-foreground);
-  --colors-muted: var(--color-bank-muted);
-  --colors-muted-fg: var(--color-bank-muted-foreground);
-  --colors-accent: var(--color-bank-accent);
-  --colors-accent-fg: var(--color-bank-accent-foreground);
-  --colors-destructive: var(--color-bank-destructive);
-  --colors-destructive-fg: var(--color-bank-destructive-foreground);
-  --colors-border-color: var(--color-bank-border);
-  --colors-input-bg: var(--color-bank-input);
-  --colors-ring-color: var(--color-bank-ring);
-  --colors-defaults-gray: var(--color-bank-defaults-gray);
-  --colors-defaults-light-gray: var(--color-bank-defaults-light-gray);
-  --colors-defaults-green: var(--color-bank-defaults-green);
-  --colors-defaults-red: var(--color-bank-defaults-red);
-
-  // Font colors
-  --colors-font-text-primary: var(--color-bank-font-text-primary);
-  --colors-font-text-secondary: var(--color-bank-font-text-secondary);
-  --colors-link-hover: var(--color-bank-link-hover);
-  --colors-link-active: var(--color-bank-link-active);
-}
-
-// Dark mode specific styles
-.dark-mode {
-  // Colors
-  --colors-primary: var(--color-bank-primary-dark);
-  --colors-primary-fg: var(--color-bank-primary-foreground-dark);
-  --colors-secondary: var(--color-bank-secondary-dark);
-  --colors-secondary-fg: var(--color-bank-secondary-foreground-dark);
-  --colors-background: var(--color-bank-background-dark);
-  --colors-foreground: var(--color-bank-foreground-dark);
-  --colors-card-bg: var(--color-bank-card-background-dark);
-  --colors-card-fg: var(--color-bank-card-foreground-dark);
-  --colors-popover-bg: var(--color-bank-popover-dark);
-  --colors-popover-fg: var(--color-bank-popover-foreground-dark);
-  --colors-muted: var(--color-bank-muted-dark);
-  --colors-muted-fg: var(--color-bank-muted-foreground-dark);
-  --colors-accent: var(--color-bank-accent-dark);
-  --colors-accent-fg: var(--color-bank-accent-foreground-dark);
-  --colors-destructive: var(--color-bank-destructive-dark);
-  --colors-destructive-fg: var(--color-bank-destructive-foreground-dark);
-  --colors-border-color: var(--color-bank-border-dark);
-  --colors-input-bg: var(--color-bank-input-dark);
-  --colors-ring-color: var(--color-bank-ring-dark);
-  --colors-defaults-gray: var(--color-bank-defaults-gray-dark);
-  --colors-defaults-light-gray: var(--color-bank-defaults-light-gray-dark);
-  --colors-defaults-green: var(--color-bank-defaults-green-dark);
-  --colors-defaults-red: var(--color-bank-defaults-red-dark);
-
-  // Font colors
-  --colors-font-text-primary: var(--color-bank-font-text-primary-dark);
-  --colors-font-text-secondary: var(--color-bank-font-text-secondary-dark);
-  --colors-link-hover: var(--color-bank-link-hover-dark);
-  --colors-link-active: var(--color-bank-link-active-dark);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    // Colors
-    --colors-primary: var(--color-bank-primary-dark);
-    --colors-primary-fg: var(--color-bank-primary-foreground-dark);
-    --colors-secondary: var(--color-bank-secondary-dark);
-    --colors-secondary-fg: var(--color-bank-secondary-foreground-dark);
-    --colors-background: var(--color-bank-background-dark);
-    --colors-foreground: var(--color-bank-foreground-dark);
-    --colors-card-bg: var(--color-bank-card-background-dark);
-    --colors-card-fg: var(--color-bank-card-foreground-dark);
-    --colors-popover-bg: var(--color-bank-popover-dark);
-    --colors-popover-fg: var(--color-bank-popover-foreground-dark);
-    --colors-muted: var(--color-bank-muted-dark);
-    --colors-muted-fg: var(--color-bank-muted-foreground-dark);
-    --colors-accent: var(--color-bank-accent-dark);
-    --colors-accent-fg: var(--color-bank-accent-foreground-dark);
-    --colors-destructive: var(--color-bank-destructive-dark);
-    --colors-destructive-fg: var(--color-bank-destructive-foreground-dark);
-    --colors-border-color: var(--color-bank-border-dark);
-    --colors-input-bg: var(--color-bank-input-dark);
-    --colors-ring-color: var(--color-bank-ring-dark);
-    --colors-defaults-gray: var(--color-bank-defaults-gray-dark);
-    --colors-defaults-light-gray: var(--color-bank-defaults-light-gray-dark);
-    --colors-defaults-green: var(--color-bank-defaults-green-dark);
-    --colors-defaults-red: var(--color-bank-defaults-red-dark);
-
-    // Font colors
-    --colors-font-text-primary: var(--color-bank-font-text-primary-dark);
-    --colors-font-text-secondary: var(--color-bank-font-text-secondary-dark);
-    --colors-link-hover: var(--color-bank-link-hover-dark);
-    --colors-link-active: var(--color-bank-link-active-dark);
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
-}
-
-/* Specific dark mode adjustments based on class */
-.dark-mode html {
-  color-scheme: dark;
-}
 
 html {
   // Apply secondary font styles globally first since it will be used in most text (p, body text, etc)
@@ -127,10 +14,6 @@ html {
 body {
   background-color: var(--colors-background);
   color: var(--colors-foreground);
-  // Add default accessible line-height
-  line-height: 1.5;
-  // Improve text rendering
-  -webkit-font-smoothing: antialiased;
 }
 
 /* Set primary font color for headings and other main text elements */
@@ -187,33 +70,8 @@ td {
   font-weight: var(--font-weight-body);
 }
 
-a,
-a:visited,
-a:hover,
-a:active {
-  color: white;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
 a:hover {
   color: var(--colors-primary);
-  cursor: pointer;
-}
-
-button {
-  // Remove default styles
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0;
-  cursor: pointer; // Maintains the pointer to indicate it's clickable but removes other default styles.
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  font-size: var(--font-sizes-button);
-  font-weight: var(--font-weight-button);
 }
 
 .subtitle {

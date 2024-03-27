@@ -1,0 +1,124 @@
+@use "../generatedScssVars" as *;
+
+@mixin applyTheme($theme: "light") {
+  --colors-primary: #{if(
+      $theme == "dark",
+      $colors-primary-dark,
+      $colors-primary
+    )};
+  --colors-primary-fg: #{if(
+      $theme == "dark",
+      $colors-primary-foreground-dark,
+      $colors-primary-foreground
+    )};
+  --colors-secondary: #{if(
+      $theme == "dark",
+      $colors-secondary-dark,
+      $colors-secondary
+    )};
+  --colors-secondary-fg: #{if(
+      $theme == "dark",
+      $colors-secondary-foreground-dark,
+      $colors-secondary-foreground
+    )};
+  --colors-background: #{if(
+      $theme == "dark",
+      $colors-background-dark,
+      $colors-background
+    )};
+  --colors-foreground: #{if(
+      $theme == "dark",
+      $colors-foreground-dark,
+      $colors-foreground
+    )};
+  --colors-card-bg: #{if(
+      $theme == "dark",
+      $colors-card-background-dark,
+      $colors-card-background
+    )};
+  --colors-card-fg: #{if(
+      $theme == "dark",
+      $colors-card-foreground-dark,
+      $colors-card-foreground
+    )};
+  --colors-popover-bg: #{if(
+      $theme == "dark",
+      $colors-popover-dark,
+      $colors-popover
+    )};
+  --colors-popover-fg: #{if(
+      $theme == "dark",
+      $colors-popover-foreground-dark,
+      $colors-popover-foreground
+    )};
+  --colors-muted: #{if($theme == "dark", $colors-muted-dark, $colors-muted)};
+  --colors-muted-fg: #{if(
+      $theme == "dark",
+      $colors-muted-foreground-dark,
+      $colors-muted-foreground
+    )};
+  --colors-accent: #{if($theme == "dark", $colors-accent-dark, $colors-accent)};
+  --colors-accent-fg: #{if(
+      $theme == "dark",
+      $colors-accent-foreground-dark,
+      $colors-accent-foreground
+    )};
+  --colors-destructive: #{if(
+      $theme == "dark",
+      $colors-destructive-dark,
+      $colors-destructive
+    )};
+  --colors-destructive-fg: #{if(
+      $theme == "dark",
+      $colors-destructive-foreground-dark,
+      $colors-destructive-foreground
+    )};
+  --colors-border-color: #{if(
+      $theme == "dark",
+      $colors-border-dark,
+      $colors-border
+    )};
+  --colors-input-bg: #{if($theme == "dark", $colors-input-dark, $colors-input)};
+  --colors-ring-color: #{if($theme == "dark", $colors-ring-dark, $colors-ring)};
+  --colors-defaults-gray: #{if(
+      $theme == "dark",
+      $colors-defaults-gray-dark,
+      $colors-defaults-gray
+    )};
+  --colors-defaults-light-gray: #{if(
+      $theme == "dark",
+      $colors-defaults-light-gray-dark,
+      $colors-defaults-light-gray
+    )};
+  --colors-defaults-green: #{if(
+      $theme == "dark",
+      $colors-defaults-green-dark,
+      $colors-defaults-green
+    )};
+  --colors-defaults-red: #{if(
+      $theme == "dark",
+      $colors-defaults-red-dark,
+      $colors-defaults-red
+    )};
+
+  --colors-font-text-primary: #{if(
+      $theme == "dark",
+      $colors-font-text-primary-dark,
+      $colors-font-text-primary
+    )};
+  --colors-font-text-secondary: #{if(
+      $theme == "dark",
+      $colors-font-text-secondary-dark,
+      $colors-font-text-secondary
+    )};
+  --colors-link-hover: #{if(
+      $theme == "dark",
+      $colors-link-hover-dark,
+      $colors-link-hover
+    )};
+  --colors-link-active: #{if(
+      $theme == "dark",
+      $colors-link-active-dark,
+      $colors-link-active
+    )};
+}

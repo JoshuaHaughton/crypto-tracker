@@ -1,0 +1,17 @@
+@use "./mixins/themeColors";
+
+:root {
+  @include themeColors.applyTheme("light");
+}
+
+.dark-mode {
+  @include themeColors.applyTheme("dark");
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    @include themeColors.applyTheme("dark");
+    color-scheme: dark;
+  }
+}
