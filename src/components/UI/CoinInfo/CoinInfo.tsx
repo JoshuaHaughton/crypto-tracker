@@ -40,6 +40,7 @@ const CoinInfo: React.FC<ICoinInfoProps> = ({
         onClick={handleHomepageNavigation}
         size="2xl"
         className={styles.backArrow}
+        tabIndex={0}
       />
       <header className={styles.header}>
         <figure className={styles.title_wrapper}>

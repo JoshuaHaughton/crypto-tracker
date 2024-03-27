@@ -15,10 +15,7 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
   handleCurrencyChange,
   currentCurrency,
 }) => {
-  const { isOpen, toggleDropdown, selectCurrency } = useCurrencySelector(
-    currentCurrency,
-    handleCurrencyChange,
-  );
+  const { isOpen, toggleDropdown } = useCurrencySelector();
 
   return (
     <div className={styles.currencySelector}>
@@ -47,8 +44,10 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
             className={`${styles.currencySelectorOption} ${
               currentCurrency === currency ? styles.selected : ""
             }`}
-            onClick={() => selectCurrency(currency)}
-            onKeyDown={(e) => e.key === "Enter" && selectCurrency(currency)}
+            onClick={() => handleCurrencyChange(currency)}
+            onKeyDown={(e) =>
+              e.key === "Enter" && handleCurrencyChange(currency)
+            }
             tabIndex={isOpen ? 0 : -1} // Ensures that only options in the open dropdown are focusable
             role="option"
             aria-selected={currentCurrency === currency}

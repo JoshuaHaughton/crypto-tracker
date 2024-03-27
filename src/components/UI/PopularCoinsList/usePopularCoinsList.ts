@@ -43,7 +43,7 @@ interface IUsePopularCoinsListState {
  *
  * @returns {IUsePopularCoinsListState} Includes the search state, setter function, and coins for the current page.
  */
-export function usePopularCoinsList(): IUsePopularCoinsListState {
+export const usePopularCoinsList = (): IUsePopularCoinsListState => {
   console.log("usePopularCoinsList render");
   const currentPageNumber = useAppSelector(selectPopularCoinsPageNumber);
   const currentSymbol = useAppSelector(selectCurrentSymbol);
@@ -107,7 +107,7 @@ export function usePopularCoinsList(): IUsePopularCoinsListState {
     goToNextPage: onNext,
     goToPage,
   };
-}
+};
 
 export const TEXT_FIELD_SX = {
   "& .MuiInputLabel-root": { color: "#b2b2b2" },
@@ -116,7 +116,7 @@ export const TEXT_FIELD_SX = {
   },
   "& .MuiOutlinedInput-root.Mui-focused": {
     "& > fieldset": {
-      borderColor: "#212121",
+      borderColor: COLORS.PRIMARY,
     },
   },
   "& .MuiOutlinedInput-root:hover": {
