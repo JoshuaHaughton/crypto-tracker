@@ -74,8 +74,8 @@ const usePagination = ({
       isMobile
         ? MOBILE_SIBLING_COUNT
         : isTablet
-        ? TABLET_SIBLING_COUNT
-        : DEFAULT_SIBLING_COUNT,
+          ? TABLET_SIBLING_COUNT
+          : DEFAULT_SIBLING_COUNT,
     [isMobile, isTablet],
   );
 

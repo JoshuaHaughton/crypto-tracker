@@ -38,7 +38,9 @@
     border-radius: 4px;
     width: 100%;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s ease, opacity 0.3s ease;
+    transition:
+      transform 0.3s ease,
+      opacity 0.3s ease;
     transition-property: transform, opacity;
     transition-duration: 0.3s;
     transition-timing-function: ease;
@@ -83,7 +85,9 @@
   border-width: 0 3px 3px 0;
   display: inline-block;
   padding: 4px;
-  transition: transform 0.3s ease, border-color 0.2s ease;
+  transition:
+    transform 0.3s ease,
+    border-color 0.2s ease;
   transform: rotate(45deg) translateY(-10%);
   align-self: center;
 }

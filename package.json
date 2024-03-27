@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "build-style-dict": "style-dictionary build --config ./style-dictionary.config.js && prettier --write 'src/styles/partials/_generatedCssVars.scss' 'src/styles/partials/_generatedScssVars.scss'"
+    "format": "prettier --write",
+    "format:all": "prettier --write .",
+    "build-style-dict": "style-dictionary build --config ./style-dictionary.config.js && prettier --write 'src/styles/partials/_generatedCssVars.scss' 'src/styles/partials/_generatedScssVars.scss'",
+    "prepare": "husky"
   },
   "dependencies": {
     "@emotion/react": "^11.11.1",
@@ -52,6 +55,8 @@
     "@types/react-dom": "^18",
     "eslint": "^8",
     "eslint-config-next": "^14",
+    "eslint-config-prettier": "^9.1.0",
+    "husky": "^9.0.11",
     "prettier": "^3.2.5",
     "sass": "^1.69.7",
     "style-dictionary": "^3.9.1",

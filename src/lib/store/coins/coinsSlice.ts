@@ -110,16 +110,22 @@ const coinsSlice = createSlice({
       console.log("coinList", coinList);
 
       state.popularCoins = coinList;
-      state.popularCoinsMap = coinList.reduce((acc, coin) => {
-        acc[coin.symbol] = coin;
-        return acc;
-      }, {} as Record<string, ICoinOverview>);
-      console.log(
-        "map set",
-        coinList.reduce((acc, coin) => {
+      state.popularCoinsMap = coinList.reduce(
+        (acc, coin) => {
           acc[coin.symbol] = coin;
           return acc;
-        }, {} as Record<string, ICoinOverview>),
+        },
+        {} as Record<string, ICoinOverview>,
+      );
+      console.log(
+        "map set",
+        coinList.reduce(
+          (acc, coin) => {
+            acc[coin.symbol] = coin;
+            return acc;
+          },
+          {} as Record<string, ICoinOverview>,
+        ),
       );
     },
     /**
@@ -167,10 +173,13 @@ const coinsSlice = createSlice({
       const { coinList } = action.payload;
 
       state.popularCoins = coinList;
-      state.popularCoinsMap = coinList.reduce((acc, coin) => {
-        acc[coin.symbol] = coin;
-        return acc;
-      }, {} as Record<string, ICoinOverview>);
+      state.popularCoinsMap = coinList.reduce(
+        (acc, coin) => {
+          acc[coin.symbol] = coin;
+          return acc;
+        },
+        {} as Record<string, ICoinOverview>,
+      );
 
       ALL_CURRENCIES.forEach((currency) => {
         state.cachedPopularCoinMapsByCurrency[currency] = {};

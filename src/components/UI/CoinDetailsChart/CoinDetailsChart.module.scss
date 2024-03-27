@@ -55,7 +55,9 @@
   align-items: center;
   gap: 16px;
   width: 25%;
-  transition: border-color 300ms ease, background-color 300ms ease;
+  transition:
+    border-color 300ms ease,
+    background-color 300ms ease;
 
   > button {
     width: fit-content;

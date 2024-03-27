@@ -72,9 +72,8 @@ export async function getHomePageInitialData(
 
   // Fetch popular coins data based on the user's currency preference
   console.warn("Fetching popular coins data");
-  const popularCoinsResponseData = await fetchAndFormatPopularCoinsData(
-    currencyPreference,
-  );
+  const popularCoinsResponseData =
+    await fetchAndFormatPopularCoinsData(currencyPreference);
 
   // Ensure the response data contains popular coins before proceeding
   if (!popularCoinsResponseData?.popularCoins) {

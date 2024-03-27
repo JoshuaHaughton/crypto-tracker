@@ -123,8 +123,8 @@ async function fetchRawPopularCoinsData(
   const exchangeRateCacheOptions = options.useCache
     ? { next: { revalidate: EXCHANGE_RATE_REVALIDATION_TIME } }
     : options.updateCache
-    ? { cache: "no-cache" as RequestCache }
-    : { cache: "no-store" as RequestCache };
+      ? { cache: "no-cache" as RequestCache }
+      : { cache: "no-store" as RequestCache };
 
   const defaultCacheOptions: RequestInit = options.useCache
     ? {
@@ -133,8 +133,8 @@ async function fetchRawPopularCoinsData(
         },
       }
     : options.updateCache
-    ? { cache: "no-cache" as RequestCache }
-    : { cache: "no-store" as RequestCache };
+      ? { cache: "no-cache" as RequestCache }
+      : { cache: "no-store" as RequestCache };
 
   // Setting up promises for concurrent API requests
   // Revalidates currency exchange data every 600 seconds (10 minutes)
@@ -245,8 +245,8 @@ async function fetchRawCoinDetailsData(
   const exchangeRateCacheOptions = options.useCache
     ? { next: { revalidate: EXCHANGE_RATE_REVALIDATION_TIME } }
     : options.updateCache
-    ? { cache: "no-cache" as RequestCache }
-    : { cache: "no-store" as RequestCache };
+      ? { cache: "no-cache" as RequestCache }
+      : { cache: "no-store" as RequestCache };
 
   const defaultCacheOptions: RequestInit = options.useCache
     ? {
@@ -255,8 +255,8 @@ async function fetchRawCoinDetailsData(
         },
       }
     : options.updateCache
-    ? { cache: "no-cache" as RequestCache }
-    : { cache: "no-store" as RequestCache };
+      ? { cache: "no-cache" as RequestCache }
+      : { cache: "no-store" as RequestCache };
 
   // Fetching with revalidation logic specific to Next.js 14
   const exchangeRatePromise = fetch(currencyExchangeURL, {
